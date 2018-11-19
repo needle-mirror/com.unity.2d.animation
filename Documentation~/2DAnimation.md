@@ -1,184 +1,135 @@
-# 2D Animation
+# Introduction
 
-## Workflow
+The aim of this manual is to guide you to quickly rig and animate a 2D character in Unity with the 2D Animation V2 package and tools. This package is only supported for Unity 2018.3.
 
-1. Select the Sprite in the **Sprite Editor**.
+## Adobe Photoshop PSB format
 
-2. Build the Sprite Bones hierarchy in the **Bone Editor** (menu: Sprite Editor > Bone Editor).
+For character animation with the __2D Animation V2 package__, the __PSD Importer__ package is required. Currently the PSD Importer package only supports Adobe Photoshop PSB format, and does not support the Adobe PSD format. The PSB format has identical functions as PSD, with the additional support for much larger image sizes.
 
-3. Generate and edit geometry, and assign skin weights in the **Geometry And Weight Editor** (menu**: Sprite Editor > Geometry And Weight Editor).
+## Preparing and Importing artwork
 
-4. Place the Sprite in a Scene and add the **Sprite Skin** component to generate the bones of the Sprite.
+When the art Asset is imported with the PSD Importer, Unity automatically arranges the individual characters parts (prepared as Layers) into a Sprite Sheet layout. The __PSD Importer__ imports the graphic data from each Photoshop layer and does the following:
 
-5. The Sprite is ready to be animated!
+1. Arrange/Mosiac the layers into a Sprite Sheet layout.
+2. Generate a __Sprite__ from each layer’s graphic data.
 
-## Bone Editor
+When an artist designs a character for animation (see Example 1), they would usually manually separate and arrange the different parts of the character (see Example 2). The PSD Importer can generate a Prefab that reassembles the Sprites in their original positions as arranged in the PSB source file automatically (see Example 3), making it more convenient for the artist to begin animating the character.
 
-Create and define the bones for your Sprites and their hierarchy in the **Bone Editor**.
+![Example 1: Layered character artwork in Adobe Photoshop](images/2DAnimationV2_PSDLayers.png)
 
-![Bone editor window](images/boneeditor.png)
+Example 1: Layered character artwork in Adobe Photoshop.
 
-## Create and Edit Bones
+![Example 2: Manually created Sprite Sheet with different layer parts.](images/2DAnimationV2_split.png)
 
-When building bones to for the animation of a Sprite, the first bone created is the **Root** bone for the bone hierarchy of that Sprite. There are two modes for creating bones - the **Create Chain Bone** mode, and the **Create Free Bone** mode. 
-In **Create Chain Bone** mode, newly created bones are automatically parented to the previous bone in the hierarchy. In **Free Bone mode**, new bones are parented to the currently selected bone regardless of their position in the hierarchy. If no bone is currently selected, the new bone is automatically parented to the **Root** bone by default.
-If no tools are selected, the editor is in **Transform** mode, and a bone's Pivot, Body and Tail can be selected and transformed.
+Example 2: Manually created Sprite Sheet with different layer parts.
 
-### Create Chain Bone tool
+![Example 3: The **Mosaic** layers and the generated Prefab of the character.](images/2DAnimationV2_Mosaic_Prefab.png)
 
-Select the **Create Chain Bone** tool ![Create Bone icon](images/chainbonetool.png) and click anywhere in the Sprite to start creating a chain of bones. Press **Esc** to deselect the tool. In this mode, it is easy to control entire chains of bones and their lengths and positions, as each bone is connected to each other together in a continuous chain.
+Example 3: The layers mosaic into a Sprite Sheet, with a generated Prefab of the character in source pose.
 
-![Chain Bones](images/chainbones.png)	
+## Import settings
 
-### Create Free Bone tool
+Prepare your character by separating the character's limbs and parts into separate layers, and arrange them in a default pose. 
 
-The **Create Free Bone** tool is used to create bones that do not form a continuous chain of bones. 
-1. Select a bone that will be the parent of the new bone. If no bone is selected, the *Root * bone is the default parent.
-2. Select the tool, then click anywhere to set the start/Pivot of the new bone. 
-3. Move the cursor to where the bone should end, and click to set the Tip of the bone. The new bone is created.
-![Free Bone tool](images/freebones.png)
+1. Save your artwork as a PSB file in Adobe Photoshop by selecting the **Large Document Format** under the **Save As** menu. You can convert an existing PSD file to PSB in the same way.
+2. Import the PSB file into Unity as an Asset.
+3. Select the Asset to bring up the __PSD Importer__ Inspector window.
+4. In the Inspector window, ensure these settings are set (see the example below):
+   - Set __Texture Type__ to 'Sprite(2D and UI)'.
+   - Set **Sprite Mode** to 'Multiple'.
+   - Check __Mosaic Layer__.
+   - Check __Character Rig__.
+   - Check __Use Folder Grouping__.
 
-### Free Move Tool
+![Importer Window settings](images/ImporterWindow.png)
 
-The Free Move tool is used to detach a bone from a chain and move it independently. It will no longer be connected to the chain but will still be parented to it original parent bone.
+Click __Apply__ to apply the settings when ready. Refer to the __PSD Importer__ package documentation for more information about these settings.
 
- ![Free Move tool](images/freemovetool.png)
+# Skinning Editor module
 
-### Parent Tool
+1. Select the imported __Asset__ and select the __Sprite Editor__.
+2. Select the **Skinning Editor** module from the dropdown menu in the **Sprite Editor** window. The following options and tools then appear.
 
-The **Parent Tool** is used to change the parent of a child bone. First select the child bone, then click **Parent Tool** then click on the new target parent.
+![The Skinning Editor interface](images/2DAnimationV2_SkinnerUI_expanded.png)
 
 
-![Parent tool](images/parentbonetool.png)
 
-### Split Tool
+| Tool                                                         | Default Shortcut | Function                                                     |
+| :----------------------------------------------------------- | :--------------: | :----------------------------------------------------------- |
+| ![icon_PreviewPose](images/icon_PreviewPose.png)Preview Pose |    Shift + Q     | Preview character poses after rigging.                       |
+| ![icon_EditJoints](images/icon_EditJoints.png)Edit Joints    |    Shift + W     | Reposition the bones into a new positions. These changes are automatically saved as the default bind pose for the Restore Bind Pose tool.<br/>Sprite geometry does not deform with the bones in this mode, even if the bones are attached as influencers. |
+| ![icon_CreateBone](images/icon_CreateBone.png)Create Bone    |    Shift + E     | Click and drag to create bones.                              |
+| ![icon_SplitBone](images/icon_SplitBone.png)Split Bone       |    Shift + R     | Splits the selected bone.                                    |
+| ![icon_ReparentBone](images/icon_ReparentBone.png)Reparent Bone |    Shift + T     | Reparents a child bone to a different parent bone, changing the bone hierarchy. |
+| ![icon_GenGeo](images/icon_GenGeo.png)Auto Geometry      |    Shift + A     | Autogenerate meshes for Sprites.                             |
+| ![icon_EditGeo](images/icon_EditGeo.png)Edit Geometry        |    Shift + S     | Edit generated meshes by repositioning vertices.             |
+| ![icon_CreateVertex](images/icon_CreateVertex.png)Create Vertex |    Shift + D     | Create new vertices to create geometry.                      |
+| ![icon_CreateEdge](images/icon_CreateEdge.png)Create Edge    |    Shift + G     | Create new edges to create geometry.                         |
+| ![icon_SplitEdge](images/icon_SplitEdge.png)Split Edge       |    Shift + H     | Split an existing edge into two.                             |
+| ![icon_GenWeights](images/icon_GenWeights.png)Auto Weights   |    Shift + Z     | Autogenerate weights for geometry.                           |
+| ![icon_WeightSlider](images/icon_WeightSlider.png)Weight Slider |    Shift + X     | Adjust weights via slider control.                           |
+| ![icon_WeightPaint](images/icon_WeightPaint.png)Weight Brush |    Shift + C     | Adjust weights by painting with a brush.                     |
+| ![icon_BoneInfluence](images/icon_BoneInfluence.png)Bone Influence |    Shift + V     | Select which bones influence a Sprite.                       |
+| ![icon_RestoreBind](images/icon_RestoreBind.png)Reset Pose |    Shift + 1     | Restore a character’s bones and joints to their original positions. |
+| ![icon_ToggleView](images/icon_ToggleView.png)Toggle View Mode |    Shift + 2     | Switch between the Character and Sprite Sheet view           |
+| ![icon_Copy](images/icon_Copy.png)Copy                       |     Ctrl + C     | Copy the data from the current selection.                    |
+| ![icon_Paste](images/icon_Paste.png)Paste                    |     Ctrl + V     | Pastes the copied data.                                      |
+| ![icon_Paste](images/icon_Paste.png)Paste                    |    Shift + B     | Show additional pasting options.                             |
+| ![icon_Visibility](images/icon_Visibility.png)Visibility     |    Shift + P     | Toggle visibility of selected Sprites or bones.              |
+| Toggle Tool Text     |    Shift + `     | Show or hide text on tool buttons              |
 
-The **Split Tool** splits a selected bone. First select a bone, then select the **Split Tool** to split the selected bone into two.
+## Sprite selection
 
- ![Split Bone ](images/splitbonetool.png)
+1. Double-click a Sprite to select it.
+2. If there are multiple Sprites that overlay each other, double-click to cycle through all Sprites at the cursor location.
+3. Double-click on a blank area to deselect all Sprites.
 
-### Delete Tool
+## Bone and mesh vertex selection
 
-Select a bone, then click the **Delete Tool** to remove it.
+1. Click a bone or mesh vertex to select it.
+2. Click and drag a selection box over multiple bones or vertices to select them at once.
+3. Right click to deselect any selected bone or mesh vertices.
 
-## Bone Editor Shortcut Keys
 
-|**Tool**|Shortcut|
-|:---|:---|
-|**Create Chain Bone**|B|
-|**Create Free Bone**|N|
-|**Free Move**|M|
-|**Parent Bone**|P|
-|**Split Bone**|S|
-|**Delete**|Del|
-|*To deselect all tools*|Esc|
+# Tool Preferences
 
-## Geometry and Weight Editor
-This editor is where Sprite geometry is generated, and vertex weights are then assigned to the bones to deform the geometry.
+The Unity 2D Animation preferences menu is found in the Preferences menu by going to  **Edit** > **Preferences** > **Unity 2D Animation**. It provides several options to customize aspects of the animation tool.
 
-![Geo Weight editor](images/geowaiteditor.png)
+![Tool Preferences](images/2DAnimationV2_ToolPreferences.png)
 
+| Setting                    | Function                                                     |
+| -------------------------- | ------------------------------------------------------------ |
+| **Hide Tool Text**        | Enable this option to hide tool text to have a compact view (see example below). |
+| **Selected Outline Color** | Customize the outline color of selected Sprite and bone.            |
+| **Sprite Outline Size**    | Use the slider to adjust the outline thickness of a selected Sprite. |
+| **Bone Outline Size**      | Use the slider to adjust the outline thickness of a selected  bone. |
 
-### Generating Geometry Automatically
+![Compact windows](images/2DAnimationV2_compacted.png)
 
-Sprite geometry can be generated automatically or created manually. 
+# Character rigging
 
-To auto-generate the mesh, set the editor to *Geometry mode*.
+1. Select the![icon_small_CreateBone](images/icon_small_CreateBone.png)__Create Bone__ tool to begin creating the bones of the character skeleton.
 
-![Auto-gen Geo button](images/Geometrymode.png)
+2. With the tool selected, click in the **Sprite Editor **window to define the start-point of the bone. Move the cursor to where the bone should end, and click again to set the bone’s end-point.
 
-Then select the *Generate* button at the top-left of the menu bar.
+3. To create a continuous chain of bones, select the ![icon_small_CreateBone](images/icon_small_CreateBone.png)__Create Bone__ tool and click the end-point of an existing bone. The new bone is started from the end-point, creating a chain.
 
-![Auto-gen Geo button](images/generatemesh.png)
+4. Once all bones are created, generate the mesh geometry for the Sprites. It is recommended to use the ![icon_small_GenGeo](images/icon_small_GenGeo.png)__Auto Geometry__ tool to autogenerate the Sprites’s geometry mesh. Then refine the geometry with the ![icon_small_CreateVertex](images/icon_small_CreateVertex.png)__Create Vertex__ and ![icon_small_CreateEdge](images/icon_small_CreateEdge.png)__Create Edge__ tools.
 
+5. To edit the bones that influence a Sprite, select the ![icon_small_BoneInfluence](images/icon_small_BoneInfluence.png)__Bone Influence__ tool and double-click a Sprite to select it. A list of bones currently influencing the Sprite appears. 
 
-Adjust the following parameters to refine the generated geometric mesh.
+    * To remove any of the listed bones, select it in the list and click '-' to remove them.
 
-|Property|Function|
-|:---|:---|
-|**Outline Detail**|Density and accuracy of the mesh to the Sprite outline.|
-|**Alpha Tolerance**|Threshold for transparency considered when generating the outline.|
-|**Subdivide**|Subdivides the mesh to increase tessellation. Higher values increase the tessellation and complexity of the generated mesh.|
+    - To add a bone, select it in the **Sprite Window** and click + to add it to the list.
 
-### Creating Geometry Manually
+6. The weight attached to vertices affects the influence between bones and the Sprites' geometry. Select the  ![icon_small_GenWeight](images/icon_small_GenWeight.png)__Auto Weights__ tool to autogenerate the weight of a selected Sprites. To generate weights for all Sprites at once, deselect all Sprites before selecting the tool. Refine the weights of the vertices with the ![icon_small_WeightPainter](images/icon_small_WeightPainter.png)__Weight Brush__ and ![icon_small_WeightSlider](images/icon_small_WeightSlider.png)__Weight Slider__ tools.
 
-Create mesh geometry created manually in the **Create Vertex** or **Create Edge** modes., then double-click within a Sprite's  outline to select it.
+7. Test the skeleton rig previewing poses with the ![icon_small_PreviewPose](images/icon_small_PreviewPose.png)__Preview Pose__ tool. Move and rotate the different bones to check their influence on the geometry mesh. Previewing poses can also be done while using the following tools: the ![icon_small_ReparentBone](images/icon_small_ReparentBone.png)__Reparent Bone__, ![icon_small_WeightPainter](images/icon_small_WeightPainter.png)__Weight Brush__, ![icon_small_WeightSlider](images/icon_small_WeightSlider.png)__Weight Slider__, ![icon_small_BoneInfluence](images/icon_small_BoneInfluence.png)__Bone Influence__, ![icon_small_GenWeight](images/icon_small_GenWeight-1543300126435.png)__Auto Weights__, and ![icon_small_Visibility](images/icon_small_Visibility.png)__Visibility__ tools.
 
- ![Geometry Mode select](images/createmesh.png)
+    * To restore a skeleton rig to its original pose, select ![icon_small_RestoreBind](images/icon_small_RestoreBind.png)__Reset Pose__. The default pose can be edited with the ![icon_small_EditJoints](images/icon_small_EditJoints.png)__Edit Joints__ tool.
 
-From the top menu, select *Create Vertex* and click anywhere within the Sprite to create vertices. Then select *Create Edge* and click on vertices to connect them together to form new edges. Select *Split Edge* and then click on an edge to split it into multiple pieces.
+# Animating
 
-You can create vertices and new edges directly in *Selection  mode* as well. While in *Selection mode*, double-click anywhere on the Sprite to create vertices. Hold *Shift* to connect a selected vertex to another to create an edge.
+To begin animating, drag the Asset into the Scene. This creates a GameObject that reassembles the imported character as it originally appeared in the PSB file. The GameObject contains multiple child GameObjects in the order that represents the bone hierarchy.
 
-## Weights Mode
-
-Select the *Weight  mode*, and then select a Sprite to begin applying skin weights. Click *Auto* ![Auto button](images/auto.png) to automatically generate weights based on the Sprite's bones, which can be edited manually later.
-
-### Editing Skin Weights
-
-The **Weight Editor** is used to manually edit skin weights. 
-
- ![Weight Editor](images/weighteditor.png)
-
-There are two tools to edit the Weights - the *Slider* and the *Brush*. The *Slider* allows direct manipulation of the values of selected vertices; while the *Brush* tool allows you to 'paint' skin weights directly on the mesh.
-### Weight Editor Settings
-
-|Property|Function|
-|:---|:---|
-|**Mode**|Current behavior mode of the Weight Editor|
-|&nbsp;&nbsp;**Add and Subtract**|Increases/Decreases influence on vertices around the selected bone|
-|&nbsp;&nbsp;**Grow and Shrink**|Increases/Decreases influence on vertices that are already affected by the selected bone. |
-|&nbsp;&nbsp;**Smooth**|Averages the weights of vertices with their neighbors, creating smoother deformations.|
-|**Bone** (unavailable if *Mode: Smooth*)|Displays currently selected Bone. A different Bone can be selected via the drop-down menu.|
-|**Normalize**| Enable to ensure the normalized weight of selected vertices is equal to 1.|
-|**Amount**|Amount of weight applied on selected vertices|
-|_*Following available in the Brush Weight editor only_|
-|**Size**|Size of the brush cursor.|
-|**Hardness**|Amount of weight applied by the brush. Higher values increase  the weight per brushstroke.|
-|**Step**|Number of increments needed to apply the full weight of brush.|  
-
-The weights for selected vertices can be viewed and further adjusted with the vertex inspector located at the bottom-left of the Editor window.
-
-![Weight inspector](images/weightinspector.png)
-
- 
-
-You can preview the effect of the painted weights within the **Sprite Editor**. Select and hold a bone to move or rotate it. The Sprite's geometry mesh deforms according to the weights painted. Releasing the bones resets them and the mesh back to their original state.
-
-## Sprite Skin Component
-
-The **Sprite Skin** component is needed for the bones to deform the Sprite mesh in the Scene.  
-![Sprite Skin component](images/spriteskincomponent.png)  
-1. Drag and drop the Sprite Asset onto the Scene after its bones, geometry, and weights have been are set-up in the **Sprite Editor**. 
-2. Add the **Sprite Skin** component to the  Sprite. 
-3. Click **Create Bones** to generate the bone hierarchy of the Sprite in the Scene.
- 
-
-![Bone hierarcy in Scene](images/bonehierarchy.png)
-
-
-
-
-
-
-Select and hold a bone to pivot it around its head and deform the Sprite's mesh directly in the Scene to begin animating it.
-
-![Plunkah Deform](images/PlunkahDeform.png)
-
-*Shift+click* to select multiple bones at once. Moving selected bones together deforms the mesh across all of them.
-
-![Plunkah chain deform](images/PlunkahChainBoneDeform.png)
-
-Bones that are not directly chained together can also be selected and moved together.  Areas of the mesh influenced by the *unselected* bones are not deformed.  
-
-![Plunkah free bone deform](images/PlunkahFreeBoneDeform.png)
-
-
-Select and hold the head of a bone to detach it from the previous bone in the chain, the mesh will deform accordingly.  
-
-![Plunkah detached deform](images/PlunkahDetachedDeform.png)
-
-Use the standard Transform tools to deform the Sprite's  geometry mesh with greater precision. However, note that the **Rect Transform** tool cannot be used to transform the bones.  
-
-![Transform tools](images/bonetransform.png)
-
+With the new GameObject in the scene, begin animating it with the usual [Unity animation workflow and tools](https://docs.unity3d.com/Manual/AnimationSection.html).
