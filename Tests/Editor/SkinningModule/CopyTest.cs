@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
 {
+    [TestFixture]
+    [UnityPlatform(exclude = new[] {RuntimePlatform.OSXEditor })]
     public class CopySpriteSheetTest : SkinningModuleFullFakeTestBase
     {
         private CopyTool m_CopyTool;
@@ -53,9 +56,6 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             UnityEngine.TestTools.LogAssert.Expect(LogType.Error, TextContent.copyError2);
             Assert.IsTrue(String.IsNullOrEmpty(EditorGUIUtility.systemCopyBuffer));
             m_CopyTool.OnPasteActivated(true, true, false, false);
-            m_CopyTool.OnCopyActivated();
-            Assert.IsFalse(String.IsNullOrEmpty(EditorGUIUtility.systemCopyBuffer));
-            Assert.AreEqual(kDefaultSpriteCopyString, EditorGUIUtility.systemCopyBuffer);
         }
 
         [Test]

@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.Scripting;
 using UnityEngine.Experimental.U2D.Common;
 
 namespace UnityEngine.Experimental.U2D.Animation
 {
+    [Preserve]
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
@@ -65,6 +67,12 @@ namespace UnityEngine.Experimental.U2D.Animation
         internal bool isValid
         {
             get { return this.Validate() == SpriteSkinValidationResult.Ready; }
+        }
+
+        private void Awake()
+        {
+            spriteSkinEntity.enabled = false;
+            spriteSkinEntity.enabled = true;
         }
 
         protected virtual void OnDestroy()

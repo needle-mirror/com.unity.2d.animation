@@ -150,47 +150,14 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.Skinning
         private Vector3Compare vec3Compare = new Vector3Compare();
         private Float3Compare float3Compare = new Float3Compare();
         private QuaternionCompare quatCompare = new QuaternionCompare();
-        private static string kTestAssetsFolder = "Packages/com.unity.2d.animation/Tests/Editor/Resources/";
-        private static string kTestTempFolder = "Assets/Temp/";
-
-        [OneTimeTearDown]
-        public void FullTeardown()
-        {
-            // Delete cloned sprites
-            AssetDatabase.DeleteAsset(Path.GetDirectoryName(kTestTempFolder));
-        }
-
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            CloneSpriteForTest("bird.png");
-            CloneSpriteForTest("star.png");
-        }
-
-        private static void CloneSpriteForTest(string filename)
-        {
-            ValidateDirectory(kTestTempFolder);
-            // var filename = Path.GetFileName(path);
-
-            File.Copy(kTestAssetsFolder + filename, kTestTempFolder + filename);
-            File.Copy(kTestAssetsFolder + filename + ".meta", kTestTempFolder + filename + ".meta");
-
-            AssetDatabase.Refresh();
-        }
-
-        private static void ValidateDirectory(string path)
-        {
-            var dirPath = Path.GetDirectoryName(path);
-
-            if (Directory.Exists(dirPath) == false)
-                Directory.CreateDirectory(dirPath);
-        }
 
         [SetUp]
         public void Setup()
         {
-            riggedSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Temp/bird.png");
-            staticSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Temp/star.png");
+            riggedSprite = Resources.Load<Sprite>("bird");
+            staticSprite = Resources.Load<Sprite>("star");
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(riggedSprite));
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(staticSprite));
 
             m_SpriteSkin = new GameObject("TestObject1").AddComponent<SpriteSkin>();
             m_SpriteSkin.spriteRenderer.sprite = riggedSprite;
@@ -454,6 +421,29 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.Skinning
             outputVertices.Dispose();
             boneWeights.Dispose();
             transformMatrices.Dispose();
+        }
+
+        [Test]
+        public void SpriteSkinEntity_OnAwake_ContainsAllNeededComponentTypes()
+        {
+            var spriteSkinEntity = m_SpriteSkin.GetComponent<SpriteSkinEntity>();
+            var entityManager = spriteSkinEntity.EntityManager;
+            var entity = spriteSkinEntity.Entity;
+            
+            var types = entityManager.GetComponentTypes(entity).ToArray();
+            var expectedTypes = new Type[]
+            {
+                typeof(WorldToLocal),
+                typeof(SpriteComponent),
+                typeof(Vertex),
+                typeof(BoneTransform),
+                typeof(Transform),
+                typeof(SpriteRenderer),
+                typeof(SpriteSkin)
+            };
+
+            foreach (var expectedType in expectedTypes)
+                Assert.IsTrue(ArrayUtility.Contains(types, expectedType), "ComponentType not found: " + expectedType);
         }
     }
 }

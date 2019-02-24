@@ -1,19 +1,19 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Burst;
 using Unity.Mathematics;
 using UnityEngine.Jobs;
-using Unity.Transforms;
 using UnityEngine.Experimental.U2D.Common;
 using UnityEngine.Scripting;
 
 namespace UnityEngine.Experimental.U2D.Animation
 {
-    [UnityEngine.ExecuteInEditMode]
+    [Preserve]
+    [UnityEngine.ExecuteAlways]
+    [UpdateInGroup(typeof(PresentationSystemGroup))]
     [UpdateAfter(typeof(DeformSpriteSystem))]
-    public class UpdateBoundsSystem : JobComponentSystem
+    public class UpdateBoundsSystem : ComponentSystem
     {
         ComponentGroup m_ComponentGroup;
 
@@ -28,7 +28,6 @@ namespace UnityEngine.Experimental.U2D.Animation
             public float4 extents;
         }
 
-        [BurstCompile]
         struct CalculateBoundsJob : IJobParallelFor
         {
             [ReadOnly, DeallocateOnJobCompletion]
@@ -57,15 +56,17 @@ namespace UnityEngine.Experimental.U2D.Animation
             }
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override void OnUpdate()
         {
-            var spriteSkinComponents = m_ComponentGroup.GetComponentArray<SpriteSkin>();
-            var spriteComponents = m_ComponentGroup.GetSharedComponentDataArray<SpriteComponent>();
-            var worldToLocalArray = new NativeArray<float4x4>(spriteSkinComponents.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var rootLocalToWorldArray = new NativeArray<float4x4>(spriteSkinComponents.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var boundsArray = new NativeArray<Bounds>(spriteSkinComponents.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            List<SpriteSkin> spriteSkinComponents = new List<SpriteSkin>();
+            List<SpriteComponent> spriteComponents = new List<SpriteComponent>();
+            Entities.ForEach((SpriteSkin spriteSkin) => { spriteSkinComponents.Add(spriteSkin); });
+            Entities.ForEach((SpriteComponent sprite) => { spriteComponents.Add(sprite); });
+            var worldToLocalArray = new NativeArray<float4x4>(spriteSkinComponents.Count, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var rootLocalToWorldArray = new NativeArray<float4x4>(spriteSkinComponents.Count, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var boundsArray = new NativeArray<Bounds>(spriteSkinComponents.Count, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
-            for (var i = 0; i < spriteSkinComponents.Length; ++i)
+            for (var i = 0; i < spriteSkinComponents.Count; ++i)
             {
                 var spriteSkin = spriteSkinComponents[i];
                 var sprite = spriteComponents[i].Value;
@@ -89,11 +90,11 @@ namespace UnityEngine.Experimental.U2D.Animation
                 worldToLocalArray = worldToLocalArray,
                 rootLocalToWorldArray = rootLocalToWorldArray,
                 boundsArray = boundsArray
-            }.Schedule(spriteSkinComponents.Length, 32);
+            }.Schedule(spriteSkinComponents.Count, 32);
             
             jobHandle.Complete();
 
-            for (var i = 0; i < spriteSkinComponents.Length; ++i)
+            for (var i = 0; i < spriteSkinComponents.Count; ++i)
             {
                 var spriteSkin = spriteSkinComponents[i];
                 var sprite = spriteComponents[i].Value;
@@ -110,8 +111,7 @@ namespace UnityEngine.Experimental.U2D.Animation
             }
 
             boundsArray.Dispose();
-
-            return inputDeps;
+            return;
         }
     }
 }

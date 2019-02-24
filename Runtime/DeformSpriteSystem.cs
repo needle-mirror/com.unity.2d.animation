@@ -1,18 +1,16 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Burst;
-using Unity.Transforms;
 using Unity.Collections;
 using Unity.Jobs;
+using UnityEngine.Scripting;
 
 namespace UnityEngine.Experimental.U2D.Animation
 {
-    [ExecuteInEditMode]
+    [Preserve]
+    [UnityEngine.ExecuteAlways]
+    [UpdateInGroup(typeof(PresentationSystemGroup))]
     [UpdateAfter(typeof(PrepareSkinningSystem))]
     class DeformSpriteSystem : JobComponentSystem
     {
@@ -30,7 +28,8 @@ namespace UnityEngine.Experimental.U2D.Animation
         {
             // these are readonly per sprite and shared
             [ReadOnly]
-            public EntityArray entities;
+            [DeallocateOnJobCompletion]
+            public NativeArray<Entity> entities;
             [ReadOnly]
             public NativeSlice<float3> vertices;
             [ReadOnly]
@@ -38,7 +37,8 @@ namespace UnityEngine.Experimental.U2D.Animation
             [ReadOnly]
             public NativeSlice<float4x4> bindPoses;
             [ReadOnly]
-            public ComponentDataArray<WorldToLocal> localToWorldArray;
+            [DeallocateOnJobCompletion]
+            public NativeArray<WorldToLocal> localToWorldArray;
 
             // these are calculated per renderer and per instance
             [NativeDisableParallelForRestriction]
@@ -49,8 +49,8 @@ namespace UnityEngine.Experimental.U2D.Animation
             public void Execute(int i)
             {
                 var rootInv = localToWorldArray[i].Value;
-                var boneTransforms = boneTransformArray[entities[i]].Reinterpret<float4x4>().ToNativeArray();
-                var deformableVertices = deformedArray[entities[i]].Reinterpret<float3>().ToNativeArray();
+                var boneTransforms = boneTransformArray[entities[i]].Reinterpret<float4x4>().AsNativeArray();
+                var deformableVertices = deformedArray[entities[i]].Reinterpret<float3>().AsNativeArray();
                 SpriteSkinUtility.Deform(rootInv, vertices, boneWeights, boneTransforms, bindPoses, deformableVertices);
             }
         }
@@ -76,37 +76,43 @@ namespace UnityEngine.Experimental.U2D.Animation
                 if (sprite != null)
                 {
                     m_ComponentGroup.SetFilter(spriteComponent);
-                    var filteredEntities = m_ComponentGroup.GetEntityArray();
+                    var filteredEntities = m_ComponentGroup.ToEntityArray(Allocator.TempJob);
 
                     entityCount = filteredEntities.Length;
-                    job = new SkinJob
+                    entitiesPerSprite[i] = entityCount;
+                    if (entityCount > 0)
                     {
-                        entities = filteredEntities,
-                        vertices = sprite.GetVertexAttribute<Vector3>(UnityEngine.Rendering.VertexAttribute.Position).SliceWithStride<float3>(),
-                        boneWeights = sprite.GetVertexAttribute<BoneWeight>(UnityEngine.Rendering.VertexAttribute.BlendWeight),
-                        bindPoses = new NativeSlice<Matrix4x4>(sprite.GetBindPoses()).SliceWithStride<float4x4>(),
-                        localToWorldArray = m_ComponentGroup.GetComponentDataArray<WorldToLocal>(),
-                        boneTransformArray = GetBufferFromEntity<BoneTransform>(),
-                        deformedArray = GetBufferFromEntity<Vertex>()
-                    };
+                        job = new SkinJob
+                        {
+                            entities = filteredEntities,
+                            vertices = sprite.GetVertexAttribute<Vector3>(UnityEngine.Rendering.VertexAttribute.Position).SliceWithStride<float3>(),
+                            boneWeights = sprite.GetVertexAttribute<BoneWeight>(UnityEngine.Rendering.VertexAttribute.BlendWeight),
+                            bindPoses = new NativeSlice<Matrix4x4>(sprite.GetBindPoses()).SliceWithStride<float4x4>(),
+                            localToWorldArray = m_ComponentGroup.ToComponentDataArray<WorldToLocal>(Allocator.TempJob),
+                            boneTransformArray = GetBufferFromEntity<BoneTransform>(),
+                            deformedArray = GetBufferFromEntity<Vertex>()
+                        };
+                        m_Jobs.Add(job);
+                    }
+                    else
+                        filteredEntities.Dispose();
                 }
-
-                m_Jobs.Add(job);
-                entitiesPerSprite[i] = entityCount;
             }
 
 
             if (m_Jobs.Count > 0)
             {
-                var jobHandles = new NativeArray<JobHandle>(entitiesPerSprite.Length, Allocator.Temp);
+                var jobHandles = new NativeArray<JobHandle>(m_Jobs.Count, Allocator.Temp);
                 var prevHandle = inputDeps;
-                
+
+                var jobIndex = 0;
                 for (var i = 0; i < entitiesPerSprite.Length; ++i)
                 {
                     if (entitiesPerSprite[i] > 0)
                     {
-                        jobHandles[i] = m_Jobs[i].Schedule(entitiesPerSprite[i], 4, prevHandle);
-                        prevHandle = jobHandles[i];
+                        jobHandles[jobIndex] = m_Jobs[jobIndex].Schedule(entitiesPerSprite[i], 4, prevHandle);
+                        prevHandle = jobHandles[jobIndex];
+                        ++jobIndex;
                     }
                 }
                 

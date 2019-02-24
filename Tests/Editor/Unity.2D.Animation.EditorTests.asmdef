@@ -7,7 +7,9 @@
         "Unity.2D.Animation.Runtime",
         "Unity.2D.Triangle.Runtime",
         "Unity.InternalAPIEngineBridge.001",
-        "Unity.Mathematics"
+        "Unity.Mathematics",
+        "Unity.Entities",
+        "Unity.Entities.Hybrid"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
@@ -20,5 +22,6 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": []
 }

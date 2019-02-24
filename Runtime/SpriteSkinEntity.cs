@@ -1,12 +1,18 @@
 using System;
 using UnityEngine;
-using Unity.Entities;
+using UnityEngine.Scripting;
 using UnityEngine.Experimental.U2D.Common;
+using Unity.Entities;
 
 namespace UnityEngine.Experimental.U2D.Animation
 {
+    [Preserve]
     public class SpriteSkinEntity : GameObjectEntity
     {
+#if UNITY_EDITOR
+        static bool assemblyReload = false;
+#endif
+
         SpriteSkin m_SpriteSkin;
         SpriteSkin spriteSkin
         {
@@ -23,12 +29,32 @@ namespace UnityEngine.Experimental.U2D.Animation
             base.OnEnable();
             SetupEntity();
             SetupSpriteSkin();
+
+#if UNITY_EDITOR
+            UnityEditor.AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
+            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
+#endif
         }
+
+#if UNITY_EDITOR
+        public void OnBeforeAssemblyReload()
+        {
+            assemblyReload = true;
+        }
+
+        public void OnAfterAssemblyReload()
+        {
+            assemblyReload = false;
+        }
+#endif
 
         protected override void OnDisable()
         {
-            base.OnDisable();
             DeactivateSkinning();
+#if UNITY_EDITOR
+            if (!assemblyReload)
+#endif
+            base.OnDisable();
         }
 
         private void SetupEntity()
