@@ -1,12 +1,12 @@
 {
-    "name": "com.unity.2d.animation.Editor",
+    "name": "Unity.2D.Animation.Editor",
     "references": [
         "Unity.InternalAPIEditorBridge.001",
         "Unity.InternalAPIEngineBridge.001",
-        "com.unity.2d.common.Editor",
-        "com.unity.2d.common.Runtime",
-        "com.unity.2d.animation.Runtime",
-        "com.unity.2d.triangle.Runtime"
+        "Unity.2D.Common.Editor",
+        "Unity.2D.Common.Runtime",
+        "Unity.2D.Animation.Runtime",
+        "Unity.2D.Triangle.Runtime"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

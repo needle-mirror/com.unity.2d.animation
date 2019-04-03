@@ -132,7 +132,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.Skinning
         private Vector3Compare vec3Compare = new Vector3Compare();
         private QuaternionCompare quatCompare = new QuaternionCompare();
 
-        private static string kTestAssetsFolder = "Packages/com.unity.2d.animation/Tests/EditorTests/SpriteSkin/Assets/";
+        private static string kTestAssetsFolder = "Packages/com.unity.2d.animation/Tests/Editor/SpriteSkin/Assets/";
         private static string kTestTempFolder = "Assets/Temp/";
 
         [OneTimeTearDown]

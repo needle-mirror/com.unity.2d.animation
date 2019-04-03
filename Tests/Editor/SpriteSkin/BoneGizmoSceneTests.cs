@@ -22,7 +22,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.BoneGizmo
         private SpriteSkin m_SpriteSkin;
         private Sprite riggedSprite;
 
-        private static string kTestAssetsFolder = "Packages/com.unity.2d.animation/Tests/EditorTests/SpriteSkin/Assets/";
+        private static string kTestAssetsFolder = "Packages/com.unity.2d.animation/Tests/Editor/SpriteSkin/Assets/";
         private static string kTestTempFolder = "Assets/Temp/";
 
         [OneTimeTearDown]

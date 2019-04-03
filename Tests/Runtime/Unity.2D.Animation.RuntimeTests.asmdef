@@ -1,5 +1,5 @@
 {
-    "name": "com.unity.2d.animation.RuntimeTests",
+    "name": "Unity.2D.Animation.RuntimeTests",
     "references": [],
     "optionalUnityReferences": [
         "TestAssemblies"
