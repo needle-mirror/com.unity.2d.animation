@@ -69,6 +69,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.BoneGizmo
         {
             var go = new GameObject("TestObject");
             m_SkinnedSprite = Resources.Load<Sprite>("bird");
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(m_SkinnedSprite));
             m_SpriteSkin = go.AddComponent<SpriteSkin>();
             m_SpriteSkin.spriteRenderer.sprite = m_SkinnedSprite;
             m_SpriteSkin.CreateBoneHierarchy();
@@ -108,6 +109,14 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.BoneGizmo
                 GameObject.DestroyImmediate(transform.gameObject);
 
             GameObject.DestroyImmediate(m_SpriteSkin.gameObject);
+        }
+
+        [Test]
+        public void SpriteIsCorrect()
+        {
+            Assert.AreEqual(3, m_SkinnedSprite.GetBindPoses().Length, "BindPose count incorrect");
+            Assert.AreEqual(3, m_SpriteSkin.boneTransforms.Length, "BoneTransform count incorrect");
+            Assert.IsFalse(m_SpriteSkin.boneTransforms.Contains(null), "Contains null BoneTransform");
         }
 
         [Test]

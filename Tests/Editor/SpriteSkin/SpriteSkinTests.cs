@@ -133,19 +133,13 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.Skinning
         private Vector3Compare vec3Compare = new Vector3Compare();
         private QuaternionCompare quatCompare = new QuaternionCompare();
 
-        private static void ValidateDirectory(string path)
-        {
-            var dirPath = Path.GetDirectoryName(path);
-
-            if (Directory.Exists(dirPath) == false)
-                Directory.CreateDirectory(dirPath);
-        }
-
         [SetUp]
         public void Setup()
         {
             riggedSprite = Resources.Load<Sprite>("bird");
             staticSprite = Resources.Load<Sprite>("star");
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(riggedSprite));
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(staticSprite));
 
             m_SpriteSkin = new GameObject("TestObject1").AddComponent<SpriteSkin>();
             m_SpriteSkin.spriteRenderer.sprite = riggedSprite;

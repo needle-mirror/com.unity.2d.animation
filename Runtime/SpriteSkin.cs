@@ -1,20 +1,12 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.Experimental.U2D;
 using UnityEngine.Experimental.U2D.Common;
-using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
-
-#if ENABLE_MANAGED_JOBS
+using UnityEngine.Scripting;
 using Unity.Collections;
-using Unity.Jobs;
-#endif
 
 namespace UnityEngine.Experimental.U2D.Animation
 {
+    [Preserve]
     [ExecuteInEditMode]
     [RequireComponent(typeof(SpriteRenderer))]
     public class SpriteSkin : MonoBehaviour
@@ -29,21 +21,8 @@ namespace UnityEngine.Experimental.U2D.Animation
         private Sprite m_CurrentSprite;
 
 #if UNITY_EDITOR
-        private SpriteBone[] m_SpriteBones;
-        internal SpriteBone[] spriteBones
-        {
-            get
-            {
-                if (m_SpriteBones == null)
-                    m_SpriteBones = spriteRenderer.sprite.GetBones();
-
-                return m_SpriteBones;
-            }
-        }
-
-        private ulong m_AssetTimeStamp = 0;
-
-        internal static UnityEvent onDrawGizmos = new UnityEvent();
+        internal static Events.UnityEvent onDrawGizmos = new Events.UnityEvent();
+        private void OnDrawGizmos() { onDrawGizmos.Invoke(); }
 #endif
 
         internal SpriteRenderer spriteRenderer
@@ -99,12 +78,6 @@ namespace UnityEngine.Experimental.U2D.Animation
                     m_BoneTransforms = new Transform[bindPose.Length];
             }
         }
-
-        private void OnDrawGizmos()
-        {
-            onDrawGizmos.Invoke();
-        }
-
 #endif
         private void OnEnable()
         {
@@ -146,26 +119,10 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         private void LateUpdate()
         {
-#if UNITY_EDITOR
-            if (!Application.isPlaying && spriteRenderer.sprite != null)
-            {
-                var assetTimeStamp = UnityEditor.AssetImporter.GetAtPath(UnityEditor.AssetDatabase.GetAssetPath(spriteRenderer.sprite)).assetTimeStamp;
-                if (m_AssetTimeStamp != assetTimeStamp)
-                {
-                    m_AssetTimeStamp = assetTimeStamp;
-                    m_SpriteBones = null;
-                    DeactivateSkinning();
-                }
-            }
-#endif
-
             if (m_CurrentSprite != spriteRenderer.sprite)
             {
                 m_CurrentSprite = spriteRenderer.sprite;
                 DeactivateSkinning();
-#if UNITY_EDITOR
-                m_SpriteBones = null;
-#endif
             }
 
             if (!spriteRenderer.enabled || !isValid)
@@ -187,11 +144,6 @@ namespace UnityEngine.Experimental.U2D.Animation
             var deformJobHandle = SpriteSkinUtility.Deform(m_CurrentSprite.GetVertexAttribute<Vector3>(VertexAttribute.Position), boneWeights, transform.worldToLocalMatrix, bindPoses, transformMatrices, outputVertices);
 
             spriteRenderer.UpdateDeformableBuffer(deformJobHandle);
-
-#if UNITY_EDITOR
-            if (m_SpriteBones != null && m_SpriteBones.Length != bindPoses.Length)
-                m_SpriteBones = null;
-#endif
         }
     }
 }

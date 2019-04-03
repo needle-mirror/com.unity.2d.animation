@@ -73,6 +73,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.BoneGizmo
 
             var go = new GameObject("TestObject");
             riggedSprite = Resources.Load<Sprite>("bird");
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(riggedSprite));
             m_SpriteSkin = go.AddComponent<SpriteSkin>();
             m_SpriteSkin.spriteRenderer.sprite = riggedSprite;
             m_SpriteSkin.CreateBoneHierarchy();
