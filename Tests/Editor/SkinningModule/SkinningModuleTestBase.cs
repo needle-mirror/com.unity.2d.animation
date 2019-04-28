@@ -155,6 +155,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             m_Window.Focus();
             m_Window.Show();
             m_Window.Activate();
+            m_Window.position = new Rect(100, 100, 800, 600);
             DoOtherSetup();
         }
 

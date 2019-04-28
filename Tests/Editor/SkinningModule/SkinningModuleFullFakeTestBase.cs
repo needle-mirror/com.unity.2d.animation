@@ -28,9 +28,9 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
 
         private bool m_HasCharacter;
 
-        public void Populate(bool character)
+        public void PopulateSpriteSheet()
         {
-            m_HasCharacter = character;
+            m_HasCharacter = false;
 
             m_SpriteRects = new SpriteRect[2];
             m_SpriteRects[0] = new SpriteRect();
@@ -78,25 +78,25 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             m_SpriteData[0].vertices = new Vertex2DMetaData[4];
             m_SpriteData[0].vertices[0] = new Vertex2DMetaData()
             {
-                position =  new Vector2(0, 0),
+                position = new Vector2(0, 0),
                 boneWeight = new BoneWeight()
             };
             m_SpriteData[0].vertices[1] = new Vertex2DMetaData()
             {
-                position =  new Vector2(0, 100),
+                position = new Vector2(0, 100),
                 boneWeight = new BoneWeight()
             };
             m_SpriteData[0].vertices[2] = new Vertex2DMetaData()
             {
-                position =  new Vector2(100, 100),
+                position = new Vector2(100, 100),
                 boneWeight = new BoneWeight()
             };
             m_SpriteData[0].vertices[3] = new Vertex2DMetaData()
             {
-                position =  new Vector2(100, 0),
+                position = new Vector2(100, 0),
                 boneWeight = new BoneWeight()
             };
-            m_SpriteData[0].indices = new int[6] { 0, 1, 2, 0, 2, 3 };
+            m_SpriteData[0].indices = new int[6] {0, 1, 2, 0, 2, 3};
             m_SpriteData[0].edges = new Vector2Int[4]
             {
                 new Vector2Int(0, 1),
@@ -131,7 +131,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             m_SpriteData[1].vertices = new Vertex2DMetaData[3];
             m_SpriteData[1].vertices[0] = new Vertex2DMetaData()
             {
-                position =  new Vector2(100, 0),
+                position = new Vector2(100, 0),
                 boneWeight = new BoneWeight()
                 {
                     boneIndex0 = 0,
@@ -140,7 +140,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             };
             m_SpriteData[1].vertices[1] = new Vertex2DMetaData()
             {
-                position =  new Vector2(100, 100),
+                position = new Vector2(100, 100),
                 boneWeight = new BoneWeight()
                 {
                     boneIndex0 = 1,
@@ -149,7 +149,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             };
             m_SpriteData[1].vertices[2] = new Vertex2DMetaData()
             {
-                position =  new Vector2(190, 50),
+                position = new Vector2(190, 50),
                 boneWeight = new BoneWeight()
                 {
                     boneIndex0 = 0,
@@ -158,7 +158,140 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
                     weight1 = 0.5f
                 }
             };
-            m_SpriteData[1].indices = new int[3] { 0, 1, 2 };
+            m_SpriteData[1].indices = new int[3] {0, 1, 2};
+            m_SpriteData[1].edges = new Vector2Int[3]
+            {
+                new Vector2Int(0, 1),
+                new Vector2Int(1, 2),
+                new Vector2Int(2, 0)
+            };
+        }
+
+        public void PopulateCharacter()
+        {
+            m_HasCharacter = true;
+
+            m_SpriteRects = new SpriteRect[4];
+            m_SpriteRects[0] = new SpriteRect();
+            m_SpriteRects[0].rect = new Rect(0, 0, 100, 100);
+            m_SpriteRects[0].alignment = SpriteAlignment.Center;
+            m_SpriteRects[0].border = Vector4.zero;
+            m_SpriteRects[0].name = "Sprite1";
+            m_SpriteRects[0].pivot = Vector2.zero;
+            m_SpriteRects[0].spriteID = GUID.Generate();
+
+            m_SpriteRects[1] = new SpriteRect();
+            m_SpriteRects[1].rect = new Rect(100, 0, 100, 100);
+            m_SpriteRects[1].alignment = SpriteAlignment.Center;
+            m_SpriteRects[1].border = Vector4.zero;
+            m_SpriteRects[1].name = "Sprite2";
+            m_SpriteRects[1].pivot = Vector2.zero;
+            m_SpriteRects[1].spriteID = GUID.Generate();
+
+            m_SpriteRects[2] = new SpriteRect();
+            m_SpriteRects[2].rect = new Rect(0, 100, 100, 100);
+            m_SpriteRects[2].alignment = SpriteAlignment.Center;
+            m_SpriteRects[2].border = Vector4.zero;
+            m_SpriteRects[2].name = "Sprite3";
+            m_SpriteRects[2].pivot = Vector2.zero;
+            m_SpriteRects[2].spriteID = GUID.Generate();
+
+            m_SpriteRects[3] = new SpriteRect();
+            m_SpriteRects[3].rect = new Rect(100, 100, 100, 100);
+            m_SpriteRects[3].alignment = SpriteAlignment.Center;
+            m_SpriteRects[3].border = Vector4.zero;
+            m_SpriteRects[3].name = "Sprite4";
+            m_SpriteRects[3].pivot = Vector2.zero;
+            m_SpriteRects[3].spriteID = GUID.Generate();
+
+            pixelsPerUnit = 100f;
+
+            m_SpriteData = new SpriteData[4];
+            m_SpriteData[0] = new SpriteData();
+            m_SpriteData[0].bones = new List<SpriteBone>();
+            m_SpriteData[0].vertices = new Vertex2DMetaData[4];
+            m_SpriteData[0].vertices[0] = new Vertex2DMetaData()
+            {
+                position = new Vector2(0, 0),
+                boneWeight = new BoneWeight() 
+                {
+                    boneIndex0 = 0,
+                    weight0 = 1.0f
+                }
+            };
+            m_SpriteData[0].vertices[1] = new Vertex2DMetaData()
+            {
+                position = new Vector2(0, 100),
+                boneWeight = new BoneWeight()
+                {
+                    boneIndex0 = 0,
+                    weight0 = 0.25f,
+                    boneIndex1 = 1,
+                    weight1 = 0.75f
+                }
+            };
+            m_SpriteData[0].vertices[2] = new Vertex2DMetaData()
+            {
+                position = new Vector2(100, 100),
+                boneWeight = new BoneWeight()
+                {
+                    boneIndex0 = 1,
+                    weight0 = 1.0f
+                }
+            };
+            m_SpriteData[0].vertices[3] = new Vertex2DMetaData()
+            {
+                position = new Vector2(100, 0),
+                boneWeight = new BoneWeight()
+                {
+                    boneIndex0 = 1,
+                    weight0 = 0.4f,
+                    boneIndex1 = 0,
+                    weight1 = 0.6f
+                }
+            };
+            m_SpriteData[0].indices = new int[6] {0, 1, 2, 0, 2, 3};
+            m_SpriteData[0].edges = new Vector2Int[4]
+            {
+                new Vector2Int(0, 1),
+                new Vector2Int(1, 2),
+                new Vector2Int(2, 3),
+                new Vector2Int(3, 0)
+            };
+
+            m_SpriteData[1] = new SpriteData();
+            m_SpriteData[1].bones = new List<SpriteBone>();
+            m_SpriteData[1].vertices = new Vertex2DMetaData[3];
+            m_SpriteData[1].vertices[0] = new Vertex2DMetaData()
+            {
+                position = new Vector2(100, 0),
+                boneWeight = new BoneWeight()
+                {
+                    boneIndex0 = 0,
+                    weight0 = 1.5f
+                }
+            };
+            m_SpriteData[1].vertices[1] = new Vertex2DMetaData()
+            {
+                position = new Vector2(100, 100),
+                boneWeight = new BoneWeight()
+                {
+                    boneIndex0 = 1,
+                    weight0 = 0.5f
+                }
+            };
+            m_SpriteData[1].vertices[2] = new Vertex2DMetaData()
+            {
+                position = new Vector2(190, 50),
+                boneWeight = new BoneWeight()
+                {
+                    boneIndex0 = 0,
+                    weight0 = 0.5f,
+                    boneIndex1 = 1,
+                    weight1 = 0.5f
+                }
+            };
+            m_SpriteData[1].indices = new int[3] {0, 1, 2};
             m_SpriteData[1].edges = new Vector2Int[3]
             {
                 new Vector2Int(0, 1),
@@ -166,11 +299,24 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
                 new Vector2Int(2, 0)
             };
 
+            m_SpriteData[2] = new SpriteData();
+            m_SpriteData[2].bones = new List<SpriteBone>();
+            m_SpriteData[2].vertices = new Vertex2DMetaData[0];
+            m_SpriteData[2].indices = new int[0];
+            m_SpriteData[2].edges = new Vector2Int[0];
+
+            m_SpriteData[3] = new SpriteData();
+            m_SpriteData[3].bones = new List<SpriteBone>();
+            m_SpriteData[3].vertices = new Vertex2DMetaData[0];
+            m_SpriteData[3].indices = new int[0];
+            m_SpriteData[3].edges = new Vector2Int[0];
+
+            // Character Details
             m_Character.bones = new SpriteBone[3];
             m_Character.bones[0] = new SpriteBone();
             m_Character.bones[0].name = "Bone 1";
             m_Character.bones[0].length = 10f;
-            m_Character.bones[0].position = new Vector3(55, 0, 0);
+            m_Character.bones[0].position = new Vector3(15, 0, 0);
             m_Character.bones[0].rotation = Quaternion.identity;
             m_Character.bones[0].parentId = -1;
 
@@ -188,16 +334,26 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             m_Character.bones[2].rotation = Quaternion.Euler(0, 0, 45);
             m_Character.bones[2].parentId = 1;
 
-            m_Character.parts = new CharacterPart[2];
+            m_Character.parts = new CharacterPart[4];
             m_Character.parts[0] = new CharacterPart();
-            m_Character.parts[0].spritePosition = new RectInt(50, 0, 100, 100);
+            m_Character.parts[0].spritePosition = new RectInt(0, 0, 100, 100);
             m_Character.parts[0].spriteId = m_SpriteRects[0].spriteID.ToString();
-            m_Character.parts[0].bones = new int[0];
+            m_Character.parts[0].bones = new int[] { 0, 1 };
 
             m_Character.parts[1] = new CharacterPart();
-            m_Character.parts[1].spritePosition = new RectInt(75, 0, 100, 100);
+            m_Character.parts[1].spritePosition = new RectInt(100, 0, 100, 100);
             m_Character.parts[1].spriteId = m_SpriteRects[1].spriteID.ToString();
-            m_Character.parts[1].bones = new int[0];
+            m_Character.parts[1].bones = new int[] { 1, 2 };
+
+            m_Character.parts[2] = new CharacterPart();
+            m_Character.parts[2].spritePosition = new RectInt(0, 100, 100, 100);
+            m_Character.parts[2].spriteId = m_SpriteRects[2].spriteID.ToString();
+            m_Character.parts[2].bones = new int[0];
+
+            m_Character.parts[3] = new CharacterPart();
+            m_Character.parts[3].spritePosition = new RectInt(100, 100, 100, 100);
+            m_Character.parts[3].spriteId = m_SpriteRects[3].spriteID.ToString();
+            m_Character.parts[3].bones = new int[0];
         }
 
         protected override ISpriteEditorDataProvider GetSpriteEditorDataProvider()
@@ -357,7 +513,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
         protected override SpriteEditorWindowFake GetWindowFake()
         {
             var window = EditorWindow.GetWindow<SpriteEditorWindowFullFake>();
-            window.Populate(false);
+            window.PopulateSpriteSheet();
             return window;
         }
     }
@@ -367,7 +523,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
         protected override SpriteEditorWindowFake GetWindowFake()
         {
             var window = EditorWindow.GetWindow<SpriteEditorWindowFullFake>();
-            window.Populate(true);
+            window.PopulateCharacter();
             return window;
         }
     }

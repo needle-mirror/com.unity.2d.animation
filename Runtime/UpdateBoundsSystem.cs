@@ -58,57 +58,55 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         protected override void OnUpdate()
         {
-            List<SpriteSkin> spriteSkinComponents = new List<SpriteSkin>();
-            List<SpriteComponent> spriteComponents = new List<SpriteComponent>();
-            Entities.ForEach((SpriteSkin spriteSkin) => { spriteSkinComponents.Add(spriteSkin); });
-            Entities.ForEach((SpriteComponent sprite) => { spriteComponents.Add(sprite); });
-            var worldToLocalArray = new NativeArray<float4x4>(spriteSkinComponents.Count, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var rootLocalToWorldArray = new NativeArray<float4x4>(spriteSkinComponents.Count, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var boundsArray = new NativeArray<Bounds>(spriteSkinComponents.Count, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var entityLength = m_ComponentGroup.CalculateLength();
 
-            for (var i = 0; i < spriteSkinComponents.Count; ++i)
+            var worldToLocalArray = new NativeArray<float4x4>(entityLength, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var rootLocalToWorldArray = new NativeArray<float4x4>(entityLength, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var boundsArray = new NativeArray<Bounds>(entityLength, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+
+            var counter = 0;
+            Entities.With(m_ComponentGroup).ForEach((Entity entity, SpriteSkin spriteSkin) =>
             {
-                var spriteSkin = spriteSkinComponents[i];
-                var sprite = spriteComponents[i].Value;
+                var sr = EntityManager.GetSharedComponentData<SpriteComponent>(entity);
+                if (sr.Value != null && spriteSkin != null)
+                { 
+                    worldToLocalArray[counter] = spriteSkin.transform.worldToLocalMatrix;
+                    rootLocalToWorldArray[counter] = spriteSkin.rootBone.localToWorldMatrix;
 
-                if (spriteSkin == null || sprite == null)
-                    continue;
-                
-                worldToLocalArray[i] = spriteSkin.transform.worldToLocalMatrix;
-                rootLocalToWorldArray[i] = spriteSkin.rootBone.localToWorldMatrix;
-
-                var unityBounds = spriteSkin.bounds;
-                boundsArray[i] = new Bounds ()
-                {
-                    center = new float4(unityBounds.center, 1),
-                    extents = new float4(unityBounds.extents, 0),
-                };
-            }
+                    var unityBounds = spriteSkin.bounds;
+                    boundsArray[counter] = new Bounds()
+                    {
+                        center = new float4(unityBounds.center, 1),
+                        extents = new float4(unityBounds.extents, 0),
+                    };
+                }
+                counter++;
+            });
 
             var jobHandle = new CalculateBoundsJob()
             {
                 worldToLocalArray = worldToLocalArray,
                 rootLocalToWorldArray = rootLocalToWorldArray,
                 boundsArray = boundsArray
-            }.Schedule(spriteSkinComponents.Count, 32);
+            }.Schedule(entityLength, 32);
             
             jobHandle.Complete();
 
-            for (var i = 0; i < spriteSkinComponents.Count; ++i)
+            counter = 0;
+            Entities.With(m_ComponentGroup).ForEach((Entity entity, SpriteSkin spriteSkin) =>
             {
-                var spriteSkin = spriteSkinComponents[i];
-                var sprite = spriteComponents[i].Value;
-
-                if (spriteSkin == null || sprite == null)
-                    continue;
-                
-                var center = boundsArray[i].center;
-                var extents = boundsArray[i].extents;
-                var bounds = new UnityEngine.Bounds();
-                bounds.center = new Vector3(center.x, center.y, center.z);
-                bounds.extents = new Vector3(extents.x, extents.y, extents.z);
-                InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, bounds);
-            }
+                var sr = EntityManager.GetSharedComponentData<SpriteComponent>(entity);
+                if (sr.Value != null && spriteSkin != null)
+                { 
+                    var center = boundsArray[counter].center;
+                    var extents = boundsArray[counter].extents;
+                    var bounds = new UnityEngine.Bounds();
+                    bounds.center = new Vector3(center.x, center.y, center.z);
+                    bounds.extents = new Vector3(extents.x, extents.y, extents.z);
+                    InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, bounds);
+                }
+                counter++;
+            });
 
             boundsArray.Dispose();
             return;

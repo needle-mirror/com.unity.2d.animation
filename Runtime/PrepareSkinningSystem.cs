@@ -21,66 +21,59 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         protected override void OnUpdate()
         {
-            var entities = m_ComponentGroup.ToEntityArray(Allocator.TempJob);
-            List<SpriteSkin> spriteSkinComponents = new List<SpriteSkin>();
-            List<SpriteComponent> spriteComponents = new List<SpriteComponent>();
-            Entities.ForEach((SpriteSkin spriteSkin) => { spriteSkinComponents.Add(spriteSkin); });
-            Entities.ForEach((SpriteComponent sprite) => { spriteComponents.Add(sprite); });
             var worldToLocalComponents = m_ComponentGroup.ToComponentDataArray<WorldToLocal>(Allocator.TempJob);
 
-            for (var i = 0; i < entities.Length; ++i)
+            var counter = 0;
+            Entities.With(m_ComponentGroup).ForEach((Entity entity, SpriteSkin spriteSkin) =>
             {
-                var vertexBuffer = EntityManager.GetBuffer<Vertex>(entities[i]);
-                var boneTransformBuffer = EntityManager.GetBuffer<BoneTransform>(entities[i]);
-                var currentSprite = spriteComponents[i].Value;
-                var currentWorldToLocal = worldToLocalComponents[i];
-                Sprite sprite = null;
-                var entity = entities[i];
-                var spriteSkin = spriteSkinComponents[i];
-                
-                if (spriteSkin == null)
-                    continue;
-                    
-                var spriteRenderer = spriteSkin.spriteRenderer;
-                var isValid = spriteRenderer.enabled && spriteSkin.isValid;
-                var isVisible = spriteRenderer.isVisible || spriteSkin.ForceSkinning;
+                var sr = EntityManager.GetSharedComponentData<SpriteComponent>(entity);
+                var vertexBuffer = EntityManager.GetBuffer<Vertex>(entity);
+                var boneTransformBuffer = EntityManager.GetBuffer<BoneTransform>(entity);
+                var currentSprite = sr.Value;
+                var currentWorldToLocal = worldToLocalComponents[counter];
+                Sprite sprite = null;               
+                if (spriteSkin != null)
+                { 
 
-                if (!isValid)
-                    SpriteRendererDataAccessExtensions.DeactivateDeformableBuffer(spriteRenderer);
-                else if (isVisible)
-                {
-                    spriteSkin.ForceSkinning = false;
-                    sprite = spriteRenderer.sprite;
-                    float4x4 worldToLocal = spriteSkin.transform.worldToLocalMatrix;
+                    var spriteRenderer = spriteSkin.spriteRenderer;
+                    var isValid = spriteRenderer.enabled && spriteSkin.isValid;
+                    var isVisible = spriteRenderer.isVisible || spriteSkin.ForceSkinning;
 
-                    if (vertexBuffer.Length != sprite.GetVertexCount())
+                    if (!isValid)
+                        SpriteRendererDataAccessExtensions.DeactivateDeformableBuffer(spriteRenderer);
+                    else if (isVisible)
                     {
-                        vertexBuffer = PostUpdateCommands.SetBuffer<Vertex>(entity);
-                        vertexBuffer.ResizeUninitialized(sprite.GetVertexCount());
+                        spriteSkin.ForceSkinning = false;
+                        sprite = spriteRenderer.sprite;
+                        float4x4 worldToLocal = spriteSkin.transform.worldToLocalMatrix;
+
+                        if (vertexBuffer.Length != sprite.GetVertexCount())
+                        {
+                            vertexBuffer = PostUpdateCommands.SetBuffer<Vertex>(entity);
+                            vertexBuffer.ResizeUninitialized(sprite.GetVertexCount());
+                        }
+
+                        InternalEngineBridge.SetDeformableBuffer(spriteRenderer, vertexBuffer.Reinterpret<Vector3>().AsNativeArray());
+
+                        if (boneTransformBuffer.Length != spriteSkin.boneTransforms.Length)
+                        {
+                            boneTransformBuffer = PostUpdateCommands.SetBuffer<BoneTransform>(entity);
+                            boneTransformBuffer.ResizeUninitialized(spriteSkin.boneTransforms.Length);
+                        }
+
+                        for (var j = 0; j < boneTransformBuffer.Length; ++j)
+                            boneTransformBuffer[j] = new BoneTransform() { Value = spriteSkin.boneTransforms[j].localToWorldMatrix };
+
+                        PostUpdateCommands.SetComponent<WorldToLocal>(entity, new WorldToLocal() { Value = worldToLocal });
                     }
 
-                    InternalEngineBridge.SetDeformableBuffer(spriteRenderer, vertexBuffer.Reinterpret<Vector3>().AsNativeArray());
+                    if (currentSprite != sprite)
+                        PostUpdateCommands.SetSharedComponent<SpriteComponent>(entity, new SpriteComponent() { Value = sprite });
 
-                    if (boneTransformBuffer.Length != spriteSkin.boneTransforms.Length)
-                    {
-                        boneTransformBuffer = PostUpdateCommands.SetBuffer<BoneTransform>(entity);
-                        boneTransformBuffer.ResizeUninitialized(spriteSkin.boneTransforms.Length);
-                    }
-
-                    for (var j = 0; j < boneTransformBuffer.Length; ++j)
-                        boneTransformBuffer[j] = new BoneTransform() { Value = spriteSkin.boneTransforms[j].localToWorldMatrix };
-
-                    PostUpdateCommands.SetComponent<WorldToLocal>(entity, new WorldToLocal() { Value = worldToLocal });
+                    if (!spriteRenderer.enabled)
+                        spriteSkin.ForceSkinning = true;
                 }
-
-                if (currentSprite != sprite)
-                    PostUpdateCommands.SetSharedComponent<SpriteComponent>(entity, new SpriteComponent() { Value = sprite });
-
-                if (!spriteRenderer.enabled)
-                    spriteSkin.ForceSkinning = true;
-            }
-
-            entities.Dispose();
+            });
             worldToLocalComponents.Dispose();
         }
     }

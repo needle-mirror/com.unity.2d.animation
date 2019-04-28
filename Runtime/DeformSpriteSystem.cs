@@ -120,6 +120,9 @@ namespace UnityEngine.Experimental.U2D.Animation
                 jobHandles.Dispose();
                 entitiesPerSprite.Dispose();
 
+                var system = World.GetOrCreateManager<EndPresentationEntityCommandBufferSystem>();
+                system.AddJobHandleForProducer(combinedHandle);
+                
                 return combinedHandle;
             }
 

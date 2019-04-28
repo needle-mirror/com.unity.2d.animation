@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -6,10 +6,11 @@ using UnityEngine.TestTools;
 namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
 {
     [TestFixture]
-    [UnityPlatform(exclude = new[] {RuntimePlatform.OSXEditor })]
     public class CopySpriteSheetTest : SkinningModuleFullFakeTestBase
     {
         private CopyTool m_CopyTool;
+        private ICopyToolStringStore m_CopyStringStore;
+
         private static readonly string kDefaultSpriteCopyString =
             @"{""pixelsPerUnit"":100.0,""copyData"":[{""spriteName"":"""",""spriteBones"":[{""m_Name"":""Bone-1-1"",""m_Position"":{""x"":0.0,""y"":0.0,""z"":0.0},""m_Rotation"":{""x"":0.0,""y"":0.0,""z"":0.0,""w"":1.0},""m_Length"":20.0,""m_ParentId"":-1},{""m_Name"":""Bone-1-2"",""m_Position"":{""x"":20.0,""y"":0.0,""z"":0.0},""m_Rotation"":{""x"":0.0,""y"":0.0,""z"":0.7071068286895752,""w"":-0.7071068286895752},""m_Length"":50.0,""m_ParentId"":0}],""vertices"":[{""m_Position"":{""x"":0.0,""y"":0.0},""m_EditableBoneWeight"":{""m_Channels"":[{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0}]}},{""m_Position"":{""x"":0.0,""y"":100.0},""m_EditableBoneWeight"":{""m_Channels"":[{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0}]}},{""m_Position"":{""x"":100.0,""y"":100.0},""m_EditableBoneWeight"":{""m_Channels"":[{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0}]}},{""m_Position"":{""x"":100.0,""y"":0.0},""m_EditableBoneWeight"":{""m_Channels"":[{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0},{""m_Enabled"":false,""m_BoneIndex"":0,""m_Weight"":0.0}]}}],""indices"":[0,1,2,0,2,3],""edges"":[{""m_Index1"":0,""m_Index2"":1},{""m_Index1"":1,""m_Index2"":2},{""m_Index1"":2,""m_Index2"":3},{""m_Index1"":3,""m_Index2"":0}],""boneWeightNames"":[""Bone-1-1"",""Bone-1-2""]}]}";
 
@@ -24,20 +25,22 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             skinningCache.events.boneSelectionChanged.Invoke();
 
             m_CopyTool = skinningCache.GetTool(Tools.CopyPaste) as CopyTool;
-            EditorGUIUtility.systemCopyBuffer = "";
+            m_CopyStringStore = new StringCopyToolStringStore();
+            m_CopyStringStore.stringStore = "";
+            m_CopyTool.copyToolStringStore = m_CopyStringStore;
         }
 
         public override void DoOtherTeardown()
         {
-            EditorGUIUtility.systemCopyBuffer = "";
+            m_CopyStringStore.stringStore = "";
         }
 
         [Test]
         public void SelectedSprite_DoCopy_CopiesToSystemCopyBuffer()
         {
             m_CopyTool.OnCopyActivated();
-            Assert.IsFalse(String.IsNullOrEmpty(EditorGUIUtility.systemCopyBuffer));
-            Assert.AreEqual(kDefaultSpriteCopyString, EditorGUIUtility.systemCopyBuffer);
+            Assert.IsFalse(String.IsNullOrEmpty(m_CopyStringStore.stringStore));
+            Assert.AreEqual(kDefaultSpriteCopyString, m_CopyStringStore.stringStore);
         }
 
         [Test]
@@ -46,15 +49,15 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             skinningCache.events.selectedSpriteChanged.Invoke(null);
 
             m_CopyTool.OnCopyActivated();
-            Assert.IsFalse(String.IsNullOrEmpty(EditorGUIUtility.systemCopyBuffer));
-            Assert.AreEqual(kAllSpriteCopyString, EditorGUIUtility.systemCopyBuffer);
+            Assert.IsFalse(String.IsNullOrEmpty(m_CopyStringStore.stringStore));
+            Assert.AreEqual(kAllSpriteCopyString, m_CopyStringStore.stringStore);
         }
 
         [Test]
         public void NothingCopied_PasteActivated_NothingIsPasted()
         {
             UnityEngine.TestTools.LogAssert.Expect(LogType.Error, TextContent.copyError2);
-            Assert.IsTrue(String.IsNullOrEmpty(EditorGUIUtility.systemCopyBuffer));
+            Assert.IsTrue(String.IsNullOrEmpty(m_CopyStringStore.stringStore));
             m_CopyTool.OnPasteActivated(true, true, false, false);
         }
 
@@ -269,6 +272,17 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             Assert.AreEqual(0, (new Vector2(0f, 100f) - meshPasteCache.vertices[3].position).magnitude, 0.0001f);
             Assert.AreEqual(6, meshPasteCache.indices.Count);
             Assert.AreEqual(4, meshPasteCache.edges.Count);
+        }
+    }
+
+    public class StringCopyToolStringStore : ICopyToolStringStore
+    {
+        private string m_String = "";
+
+        public string stringStore
+        {
+            get { return m_String; }
+            set { m_String = value; }
         }
     }
 }
