@@ -17,12 +17,14 @@ namespace UnityEditor.Experimental.U2D.Animation
         bool hasCharacter { get; }
         UndoScope UndoScope(string description);
         SpriteCache selectedSprite { get; }
+        SpriteLibraryCacheObject spriteLibrary { get; }
     }
 
     internal interface ISpriteVisibilityToolView
     {
         void Setup();
         void SetSelection(SpriteCache sprite);
+        void SetSelectionIds(IList<int> selectedIds);
     }
 
     internal class SpriteVisibilityToolData : CacheObject
@@ -46,6 +48,42 @@ namespace UnityEditor.Experimental.U2D.Animation
 
     internal class SpriteVisibilityToolController
     {
+        bool m_UpdateViewOnSelection = true;
+        
+        interface ISpriteVisibilityItem
+        {
+            bool visibility { get; set; }
+        }
+
+        class SpriteVisibilityGroupItem : ISpriteVisibilityItem
+        {
+            public CharacterGroupCache group;
+            public ISpriteVisibilityItem[] childItems;
+            bool ISpriteVisibilityItem.visibility
+            {
+                get { return group.isVisible; }
+                set
+                {
+                    if (childItems != null)
+                    {
+                        foreach (var item in childItems)
+                            item.visibility = value;
+                    }
+                    group.isVisible = value;
+                }
+            }
+        }
+
+        class SpriteVisibilitySpriteItem : ISpriteVisibilityItem
+        {
+            public CharacterPartCache sprite;
+            bool ISpriteVisibilityItem.visibility
+            {
+                get { return sprite.isVisible; }
+                set { sprite.isVisible = value; }
+            }
+        }
+
         ISpriteVisibilityToolModel m_Model;
         SkinningEvents m_Events;
         public event Action OnAvailabilityChangeListeners = () => {};
@@ -88,7 +126,9 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         private void OnSpriteSelectedChanged(SpriteCache sprite)
         {
-            m_Model.view.SetSelection(sprite);
+            if(m_UpdateViewOnSelection)
+                m_Model.view.SetSelection(sprite);
+            m_UpdateViewOnSelection = true;
         }
 
         public bool isAvailable
@@ -106,6 +146,10 @@ namespace UnityEditor.Experimental.U2D.Animation
 
                     foreach (var part in parts)
                         part.isVisible = m_Model.allVisibility;
+
+                    var groups = m_Model.character.groups;
+                    foreach (var group in groups)
+                        group.isVisible = m_Model.allVisibility;
                 }
             }
         }
@@ -131,32 +175,79 @@ namespace UnityEditor.Experimental.U2D.Animation
             if (character != null)
             {
                 var parts = character.parts;
-                foreach (var part in parts)
-                {
-                    var item = CreateTreeViewItem(part);
+                var groups = character.groups;
+                var items = CreateTreeGroup(-1, groups, parts, 0);
+                foreach (var item in items)
                     rows.Add(item);
+                var groupParts = parts.Where(x => x.parentGroup < 0);
+                foreach (var part in groupParts)
+                {
+                    var ii = CreateTreeViewItem(part, groups, -1);
+                    rows.Add(ii);
                 }
             }
             return rows;
         }
 
-        private TreeViewItem CreateTreeViewItem(CharacterPartCache part)
+        private List<TreeViewItem> CreateTreeGroup(int level, CharacterGroupCache[] groups, CharacterPartCache[] parts, int depth)
+        {
+            var items = new List<TreeViewItem>();
+            for (int j = 0; j < groups.Length; ++j)
+            {
+                if (groups[j].parentGroup == level)
+                {
+                    var item = new TreeViewItemBase<ISpriteVisibilityItem>(groups[j].GetInstanceID(), depth, groups[j].name, new SpriteVisibilityGroupItem()
+                    {
+                        group = groups[j]
+                    });
+                    items.Add(item);
+                    var children = new List<ISpriteVisibilityItem>();
+                    // find all sprite that has this group
+                    var groupParts = parts.Where(x => x.parentGroup == j);
+                    foreach (var part in groupParts)
+                    {
+                        var ii = CreateTreeViewItem(part, groups, depth + 1);
+                        items.Add(ii);
+                        var visibilityItem = ii as TreeViewItemBase<ISpriteVisibilityItem>;
+                        if (visibilityItem != null)
+                            children.Add(visibilityItem.customData);
+                    }
+
+                    var childItemes = CreateTreeGroup(j, groups, parts, depth + 1);
+                    foreach (var iii in childItemes)
+                    {
+                        items.Add(iii);
+                        var visibilityItem = iii as TreeViewItemBase<ISpriteVisibilityItem>;
+                        if (visibilityItem != null)
+                            children.Add(visibilityItem.customData);
+                    }
+                    (item.customData as SpriteVisibilityGroupItem).childItems = children.ToArray();
+                }
+            }
+            return items;
+        }
+
+        private TreeViewItem CreateTreeViewItem(CharacterPartCache part, CharacterGroupCache[] groups, int level)
         {
             var name = part.sprite.name;
-            return new TreeViewItemBase<CharacterPartCache>(part.GetInstanceID(), 0, name, part);
+            return new TreeViewItemBase<ISpriteVisibilityItem>(part.GetInstanceID(), level, name,
+                new SpriteVisibilitySpriteItem()
+                {
+                    sprite = part
+                });
         }
 
         public bool GetCharacterPartVisibility(TreeViewItem item)
         {
-            var i = item as TreeViewItemBase<CharacterPartCache>;
+            var i = item as TreeViewItemBase<ISpriteVisibilityItem>;
             if (i != null)
-                return i.customData.isVisible;
+                return i.customData.visibility;
             return false;
         }
 
         public void SetCharacterPartVisibility(TreeViewItem item, bool visible, bool isolate)
         {
-            var i = item as TreeViewItemBase<CharacterPartCache>;
+            var i = item as TreeViewItemBase<ISpriteVisibilityItem>;
             if (i != null)
             {
                 var characterPart = i.customData;
@@ -169,11 +260,11 @@ namespace UnityEditor.Experimental.U2D.Animation
                         {
                             cpart.isVisible = visible;
                         }
-                        characterPart.isVisible = !visible;
+                        characterPart.visibility = !visible;
                     }
                     else
                     {
-                        characterPart.isVisible = visible;
+                        characterPart.visibility = visible;
                     }
                 }
             }
@@ -184,17 +275,23 @@ namespace UnityEditor.Experimental.U2D.Animation
             SpriteCache newSelected = null;
             if (selectedIds.Count > 0)
             {
-                var selected = rows.FirstOrDefault(x => ((TreeViewItemBase<CharacterPartCache>)x).customData.GetInstanceID() == selectedIds[0]) as TreeViewItemBase<CharacterPartCache>;
+                var selected = rows.FirstOrDefault(x =>
+                {
+                    var item = ((TreeViewItemBase<ISpriteVisibilityItem>)x).customData as SpriteVisibilitySpriteItem;
+                    if (item != null && item.sprite.GetInstanceID() == selectedIds[0])
+                        return true;
+                    return false;
+                }) as TreeViewItemBase<ISpriteVisibilityItem>;
                 if (selected != null)
-                    newSelected = selected.customData.sprite;
+                    newSelected = ((SpriteVisibilitySpriteItem)selected.customData).sprite.sprite;
             }
 
-            if (newSelected != null)
+            using (m_Model.UndoScope(TextContent.selectionChange))
             {
-                using (m_Model.UndoScope(TextContent.selectionChange))
-                {
-                    m_Events.selectedSpriteChanged.Invoke(newSelected);
-                }
+                m_UpdateViewOnSelection = false;
+                m_Events.selectedSpriteChanged.Invoke(newSelected);
+                if(newSelected == null)
+                    m_Model.view.SetSelectionIds(selectedIds);
             }
         }
 
@@ -202,13 +299,214 @@ namespace UnityEditor.Experimental.U2D.Animation
         {
             for (int i = 0; rows != null && i < rows.Count; ++i)
             {
-                var r = (TreeViewItemBase<CharacterPartCache>)rows[i];
-                if (r.customData.sprite == sprite)
+                var r = ((TreeViewItemBase<ISpriteVisibilityItem>)rows[i]).customData as SpriteVisibilitySpriteItem;
+                if (r != null && r.sprite.sprite == sprite)
                 {
-                    return r.id;
+                    return rows[i].id;
                 }
             }
             return 0;
+        }
+
+        public SpriteLibCategory GetCategoryForSprite(TreeViewItem treeViewItem)
+        {
+            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+            var customData = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
+            var characterPart = customData != null ? customData.sprite : null;
+            if (characterPart != null)
+            {
+                var spriteLib = m_Model.spriteLibrary;
+                foreach (var category in spriteLib.categories)
+                {
+                    if (category.spriteIds.FindIndex(x => x == characterPart.sprite.id) != -1)
+                        return category;
+                }
+            }
+
+            return new SpriteLibCategory()
+            {
+                name = "",
+                spriteIds = new List<string>()
+            };
+        }
+
+        public string[] GetCategoryStrings()
+        {
+            return m_Model.spriteLibrary.categories.Select(x => x.name).ToArray();
+        }
+
+        public string[] GetCategoryIndexStrings(SpriteLibCategory category)
+        {
+            var strings = new string[category.spriteIds.Count];
+            for (int i = 0; i < category.spriteIds.Count; ++i)
+                strings[i] = i.ToString();
+            return strings;
+        }
+
+        public int GetCategoryIndexForSprite(SpriteLibCategory category, TreeViewItem treeViewItem)
+        {
+            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+            var customData = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
+            var characterPart = customData != null ? customData.sprite : null;
+            var index = -1;
+            if (characterPart != null)
+            {
+                index = category.spriteIds.FindIndex(x => x == characterPart.sprite.id);
+            }
+            return index;
+        }
+
+        public void RemoveSpriteFromCategory(TreeViewItem treeViewItem)
+        {
+            var spriteLibCategory = GetCategoryForSprite(treeViewItem);
+            var index = GetCategoryIndexForSprite(spriteLibCategory, treeViewItem);
+            if (index >= 0)
+            {
+                var spriteIds = spriteLibCategory.spriteIds.ToList();
+                spriteIds.RemoveAt(index);
+                spriteLibCategory.spriteIds = spriteIds;
+                m_Events.spriteLibraryChanged.Invoke();
+            }
+        }
+
+        public void SetCategoryForSprite(string categoryName, TreeViewItem treeViewItem)
+        {
+            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+            SetCategoryForSprite(categoryName, spriteTreeViewItem.customData);
+        }
+
+        void SetCategoryForSprite(string categoryName, ISpriteVisibilityItem spriteVisibilityItem)
+        {
+            var customData = spriteVisibilityItem as SpriteVisibilitySpriteItem;
+            var characterPart = customData != null ? customData.sprite : null;
+            if (characterPart != null && characterPart.sprite != null)
+            {
+                var spriteLib = m_Model.spriteLibrary;
+                using (m_Model.UndoScope(TextContent.spriteCategoryChanged))
+                {
+                    spriteLib.AddSpriteToCategory(categoryName, characterPart.sprite.id);
+                    m_Events.spriteLibraryChanged.Invoke();                    
+                }
+            }
+        }
+
+        public void SetCategoryIndexForSprite(int index, TreeViewItem treeViewItem)
+        {
+            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+            var customData = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
+            var characterPart = customData != null ? customData.sprite : null;
+            if (characterPart != null && characterPart.sprite != null)
+            {
+                var spriteLib = m_Model.spriteLibrary;
+                using (m_Model.UndoScope(TextContent.spriteCategoryIndexChanged))
+                {
+                    spriteLib.ChangeSpriteIndex(index, characterPart.sprite.id);
+                    m_Events.spriteLibraryChanged.Invoke();
+                }
+            }
+        }
+
+        public bool SupportCateogry(TreeViewItem treeViewItem)
+        {
+            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+            var customData = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
+            return customData != null;
+        }
+
+        public bool SupportConvertToCatgory(TreeViewItem treeViewItem)
+        {
+            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+            var customData = spriteTreeViewItem.customData as SpriteVisibilityGroupItem;
+            return customData != null;
+        }
+
+        private bool SupportConvertToCatgory(ISpriteVisibilityItem treeViewItem)
+        {
+            return treeViewItem is SpriteVisibilityGroupItem;
+        }
+        
+        private void ConvertLayerToCategory(ISpriteVisibilityItem treeViewItem)
+        {
+            if (SupportConvertToCatgory(treeViewItem))
+            {
+                var groupItem = treeViewItem as SpriteVisibilityGroupItem;
+                foreach(var item in groupItem.childItems)
+                    ConvertLayerToCategory(item);
+            }
+            else
+            {
+                var groupItem = treeViewItem as SpriteVisibilitySpriteItem;
+                SetCategoryForSprite(groupItem.sprite.sprite.name, groupItem);
+            }
+        }
+
+        public void ClearCategory(TreeViewItem treeViewItem)
+        {
+            if (SupportConvertToCatgory(treeViewItem))
+            {
+                var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+                var customData = spriteTreeViewItem.customData as SpriteVisibilityGroupItem;
+                AddGroupToCategory("", customData);
+            }
+            else
+            {
+                var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+                var item = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
+                SetCategoryForSprite("", item);
+            }
+        }
+        
+        public void ConvertLayerToCategory(TreeViewItem treeViewItem)
+        {
+            if (SupportConvertToCatgory(treeViewItem))
+            {
+                var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+                ConvertLayerToCategory(spriteTreeViewItem.customData);
+            }
+            else
+            {
+                var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+                var groupItem = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
+                SetCategoryForSprite(groupItem.sprite.sprite.name, groupItem);
+            }
+        }
+        
+        public void ConvertToCategory(TreeViewItem treeViewItem)
+        {
+            if (SupportConvertToCatgory(treeViewItem))
+            {
+                var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
+                var groupItem = spriteTreeViewItem.customData as SpriteVisibilityGroupItem;
+                AddGroupToCategory(groupItem.group.name, groupItem);
+            }
+        }
+
+        void AddGroupToCategory(string categoryName, SpriteVisibilityGroupItem groupItem)
+        {
+            foreach (var item in groupItem.childItems)
+            {
+                if (item is SpriteVisibilityGroupItem)
+                    AddGroupToCategory(categoryName, item as SpriteVisibilityGroupItem);
+                else if (item is SpriteVisibilitySpriteItem)
+                    SetCategoryForSprite(categoryName, item);
+            }
+        }
+
+        public void RemoveUnusedCategory()
+        {
+            var spriteLib = m_Model.spriteLibrary;
+            var changed = false;
+            for (int i = 0; i < spriteLib.categories.Count; ++i)
+            {
+                if (spriteLib.categories[i].spriteIds.Count == 0)
+                {
+                    spriteLib.categories.RemoveAt(i);
+                    --i;
+                    changed = true;
+                }
+            }
+            if (changed)
+                m_Events.spriteLibraryChanged.Invoke();
         }
     }
 
@@ -272,6 +570,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         bool ISpriteVisibilityToolModel.previousVisibility { get { return m_Data.previousVisibility; } set { m_Data.previousVisibility = value; } }
         bool ISpriteVisibilityToolModel.allVisibility { get { return m_Data.allVisibility; } set { m_Data.allVisibility = value; } }
         SkinningMode ISpriteVisibilityToolModel.mode { get { return skinningCache.mode; } }
+        SpriteLibraryCacheObject ISpriteVisibilityToolModel.spriteLibrary { get { return skinningCache.spriteLibrary; }}
 
         UndoScope ISpriteVisibilityToolModel.UndoScope(string description)
         {
@@ -285,7 +584,7 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         public SpriteVisibilityToolView()
         {
-            var columns = new MultiColumnHeaderState.Column[2];
+            var columns = new MultiColumnHeaderState.Column[4];
             columns[0] = new MultiColumnHeaderState.Column
             {
                 headerContent = VisibilityTreeViewBase.VisibilityIconStyle.visibilityOnIcon,
@@ -300,8 +599,26 @@ namespace UnityEditor.Experimental.U2D.Animation
             {
                 headerContent = EditorGUIUtility.TrTextContent(TextContent.name),
                 headerTextAlignment = TextAlignment.Center,
-                width = 200,
-                minWidth = 130,
+                width = 130,
+                minWidth = 100,
+                autoResize = true,
+                allowToggleVisibility = false
+            };
+            columns[2] = new MultiColumnHeaderState.Column
+            {
+                headerContent = EditorGUIUtility.TrTextContent(TextContent.category),
+                headerTextAlignment = TextAlignment.Center,
+                width = 70,
+                minWidth = 50,
+                autoResize = true,
+                allowToggleVisibility = false
+            };
+            columns[3] = new MultiColumnHeaderState.Column
+            {
+                headerContent = EditorGUIUtility.TrTextContent(TextContent.index),
+                headerTextAlignment = TextAlignment.Center,
+                width = 50,
+                minWidth = 30,
                 autoResize = true,
                 allowToggleVisibility = false
             };
@@ -346,19 +663,128 @@ namespace UnityEditor.Experimental.U2D.Animation
         {
             ((SpriteTreeView)m_TreeView).SetSelection(sprite);
         }
+
+        public void SetSelectionIds(IList<int> selectedIds)
+        {
+            ((SpriteTreeView)m_TreeView).SetSelectionIds(selectedIds);
+        }
     }
 
     class SpriteTreeView : VisibilityTreeViewBase
     {
         public Func<SpriteVisibilityToolController> GetController = () => null;
+        private static int k_CategorySeletionOffset = 4;
+        GUIStyle m_Style;
+        static string[] k_DefaultCategoryList = new string[]
+        {
+            "None",
+            TextContent.newTrailingDots,
+            TextContent.removeEmptyCategory,
+            ""
+        };
+        private TreeViewItem m_CurrentEdittingItem;
 
         public SpriteTreeView(TreeViewState treeViewState, MultiColumnHeader multiColumnHeader)
             : base(treeViewState, multiColumnHeader)
-        {}
+        {
+            columnIndexForTreeFoldouts = 1;
+        }
+
+        void SkinInit()
+        {
+            if (m_Style == null)
+            {
+                GUIStyle foldOut = "IN Foldout";
+                m_Style = new GUIStyle(foldOut);
+                m_Style.stretchWidth = false;
+                m_Style.richText = false;
+                m_Style.border = new RectOffset(-800, -10, 0, -10);
+                m_Style.padding = new RectOffset(11, 16, 2, 2);
+                m_Style.fixedWidth = 0;
+                m_Style.alignment = TextAnchor.MiddleCenter;
+                m_Style.clipping = TextClipping.Clip;
+                m_Style.normal.background = foldOut.onFocused.background;
+                m_Style.normal.scaledBackgrounds = foldOut.onFocused.scaledBackgrounds;
+                m_Style.normal.textColor = foldOut.normal.textColor;
+                m_Style.onNormal.background = m_Style.normal.background;
+                m_Style.onNormal.scaledBackgrounds = m_Style.normal.scaledBackgrounds;
+                m_Style.onNormal.textColor = m_Style.normal.textColor;
+                m_Style.onActive.background = m_Style.normal.background;
+                m_Style.onActive.scaledBackgrounds = m_Style.normal.scaledBackgrounds;
+                m_Style.onActive.textColor = m_Style.normal.textColor;
+                m_Style.active.background = m_Style.normal.background;
+                m_Style.active.scaledBackgrounds = m_Style.normal.scaledBackgrounds;
+                m_Style.active.textColor = m_Style.normal.textColor;
+                m_Style.onFocused.background = m_Style.normal.background;
+                m_Style.onFocused.scaledBackgrounds = m_Style.normal.scaledBackgrounds;
+                m_Style.onFocused.textColor = m_Style.normal.textColor;
+                m_Style.focused.background = m_Style.normal.background;
+                m_Style.focused.scaledBackgrounds = m_Style.normal.scaledBackgrounds;
+                m_Style.focused.textColor = m_Style.normal.textColor;
+            }
+        }
 
         public void Setup()
         {
             Reload();
+        }
+
+        public override void OnGUI(Rect rect)
+        {
+            if (Event.current.type == EventType.Repaint)
+                SkinInit();
+
+            if (Event.current.type == EventType.MouseUp && Event.current.button == 1)
+            {
+                var canCovert = false;
+                foreach (var item in GetRows())
+                {
+                    if (IsSelected(item.id) && GetController().SupportConvertToCatgory(item))
+                    {
+                        canCovert = true;
+                        break;
+                    }
+                }
+                var genericMenu = new GenericMenu();
+                if (canCovert)
+                {
+                    genericMenu.AddItem(new GUIContent(TextContent.convertGroupToCategory), false, ConvertGroupToCategory);
+                }
+                genericMenu.AddItem(new GUIContent(TextContent.convertLayerToCategory), false, ConvertLayerToCategory);
+                genericMenu.AddItem(new GUIContent(TextContent.clearAllCategory), false, ClearAllCategory);
+                genericMenu.ShowAsContext();
+            }
+            base.OnGUI(rect);
+        }
+
+        void ConvertGroupToCategory()
+        {
+            foreach (var item in GetRows())
+            {
+                if (IsSelected(item.id) && GetController().SupportConvertToCatgory(item))
+                {
+                    GetController().ConvertToCategory(item);
+                }
+            }
+        }
+
+        void ClearAllCategory()
+        {
+            foreach (var item in GetRows())
+            {
+                GetController().ClearCategory(item);
+            }
+        }
+        
+        void ConvertLayerToCategory()
+        {
+            foreach (var item in GetRows())
+            {
+                if (IsSelected(item.id))
+                {
+                    GetController().ConvertLayerToCategory(item);
+                }
+            }
         }
 
         void CellGUI(Rect cellRect, TreeViewItem item, int column, ref RowGUIArgs args)
@@ -372,14 +798,19 @@ namespace UnityEditor.Experimental.U2D.Animation
                 case 1:
                     DrawNameCell(cellRect, item, ref args);
                     break;
+                case 2:
+                    DrawCategoryCell(cellRect, item, ref args);
+                    break;
+                case 3:
+                    DrawIndexCell(cellRect, item, ref args);
+                    break;
             }
         }
 
         void DrawVisibilityCell(Rect cellRect, TreeViewItem item)
         {
             var style = MultiColumnHeader.DefaultStyles.columnHeaderCenterAligned;
-            var itemView = item as TreeViewItemBase<CharacterPartCache>;
-            var characterPartVisibility = GetController().GetCharacterPartVisibility(itemView);
+            var characterPartVisibility = GetController().GetCharacterPartVisibility(item);
 
             EditorGUI.BeginChangeCheck();
 
@@ -397,6 +828,79 @@ namespace UnityEditor.Experimental.U2D.Animation
             base.RowGUI(args);
         }
 
+        void DrawCategoryCell(Rect cellRect, TreeViewItem item, ref RowGUIArgs args)
+        {
+            if (!GetController().SupportCateogry(item))
+                return;
+            if (m_CurrentEdittingItem != item)
+            {
+                List<string> displayedOptions = new List<string>(k_DefaultCategoryList);
+                var allCategoryStrings = GetController().GetCategoryStrings();
+                foreach (var s in allCategoryStrings)
+                    displayedOptions.Add(s);
+                var category = GetController().GetCategoryForSprite(item);
+                var currentSelection = Array.FindIndex(allCategoryStrings, x => x == category.name);
+
+                currentSelection = currentSelection < 0 ? 0 : currentSelection + k_CategorySeletionOffset;
+                EditorGUI.BeginChangeCheck();
+                currentSelection = EditorGUI.Popup(cellRect, currentSelection, displayedOptions.ToArray(), m_Style);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (currentSelection == 1)
+                    {
+                        m_CurrentEdittingItem = item;
+                        DrawCategoryNameControl(cellRect, item);
+                    }
+                    else if (currentSelection == 2)
+                    {
+                        GetController().RemoveUnusedCategory();
+                    }
+                    else
+                    {
+                        var realSelectionIndex = currentSelection - k_CategorySeletionOffset;
+                        var categoryName = realSelectionIndex >= 0 ? displayedOptions[currentSelection] : "";
+                        GetController().SetCategoryForSprite(categoryName, item);
+                    }
+                }
+            }
+            else
+            {
+                DrawCategoryNameControl(cellRect, item);
+            }
+        }
+
+        void DrawCategoryNameControl(Rect cellRect, TreeViewItem item)
+        {
+            EditorGUI.BeginChangeCheck();
+            GUI.SetNextControlName("SpriteCategoryRename");
+            GUI.FocusControl("SpriteCategoryRename");
+            string categoryName = EditorGUI.DelayedTextField(cellRect, "");
+            if (EditorGUI.EndChangeCheck())
+            {
+                if(Array.FindIndex(k_DefaultCategoryList, x => x == categoryName) == -1)
+                    GetController().SetCategoryForSprite(categoryName, item);
+                m_CurrentEdittingItem = null;
+            }
+        }
+
+        void DrawIndexCell(Rect cellRect, TreeViewItem item, ref RowGUIArgs args)
+        {
+            if (!GetController().SupportCateogry(item))
+                return;
+            var category = GetController().GetCategoryForSprite(item);
+            var index = GetController().GetCategoryIndexForSprite(category, item);
+            if (index >= 0)
+            {
+                var displayedOptions = GetController().GetCategoryIndexStrings(category);
+                EditorGUI.BeginChangeCheck();
+                index = EditorGUI.Popup(cellRect, index, displayedOptions.ToArray(), m_Style);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    GetController().SetCategoryIndexForSprite(index, item);
+                }
+            }
+        }
+
         protected override void RowGUI(RowGUIArgs args)
         {
             var item = args.item;
@@ -405,6 +909,13 @@ namespace UnityEditor.Experimental.U2D.Animation
             {
                 CellGUI(args.GetCellRect(i), item, args.GetColumn(i), ref args);
             }
+        }
+
+        protected override Rect GetRenameRect(Rect rowRect, int row, TreeViewItem item)
+        {
+            Rect cellRect = GetCellRectForTreeFoldouts(rowRect);
+            CenterRectUsingSingleLineHeight(ref cellRect);
+            return base.GetRenameRect(cellRect, row, item);
         }
 
         protected override TreeViewItem BuildRoot()
@@ -420,6 +931,11 @@ namespace UnityEditor.Experimental.U2D.Animation
             GetController().SetSelectedSprite(GetRows(), selectedIds);
         }
 
+        public void SetSelectionIds(IList<int> selectedIds)
+        {
+            SetSelection(selectedIds, TreeViewSelectionOptions.RevealAndFrame);
+        }
+        
         public void SetSelection(SpriteCache sprite)
         {
             var id = GetController().GetTreeViewSelectionID(GetRows(), sprite);

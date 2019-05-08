@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEditor.Experimental.U2D.Layout;
+using UnityEditor.U2D.Sprites;
 using UnityEngine.Experimental.U2D;
 using UnityEngine.Experimental.U2D.Common;
 using Debug = UnityEngine.Debug;
@@ -63,6 +64,8 @@ namespace UnityEditor.Experimental.U2D.Animation
         private SkeletonSelection m_SkeletonSelection = new SkeletonSelection();
         [SerializeField]
         private IndexedSelection m_VertexSelection = new IndexedSelection();
+        [SerializeField]
+        private SpriteLibraryCacheObject m_SpriteLibrary;
 
         public BaseTool selectedTool
         {
@@ -145,6 +148,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             }
 
             CreateCharacter(spriteEditor);
+            CreateSpriteLibrary(spriteEditor);
         }
 
         public void CreateToolCache(ISpriteEditor spriteEditor, LayoutOverlay layoutOverlay)
@@ -449,6 +453,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                     characterPart.position = new Vector2(positionInt.x, positionInt.y);
                     characterPart.sprite = GetSprite(p.spriteId);
                     characterPart.bones = characterPartBones;
+                    characterPart.parentGroup = p.parentGroup;
 
                     var mesh = characterPart.sprite.GetMesh();
                     if (mesh != null)
@@ -458,11 +463,24 @@ namespace UnityEditor.Experimental.U2D.Animation
 
                     m_CharacterPartMap.Add(characterPart.sprite, characterPart);
                 }
-
+                if (characterData.characterGroups != null)
+                {
+                    m_Character.groups = characterData.characterGroups.Select(x =>
+                    {
+                        var group = CreateCache<CharacterGroupCache>();
+                        group.name = x.name;
+                        group.parentGroup = x.parentGroup;
+                        return group;
+                    }).ToArray();
+                }
+                else
+                {
+                    m_Character.groups = new CharacterGroupCache[0];
+                }
+                
                 m_Character.parts = characterParts.ToArray();
                 m_Character.skeleton = skeleton;
                 m_Character.dimension = characterData.dimension;
-
                 CreateSpriteSheetSkeletons();
             }
         }
@@ -608,6 +626,21 @@ namespace UnityEditor.Experimental.U2D.Animation
                 return true;
 
             return false;
+        }
+
+        void CreateSpriteLibrary(ISpriteEditor spriteEditor)
+        {
+            var dataProvider = spriteEditor.GetDataProvider<ISpriteLibDataProvider>();
+            if (dataProvider != null)
+            {
+                m_SpriteLibrary = CreateCache<SpriteLibraryCacheObject>();
+                m_SpriteLibrary.CopyFrom(dataProvider.GetSpriteLibrary());
+            }
+        }
+
+        public SpriteLibraryCacheObject spriteLibrary
+        {
+            get { return m_SpriteLibrary; }
         }
     }
 }

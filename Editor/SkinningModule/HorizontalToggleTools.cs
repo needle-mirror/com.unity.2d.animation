@@ -142,15 +142,7 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         internal void ToggleVisibilityTool(BaseTool currentTool)
         {
-            if (!visibilityTool.isActive)
-            {
-                onActivateTool(visibilityTool);
-                StorePreviousTool(currentTool);
-            }
-            else if (m_PreviousTool != null)
-            {
-                onActivateTool(m_PreviousTool);
-            }
+            onActivateTool(visibilityTool);
         }
 
         private void DoPreviewToggle()

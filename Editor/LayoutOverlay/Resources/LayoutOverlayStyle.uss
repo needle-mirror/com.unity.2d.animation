@@ -8,8 +8,8 @@ LayoutOverlay {
 }
 
 LayoutOverlay.HasScrollbar {
-    margin-right: 18;
-    margin-bottom: 18;
+    margin-right: 18px;
+    margin-bottom: 18px;
 }
 
 //Disable Horizontal Toolbar until needed
@@ -18,16 +18,16 @@ LayoutOverlay > #HorizontalToolbar {
 }
 
 LayoutOverlay > #HorizontalHolder {
-    flex:1 0 auto;
+    flex:1 auto;
     flex-direction: row;
 }
 
 LayoutOverlay > #HorizontalHolder > #VerticalToolbar {
-    width: 140;
+    width: 140px;
 }
 
 LayoutOverlay > #HorizontalHolder > #VerticalToolbar.Collapse {
-    width: 50;
+    width: 50px;
 }
 
 LayoutOverlay > #HorizontalHolder > #LeftOverlay {
@@ -52,10 +52,10 @@ LayoutOverlay > #DropdownOverlay {
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow {
     flex:1 0 auto;
-    width : 280;
-    padding-left : 12;
-    padding-bottom : 15;
-    padding-right : 12;
+    width : 280px;
+    padding-left : 12px;
+    padding-bottom : 15px;
+    padding-right : 12px;
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow > #unity-content-container {
@@ -63,7 +63,7 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow > #unity-content-c
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-row {
-    max-height : 20;
+    max-height : 20px;
     flex-direction: row;
     margin-left : 0;
     margin-right : 0;
@@ -72,7 +72,7 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-row {
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-row-space {
-    height : 5;
+    height : 5px;
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-editor {
@@ -86,10 +86,10 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .slider-field {
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Label {
     flex: 4;
-    margin-right : 4;
-    margin-left : 4;
-    margin-top : 2;
-    margin-bottom : 2;
+    margin-right : 4px;
+    margin-left : 4px;
+    margin-top : 2px;
+    margin-bottom : 2px;
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow EnumField {
@@ -109,15 +109,15 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow PopupField {
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .unity-slider__input{
-    margin-left :1;
+    margin-left :1px;
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Slider {
     flex: 7;
-    margin-left : 4;
-    margin-top :2;
-    margin-right : 10;
-    margin-bottom :2
+    margin-left : 4px;
+    margin-top :2px;
+    margin-right : 10px;
+    margin-bottom :2px;
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Button {
@@ -126,17 +126,17 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Button {
     padding-left: 0;
     padding-right: 0;
     padding-top: 0;
-    padding-bottom: 3;
+    padding-bottom: 3px;
     flex : 1 0 auto;
-    margin-left :4;
-    margin-right :4;
-    border-left:6;
-    border-right:6;
-    border-bottom:4;
-    border-top:4;
+    margin-left :4px;
+    margin-right :4px;
+    border-left-width:6px;
+    border-right-width:6px;
+    border-bottom-width:4px;
+    border-top-width:4px;
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Toggle {
     align-self : center;
-    margin-bottom: 4;
+    margin-bottom: 4px;
 }

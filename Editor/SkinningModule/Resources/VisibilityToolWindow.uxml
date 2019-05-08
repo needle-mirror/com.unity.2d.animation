@@ -15,5 +15,6 @@
       <ui:VisualElement name ="VisibilityToolSelection" />
       <ui:VisualElement name ="VisibilityToolContainer" />
     </ui:PopupWindow>
+    <ui:VisualElement name="Resizer"/>
   </aui:VisibilityToolWindow>
 </UXML>

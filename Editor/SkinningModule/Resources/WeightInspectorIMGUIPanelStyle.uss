@@ -4,7 +4,7 @@
 
 #WeightInspectorIMGUIPanel {
   flex-direction: column;
-  height: 120;
+  height: 120px;
 }
 
 #WeightInspectorIMGUIPanel IMGUIContainer {

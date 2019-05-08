@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Experimental.U2D;
-using Object = UnityEngine.Object;
 
 namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
 {
@@ -71,6 +68,8 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
             data.parts[1].spritePosition = new RectInt(75, 0, 100, 100);
             data.parts[1].spriteId = GetSpriteRects()[1].spriteID.ToString();
             data.parts[1].bones = new int[0];
+            
+            data.characterGroups = new CharacterGroup[0];
 
             return data;
         }

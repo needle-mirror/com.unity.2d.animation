@@ -31,9 +31,6 @@ namespace UnityEditor.Experimental.U2D.Animation
 
             var splitBone = this.Q<Button>("SplitBone");
             splitBone.clickable.clicked += () => { SetSkeletonTool(Tools.SplitBone); };
-
-            var reparentBone = this.Q<Button>("BoneReparent");
-            reparentBone.clickable.clicked += () => { SetSkeletonTool(Tools.ReparentBone); };
         }
 
         public void Setup(SkinningCache s)
@@ -51,11 +48,10 @@ namespace UnityEditor.Experimental.U2D.Animation
                     this.Q<Button>("EditJoints").SetEnabled(false);
                     this.Q<Button>("CreateBone").SetEnabled(false);
                     this.Q<Button>("SplitBone").SetEnabled(false);
-                    this.Q<Button>("BoneReparent").SetEnabled(false);
+                    
                     if (skinningCache.GetTool(Tools.EditJoints).isActive
                         || skinningCache.GetTool(Tools.CreateBone).isActive
-                        || skinningCache.GetTool(Tools.SplitBone).isActive
-                        || skinningCache.GetTool(Tools.ReparentBone).isActive)
+                        || skinningCache.GetTool(Tools.SplitBone).isActive)
                         SetSkeletonTool(Tools.EditPose);
                 }
                 else if (mode == SkinningMode.Character)
@@ -63,7 +59,6 @@ namespace UnityEditor.Experimental.U2D.Animation
                     this.Q<Button>("EditJoints").SetEnabled(true);
                     this.Q<Button>("CreateBone").SetEnabled(true);
                     this.Q<Button>("SplitBone").SetEnabled(true);
-                    this.Q<Button>("BoneReparent").SetEnabled(true);
                 }
             }
         }
@@ -83,8 +78,6 @@ namespace UnityEditor.Experimental.U2D.Animation
             toolButton = this.Q<Button>("SplitBone");
             SetButtonChecked(toolButton, skinningCache.GetTool(Tools.SplitBone).isActive);
 
-            toolButton = this.Q<Button>("BoneReparent");
-            SetButtonChecked(toolButton, skinningCache.GetTool(Tools.ReparentBone).isActive);
             OnSkinningModeChange(skinningCache.mode);
         }
 

@@ -1,9 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor.Experimental.U2D.Common;
 using UnityEditor.Experimental.U2D.Animation.ClipperLib;
+using UnityEditor.U2D.Sprites;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
@@ -49,7 +49,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                     {
                         var newPath = Linearize(new List<Vector2>(paths[pathIndex]), distance);
 
-                        if(newPath.Count > 3)
+                        if (newPath.Count > 3)
                             paths[pathIndex] = newPath.ToArray();
 
                         SmoothPath(paths[pathIndex], 5, 0.1f, 135f);
@@ -85,7 +85,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                 if (!filtered.Contains(path))
                     continue;
 
-                for (var j = i+1; j < paths.Count; ++j)
+                for (var j = i + 1; j < paths.Count; ++j)
                 {
                     if (!filtered.Contains(path))
                         continue;

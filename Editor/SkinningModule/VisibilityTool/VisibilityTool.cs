@@ -21,11 +21,17 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         public event Action<float> onBoneOpacitySliderChange = (f) => {};
         public event Action<float> onMeshOpacitySliderChange = (f) => {};
+        public event Action onBoneOpacitySliderChangeBegin = () => {};
+        public event Action onBoneOpacitySliderChangeEnd = () => {};
+        public event Action onMeshOpacitySliderChangeBegin = () => {};
+        public event Action onMeshOpacitySliderChangeEnd = () => {};
 
         public static VisibilityToolWindow CreateFromUXML()
         {
             var visualTree = Resources.Load("VisibilityToolWindow") as VisualTreeAsset;
             var ve = visualTree.CloneTree().Q("VisibilityToolWindow") as VisibilityToolWindow;
+            var resizer = ve.Q("Resizer");
+            resizer.AddManipulator(new VisibilityToolResizer());
             ve.styleSheets.Add(Resources.Load<StyleSheet>("VisibilityTool"));
             if (EditorGUIUtility.isProSkin)
                 ve.AddToClassList("Dark");
@@ -41,6 +47,8 @@ namespace UnityEditor.Experimental.U2D.Animation
             m_BoneOpacitySlider.RegisterValueChangedCallback(OnBoneOpacitySliderValueChangd);
             m_MeshOpacitySlider = this.Q<Slider>("MeshOpacitySlider");
             m_MeshOpacitySlider.RegisterValueChangedCallback(OnMeshOpacitySliderValueChangd);
+            RegisterCallback<MouseDownEvent>(OpacityChangeBegin, TrickleDown.TrickleDown);
+            RegisterCallback<MouseCaptureOutEvent>(OpacityChangeEnd, TrickleDown.TrickleDown);
             m_Tabs = new List<Button>();
             m_SelectorContainer.Clear();
         }
@@ -61,6 +69,34 @@ namespace UnityEditor.Experimental.U2D.Animation
         {
             m_Container.Clear();
             this.SetHiddenFromLayout(true);
+        }
+
+        bool IsOpacityTarget(IEventHandler target, VisualElement opacityTarget)
+        {
+            var ve = target as VisualElement;
+            while (ve != null && ve != this)
+            {
+                if (ve == opacityTarget)
+                    return true;
+                ve = ve.parent;
+            }
+            return false;
+        }
+
+        void OpacityChangeBegin(MouseDownEvent evt)
+        {
+            if (IsOpacityTarget(evt.target, m_BoneOpacitySlider))
+                onBoneOpacitySliderChangeBegin();
+            else if (IsOpacityTarget(evt.target, m_MeshOpacitySlider))
+                onMeshOpacitySliderChangeBegin();
+        }
+
+        void OpacityChangeEnd(MouseCaptureOutEvent evt)
+        {
+            if (IsOpacityTarget(evt.target, m_BoneOpacitySlider))
+                onBoneOpacitySliderChangeEnd();
+            else if (IsOpacityTarget(evt.target, m_MeshOpacitySlider))
+                onMeshOpacitySliderChangeEnd();
         }
 
         void OnBoneOpacitySliderValueChangd(ChangeEvent<float> evt)
@@ -144,7 +180,9 @@ namespace UnityEditor.Experimental.U2D.Animation
             {
                 new BoneVisibilityTool(skinningCache),
                 new SpriteVisibilityTool(skinningCache)
-            });
+            },
+                () => skeletonTool,
+                () => previewBehaviour);
         }
 
         public override IMeshPreviewBehaviour previewBehaviour
@@ -167,16 +205,12 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         protected override void OnActivate()
         {
-            if (skeletonTool != null)
-                skeletonTool.Activate();
             m_MeshPreviewBehaviour.showWeightMap = true;
             m_Controller.Activate();
         }
 
         protected override void OnDeactivate()
         {
-            if (skeletonTool != null)
-                skeletonTool.Deactivate();
             m_Controller.Deactivate();
         }
 
@@ -239,6 +273,10 @@ namespace UnityEditor.Experimental.U2D.Animation
         void SetMeshOpacitySliderValue(float value);
         event Action<float> onBoneOpacitySliderChange;
         event Action<float> onMeshOpacitySliderChange;
+        event Action onBoneOpacitySliderChangeBegin;
+        event Action onBoneOpacitySliderChangeEnd;
+        event Action onMeshOpacitySliderChangeBegin;
+        event Action onMeshOpacitySliderChangeEnd;
         void Show();
         void Hide();
         void SetActiveTab(int index);
@@ -249,7 +287,10 @@ namespace UnityEditor.Experimental.U2D.Animation
     {
         IVisibilityTool[] m_Tools;
         IVisibilityToolModel m_Model;
-
+        Func<SkeletonTool> m_SkeletonTool;
+        Func<IMeshPreviewBehaviour> m_MeshPreviewBehaviour;
+        bool m_DeactivateBoneaTool = false;
+        
         private IVisibilityTool currentTool
         {
             get { return m_Model.currentToolIndex == -1 ? null : m_Tools[m_Model.currentToolIndex]; }
@@ -261,7 +302,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             get { return Array.Find(m_Tools, t => t.isAvailable); }
         }
 
-        public VisibilityToolController(IVisibilityToolModel model, IVisibilityTool[] tools)
+        public VisibilityToolController(IVisibilityToolModel model, IVisibilityTool[] tools, Func<SkeletonTool> skeletonTool = null, Func<IMeshPreviewBehaviour> meshPreviewBehaviour = null)
         {
             m_Model = model;
             m_Tools = tools;
@@ -274,7 +315,8 @@ namespace UnityEditor.Experimental.U2D.Animation
                 model.view.AddToolTab(tool.name, () => ActivateToolWithUndo(tool));
                 model.view.SetToolAvailable(i, tool.isAvailable);
             }
-
+            m_SkeletonTool = skeletonTool;
+            m_MeshPreviewBehaviour = meshPreviewBehaviour;
             currentTool = defaultTool;
         }
 
@@ -289,6 +331,14 @@ namespace UnityEditor.Experimental.U2D.Animation
             m_Model.view.onMeshOpacitySliderChange -= OnMeshOpacityChange;
             m_Model.view.onBoneOpacitySliderChange += OnBoneOpacityChange;
             m_Model.view.onMeshOpacitySliderChange += OnMeshOpacityChange;
+            m_Model.view.onBoneOpacitySliderChangeBegin -= OnBoneOpacityChangeBegin;
+            m_Model.view.onBoneOpacitySliderChangeBegin += OnBoneOpacityChangeBegin;
+            m_Model.view.onBoneOpacitySliderChangeEnd -= OnBoneOpacityChangeEnd;
+            m_Model.view.onBoneOpacitySliderChangeEnd += OnBoneOpacityChangeEnd;
+            m_Model.view.onMeshOpacitySliderChangeBegin -= OnMeshOpacityChangeBegin;
+            m_Model.view.onMeshOpacitySliderChangeBegin += OnMeshOpacityChangeBegin;
+            m_Model.view.onMeshOpacitySliderChangeEnd -= OnMeshOpacityChangeEnd;
+            m_Model.view.onMeshOpacitySliderChangeEnd += OnMeshOpacityChangeEnd;
         }
 
         public void Deactivate()
@@ -300,6 +350,36 @@ namespace UnityEditor.Experimental.U2D.Animation
 
             m_Model.view.onBoneOpacitySliderChange -= OnBoneOpacityChange;
             m_Model.view.onMeshOpacitySliderChange -= OnMeshOpacityChange;
+            m_Model.view.onBoneOpacitySliderChangeBegin -= OnBoneOpacityChangeBegin;
+            m_Model.view.onBoneOpacitySliderChangeEnd -= OnBoneOpacityChangeEnd;
+            m_Model.view.onMeshOpacitySliderChangeBegin -= OnMeshOpacityChangeBegin;
+            m_Model.view.onMeshOpacitySliderChangeEnd -= OnMeshOpacityChangeEnd;
+        }
+
+        void OnBoneOpacityChangeBegin()
+        {
+            if (m_SkeletonTool != null && m_SkeletonTool() != null && !m_SkeletonTool().isActive)
+            {
+                m_SkeletonTool().Activate();
+                m_DeactivateBoneaTool = true;
+            }
+                
+        }
+
+        void OnBoneOpacityChangeEnd()
+        {
+            if (m_SkeletonTool != null && m_SkeletonTool() != null && m_SkeletonTool().isActive && m_DeactivateBoneaTool)
+                m_SkeletonTool().Deactivate();
+        }
+
+        void OnMeshOpacityChangeBegin()
+        {
+            m_Model.skinningCache.events.meshPreviewBehaviourChange.Invoke(m_MeshPreviewBehaviour());
+        }
+
+        void OnMeshOpacityChangeEnd()
+        {
+            m_Model.skinningCache.events.meshPreviewBehaviourChange.Invoke(null);
         }
 
         private void OnBoneOpacityChange(float value)

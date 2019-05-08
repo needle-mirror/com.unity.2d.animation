@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEditor.U2D;
 using UnityEditor.U2D.Interface;
+using UnityEditor.U2D.Sprites;
 using UnityEngine.U2D.Interface;
 using UnityEngine.Experimental.U2D;
 
@@ -29,11 +30,11 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SpriteMesh
             m_Selection.Contains(Arg.Any<int>()).Returns(x => m_SelectedVertices.Contains((int)x[0]));
             m_Selection.elements.Returns(x => m_SelectedVertices.ToArray());
             m_Selection.activeElement.Returns(x =>
-                {
-                    if (m_SelectedVertices.Count == 0)
-                        return -1;
-                    return m_SelectedVertices[0];
-                });
+            {
+                if (m_SelectedVertices.Count == 0)
+                    return -1;
+                return m_SelectedVertices[0];
+            });
 
             m_SpriteMeshData = new SpriteMeshData();
             m_SpriteMeshDataController.spriteMeshData = m_SpriteMeshData;
@@ -588,12 +589,14 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SpriteMesh
 
             Assert.IsNotNull(textureAsset, "texture asset not found");
 
-            var spriteEditorDataProvider = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(textureAsset)) as ISpriteEditorDataProvider;
+            var factories = new SpriteDataProviderFactories();
+            factories.Init();
+            var spriteEditorDataProvider = factories.GetSpriteEditorDataProviderFromObject(AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(textureAsset)));
             spriteEditorDataProvider.InitSpriteEditorDataProvider();
 
             var textureDataProvider = spriteEditorDataProvider.GetDataProvider<ITextureDataProvider>();
             var rects = spriteEditorDataProvider.GetSpriteRects();
-            
+
             Assert.AreEqual(1, rects.Length, "Sprite rect not found");
 
             var spriteRect = rects[0];
@@ -608,7 +611,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SpriteMesh
         [Test]
         public void GetControlPoints_CreatesUniquePoints_CreatesBoneEdges_CreatesPinIndices()
         {
-            m_SpriteMeshData.bones.Add( new SpriteBoneData()
+            m_SpriteMeshData.bones.Add(new SpriteBoneData()
             {
                 length = 1f,
                 localPosition = Vector2.zero,
@@ -616,7 +619,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SpriteMesh
                 endPosition = Vector2.right
             });
 
-            m_SpriteMeshData.bones.Add( new SpriteBoneData()
+            m_SpriteMeshData.bones.Add(new SpriteBoneData()
             {
                 length = 1f,
                 localPosition = Vector2.right,
@@ -624,7 +627,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SpriteMesh
                 endPosition = Vector2.right * 2f
             });
 
-            m_SpriteMeshData.bones.Add( new SpriteBoneData()
+            m_SpriteMeshData.bones.Add(new SpriteBoneData()
             {
                 length = 0f,
                 localPosition = Vector2.right,

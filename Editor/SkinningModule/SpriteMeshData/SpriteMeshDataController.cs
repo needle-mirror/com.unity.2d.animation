@@ -1,9 +1,7 @@
 using System;
-using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.U2D;
+using UnityEditor.U2D.Sprites;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
@@ -295,8 +293,8 @@ namespace UnityEditor.Experimental.U2D.Animation
             vertexSelector.spriteMeshData = spriteMeshData;
             vertexSelector.selection = tempSelection;
             vertexSelector.SelectionCallback = (int i) => {
-                    return spriteMeshData.GetWeight(i).Sum() == 0f && (selection == null || selection.Count == 0 || selection.Contains(i));
-                };
+                return spriteMeshData.GetWeight(i).Sum() == 0f && (selection == null || selection.Count == 0 || selection.Contains(i));
+            };
             vertexSelector.Select();
 
             if (tempSelection.Count > 0)
@@ -556,21 +554,21 @@ namespace UnityEditor.Experimental.U2D.Animation
             vertexSelector.spriteMeshData = spriteMeshData;
             vertexSelector.selection = tempSelection;
             vertexSelector.SelectionCallback = (int i) => {
-                    var sum = spriteMeshData.GetWeight(i).Sum();
-                    currentWeightSum += sum;
-                    return sum < 0.99f;
-                };
+                var sum = spriteMeshData.GetWeight(i).Sum();
+                currentWeightSum += sum;
+                return sum < 0.99f;
+            };
 
             do
             {
                 prevWeightSum = currentWeightSum;
                 currentWeightSum = 0f;
                 vertexSelector.Select();
-                
+
                 if (tempSelection.Count > 0)
                     SmoothWeights(1, tempSelection);
-
-            } while (currentWeightSum - prevWeightSum > 0.001f);
+            }
+            while (currentWeightSum - prevWeightSum > 0.001f);
 
             if (tempSelection.Count > 0)
                 NormalizeWeights(tempSelection);

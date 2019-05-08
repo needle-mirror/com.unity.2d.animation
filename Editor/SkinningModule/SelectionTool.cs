@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEditor.Experimental.U2D.Layout;
 using UnityEngine;
-using UnityEngine.UIElements;
 using System.Linq;
+using UnityEditor.U2D.Sprites;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {

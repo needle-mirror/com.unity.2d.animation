@@ -5,11 +5,11 @@
         "Unity.2D.Common.Runtime",
         "Unity.2D.Animation.Editor",
         "Unity.2D.Animation.Runtime",
-        "Unity.2D.Triangle.Runtime",
         "Unity.InternalAPIEngineBridge.001",
         "Unity.Mathematics",
-        "Unity.Entities",
-        "Unity.Entities.Hybrid"
+        "Unity.2D.Sprite.Editor",
+        "Unity.Entities.Hybrid",
+        "Unity.Entities"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
@@ -20,8 +20,13 @@
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "NSubstitute.dll"
+    ],
     "autoReferenced": true,
-    "defineConstraints": [],
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
     "versionDefines": []
 }

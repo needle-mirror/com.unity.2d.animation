@@ -9,13 +9,13 @@ namespace UnityEditor.Experimental.U2D.Animation
             if (isHidden)
             {
                 element.SetEnabled(false);
-                element.visible = false;
+                element.style.display = DisplayStyle.None;
                 element.style.position = Position.Absolute;
             }
             else
             {
                 element.SetEnabled(true);
-                element.visible = true;
+                element.style.display = DisplayStyle.Flex;
                 element.style.position = Position.Relative;
             }
         }

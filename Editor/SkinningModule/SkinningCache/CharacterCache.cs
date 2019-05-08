@@ -13,6 +13,8 @@ namespace UnityEditor.Experimental.U2D.Animation
         private List<CharacterPartCache> m_Parts = new List<CharacterPartCache>();
         [SerializeField]
         private Vector2Int m_Dimension;
+        [SerializeField]
+        private List<CharacterGroupCache> m_Groups = new List<CharacterGroupCache>();
 
         public SkeletonCache skeleton
         {
@@ -24,6 +26,12 @@ namespace UnityEditor.Experimental.U2D.Animation
         {
             get { return m_Parts.ToArray(); }
             set { m_Parts = new List<CharacterPartCache>(value); }
+        }
+
+        public virtual CharacterGroupCache[] groups
+        {
+            get { return m_Groups.ToArray(); }
+            set { m_Groups = new List<CharacterGroupCache>(value); }
         }
 
         public Vector2Int dimension

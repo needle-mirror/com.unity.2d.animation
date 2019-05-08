@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.U2D;
-using UnityEditor.Experimental.U2D.Common;
 using Unity.Collections;
 using System.Linq;
-using UnityEngine.Experimental.Rendering;
+using UnityEditor.U2D.Sprites;
 using UnityEngine.Rendering;
-using UnityEngine.Scripting;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
@@ -21,11 +19,15 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
+            var dataProviderFactories = new SpriteDataProviderFactories();
+            dataProviderFactories.Init();
             m_AssetList = new List<object>();
             List<string> assetPathModified = new List<string>();
+            
             foreach (var importedAsset in importedAssets)
             {
-                ISpriteEditorDataProvider ai = InternalEditorBridge.GetISpriteEditorDataProviderFromPath(importedAsset);
+                var asset = AssetDatabase.LoadMainAssetAtPath(importedAsset);
+                ISpriteEditorDataProvider ai = dataProviderFactories.GetSpriteEditorDataProviderFromObject(asset);
                 if (ai != null)
                 {
                     ai.InitSpriteEditorDataProvider();

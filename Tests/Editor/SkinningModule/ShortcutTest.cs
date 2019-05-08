@@ -158,14 +158,6 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
         }
 
         [Test]
-        public void ActivateReparentBoneShortcut_SwitchesToReparentBoneTool()
-        {
-            KeyboardEvent(KeyCode.T, true);
-            var selectedTool = skinningCache.selectedTool as BoneReparentTool;
-            Assert.IsNotNull(selectedTool);
-        }
-
-        [Test]
         public void ActivateMeshSelectionShortcut_SwitchesToMeshSelectionTool()
         {
             KeyboardEvent(KeyCode.A, true);
@@ -258,19 +250,31 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
         public void ActivateVisibilityShortcut_SwitchesToVisibilityTool()
         {
             KeyboardEvent(KeyCode.P, true);
-            var selectedTool = skinningCache.selectedTool as VisibilityTool;
-            Assert.IsNotNull(selectedTool);
+            var tool = skinningCache.GetTool(Tools.Visibility);
+            Assert.IsTrue(tool.isActive);
         }
 
-        [TestCase(KeyCode.P, typeof(VisibilityTool))]
-        [TestCase(KeyCode.B, typeof(CopyTool))]
-        public void ReactivateHorizontalToolShortcut_SwitchesToPreviousTool(KeyCode key, Type type)
+        [Test]
+        public void ReactivateHorizontalToolShortcut_SwitchesToPreviousTool()
         {
+            KeyCode key = KeyCode.B;
+            Type type = typeof(CopyTool);
             var previousTool = skinningCache.selectedTool;
             KeyboardEvent(key, true);
             Assert.IsTrue(skinningCache.selectedTool.GetType() == type);
             KeyboardEvent(key, true);
             Assert.AreSame(previousTool, skinningCache.selectedTool);
+        }
+
+        [Test]
+        public void ActivateVisibilityTool_DoesNotChangeCurrentTool()
+        {
+            KeyboardEvent(KeyCode.Z, true);
+            var selectedTool = skinningCache.selectedTool as GenerateWeightsTool;
+            KeyboardEvent(KeyCode.P, true);
+            var tool = skinningCache.GetTool(Tools.Visibility);
+            Assert.IsTrue(tool.isActive);
+            Assert.IsNotNull(selectedTool);
         }
 
         private void KeyboardEvent(KeyCode keyCode, bool shift)

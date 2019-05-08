@@ -3,11 +3,11 @@
 /**********************************************************************************************************************/
 
 #WeightPainterPanel.BrushMode {
-  height: 165;
+  height: 165px;
 }
 
 #WeightPainterPanel.SliderMode {
-  height: 230;
+  height: 230px;
 }
 
 #WeightPainterPanel.BrushMode #Amount.form-row {
@@ -24,8 +24,8 @@
 
 #WeightsInspector{
     flex : 1;
-    margin-left : 4;
-    margin-right : 4;
+    margin-left : 4px;
+    margin-right : 4px;
 }
 
 
@@ -39,9 +39,9 @@
 
 
  #divider{
-    height : 2;
-    margin-top:5;
-    margin-bottom:5;
+    height : 2px;
+    margin-top:5px;
+    margin-bottom:5px;
     background-color: rgba(127,127,127,0.8);
     border-color: rgba(35,35,35,0.8);
 }
@@ -52,7 +52,7 @@
 }
 
 .SliderMode #divider{
-    height : 2
+    height : 2px;
 }
 
 .BrushMode #divider{

@@ -1,5 +1,15 @@
 VisibilityToolWindow {
-    flex:1 0 auto;
+    flex:1 0;
+    width : 250px;
+    flex-direction: row-reverse;
+}
+
+VisibilityToolWindow > PopupWindow{
+    flex : 1 0;
+}
+
+VisibilityToolWindow > PopupWindow > #unity-content-container{
+    flex : 1 0;
 }
 
 BoneVisibilityToolView{
@@ -15,7 +25,7 @@ MeshVisibilityToolView{
 }
 
 #VisibilityToolSelection{
-    height : 20;
+    height : 20px;
     flex-direction : row;
 }
 
@@ -51,11 +61,11 @@ MeshVisibilityToolView{
 
 .visibilityToolTab {
     background-image: none;
-    text-color: #505050;
-    slice-left: 6;
-    slice-top: 4;
-    slice-right: 6;
-    slice-bottom: 4;
+    color: #505050;
+    -unity-slice-left: 6;
+    -unity-slice-top: 4;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 4;
     flex :1 0 auto;
     margin-top: 0;
     margin-left: 0;
@@ -72,17 +82,17 @@ MeshVisibilityToolView{
 }
 
 .visibilityToolTabDark{
-    text-color: #B4B4B4;
+    color: #B4B4B4;
 }
 
 .visibilityToolTab:checked{
     background-image: resource("Builtin Skins/LightSkin/images/tabbar on f.png");
-    text-color: #505050;
+    color: #505050;
     flex :1 0 auto;
-    slice-left: 6;
-    slice-top: 4;
-    slice-right: 6;
-    slice-bottom: 4;
+    -unity-slice-left: 6;
+    -unity-slice-top: 4;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 4;
     margin-top: 0;
     margin-left: 0;
     margin-bottom: 0;
@@ -99,16 +109,16 @@ MeshVisibilityToolView{
 
 .visibilityToolTabDark:checked{
     background-image: resource("Builtin Skins/DarkSkin/images/tabbar on f.png");
-    text-color: #B4B4B4;
+    color: #B4B4B4;
 }
 
 .visibilityToolTab:hover:active:checked{
     background-image: resource("Builtin Skins/LightSkin/images/tabbar on.png");
     flex :1 0 auto;
-    slice-left: 6;
-    slice-top: 4;
-    slice-right: 6;
-    slice-bottom: 4;
+    -unity-slice-left: 6;
+    -unity-slice-top: 4;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 4;
     margin-top: 0;
     margin-left: 0;
     margin-bottom: 0;
@@ -129,12 +139,12 @@ MeshVisibilityToolView{
 
 .visibilityToolTab:hover:active{
     background-image: resource("Builtin Skins/LightSkin/images/tabbar on.png");
-    text-color: #505050;
+    color: #505050;
     flex :1 0 auto;
-    slice-left: 6;
-    slice-top: 4;
-    slice-right: 6;
-    slice-bottom: 4;
+    -unity-slice-left: 6;
+    -unity-slice-top: 4;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 4;
     margin-top: 0;
     margin-left: 0;
     margin-bottom: 0;
@@ -155,7 +165,7 @@ MeshVisibilityToolView{
 
 #OpacitySliderGroup
 {
-    margin-bottom : 5;
+    margin-bottom : 5px;
     flex-direction:row;
 
 }
@@ -163,52 +173,66 @@ MeshVisibilityToolView{
 #BoneOpacitySliderGroup
 {
     flex-direction:row;
-    height : 16;
-    flex :1 0 auto;
+    height : 16px;
+    flex :1 0;
 }
 
 #MeshOpacitySliderGroup
 {
     flex-direction:row;
-    height : 16;
+    height : 16px;
     flex :1 0 auto;
 }
 
 #MeshOpacitySlider
 {
     align-self : center;
+    flex : 1 0;
 }
 
 #BoneOpacitySlider
 {
     align-self : center;
+    flex : 1 0;
 }
 
 
 #BoneOpacitySliderIcon
 {
     background-image: resource("Icons/SpriteIconsLight/SpriteEditor/Bone");
-    width : 16;
-    height : 16;
+    width : 16px;
+    height : 16px;
 }
 
 #MeshOpacitySliderIcon
 {
     background-image: resource("Icons/SpriteIconsLight/SpriteEditor/Mesh");
-    width : 16;
-    height : 16;
+    width : 16px;
+    height : 16px;
 }
 
 .Dark #BoneOpacitySliderIcon
 {
     background-image: resource("Icons/SpriteIconsDark/SpriteEditor/d_Bone");
-    width : 16;
-    height : 16;
+    width : 16px;
+    height : 16px;
 }
 
 .Dark  #MeshOpacitySliderIcon
 {
     background-image: resource("Icons/SpriteIconsDark/SpriteEditor/d_Mesh");
-    width : 16;
-    height : 16;
+    width : 16px;
+    height : 16px;
+}
+
+BoneReparentToolView
+{
+    flex : 1;
+}
+
+#Resizer
+{
+    cursor : resize-horizontal;
+    min-width: 10px;
+    margin-right: -15px;
 }

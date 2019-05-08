@@ -1,11 +1,5 @@
 using UnityEngine;
-using UnityEditor;
-using UnityEditorInternal;
-using UnityEngine.U2D.Interface;
-using UnityEditor.U2D.Interface;
-using UnityEngine.Experimental.U2D;
-using UnityEditor.Experimental.U2D;
-using System.Collections.Generic;
+using UnityEditor.U2D.Sprites;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {

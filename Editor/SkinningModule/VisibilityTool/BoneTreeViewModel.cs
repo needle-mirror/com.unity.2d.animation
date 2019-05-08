@@ -86,7 +86,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         {
             TransformCache parent = newParent;
 
-            if(newParent == null)
+            if (newParent == null)
                 parent = bone.skeleton;
 
             skinningCache.RestoreBindPose();

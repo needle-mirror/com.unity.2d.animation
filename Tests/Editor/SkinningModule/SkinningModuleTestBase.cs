@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using UnityEditor.U2D.Sprites;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
@@ -24,7 +25,15 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
 
         protected virtual ISpriteEditorDataProvider GetSpriteEditorDataProvider()
         {
-            return AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(Resources.Load<Texture2D>("Texture2"))) as ISpriteEditorDataProvider;
+            if (m_DataProvider == null)
+            {
+                var factories = new SpriteDataProviderFactories();
+                factories.Init();
+                var importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(Resources.Load<Texture2D>("Texture2")));
+                m_DataProvider = factories.GetSpriteEditorDataProviderFromObject(importer);
+                m_DataProvider.InitSpriteEditorDataProvider();
+            }
+            return m_DataProvider;
         }
 
         public virtual T GetDataProvider<T>() where T : class
@@ -39,8 +48,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
 
         public void OnEnable()
         {
-            m_DataProvider = GetSpriteEditorDataProvider();
-            m_DataProvider.InitSpriteEditorDataProvider();
+            GetSpriteEditorDataProvider();
             m_SkinningModule = new SkinningModule();
             m_SkinningModule.GetType()
                 .GetProperty("spriteEditor", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)

@@ -4,7 +4,7 @@
 
 /* Horizontal scroller */
 Scroller.horizontal {
-    position-type:absolute;
+    position:absolute;
     height:0;
     width:0;
     visibility:hidden;
@@ -13,7 +13,7 @@ Scroller.horizontal {
 
 /* Vertical scroller */
 Scroller.vertical {
-    position-type:absolute;
+    position:absolute;
     height:0;
     width:0;
     visibility:hidden;
@@ -31,41 +31,41 @@ ScrollView {
 /*
 ScrollView #ContentViewport {
     flex-direction:row;
-    position-type:absolute;
-    position-left:0;
-    position-top:0;
-    position-right:0;
-    position-bottom:0;
+    position:absolute;
+    left:0;
+    top:0;
+    right:0;
+    bottom:0;
 }
 
 ScrollView #ContentViewport.VerticalScroll {
-    position-right:0;
+    right:0;
 }
 
 ScrollView #ContentViewport.HorizontalScroll {
-    position-bottom:0;
+    bottom:0;
 }
 
 ScrollView #ContentView {
-    position-type:absolute;
+    position:absolute;
 }
 
 ScrollView.stretchContentWidth #ContentView {
-    position-left:0;
-    position-right:0;
+    left:0;
+    right:0;
 }
 
 ScrollView #HorizontalScroller {
-    position-type:absolute;
-    position-left:0;
-    position-bottom:0;
-    position-right:0;
+    position:absolute;
+    left:0;
+    bottom:0;
+    right:0;
 }
 
 ScrollView #VerticalScroller {
-    position-type:absolute;
-    position-top:0;
-    position-bottom:0;
-    position-right:0;
+    position:absolute;
+    top:0;
+    bottom:0;
+    right:0;
 }
 */

@@ -25,6 +25,8 @@ namespace UnityEditor.Experimental.U2D.Animation
         public class PasteEvent : UnityEvent<bool, bool, bool, bool> {}
         public class ShortcutEvent : UnityEvent<string> {}
         public class BoneVisibilityEvent : UnityEvent<string> {}
+        public class SpriteLibraryEvent : UnityEvent {}
+        public class MeshPreviewBehaviourChangeEvent : UnityEvent<IMeshPreviewBehaviour> {}
 
         private SpriteEvent m_SelectedSpriteChanged = new SpriteEvent();
         private SkeletonEvent m_SkeletonPreviewPoseChanged = new SkeletonEvent();
@@ -43,6 +45,8 @@ namespace UnityEditor.Experimental.U2D.Animation
         private PasteEvent m_PasteEvent = new PasteEvent();
         private ShortcutEvent m_ShortcutEvent = new ShortcutEvent();
         private BoneVisibilityEvent m_BoneVisibilityEvent = new BoneVisibilityEvent();
+        private SpriteLibraryEvent m_SpriteLibraryEvent = new SpriteLibraryEvent();
+        private MeshPreviewBehaviourChangeEvent m_MeshPreviewBehaviourChange = new MeshPreviewBehaviourChangeEvent();
 
         //Setting them as virtual so that we can create mock them
         public virtual SpriteEvent selectedSpriteChanged { get { return m_SelectedSpriteChanged; } }
@@ -62,5 +66,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         public virtual PasteEvent paste { get { return m_PasteEvent; } }
         public virtual ShortcutEvent shortcut { get { return m_ShortcutEvent; } }
         public virtual BoneVisibilityEvent boneVisibility { get { return m_BoneVisibilityEvent; } }
+        public virtual SpriteLibraryEvent spriteLibraryChanged { get { return m_SpriteLibraryEvent; } }
+        public virtual MeshPreviewBehaviourChangeEvent meshPreviewBehaviourChange { get { return m_MeshPreviewBehaviourChange; } }
     }
 }

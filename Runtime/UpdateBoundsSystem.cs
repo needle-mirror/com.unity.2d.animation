@@ -15,11 +15,11 @@ namespace UnityEngine.Experimental.U2D.Animation
     [UpdateAfter(typeof(DeformSpriteSystem))]
     public class UpdateBoundsSystem : ComponentSystem
     {
-        ComponentGroup m_ComponentGroup;
+        EntityQuery m_ComponentGroup;
 
         protected override void OnCreateManager()
         {
-            m_ComponentGroup = GetComponentGroup(typeof(SpriteSkin), typeof(SpriteComponent));
+            m_ComponentGroup = GetEntityQuery(typeof(SpriteSkin), typeof(SpriteComponent));
         }
 
         struct Bounds

@@ -1,6 +1,6 @@
 # Introduction
 
-The aim of this manual is to guide you to quickly rig and animate a 2D character in Unity with the 2D Animation V2 package and tools. This package is only supported for Unity 2018.3.
+The aim of this manual is to guide you to quickly rig and animate a 2D character in Unity with the 2D Animation V2 package and tools. This package is only supported for Unity 2019.2.
 
 ## Adobe Photoshop PSB format
 
@@ -29,7 +29,7 @@ Example 3: The layers mosaic into a Sprite Sheet, with a generated Prefab of the
 
 ## Import settings
 
-Prepare your character by separating the character's limbs and parts into separate layers, and arrange them in a default pose. 
+Prepare your character by separating the character's limbs and parts into separate layers, and arrange them in a default pose.
 
 1. Save your artwork as a PSB file in Adobe Photoshop by selecting the **Large Document Format** under the **Save As** menu. You can convert an existing PSD file to PSB in the same way.
 2. Import the PSB file into Unity as an Asset.
@@ -56,11 +56,16 @@ Click __Apply__ to apply the settings when ready. Refer to the __PSD Importer__ 
 
 | Tool                                                         | Default Shortcut | Function                                                     |
 | :----------------------------------------------------------- | :--------------: | :----------------------------------------------------------- |
+| ![icon_RestoreBind](images/icon_RestoreBind.png)Reset Pose |    Shift + 1     | Restore a character’s bones and joints to their original positions. |
+| ![icon_ToggleView](images/icon_ToggleView.png)Toggle View Mode |    Shift + 2     | Switch between the Character and Sprite Sheet view           |
+| ![icon_Copy](images/icon_Copy.png)Copy                       |     Ctrl + C     | Copy the data from the current selection.                    |
+| ![icon_Paste](images/icon_Paste.png)Paste                    |     Ctrl + V     | Pastes the copied data.                                      |
+| ![icon_Paste](images/icon_Paste.png)Paste                    |    Shift + B     | Show additional pasting options.                             |
+| ![icon_Visibility](images/icon_Visibility.png)Visibility     |    Shift + P     | Toggle visibility of selected Sprites or bones.              |
 | ![icon_PreviewPose](images/icon_PreviewPose.png)Preview Pose |    Shift + Q     | Preview character poses after rigging.                       |
 | ![icon_EditJoints](images/icon_EditJoints.png)Edit Joints    |    Shift + W     | Reposition the bones into a new positions. These changes are automatically saved as the default bind pose for the Restore Bind Pose tool.<br/>Sprite geometry does not deform with the bones in this mode, even if the bones are attached as influencers. |
 | ![icon_CreateBone](images/icon_CreateBone.png)Create Bone    |    Shift + E     | Click and drag to create bones.                              |
 | ![icon_SplitBone](images/icon_SplitBone.png)Split Bone       |    Shift + R     | Splits the selected bone.                                    |
-| ![icon_ReparentBone](images/icon_ReparentBone.png)Reparent Bone |    Shift + T     | Reparents a child bone to a different parent bone, changing the bone hierarchy. |
 | ![icon_GenGeo](images/icon_GenGeo.png)Auto Geometry      |    Shift + A     | Autogenerate meshes for Sprites.                             |
 | ![icon_EditGeo](images/icon_EditGeo.png)Edit Geometry        |    Shift + S     | Edit generated meshes by repositioning vertices.             |
 | ![icon_CreateVertex](images/icon_CreateVertex.png)Create Vertex |    Shift + D     | Create new vertices to create geometry.                      |
@@ -70,12 +75,6 @@ Click __Apply__ to apply the settings when ready. Refer to the __PSD Importer__ 
 | ![icon_WeightSlider](images/icon_WeightSlider.png)Weight Slider |    Shift + X     | Adjust weights via slider control.                           |
 | ![icon_WeightPaint](images/icon_WeightPaint.png)Weight Brush |    Shift + C     | Adjust weights by painting with a brush.                     |
 | ![icon_BoneInfluence](images/icon_BoneInfluence.png)Bone Influence |    Shift + V     | Select which bones influence a Sprite.                       |
-| ![icon_RestoreBind](images/icon_RestoreBind.png)Reset Pose |    Shift + 1     | Restore a character’s bones and joints to their original positions. |
-| ![icon_ToggleView](images/icon_ToggleView.png)Toggle View Mode |    Shift + 2     | Switch between the Character and Sprite Sheet view           |
-| ![icon_Copy](images/icon_Copy.png)Copy                       |     Ctrl + C     | Copy the data from the current selection.                    |
-| ![icon_Paste](images/icon_Paste.png)Paste                    |     Ctrl + V     | Pastes the copied data.                                      |
-| ![icon_Paste](images/icon_Paste.png)Paste                    |    Shift + B     | Show additional pasting options.                             |
-| ![icon_Visibility](images/icon_Visibility.png)Visibility     |    Shift + P     | Toggle visibility of selected Sprites or bones.              |
 | Toggle Tool Text     |    Shift + `     | Show or hide text on tool buttons              |
 
 ## Sprite selection
@@ -116,7 +115,7 @@ The Unity 2D Animation preferences menu is found in the Preferences menu by goin
 
 4. Once all bones are created, generate the mesh geometry for the Sprites. It is recommended to use the ![icon_small_GenGeo](images/icon_small_GenGeo.png)__Auto Geometry__ tool to autogenerate the Sprites’s geometry mesh. Then refine the geometry with the ![icon_small_CreateVertex](images/icon_small_CreateVertex.png)__Create Vertex__ and ![icon_small_CreateEdge](images/icon_small_CreateEdge.png)__Create Edge__ tools.
 
-5. To edit the bones that influence a Sprite, select the ![icon_small_BoneInfluence](images/icon_small_BoneInfluence.png)__Bone Influence__ tool and double-click a Sprite to select it. A list of bones currently influencing the Sprite appears. 
+5. To edit the bones that influence a Sprite, select the ![icon_small_BoneInfluence](images/icon_small_BoneInfluence.png)__Bone Influence__ tool and double-click a Sprite to select it. A list of bones currently influencing the Sprite appears.
 
     * To remove any of the listed bones, select it in the list and click '-' to remove them.
 
@@ -124,7 +123,7 @@ The Unity 2D Animation preferences menu is found in the Preferences menu by goin
 
 6. The weight attached to vertices affects the influence between bones and the Sprites' geometry. Select the  ![icon_small_GenWeight](images/icon_small_GenWeight.png)__Auto Weights__ tool to autogenerate the weight of a selected Sprites. To generate weights for all Sprites at once, deselect all Sprites before selecting the tool. Refine the weights of the vertices with the ![icon_small_WeightPainter](images/icon_small_WeightPainter.png)__Weight Brush__ and ![icon_small_WeightSlider](images/icon_small_WeightSlider.png)__Weight Slider__ tools.
 
-7. Test the skeleton rig previewing poses with the ![icon_small_PreviewPose](images/icon_small_PreviewPose.png)__Preview Pose__ tool. Move and rotate the different bones to check their influence on the geometry mesh. Previewing poses can also be done while using the following tools: the ![icon_small_ReparentBone](images/icon_small_ReparentBone.png)__Reparent Bone__, ![icon_small_WeightPainter](images/icon_small_WeightPainter.png)__Weight Brush__, ![icon_small_WeightSlider](images/icon_small_WeightSlider.png)__Weight Slider__, ![icon_small_BoneInfluence](images/icon_small_BoneInfluence.png)__Bone Influence__, ![icon_small_GenWeight](images/icon_small_GenWeight-1543300126435.png)__Auto Weights__, and ![icon_small_Visibility](images/icon_small_Visibility.png)__Visibility__ tools.
+7. Test the skeleton rig previewing poses with the ![icon_small_PreviewPose](images/icon_small_PreviewPose.png)__Preview Pose__ tool. Move and rotate the different bones to check their influence on the geometry mesh. Previewing poses can also be done while using the following tools: the ![icon_small_WeightPainter](images/icon_small_WeightPainter.png)__Weight Brush__, ![icon_small_WeightSlider](images/icon_small_WeightSlider.png)__Weight Slider__, ![icon_small_BoneInfluence](images/icon_small_BoneInfluence.png)__Bone Influence__, ![icon_small_GenWeight](images/icon_small_GenWeight-1543300126435.png)__Auto Weights__, and ![icon_small_Visibility](images/icon_small_Visibility.png)__Visibility__ tools.
 
     * To restore a skeleton rig to its original pose, select ![icon_small_RestoreBind](images/icon_small_RestoreBind.png)__Reset Pose__. The default pose can be edited with the ![icon_small_EditJoints](images/icon_small_EditJoints.png)__Edit Joints__ tool.
 
@@ -133,3 +132,32 @@ The Unity 2D Animation preferences menu is found in the Preferences menu by goin
 To begin animating, drag the Asset into the Scene. This creates a GameObject that reassembles the imported character as it originally appeared in the PSB file. The GameObject contains multiple child GameObjects in the order that represents the bone hierarchy.
 
 With the new GameObject in the scene, begin animating it with the usual [Unity animation workflow and tools](https://docs.unity3d.com/Manual/AnimationSection.html).
+
+# Copy and Paste Sprite Rig Setup
+
+You can reapply a Sprite's rig setup by using the Copy and Paste commands. Currently these commands operates only on Sprite data. This means only data associated to a Sprite can be transffered.
+
+## Copy
+
+To copy a Sprite's data, simply select a Sprite and use the Copy command. If not Sprite is selected, all Sprites' data in the current module will be copied.
+
+## Paste
+
+To paste a Sprite's data to another Sprite, select the Sprite that you want to paste data on and use the Paste command. Sprite data can be pasted onto another image source. You can also choose what data to paste on the Sprite by clicking on the ![PasteButton](images/PasteButton.png) __Paste Button__. This will bring up the Paste Dialog
+
+![Paste Diak0g](images/PasteDialog.png)
+
+| Option                   | Function                                      |
+| ------------------------ | ----------------------------------------------|
+| **Bones**                | Paste Bone data                               |
+| **Mesh**                 | Paste the Mesh data                           |
+| **Flip X**               | Paste the data with mirrored along the X-axis |
+| **Flip Y**               | Paste the data mirrored along the Y-axis      |
+
+
+The following is shows the behaviour for different scenarios when using the Copy and Paste tool
+
+|                    | Copy from a Selected Sprite  | Copy With No Sprite Selected                                                     |
+| ---|----------------------- | ------------------------------------------------------------ |
+| **Paste With Sprite Selected** | Data will be copied to the selected Sprite | All Sprite with the same name from the Copy source will be pasted to the selected image.|
+| **Paste With No Sprite Selected** |No data is pasted| All Sprites with the same name from the Copy source will have the data pasted|

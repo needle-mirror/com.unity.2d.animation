@@ -62,6 +62,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.Character
             data.parts[1].spriteId = spriteRects[1].spriteID.ToString();
             data.parts[1].bones = new int[] { 0, 1, 2 };
 
+            data.characterGroups = new CharacterGroup[0];
             return data;
         }
 

@@ -287,6 +287,22 @@ namespace UnityEditor.Experimental.U2D.Animation
                     newBonesStore = new NewBonesStore();
                     var skinningSpriteData = skinningCopyData.copyData[0];
                     newBonesStore.newBones = skinningCache.CreateBoneCacheFromSpriteBones(skinningSpriteData.spriteBones.ToArray(), scale);
+                    if (flipX || flipY)
+                    {
+                        var characterRect = new Rect(Vector2.zero, skinningCache.character.dimension);
+                        var newPositions = new Vector3[newBonesStore.newBones.Length];
+                        var newRotations = new Quaternion[newBonesStore.newBones.Length];
+                        for (var i = 0; i < newBonesStore.newBones.Length; ++i)
+                        {
+                            newPositions[i] = GetFlippedBonePosition(newBonesStore.newBones[i], Vector2.zero, characterRect, flipX, flipY);
+                            newRotations[i] = GetFlippedBoneRotation(newBonesStore.newBones[i], flipX, flipY);
+                        }
+                        for (var i = 0; i < newBonesStore.newBones.Length; ++i)
+                        {
+                            newBonesStore.newBones[i].position = newPositions[i];
+                            newBonesStore.newBones[i].rotation = newRotations[i];
+                        }
+                    }
                     newBonesStore.MapAllExistingBones();
                     var skeleton = skinningCache.character.skeleton;
                     skeleton.SetBones(newBonesStore.newBones);
@@ -431,6 +447,10 @@ namespace UnityEditor.Experimental.U2D.Animation
                         bone.name = SkeletonController.AutoBoneName(bone.parentBone, bones);
                         existingBoneNames.Add(bone.name);
                         newBonesStore.newBoneNameDict.Add(oldBoneName, bone.name);
+                    }
+                    else
+                    {
+                        newBonesStore.newBoneNameDict.Add(bone.name, bone.name);
                     }
                 }
 

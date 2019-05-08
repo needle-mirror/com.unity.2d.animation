@@ -112,17 +112,6 @@ namespace UnityEditor.Experimental.U2D.Animation
             }
         }
 
-        [Shortcut("2D/Animation/Reparent Bone", typeof(InternalEditorBridge.ShortcutContext), KeyCode.T, ShortcutModifiers.Shift)]
-        private static void ReparentBoneKey(ShortcutArguments args)
-        {
-            var sm = GetModuleFromContext(args);
-            if (sm != null && !sm.spriteEditor.editingDisabled)
-            {
-                sm.SetSkeletonTool(Tools.ReparentBone);
-                sm.skinningCache.events.shortcut.Invoke("#t");
-            }
-        }
-
         [Shortcut("2D/Animation/Auto Geometry", typeof(InternalEditorBridge.ShortcutContext), KeyCode.A, ShortcutModifiers.Shift)]
         private static void GenerateGeometryKey(ShortcutArguments args)
         {
@@ -363,17 +352,9 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         private void ActivateTool(BaseTool tool)
         {
-            if (currentTool == tool)
-                return;
-
-            if (currentTool != null)
-                currentTool.Deactivate();
-
-            currentTool = tool;
-            currentTool.Activate();
-
+            m_ModuleToolGroup.ActivateTool(tool);
             UpdateToggleState();
-            skinningCache.events.toolChanged.Invoke(currentTool);
+            skinningCache.events.toolChanged.Invoke(tool);
         }
 
         private void UnselectBones()

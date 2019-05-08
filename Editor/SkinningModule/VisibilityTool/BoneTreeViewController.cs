@@ -90,8 +90,8 @@ namespace UnityEditor.Experimental.U2D.Animation
             {
                 var bones = skeleton.bones;
                 var children = bones.Where(x => x.parentBone == null).ToArray();
-                System.Array.Sort(children, (a,b) => a.siblingIndex.CompareTo(b.siblingIndex));
-                
+                System.Array.Sort(children, (a, b) => a.siblingIndex.CompareTo(b.siblingIndex));
+
                 foreach (var bone in children)
                     AddTreeViewItem(rows, bone, bones, 0);
             }
@@ -104,7 +104,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             rows.Add(item);
 
             var children = bones.Where(x => x.parentBone == bone).ToArray();
-            System.Array.Sort(children, (a,b) => a.siblingIndex.CompareTo(b.siblingIndex));
+            System.Array.Sort(children, (a, b) => a.siblingIndex.CompareTo(b.siblingIndex));
 
             foreach (var childBone in children)
                 AddTreeViewItem(rows, childBone, bones, depth + 1);

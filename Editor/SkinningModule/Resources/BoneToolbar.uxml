@@ -18,10 +18,6 @@
               <ui:Image name="SplitBoneImage" />
               <ui:Label text ="Split Bone"/>
           </ui:Button>
-          <ui:Button name="BoneReparent" tooltip="Edit bone hierarchy">
-              <ui:Image name="BoneReparentImage" />
-              <ui:Label text ="Reparent Bone"/>
-          </ui:Button>
       </ui:PopupWindow>
   </aui:BoneToolbar>
 </UXML>

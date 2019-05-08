@@ -26,8 +26,8 @@ namespace UnityEditor.Experimental.U2D.Animation
         public void Setup()
         {
             m_Data = skinningCache.CreateCache<BoneVisibilityToolData>();
-            m_Controller = new BoneTreeWidgetController(this, skinningCache.events);
-            m_View = new BoneVisibilityToolView()
+            m_Controller = new BoneReparentToolController(this, skinningCache.events);//new BoneTreeWidgetController(this, skinningCache.events);
+            m_View = new BoneReparentToolView()
             {
                 GetModel = () => this,
                 GetController = () => m_Controller
@@ -135,7 +135,7 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         public void Deactivate()
         {
-            if(m_TreeView.HasSelection())
+            if (m_TreeView.HasSelection())
                 m_TreeView.EndRename();
         }
     }
@@ -313,7 +313,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                         GetController().ReparentItems(newParent, draggedRows, args.insertAtIndex);
                         Reload();
                         var selectedIDs = draggedRows.ConvertAll(b => b.id);
-				        SetSelection(selectedIDs, TreeViewSelectionOptions.RevealAndFrame);
+                        SetSelection(selectedIDs, TreeViewSelectionOptions.RevealAndFrame);
                         SelectionChanged(selectedIDs);
                     }
                     return validDrag ? DragAndDropVisualMode.Move : DragAndDropVisualMode.None;

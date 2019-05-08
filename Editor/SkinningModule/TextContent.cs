@@ -63,6 +63,17 @@ namespace UnityEditor.Experimental.U2D.Animation
         public static string spriteOutlineSize = "Sprite Outline Size";
         public static string boneOutlineSize = "Bone Outline Size";
 
+        // Sprite Library
+        public static string convertGroupToCategory = "Convert Group to Category";
+        public static string newTrailingDots = "New...";
+        public static string removeEmptyCategory = "Remove Empty Category";
+        public static string convertLayerToCategory = "Convert Layer to Category";
+        public static string clearAllCategory = "Clear All Category";
+        public static string spriteCategoryChanged = "Sprite Category Changed";
+        public static string spriteCategoryIndexChanged = "Sprite Category Index Changed";
+        public static string category = "Category";
+        public static string index = "Index";
+
         // Other
         public static string generatingGeometry = "Generating Geometry";
         public static string generatingWeights = "Generating Weights";

@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEditor.U2D.Sprites;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
@@ -21,6 +22,8 @@ namespace UnityEditor.Experimental.U2D.Animation
         private SpriteBoneInfluenceTool m_CharcterSpriteTool;
         private HorizontalToggleTools m_HorizontalToggleTools;
         private AnimationAnalytics m_Analytics;
+        private ModuleToolGroup m_ModuleToolGroup;
+        IMeshPreviewBehaviour m_MeshPreviewBehaviourOverride = null;
         bool m_CollapseToolbar;
 
         internal SkinningCache skinningCache
@@ -52,6 +55,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                 m_CharcterSpriteTool = skinningCache.CreateTool<SpriteBoneInfluenceTool>();
                 m_CharcterSpriteTool.Initialize(m_LayoutOverlay);
                 m_MeshPreviewTool = skinningCache.CreateTool<MeshPreviewTool>();
+                SetupModuleToolGroup();
                 m_MeshPreviewTool.Activate();
 
                 ActivateTool(skinningCache.GetTool(Tools.EditPose));
@@ -69,6 +73,8 @@ namespace UnityEditor.Experimental.U2D.Animation
                 skinningCache.events.meshChanged.AddListener(OnMeshChanged);
                 skinningCache.events.boneNameChanged.AddListener(OnBoneNameChanged);
                 skinningCache.events.boneDepthChanged.AddListener(OnBoneDepthChanged);
+                skinningCache.events.spriteLibraryChanged.AddListener(OnSpriteLibraryChanged);
+                skinningCache.events.meshPreviewBehaviourChange.AddListener(OnMeshPreviewBehaviourChange);
 
                 m_PreviousSkinningMode = skinningCache.mode;
 
@@ -120,6 +126,8 @@ namespace UnityEditor.Experimental.U2D.Animation
             skinningCache.events.meshChanged.RemoveListener(OnMeshChanged);
             skinningCache.events.boneNameChanged.RemoveListener(OnBoneNameChanged);
             skinningCache.events.boneDepthChanged.RemoveListener(OnBoneDepthChanged);
+            skinningCache.events.spriteLibraryChanged.RemoveListener(OnSpriteLibraryChanged);
+            skinningCache.events.meshPreviewBehaviourChange.RemoveListener(OnMeshPreviewBehaviourChange);
 
             RemoveMainUI(spriteEditor.GetMainVisualContainer());
             RestoreSpriteEditor();
@@ -262,7 +270,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             if (!spriteEditor.editingDisabled)
                 skinningCache.selectionTool.DoGUI();
 
-            m_MeshPreviewTool.previewBehaviourOverride = currentTool.previewBehaviour;
+            m_MeshPreviewTool.previewBehaviourOverride = m_MeshPreviewBehaviourOverride != null ? m_MeshPreviewBehaviourOverride : currentTool.previewBehaviour;
             m_MeshPreviewTool.DoGUI();
             m_MeshPreviewTool.DrawOverlay();
 
@@ -511,6 +519,43 @@ namespace UnityEditor.Experimental.U2D.Animation
 
                 characterDataProvider.SetCharacterData(data);
             }
+
+            var spriteLibDataProvider = spriteEditor.GetDataProvider<ISpriteLibDataProvider>();
+            if (spriteLibDataProvider != null)
+            {
+                spriteLibDataProvider.SetSpriteLibrary(skinningCache.spriteLibrary.ToSpriteLibrary());
+            }
+        }
+
+        void OnSpriteLibraryChanged()
+        {
+            DataModified();
+        }
+
+
+        void OnMeshPreviewBehaviourChange(IMeshPreviewBehaviour meshPreviewBehaviour)
+        {
+            m_MeshPreviewBehaviourOverride = meshPreviewBehaviour;
+        }
+
+        private void SetupModuleToolGroup()
+        {
+            m_ModuleToolGroup = new ModuleToolGroup();
+            m_ModuleToolGroup.AddToolToGroup(0, skinningCache.GetTool(Tools.Visibility), null);
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.EditGeometry), () => currentTool = skinningCache.GetTool(Tools.EditGeometry));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.CreateVertex), () => currentTool = skinningCache.GetTool(Tools.CreateVertex));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.CreateEdge), () => currentTool = skinningCache.GetTool(Tools.CreateEdge));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.SplitEdge), () => currentTool = skinningCache.GetTool(Tools.SplitEdge));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.GenerateGeometry), () => currentTool = skinningCache.GetTool(Tools.GenerateGeometry));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.EditPose), () => currentTool = skinningCache.GetTool(Tools.EditPose));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.EditJoints), () => currentTool = skinningCache.GetTool(Tools.EditJoints));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.CreateBone), () => currentTool = skinningCache.GetTool(Tools.CreateBone));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.SplitBone), () => currentTool = skinningCache.GetTool(Tools.SplitBone));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.WeightSlider), () => currentTool = skinningCache.GetTool(Tools.WeightSlider));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.WeightBrush), () => currentTool = skinningCache.GetTool(Tools.WeightBrush));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.GenerateWeights), () => currentTool = skinningCache.GetTool(Tools.GenerateWeights));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.BoneInfluence), () => currentTool = skinningCache.GetTool(Tools.BoneInfluence));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.CopyPaste), () => currentTool = skinningCache.GetTool(Tools.CopyPaste));
         }
     }
 }

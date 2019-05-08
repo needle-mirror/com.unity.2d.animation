@@ -1,6 +1,5 @@
-﻿namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.Experimental.U2D.Animation
 {
-
     internal interface IBoneVisibilityToolView
     {
         void OnBoneSelectionChange(SkeletonSelection skeleton);

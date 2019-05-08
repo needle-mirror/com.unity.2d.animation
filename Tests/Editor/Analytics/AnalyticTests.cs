@@ -477,7 +477,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.AnalyticTests
         public void AnimationUsageEventCapturedInCurrentToolEvent(AnimationUsageEventTestCaseData testCase)
         {
             testCase.eventCall(m_Events);
-            m_Events.toolChanged.Invoke(m_Tools[Tools.ReparentBone]);
+            m_Events.toolChanged.Invoke(m_Tools[Tools.EditGeometry]);
 
             m_Storage.Received(1).SendUsageEvent(
                 Arg.Is<AnimationToolUsageEvent>(
@@ -491,7 +491,7 @@ namespace UnityEditor.Experimental.U2D.Animation.Test.AnalyticTests
         {
             for (int i = 0; i < AnalyticConstant.k_MaxNumberOfElements; ++i)
                 m_Events.shortcut.Invoke(i.ToString());
-            m_Events.toolChanged.Invoke(m_Tools[Tools.ReparentBone]);
+            m_Events.toolChanged.Invoke(m_Tools[Tools.EditGeometry]);
             m_Storage.Received(1).SendUsageEvent(
                 Arg.Is<AnimationToolUsageEvent>(
                     evt =>

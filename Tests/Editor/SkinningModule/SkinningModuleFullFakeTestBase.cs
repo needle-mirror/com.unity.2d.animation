@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using UnityEditor.U2D.Sprites;
 using UnityEngine;
 using UnityEngine.Experimental.U2D;
 using Object = UnityEngine.Object;
@@ -7,12 +8,12 @@ using Object = UnityEngine.Object;
 namespace UnityEditor.Experimental.U2D.Animation.Test.SkinningModuleTests
 {
     public class SpriteEditorWindowFullFake
-            : SpriteEditorWindowFake
-                , ISpriteEditorDataProvider
-                , ISpriteBoneDataProvider
-                , ISpriteMeshDataProvider
-                , ICharacterDataProvider
-                , ITextureDataProvider
+        : SpriteEditorWindowFake
+        , ISpriteEditorDataProvider
+        , ISpriteBoneDataProvider
+        , ISpriteMeshDataProvider
+        , ICharacterDataProvider
+        , ITextureDataProvider
     {
         private class SpriteData
         {

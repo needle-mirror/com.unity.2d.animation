@@ -1,7 +1,7 @@
 
 SpriteBoneInfluenceWindow
 {
-    height: 300;
+    height: 200px;
 }
 
 SpriteBoneInfluenceWindowListWidget
