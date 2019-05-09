@@ -54,6 +54,7 @@ namespace UnityEditor.Experimental.U2D.Animation
 
             //Assume the Gizmo toggle is disabled and listen to the event again
             m_EnableGizmos = false;
+            SpriteSkin.onDrawGizmos.RemoveListener(OnDrawGizmos);
             SpriteSkin.onDrawGizmos.AddListener(OnDrawGizmos);
         }
     }

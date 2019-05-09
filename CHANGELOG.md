@@ -4,6 +4,11 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-preview.3] - 2019-4-18
+### Added
+- Fix line ending warning message
+- Fix case 1118093: SpriteSkin.onDrawGizmos() increases memory usage.
+
 ## [2.0.0-preview.2] - 2019-3-18
 ### Added
 - Fix deformation failing to run on builds with code-stripping set.
