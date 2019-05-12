@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.1.0-preview.5] - 2019-05-13
+### Added
+- Fix several copy/paste issues related to flipping
+
 ## [2.1.0-preview.4] - 2019-04-29
 ### Added
 - Fix skinning not in sync with the rendering.
