@@ -12,11 +12,11 @@ namespace UnityEngine.Experimental.U2D.Animation
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class PrepareSkinningSystem : ComponentSystem
     {
-        ComponentGroup m_ComponentGroup;
+        EntityQuery m_ComponentGroup;
 
         protected override void OnCreateManager()
         {
-            m_ComponentGroup = GetComponentGroup(typeof(SpriteSkin), typeof(WorldToLocal), typeof(SpriteComponent), typeof(Vertex), typeof(BoneTransform));
+            m_ComponentGroup = GetEntityQuery(typeof(SpriteSkin), typeof(WorldToLocal), typeof(SpriteComponent), typeof(Vertex), typeof(BoneTransform));
         }
 
         protected override void OnUpdate()
@@ -40,7 +40,7 @@ namespace UnityEngine.Experimental.U2D.Animation
                     var isVisible = spriteRenderer.isVisible || spriteSkin.ForceSkinning;
 
                     if (!isValid)
-                        SpriteRendererDataAccessExtensions.DeactivateDeformableBuffer(spriteRenderer);
+                        spriteSkin.DeactivateSkinning();
                     else if (isVisible)
                     {
                         spriteSkin.ForceSkinning = false;

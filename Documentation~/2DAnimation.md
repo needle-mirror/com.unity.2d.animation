@@ -1,6 +1,6 @@
 # Introduction
 
-The aim of this manual is to guide you to quickly rig and animate a 2D character in Unity with the 2D Animation V2 package and tools. This package is only supported for Unity 2018.3.
+The aim of this manual is to guide you to quickly rig and animate a 2D character in Unity with the 2D Animation V2 package and tools. This package is only supported for Unity 2019.1.
 
 ## Adobe Photoshop PSB format
 

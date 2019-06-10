@@ -16,11 +16,11 @@ namespace UnityEngine.Experimental.U2D.Animation
     {
         List<SkinJob> m_Jobs = new List<SkinJob>(16);
         List<SpriteComponent> m_UniqueSpriteComponents = new List<SpriteComponent>(16);
-        ComponentGroup m_ComponentGroup;
+        EntityQuery m_ComponentGroup;
 
         protected override void OnCreateManager()
         {
-            m_ComponentGroup = GetComponentGroup(typeof(WorldToLocal), typeof(SpriteComponent), typeof(Vertex), typeof(BoneTransform));
+            m_ComponentGroup = GetEntityQuery(typeof(WorldToLocal), typeof(SpriteComponent), typeof(Vertex), typeof(BoneTransform));
         }
 
         [BurstCompile]
@@ -120,7 +120,7 @@ namespace UnityEngine.Experimental.U2D.Animation
                 jobHandles.Dispose();
                 entitiesPerSprite.Dispose();
 
-                var system = World.GetOrCreateManager<EndPresentationEntityCommandBufferSystem>();
+                var system = World.GetOrCreateSystem<EndPresentationEntityCommandBufferSystem>();
                 system.AddJobHandleForProducer(combinedHandle);
                 
                 return combinedHandle;

@@ -15,11 +15,11 @@ namespace UnityEngine.Experimental.U2D.Animation
     [UpdateAfter(typeof(DeformSpriteSystem))]
     public class UpdateBoundsSystem : ComponentSystem
     {
-        ComponentGroup m_ComponentGroup;
+        EntityQuery m_ComponentGroup;
 
         protected override void OnCreateManager()
         {
-            m_ComponentGroup = GetComponentGroup(typeof(SpriteSkin), typeof(SpriteComponent));
+            m_ComponentGroup = GetEntityQuery(typeof(SpriteSkin));
         }
 
         struct Bounds
@@ -65,10 +65,9 @@ namespace UnityEngine.Experimental.U2D.Animation
             var boundsArray = new NativeArray<Bounds>(entityLength, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             var counter = 0;
-            Entities.With(m_ComponentGroup).ForEach((Entity entity, SpriteSkin spriteSkin) =>
+            Entities.ForEach((Entity entity, SpriteSkin spriteSkin) =>
             {
-                var sr = EntityManager.GetSharedComponentData<SpriteComponent>(entity);
-                if (sr.Value != null && spriteSkin != null)
+                if (spriteSkin.isValid && spriteSkin.spriteRenderer.enabled)
                 { 
                     worldToLocalArray[counter] = spriteSkin.transform.worldToLocalMatrix;
                     rootLocalToWorldArray[counter] = spriteSkin.rootBone.localToWorldMatrix;
@@ -89,14 +88,13 @@ namespace UnityEngine.Experimental.U2D.Animation
                 rootLocalToWorldArray = rootLocalToWorldArray,
                 boundsArray = boundsArray
             }.Schedule(entityLength, 32);
-            
+
             jobHandle.Complete();
 
             counter = 0;
             Entities.With(m_ComponentGroup).ForEach((Entity entity, SpriteSkin spriteSkin) =>
             {
-                var sr = EntityManager.GetSharedComponentData<SpriteComponent>(entity);
-                if (sr.Value != null && spriteSkin != null)
+                if (spriteSkin.isValid && spriteSkin.spriteRenderer.enabled)
                 { 
                     var center = boundsArray[counter].center;
                     var extents = boundsArray[counter].extents;

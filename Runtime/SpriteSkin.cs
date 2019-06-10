@@ -71,8 +71,11 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         private void Awake()
         {
-            spriteSkinEntity.enabled = false;
-            spriteSkinEntity.enabled = true;
+            if (spriteSkinEntity != null)
+            {
+                spriteSkinEntity.enabled = false;
+                spriteSkinEntity.enabled = true;    
+            }
         }
 
         protected virtual void OnDestroy()
