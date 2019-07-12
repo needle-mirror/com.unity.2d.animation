@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class BoundedBiharmonicWeightsGenerator : IWeightsGenerator
     {

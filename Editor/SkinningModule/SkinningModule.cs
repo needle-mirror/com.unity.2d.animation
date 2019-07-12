@@ -4,10 +4,10 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEditor.U2D.Sprites;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     [RequireSpriteDataProvider(typeof(ISpriteMeshDataProvider), typeof(ISpriteBoneDataProvider))]
-    public partial class SkinningModule : SpriteEditorModuleBase
+    internal partial class SkinningModule : SpriteEditorModuleBase
     {
         private static class Styles
         {
@@ -523,7 +523,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             var spriteLibDataProvider = spriteEditor.GetDataProvider<ISpriteLibDataProvider>();
             if (spriteLibDataProvider != null)
             {
-                spriteLibDataProvider.SetSpriteLibrary(skinningCache.spriteLibrary.ToSpriteLibrary());
+                spriteLibDataProvider.SetSpriteCategoryList(skinningCache.spriteCategoryList.ToSpriteLibrary());
             }
         }
 

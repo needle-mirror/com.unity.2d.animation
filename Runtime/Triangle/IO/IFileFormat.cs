@@ -4,10 +4,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .IO
 {
-    public interface IFileFormat
+    internal interface IFileFormat
     {
         bool IsSupported(string file);
     }

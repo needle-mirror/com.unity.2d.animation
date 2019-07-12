@@ -4,14 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
 {
     using System;
     using System.Collections.Generic;
     using Animation.TriangleNet.Geometry;
     using Animation.TriangleNet.Topology;
 
-    public class TrianglePool : ICollection<Triangle>
+    internal class TrianglePool : ICollection<Triangle>
     {
         // Determines the size of each block in the pool.
         private const int BLOCKSIZE = 1024;
@@ -255,7 +255,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
 
             int index, offset;
 
-            public Enumerator(TrianglePool pool)
+            internal Enumerator(TrianglePool pool)
             {
                 this.count = pool.Count;
                 this.pool = pool.pool;

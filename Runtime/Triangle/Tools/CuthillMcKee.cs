@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Tools
 {
     using System;
@@ -14,7 +14,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// Applies the Cuthill and McKee renumbering algorithm to reduce the bandwidth of
     /// the adjacency matrix associated with the mesh.
     /// </summary>
-    public class CuthillMcKee
+    internal class CuthillMcKee
     {
         // The adjacency matrix of the mesh.
         AdjacencyMatrix matrix;

@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .IO
 {
     using System;
@@ -17,7 +17,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Helper methods for reading Triangle file formats.
     /// </summary>
-    public class TriangleReader
+    internal class TriangleReader
     {
         static NumberFormatInfo nfi = NumberFormatInfo.InvariantInfo;
 

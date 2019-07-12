@@ -1,19 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Jobs;
-using UnityEngine.Experimental.U2D;
-using UnityEngine.Experimental.U2D.Common;
-
-using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
-using Unity.Entities;
-using Unity.Transforms;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.U2D;
+using UnityEngine.U2D.Common;
 
-namespace UnityEngine.Experimental.U2D.Animation
+namespace UnityEngine.U2D.Animation
 {
     internal enum SpriteSkinValidationResult
     {
@@ -172,14 +165,26 @@ namespace UnityEngine.Experimental.U2D.Animation
             return path;
         }
 
+        private static int GetHash(Matrix4x4 matrix)
+        {
+            unsafe
+            {
+                uint* b = (uint*)&matrix;
+                {
+                    var c = (char*)b;
+                    return (int)math.hash(c, 16 * sizeof(float));
+                }
+            }
+        }
+
         internal static int CalculateTransformHash(this SpriteSkin spriteSkin)
         {
             int bits = 0;
-            int boneTransformHash = spriteSkin.transform.localToWorldMatrix.GetHashCode() >> bits;
+            int boneTransformHash = GetHash(spriteSkin.transform.localToWorldMatrix) >> bits;
             bits++;
             foreach (var transform in spriteSkin.boneTransforms)
             {
-                boneTransformHash ^= (transform.localToWorldMatrix.GetHashCode() >> bits);
+                boneTransformHash ^= GetHash(transform.localToWorldMatrix) >> bits;
                 bits = (bits + 1) % 8;
             }
             return boneTransformHash;
@@ -305,6 +310,30 @@ namespace UnityEngine.Experimental.U2D.Animation
 
             bounds.extents = Vector3.Scale(bounds.extents, new Vector3(1.25f, 1.25f, 1f)); 
             spriteSkin.bounds = bounds;
+        }
+
+        internal static void UpdateBounds(this SpriteSkin spriteSkin)
+        {
+            var worldToLocal = spriteSkin.transform.worldToLocalMatrix;
+            var rootLocalToWorld = spriteSkin.rootBone.localToWorldMatrix;
+            var unityBounds = spriteSkin.bounds;
+            var matrix = math.mul(worldToLocal, rootLocalToWorld);
+            var center = new float4(unityBounds.center, 1);
+            var extents = new float4(unityBounds.extents, 0);
+            var p0 = math.mul(matrix, center + new float4(-extents.x, -extents.y, extents.z, extents.w));
+            var p1 = math.mul(matrix, center + new float4(-extents.x, extents.y, extents.z, extents.w));
+            var p2 = math.mul(matrix, center + extents);
+            var p3 = math.mul(matrix, center + new float4(extents.x, -extents.y, extents.z, extents.w));
+            var min = math.min(p0, math.min(p1, math.min(p2, p3)));
+            var max = math.max(p0, math.max(p1, math.max(p2, p3)));
+            extents = (max - min) * 0.5f;
+            center = min + extents;
+            var newBounds = new Bounds()
+            {
+                center = new Vector3(center.x, center.y, center.z),
+                extents = new Vector3(extents.x, extents.y, extents.z)
+            };            
+            InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, newBounds);
         }
     }
 }

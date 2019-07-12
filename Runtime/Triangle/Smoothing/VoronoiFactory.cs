@@ -1,4 +1,4 @@
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Smoothing
 {
     using System;

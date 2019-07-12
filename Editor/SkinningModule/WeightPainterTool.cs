@@ -1,10 +1,10 @@
 using UnityEngine;
-using UnityEditor.Experimental.U2D.Layout;
+using UnityEditor.U2D.Layout;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal enum WeightPainterMode
     {

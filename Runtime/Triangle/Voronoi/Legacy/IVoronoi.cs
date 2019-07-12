@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Voronoi.Legacy
 {
     using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Voronoi diagram interface.
     /// </summary>
-    public interface IVoronoi
+    internal interface IVoronoi
     {
         /// <summary>
         /// Gets the list of Voronoi vertices.

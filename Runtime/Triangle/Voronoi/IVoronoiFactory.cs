@@ -1,9 +1,9 @@
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Voronoi
 {
     using Animation.TriangleNet.Topology.DCEL;
 
-    public interface IVoronoiFactory
+    internal interface IVoronoiFactory
     {
         void Initialize(int vertexCount, int edgeCount, int faceCount);
 

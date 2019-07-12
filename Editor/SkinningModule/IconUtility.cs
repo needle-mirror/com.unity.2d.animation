@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal static class IconUtility
     {
-        static public readonly string k_LightIconResourcePath = "Icons/SpriteIconsLight/SpriteEditor";
-        static public readonly string k_DarkIconResourcePath = "Icons/SpriteIconsDark/SpriteEditor";
-        static public readonly string k_SelectedResourceIconPath = "Icons/SpriteIconsSelected/SpriteEditor";
+        static public readonly string k_LightIconResourcePath = "Icons/Light";
+        static public readonly string k_DarkIconResourcePath = "Icons/Dark";
+        static public readonly string k_SelectedResourceIconPath = "Icons/Selected";
 
         public static Texture2D LoadIconResource(string name, string personalPath, string proPath)
         {

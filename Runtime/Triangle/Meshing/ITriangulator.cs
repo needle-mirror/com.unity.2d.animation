@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Meshing
 {
     using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Interface for point set triangulation.
     /// </summary>
-    public interface ITriangulator
+    internal interface ITriangulator
     {
         /// <summary>
         /// Triangulates a point set.

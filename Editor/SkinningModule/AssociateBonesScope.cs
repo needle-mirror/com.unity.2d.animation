@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class AssociateBonesScope : IDisposable
     {
@@ -13,7 +13,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         public AssociateBonesScope(SpriteCache sprite)
         {
             m_Sprite = sprite;
-            m_AssociateBones = m_Sprite.AssociateAllBones();
+            m_AssociateBones = m_Sprite.AssociatePossibleBones();
         }
 
         ~AssociateBonesScope()

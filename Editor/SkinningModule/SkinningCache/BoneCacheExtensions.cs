@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.U2D;
 
-namespace UnityEditor.Experimental.U2D.Animation
+
+namespace UnityEditor.U2D.Animation
 {
     internal static class BoneCacheExtensions
     {
@@ -89,7 +89,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             return bone;
         }
 
-        public static SpriteBone ToSpriteBone(this BoneCache bone, Matrix4x4 rootTransform, int parentId)
+        public static UnityEngine.U2D.SpriteBone ToSpriteBone(this BoneCache bone, Matrix4x4 rootTransform, int parentId)
         {
             var position = bone.localPosition;
             var rotation = bone.localRotation;
@@ -100,7 +100,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                 position = rootTransform.inverse.MultiplyPoint3x4(bone.position);
             }
 
-            return new SpriteBone()
+            return new UnityEngine.U2D.SpriteBone()
             {
                 name = bone.name,
                 position = new Vector3(position.x, position.y, bone.depth),
@@ -110,9 +110,9 @@ namespace UnityEditor.Experimental.U2D.Animation
             };
         }
 
-        public static SpriteBone[] ToSpriteBone(this BoneCache[] bones, Matrix4x4 rootTransform)
+        public static UnityEngine.U2D.SpriteBone[] ToSpriteBone(this BoneCache[] bones, Matrix4x4 rootTransform)
         {
-            var spriteBones = new List<SpriteBone>();
+            var spriteBones = new List<UnityEngine.U2D.SpriteBone>();
 
             foreach (var bone in bones)
             {

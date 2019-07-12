@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEditor.U2D.Sprites;
 using UnityEngine;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class MeshCache : SkinningObject, ISpriteMeshData
     {

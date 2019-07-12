@@ -2,13 +2,13 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine.U2D.Interface;
-using UnityEngine.Experimental.U2D;
+using UnityEngine.U2D;
 using UnityEditor.U2D.Interface;
-using UnityEditor.Experimental.U2D;
+using UnityEditor.U2D;
 using System;
 using System.Collections.Generic;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class Brush
     {

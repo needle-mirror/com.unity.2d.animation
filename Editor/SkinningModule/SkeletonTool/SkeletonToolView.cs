@@ -1,11 +1,9 @@
 using System;
-using UnityEngine;
-using UnityEditor.Experimental.U2D.Layout;
-using UnityEngine.UIElements;
+using UnityEditor.U2D.Layout;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
-    public class SkeletonToolView
+    internal class SkeletonToolView
     {
         private BoneInspectorPanel m_BoneInspectorPanel;
 

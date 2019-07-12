@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.U2D.Layout;
+using UnityEditor.U2D.Layout;
 using UnityEngine;
-using UnityEngine.Experimental.U2D;
+using UnityEngine.U2D;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class SkeletonTool : BaseTool
     {

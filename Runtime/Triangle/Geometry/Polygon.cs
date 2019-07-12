@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Geometry
 {
     using System;
@@ -14,7 +14,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// A polygon represented as a planar straight line graph.
     /// </summary>
-    public class Polygon : IPolygon
+    internal class Polygon : IPolygon
     {
         List<Vertex> points;
         List<Point> holes;

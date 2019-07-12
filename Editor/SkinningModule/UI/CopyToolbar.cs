@@ -1,11 +1,11 @@
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.Experimental.U2D.Common;
+using UnityEngine.U2D.Common;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
-    public class CopyToolbar : Toolbar
+    internal class CopyToolbar : Toolbar
     {
         public class CopyToolbarFactory : UxmlFactory<CopyToolbar, CopyToolbarUxmlTraits> {}
         public class CopyToolbarUxmlTraits : VisualElement.UxmlTraits {}

@@ -1,8 +1,8 @@
 using UnityEngine.UIElements;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
-    public static class VisualElementExtensions
+    internal static class VisualElementExtensions
     {
         public static void SetHiddenFromLayout(this VisualElement element, bool isHidden)
         {

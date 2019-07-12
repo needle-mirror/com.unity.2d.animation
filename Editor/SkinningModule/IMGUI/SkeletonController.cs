@@ -3,9 +3,9 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using UnityEngine.Experimental.U2D;
+using UnityEngine.U2D;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     [Serializable]
     internal class SkeletonController

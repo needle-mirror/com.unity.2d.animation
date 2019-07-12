@@ -1,6 +1,6 @@
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
-    public interface IUndo
+    internal interface IUndo
     {
         void RecordObject(object o, string name);
         void RegisterCompleteObjectUndo(object o, string name);

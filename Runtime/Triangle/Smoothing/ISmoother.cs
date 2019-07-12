@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Smoothing
 {
     using Animation.TriangleNet.Meshing;
@@ -12,7 +12,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Interface for mesh smoothers.
     /// </summary>
-    public interface ISmoother
+    internal interface ISmoother
     {
         void Smooth(IMesh mesh);
         void Smooth(IMesh mesh, int limit);

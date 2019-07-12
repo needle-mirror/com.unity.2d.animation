@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
 {
     using System;
     using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Mesh data structure.
     /// </summary>
-    public class Mesh : IMesh
+    internal class Mesh : IMesh
     {
         #region Variables
 

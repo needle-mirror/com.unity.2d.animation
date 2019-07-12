@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Topology
 {
     using System;
@@ -14,7 +14,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// The subsegment data structure.
     /// </summary>
-    public class SubSegment : ISegment
+    internal class SubSegment : ISegment
     {
         // Hash for dictionary. Will be set by mesh instance.
         internal int hash;

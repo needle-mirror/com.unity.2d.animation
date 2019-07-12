@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Experimental.U2D;
-using UnityEditor.Experimental.U2D.Layout;
-using UnityEngine.Assertions;
-using UnityEngine.UIElements;
 
-namespace UnityEditor.Experimental.U2D.Animation
+using UnityEditor.U2D.Layout;
+
+namespace UnityEditor.U2D.Animation
 {
     internal interface ICopyToolStringStore
     {
@@ -136,7 +134,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                         skinningSpriteData.spriteBones = skeleton.bones.ToSpriteBone(Matrix4x4.identity).ToList();
                     else
                     {
-                        skinningSpriteData.spriteBones = new List<SpriteBone>();
+                        skinningSpriteData.spriteBones = new List<UnityEngine.U2D.SpriteBone>();
                         var bones = skeleton.bones.FindRoots();
                         foreach (var bone in bones)
                             GetSpriteBoneDataRecursively(skinningSpriteData.spriteBones, bone);
@@ -193,7 +191,7 @@ namespace UnityEditor.Experimental.U2D.Animation
 
             if (rootBones.Count > 0)
             {
-                skinningSpriteData.spriteBones = new List<SpriteBone>();
+                skinningSpriteData.spriteBones = new List<UnityEngine.U2D.SpriteBone>();
                 foreach (var rootBone in rootBones)
                 {
                     var rootBoneIndex = skinningSpriteData.spriteBones.Count;
@@ -216,16 +214,16 @@ namespace UnityEditor.Experimental.U2D.Animation
             return skinningCopyData;
         }
 
-        private void GetSpriteBoneDataRecursively(List<SpriteBone> bones, BoneCache rootBone)
+        private void GetSpriteBoneDataRecursively(List<UnityEngine.U2D.SpriteBone> bones, BoneCache rootBone)
         {
             AppendSpriteBoneDataRecursively(bones, rootBone, -1);
         }
 
-        private void AppendSpriteBoneDataRecursively(List<SpriteBone> spriteBones, BoneCache bone, int parentIndex)
+        private void AppendSpriteBoneDataRecursively(List<UnityEngine.U2D.SpriteBone> spriteBones, BoneCache bone, int parentIndex)
         {
             int currentParentIndex = spriteBones.Count;
 
-            var spriteBone = new SpriteBone();
+            var spriteBone = new UnityEngine.U2D.SpriteBone();
             spriteBone.name = bone.name;
             spriteBone.parentId = parentIndex;
             if (parentIndex == -1 && bone.parentBone != null)
@@ -390,7 +388,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             return Quaternion.Euler(euler);
         }
 
-        public NewBonesStore PasteSkeletonBones(SpriteCache sprite, List<SpriteBone> spriteBones, bool flipX, bool flipY, float scale = 1.0f)
+        public NewBonesStore PasteSkeletonBones(SpriteCache sprite, List<UnityEngine.U2D.SpriteBone> spriteBones, bool flipX, bool flipY, float scale = 1.0f)
         {
             NewBonesStore newBonesStore = new NewBonesStore();
             newBonesStore.newBones = skinningCache.CreateBoneCacheFromSpriteBones(spriteBones.ToArray(), scale);

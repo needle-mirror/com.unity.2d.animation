@@ -4,13 +4,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Geometry
 {
     /// <summary>
     /// Interface for segment geometry.
     /// </summary>
-    public interface ISegment : IEdge
+    internal interface ISegment : IEdge
     {
         /// <summary>
         /// Gets the vertex at given index.

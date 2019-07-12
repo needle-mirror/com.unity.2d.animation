@@ -4,14 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Geometry
 {
     using System;
     using System.Linq;
     using System.Collections.Generic;
 
-    public class Contour
+    internal class Contour
     {
         int marker;
 

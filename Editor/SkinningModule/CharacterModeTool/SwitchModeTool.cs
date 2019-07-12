@@ -1,6 +1,6 @@
 using System;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class SwitchModeTool : BaseTool
     {

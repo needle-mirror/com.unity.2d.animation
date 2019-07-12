@@ -1,12 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.Experimental.U2D;
-using UnityEngine.Experimental.U2D.Animation;
-using UnityEngine.Experimental.U2D.Common;
+using UnityEngine.U2D;
+using UnityEngine.U2D.Animation;
+using UnityEngine.U2D.Common;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     //Make sure Bone Gizmo registers callbacks before anyone else
     [InitializeOnLoad]
@@ -37,9 +35,10 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         private void RegisterCallbacks()
         {
-            EditorApplication.hierarchyChanged += OnHierarchyChange;
             Selection.selectionChanged += OnSelectionChanged;
             SceneView.duringSceneGui += OnSceneGUI;
+            AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
+            EditorApplication.playModeStateChanged += PlayModeStateChanged;
         }
 
         private void OnSceneGUI(SceneView sceneView)
@@ -52,26 +51,31 @@ namespace UnityEditor.Experimental.U2D.Animation
             boneGizmoController.OnSelectionChanged();
         }
 
-        private void OnHierarchyChange()
+        private void OnAfterAssemblyReload()
         {
-            boneGizmoController.FindSkinComponents();
+            boneGizmoController.OnSelectionChanged();
+        }
+
+        private void PlayModeStateChanged(PlayModeStateChange stateChange)
+        {
+            if (stateChange == PlayModeStateChange.EnteredPlayMode ||
+                stateChange == PlayModeStateChange.EnteredEditMode)
+                boneGizmoController.OnSelectionChanged();
         }
     }
 
     internal class BoneGizmoController
     {
-        private const float kFadeStart = 0.75f;
-        private const float kFadeEnd = 1.75f;
-        private List<SpriteSkin> m_SkinComponents = new List<SpriteSkin>();
-        private Dictionary<Sprite, SpriteBone[]> m_SpriteBones = new Dictionary<Sprite, SpriteBone[]>();
+        private Dictionary<Sprite, UnityEngine.U2D.SpriteBone[]> m_SpriteBones = new Dictionary<Sprite, UnityEngine.U2D.SpriteBone[]>();
         private Dictionary<Transform, Vector2> m_BoneData = new Dictionary<Transform, Vector2>();
+        private HashSet<SpriteSkin> m_SkinComponents = new HashSet<SpriteSkin>();
         private HashSet<Transform> m_CachedBones = new HashSet<Transform>();
         private HashSet<Transform> m_SelectionRoots = new HashSet<Transform>();
         private ISkeletonView view;
         private IUndo m_Undo;
-        private IBoneGizmoToggle m_BoneGizmoToggle;
         private Tool m_PreviousTool = Tool.None;
-
+        private IBoneGizmoToggle m_BoneGizmoToggle;
+        
         internal IBoneGizmoToggle boneGizmoToggle { get { return m_BoneGizmoToggle; } set { m_BoneGizmoToggle = value; } }
 
         public Transform hoveredBone
@@ -107,8 +111,6 @@ namespace UnityEditor.Experimental.U2D.Animation
             view.InvalidID = 0;
             m_Undo = undo;
             m_BoneGizmoToggle = toggle;
-
-            FindSkinComponents();
         }
 
         internal void OnSelectionChanged()
@@ -116,7 +118,17 @@ namespace UnityEditor.Experimental.U2D.Animation
             m_SelectionRoots.Clear();
 
             foreach (var selectedTransform in Selection.transforms)
-                m_SelectionRoots.Add(selectedTransform.root);
+            {
+                var prefabRoot = PrefabUtility.GetOutermostPrefabInstanceRoot(selectedTransform.gameObject);
+                var animator = default(Animator);
+
+                if (prefabRoot != null)
+                    m_SelectionRoots.Add(prefabRoot.transform);
+                else if ((animator = selectedTransform.GetComponentInParent<Animator>()) != null)
+                    m_SelectionRoots.Add(animator.transform);
+                else
+                    m_SelectionRoots.Add(selectedTransform.root);
+            }
 
             if (m_PreviousTool == Tool.None && Selection.activeTransform != null && m_BoneData.ContainsKey(Selection.activeTransform))
             {
@@ -131,6 +143,8 @@ namespace UnityEditor.Experimental.U2D.Animation
 
                 m_PreviousTool = Tool.None;
             }
+
+            FindSkinComponents();
         }
 
         internal void OnGUI()
@@ -139,18 +153,22 @@ namespace UnityEditor.Experimental.U2D.Animation
 
             if (!m_BoneGizmoToggle.enableGizmos)
                 return;
-
+            
             PrepareBones();
             DoBoneGUI();
         }
 
         internal void FindSkinComponents()
         {
-            var currentStage = StageUtility.GetCurrentStageHandle();
-            var skins =  currentStage.FindComponentsOfType<SpriteSkin>().Where(x => x.gameObject.scene.isLoaded).ToArray();
-
             m_SkinComponents.Clear();
-            m_SkinComponents.AddRange(skins);
+            
+            foreach (var root in m_SelectionRoots)
+            {
+                var components = root.GetComponentsInChildren<SpriteSkin>(false);
+
+                foreach (var component in components)
+                    m_SkinComponents.Add(component);
+            }
 
             SceneView.RepaintAll();
         }
@@ -179,12 +197,12 @@ namespace UnityEditor.Experimental.U2D.Animation
             }
         }
 
-        private SpriteBone[] GetSpriteBones(SpriteSkin spriteSkin)
+        private UnityEngine.U2D.SpriteBone[] GetSpriteBones(SpriteSkin spriteSkin)
         {
             Debug.Assert(spriteSkin.isValid);
 
             var sprite = spriteSkin.spriteRenderer.sprite;
-            SpriteBone[] spriteBones;
+            UnityEngine.U2D.SpriteBone[] spriteBones;
             if (!m_SpriteBones.TryGetValue(sprite, out spriteBones))
             {
                 spriteBones = sprite.GetBones();
@@ -448,34 +466,5 @@ namespace UnityEditor.Experimental.U2D.Animation
 
             return transform.parent != null && m_BoneData.ContainsKey(transform.parent);
         }
-
-        /*
-        private float AlphaFromSpriteSkin(SpriteSkin spriteSkin)
-        {
-            Debug.Assert(spriteSkin != null);
-            Debug.Assert(spriteSkin.spriteBones != null);
-
-            var spriteBones = spriteSkin.spriteBones;
-            var size = view.GetHandleSize(spriteSkin.transform.position);
-            var scaleFactorSqr = 1f;
-
-            for (int i = 0; i < spriteBones.Length; ++i)
-            {
-                var spriteBone = spriteBones[i];
-                var transform = spriteSkin.boneTransforms[i];
-                var endPoint = transform.TransformPoint(Vector3.right * spriteBone.length);
-                scaleFactorSqr = Mathf.Max(scaleFactorSqr, (transform.position - endPoint).sqrMagnitude);
-            }
-
-            var scaleFactor = Mathf.Sqrt(scaleFactorSqr);
-
-            return AlphaFromSize(size, kFadeStart * scaleFactor, kFadeEnd * scaleFactor);
-        }
-
-        private float AlphaFromSize(float size, float fadeStart, float fadeEnd)
-        {
-            return Mathf.Lerp(1f, 0f, (size - fadeStart) / (fadeEnd - fadeStart));
-        }
-        */
     }
 }

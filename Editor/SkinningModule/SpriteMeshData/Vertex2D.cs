@@ -1,10 +1,10 @@
 using UnityEngine;
 using System;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     [Serializable]
-    public class Vertex2D
+    internal class Vertex2D
     {
         public Vector2 position
         {

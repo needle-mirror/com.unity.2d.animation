@@ -6,7 +6,7 @@ using UnityEditor.U2D.Interface;
 using UnityEngine.U2D.Interface;
 using System.Collections.Generic;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class SpriteMeshView : ISpriteMeshView
     {

@@ -1,11 +1,11 @@
 using System;
-using UnityEngine.Experimental.U2D.Common;
-using UnityEditor.Experimental.U2D.Layout;
+using UnityEngine.U2D.Common;
+using UnityEditor.U2D.Layout;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class GenerateGeometryTool : MeshToolWrapper
     {

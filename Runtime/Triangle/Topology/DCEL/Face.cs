@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Topology.DCEL
 {
     using System.Collections.Generic;
@@ -13,11 +13,11 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// A face of DCEL mesh.
     /// </summary>
-    public class Face
+    internal class Face
     {
         #region Static initialization of "Outer Space" face
 
-        public static readonly Face Empty;
+        internal static readonly Face Empty;
 
         static Face()
         {

@@ -11,15 +11,13 @@
 }
 
 #WeightPainterPanel.BrushMode #Amount.form-row {
-  visibility: hidden;
-  height : 0;
+  display: none;
 }
 
 #WeightPainterPanel.SliderMode #Size.form-row,
 #WeightPainterPanel.SliderMode #Hardness.form-row,
 #WeightPainterPanel.SliderMode #Step.form-row {
-  visibility: hidden;
-  height : 0;
+  display: none;
 }
 
 #WeightsInspector{
@@ -30,10 +28,9 @@
 
 
 .BrushMode #WeightsInspector{
-    height : 0;
+    display: none;
     margin-left : 0;
     margin-right : 0;
-    visibility : hidden;
     flex : 0;
 }
 
@@ -56,8 +53,7 @@
 }
 
 .BrushMode #divider{
-    visibility : hidden;
-    height : 0;
+    display: none;
     margin-top:0;
     margin-bottom:0;
 }

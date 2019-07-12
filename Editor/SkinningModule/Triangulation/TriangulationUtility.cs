@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.Experimental.U2D.Animation.TriangleNet.Geometry;
-using UnityEngine.Experimental.U2D.Animation.TriangleNet.Meshing;
-using UnityEngine.Experimental.U2D.Animation.TriangleNet.Smoothing;
-using UnityEngine.Experimental.U2D.Animation.TriangleNet.Tools;
+using UnityEngine.U2D.Animation.TriangleNet.Geometry;
+using UnityEngine.U2D.Animation.TriangleNet.Meshing;
+using UnityEngine.U2D.Animation.TriangleNet.Smoothing;
+using UnityEngine.U2D.Animation.TriangleNet.Tools;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class TriangulationUtility
     {
@@ -71,7 +71,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             var mesh = polygon.Triangulate();
             var statistic = new Statistic();
 
-            statistic.Update((UnityEngine.Experimental.U2D.Animation.TriangleNet.Mesh)mesh, 1);
+            statistic.Update((UnityEngine.U2D.Animation.TriangleNet.Mesh)mesh, 1);
 
             if (statistic.LargestArea < 0.01f)
                 throw new System.Exception("Invalid Mesh: Largest triangle area too small");

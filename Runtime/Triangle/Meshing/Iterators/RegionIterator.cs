@@ -4,7 +4,7 @@
 // Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
 // </copyright>
 // -----------------------------------------------------------------------
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Meshing.Iterators
 {
     using System;
@@ -17,7 +17,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <remarks>
     /// The default action is to set the region id and area constraint.
     /// </remarks>
-    public class RegionIterator
+    internal class RegionIterator
     {
         List<Triangle> region;
         public RegionIterator(Mesh mesh)

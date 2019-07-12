@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Topology
 {
     using System;
@@ -19,7 +19,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// side of the edge. Hence, there are two possible orientations. By convention, the
     /// edge is always directed so that the "side" denoted is the right side of the edge.
     /// </remarks>
-    public struct Osub
+    internal struct Osub
     {
         internal SubSegment seg;
         internal int orient; // Ranges from 0 to 1.

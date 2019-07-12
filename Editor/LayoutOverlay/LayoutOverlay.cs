@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace UnityEditor.Experimental.U2D.Layout
+namespace UnityEditor.U2D.Layout
 {
-	public class LayoutOverlay : VisualElement
+	internal class LayoutOverlay : VisualElement
 	{
 		public class LayoutOverlayFactory : UxmlFactory<LayoutOverlay, LayoutOverlayUxmlTraits> {}
 		public class LayoutOverlayUxmlTraits : VisualElement.UxmlTraits {}

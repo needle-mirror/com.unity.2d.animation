@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.U2D;
 using Unity.Collections;
 using System.Linq;
 using UnityEditor.U2D.Sprites;
-using UnityEngine.Rendering;
 
-namespace UnityEditor.Experimental.U2D.Animation
+using UnityEngine.Rendering;
+using UnityEngine.U2D;
+
+namespace UnityEditor.U2D.Animation
 {
-    public interface IAnimationAssetPostProcess
+    internal interface IAnimationAssetPostProcess
     {
         bool OnAfterPostProcess();
     }
@@ -57,11 +58,11 @@ namespace UnityEditor.Experimental.U2D.Animation
             }
         }
 
-        static void CalculateLocaltoWorldMatrix(int i, SpriteRect spriteRect, float definitionScale, float pixelsPerUnit, List<SpriteBone> spriteBone, ref SpriteBone?[] outpriteBone, ref NativeArray<Matrix4x4> bindPose)
+        static void CalculateLocaltoWorldMatrix(int i, SpriteRect spriteRect, float definitionScale, float pixelsPerUnit, List<UnityEngine.U2D.SpriteBone> spriteBone, ref UnityEngine.U2D.SpriteBone?[] outpriteBone, ref NativeArray<Matrix4x4> bindPose)
         {
             if (outpriteBone[i] != null)
                 return;
-            SpriteBone sp = spriteBone[i];
+            UnityEngine.U2D.SpriteBone sp = spriteBone[i];
             var isRoot = sp.parentId == -1;
             var position = isRoot ? (spriteBone[i].position - Vector3.Scale(spriteRect.rect.size, spriteRect.pivot)) : spriteBone[i].position;
             position.z = 0f;
@@ -124,7 +125,7 @@ namespace UnityEditor.Experimental.U2D.Animation
 
                     var spriteBoneCount = spriteBone.Count;
                     var bindPose = new NativeArray<Matrix4x4>(spriteBoneCount, Allocator.Temp);
-                    var outputSpriteBones = new SpriteBone ? [spriteBoneCount];
+                    var outputSpriteBones = new UnityEngine.U2D.SpriteBone ? [spriteBoneCount];
                     for (int i = 0; i < spriteBoneCount; ++i)
                     {
                         CalculateLocaltoWorldMatrix(i, spriteRect, definitionScale, sprite.pixelsPerUnit, spriteBone, ref outputSpriteBones, ref bindPose);

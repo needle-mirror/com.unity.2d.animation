@@ -1,4 +1,4 @@
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal interface IBoneVisibilityToolView
     {

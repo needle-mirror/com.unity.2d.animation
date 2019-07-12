@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.Collections.Generic;
-using UnityEngine.Experimental.U2D;
+using UnityEngine.U2D;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal static class ColorExtensions
     {

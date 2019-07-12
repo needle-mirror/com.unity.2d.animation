@@ -1,10 +1,9 @@
 using UnityEngine;
-using UnityEditor;
 using System;
 using System.Collections.Generic;
-using UnityEngine.Experimental.U2D;
 
-namespace UnityEditor.Experimental.U2D.Animation
+
+namespace UnityEditor.U2D.Animation
 {
     internal static class ModuleUtility
     {
@@ -96,7 +95,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             }
         }
 
-        public static List<SpriteBoneData> CreateSpriteBoneData(SpriteBone[] spriteBoneList, Matrix4x4 rootMatrix)
+        public static List<SpriteBoneData> CreateSpriteBoneData(UnityEngine.U2D.SpriteBone[] spriteBoneList, Matrix4x4 rootMatrix)
         {
             List<SpriteBoneData> spriteBoneDataList = new List<SpriteBoneData>(spriteBoneList.Length);
 

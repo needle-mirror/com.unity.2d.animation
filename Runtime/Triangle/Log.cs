@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
 {
     using System.Collections.Generic;
     using Animation.TriangleNet.Logging;
@@ -15,12 +15,12 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <remarks>Using singleton pattern as proposed by Jon Skeet.
     /// http://csharpindepth.com/Articles/General/Singleton.aspx
     /// </remarks>
-    public sealed class Log : ILog<LogItem>
+    internal sealed class Log : ILog<LogItem>
     {
         /// <summary>
         /// Log detailed information.
         /// </summary>
-        public static bool Verbose { get; set; }
+        internal static bool Verbose { get; set; }
 
         private List<LogItem> log = new List<LogItem>();
 
@@ -36,7 +36,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
 
         private Log() {}
 
-        public static ILog<LogItem> Instance
+        internal static ILog<LogItem> Instance
         {
             get
             {

@@ -1,10 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine.Experimental.U2D;
-
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
-    public static class SkinningCopyUtility
+    internal static class SkinningCopyUtility
     {
         private static ISkinningSerializer s_SkinningSerializer = new SkinningSerializerJSON();
         public static ISkinningSerializer Serializer

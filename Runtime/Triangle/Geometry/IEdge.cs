@@ -4,10 +4,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Geometry
 {
-    public interface IEdge
+    internal interface IEdge
     {
         /// <summary>
         /// Gets the first endpoints index.

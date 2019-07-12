@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Geometry
 {
     using System;
@@ -13,7 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Polygon interface.
     /// </summary>
-    public interface IPolygon
+    internal interface IPolygon
     {
         /// <summary>
         /// Gets the vertices of the polygon.

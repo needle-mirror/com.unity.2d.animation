@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Tools
 {
     using System;
@@ -52,7 +52,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     ///      = a * b * c / (8 * (s - a) * (s - b) * (s - c))
     ///      = a * b * c / ((b + c - a) * (c + a - b) * (a + b - c))
     /// </remarks>
-    public class QualityMeasure
+    internal class QualityMeasure
     {
         AreaMeasure areaMeasure;
         AlphaMeasure alphaMeasure;
@@ -227,11 +227,11 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         ///
         /// where
         ///
-        ///   ML = maximum distance from any diagonal entry to a nonzero
-        ///   entry in the same row, but earlier column,
+        ///   ML = maximum distance from any diagonal label to a nonzero
+        ///   label in the same row, but earlier column,
         ///
-        ///   MU = maximum distance from any diagonal entry to a nonzero
-        ///   entry in the same row, but later column.
+        ///   MU = maximum distance from any diagonal label to a nonzero
+        ///   label in the same row, but later column.
         ///
         /// Because the finite element node adjacency relationship is symmetric,
         /// we are guaranteed that ML = MU.

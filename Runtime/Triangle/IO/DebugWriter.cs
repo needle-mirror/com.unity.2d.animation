@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .IO
 {
     using System;
@@ -57,7 +57,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
 
         private DebugWriter() {}
 
-        public static DebugWriter Session
+        internal static DebugWriter Session
         {
             get
             {

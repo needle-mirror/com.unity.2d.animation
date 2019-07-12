@@ -4,10 +4,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Topology.DCEL
 {
-    public class HalfEdge
+    internal class HalfEdge
     {
         internal int id;
         internal int mark;

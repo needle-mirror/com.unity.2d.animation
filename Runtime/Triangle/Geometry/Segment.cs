@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Geometry
 {
     using System;
@@ -12,7 +12,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Represents a straight line segment in 2D space.
     /// </summary>
-    public class Segment : ISegment
+    internal class Segment : ISegment
     {
         Vertex v0;
         Vertex v1;

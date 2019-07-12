@@ -24,6 +24,7 @@ LayoutOverlay > #HorizontalHolder {
 
 LayoutOverlay > #HorizontalHolder > #VerticalToolbar {
     width: 140px;
+    margin-left : 10px;
 }
 
 LayoutOverlay > #HorizontalHolder > #VerticalToolbar.Collapse {
@@ -54,7 +55,6 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow {
     flex:1 0 auto;
     width : 280px;
     padding-left : 12px;
-    padding-bottom : 15px;
     padding-right : 12px;
 }
 
@@ -121,19 +121,23 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Slider {
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Button {
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 3px;
     flex : 1 0 auto;
-    margin-left :4px;
-    margin-right :4px;
-    border-left-width:6px;
-    border-right-width:6px;
-    border-bottom-width:4px;
-    border-top-width:4px;
+    margin-left: 1px;
+    margin-right: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-top: 2px;
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Toggle {

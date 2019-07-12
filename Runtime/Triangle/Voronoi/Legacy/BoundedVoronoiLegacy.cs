@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Voronoi.Legacy
 {
     using System;
@@ -20,7 +20,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// Jane Tournois, Pierre Alliez and Olivier Devillers
     /// </remarks>
     [Obsolete("Use TriangleNet.Voronoi.BoundedVoronoi class instead.")]
-    public class BoundedVoronoiLegacy : IVoronoi
+    internal class BoundedVoronoiLegacy : IVoronoi
     {
         IPredicates predicates = RobustPredicates.Default;
 

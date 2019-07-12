@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .IO
 {
     using System.IO;
@@ -13,7 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Interface for geometry input.
     /// </summary>
-    public interface IPolygonFormat : IFileFormat
+    internal interface IPolygonFormat : IFileFormat
     {
         /// <summary>
         /// Read a file containing polygon geometry.

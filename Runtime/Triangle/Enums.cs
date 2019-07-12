@@ -5,17 +5,17 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
 {
     /// <summary>
     /// The type of the mesh vertex.
     /// </summary>
-    public enum VertexType { InputVertex, SegmentVertex, FreeVertex, DeadVertex, UndeadVertex };
+    internal enum VertexType { InputVertex, SegmentVertex, FreeVertex, DeadVertex, UndeadVertex };
 
     /// <summary>
     /// Node renumbering algorithms.
     /// </summary>
-    public enum NodeNumbering { None, Linear, CuthillMcKee };
+    internal enum NodeNumbering { None, Linear, CuthillMcKee };
 
     /// <summary>
     /// Labels that signify the result of point location.
@@ -23,7 +23,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <remarks>The result of a search indicates that the point falls in the
     /// interior of a triangle, on an edge, on a vertex, or outside the mesh.
     /// </remarks>
-    public enum LocateResult { InTriangle, OnEdge, OnVertex, Outside };
+    internal enum LocateResult { InTriangle, OnEdge, OnVertex, Outside };
 
     /// <summary>
     /// Labels that signify the result of vertex insertion.

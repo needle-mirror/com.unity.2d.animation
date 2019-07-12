@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .IO
 {
     using System;
@@ -16,7 +16,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Implements geometry and mesh file formats of the the original Triangle code.
     /// </summary>
-    public class TriangleFormat : IPolygonFormat, IMeshFormat
+    internal class TriangleFormat : IPolygonFormat, IMeshFormat
     {
         public bool IsSupported(string file)
         {

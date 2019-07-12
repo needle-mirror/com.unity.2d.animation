@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine.Analytics;
 using UnityEngine;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     [Serializable]
     enum AnimationToolType

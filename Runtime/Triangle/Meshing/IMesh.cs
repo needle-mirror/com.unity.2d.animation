@@ -1,4 +1,4 @@
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Meshing
 {
     using System.Collections.Generic;
@@ -8,7 +8,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Mesh interface.
     /// </summary>
-    public interface IMesh
+    internal interface IMesh
     {
         /// <summary>
         /// Gets the vertices of the mesh.

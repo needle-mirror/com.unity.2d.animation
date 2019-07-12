@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Voronoi.Legacy
 {
     using System;
@@ -15,7 +15,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Represents a region in the Voronoi diagram.
     /// </summary>
-    public class VoronoiRegion
+    internal class VoronoiRegion
     {
         int id;
         Point generator;

@@ -4,13 +4,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Geometry
 {
     /// <summary>
     /// Represents a straight line segment in 2D space.
     /// </summary>
-    public class Edge : IEdge
+    internal class Edge : IEdge
     {
         /// <summary>
         /// Gets the first endpoints index.

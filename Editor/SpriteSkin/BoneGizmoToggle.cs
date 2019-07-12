@@ -1,12 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Experimental.U2D;
-using UnityEngine.Experimental.U2D.Animation;
+using UnityEngine.U2D.Animation;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
-    public interface IBoneGizmoToggle
+    internal interface IBoneGizmoToggle
     {
         bool enableGizmos { get; }
         void OnGUI();

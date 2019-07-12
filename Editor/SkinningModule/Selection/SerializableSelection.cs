@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     [Serializable]
     internal abstract class SerializableSelection<T> : ISelection<T>, ISerializationCallbackReceiver

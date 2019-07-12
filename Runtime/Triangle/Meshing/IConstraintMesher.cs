@@ -1,4 +1,4 @@
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Meshing
 {
     using Animation.TriangleNet.Geometry;
@@ -6,7 +6,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Interface for polygon triangulation.
     /// </summary>
-    public interface IConstraintMesher
+    internal interface IConstraintMesher
     {
         /// <summary>
         /// Triangulates a polygon.

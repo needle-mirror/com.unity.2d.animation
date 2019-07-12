@@ -1,16 +1,7 @@
 using UnityEngine;
-using UnityEditor;
-using UnityEditorInternal;
-using UnityEngine.U2D;
-using UnityEngine.Experimental.U2D;
-using UnityEditor.Experimental.U2D;
-using UnityEditor.Experimental.U2D.Animation;
 using System;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class SkeletonView : ISkeletonView
     {

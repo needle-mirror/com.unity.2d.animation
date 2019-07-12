@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine.Experimental.U2D;
 
-namespace UnityEditor.Experimental.U2D.Animation
+
+namespace UnityEditor.U2D.Animation
 {
-    public class SkinningXMLSerializer : ISkinningSerializer
+    internal class SkinningXMLSerializer : ISkinningSerializer
     {
         public bool CanDeserialize(string data)
         {
@@ -18,7 +18,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                 {
                     using (XmlTextReader xmlReader = new XmlTextReader(textReader))
                     {
-                        var xmlSerializer = new XmlSerializer(typeof(List<SpriteBone>));
+                        var xmlSerializer = new XmlSerializer(typeof(List<UnityEngine.U2D.SpriteBone>));
                         result = xmlSerializer.CanDeserialize(xmlReader);
                     }
                 }

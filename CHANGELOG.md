@@ -4,6 +4,37 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.0.2] - 2019-07-13
+### Changed
+- Mark package to support Unity 2019.3.0a10 onwards.
+
+## [3.0.1] - 2019-07-12
+### Changed
+- Fix path length due to validation failure.
+
+## [3.0.0] - 2019-06-17
+### Changed
+- Remove preview tag.
+- Remove experimental namespace
+
+## [2.2.0-preview.3] - 2019-06-06
+### Added
+- BoneGizmos can be toggled in the SceneView Gizmos dropdown
+- Scrollbar does not show for toolbar when required to scroll
+- Change Sprite Library implementation.
+ - APIs redesigned. This will cause compilation errors if previous APIs are used
+ - Data serialization change. Previous Asset and Component data will not be compatible
+
+## [2.2.0-preview.2] - 2019-05-10
+### Added
+- BoneGizmos will only show in selected hierarchies.
+- Associate nearest Bone to Sprite intead of root Bone when no Bones are overlapping the Sprite
+- Fixed Sprite not showing after it is being culled due to bone animation
+- Add icons for Sprite Library Asset, Sprite Library Component and Sprite Resolver Component
+- Fixed Sprite Library Asset Inspector Property Field text clipping
+- SpriteResolver will assign Sprite to SpriteRenderer even it resolves to a missing Sprite
+- Add visual feedback in SpriteResolver Inspector for missing Sprite
+
 ## [2.2.0-preview.1] - 2019-05-09
 ### Added
 - Upgrade for 2019.2

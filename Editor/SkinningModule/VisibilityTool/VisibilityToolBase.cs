@@ -1,10 +1,10 @@
 using System;
-using UnityEditor.Experimental.U2D.Common;
+using UnityEditor.U2D.Common;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal interface IVisibilityTool
     {

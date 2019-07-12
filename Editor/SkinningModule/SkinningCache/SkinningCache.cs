@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEditor.Experimental.U2D.Layout;
+using UnityEditor.U2D.Layout;
 using UnityEditor.U2D.Sprites;
-using UnityEngine.Experimental.U2D;
-using UnityEngine.Experimental.U2D.Common;
+
+using UnityEngine.U2D.Common;
 using Debug = UnityEngine.Debug;
 using UnityEngine.UIElements;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class SkinningObject : CacheObject
     {
@@ -65,7 +65,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         [SerializeField]
         private IndexedSelection m_VertexSelection = new IndexedSelection();
         [SerializeField]
-        private SpriteLibraryCacheObject m_SpriteLibrary;
+        private SpriteCategoryListCacheObject m_SpriteCategoryList;
 
         public BaseTool selectedTool
         {
@@ -73,7 +73,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             set { m_SelectedTool = value; }
         }
 
-        public SkinningMode mode
+        public virtual SkinningMode mode
         {
             get { return m_Mode; }
             set { m_Mode = CheckModeConsistency(value); }
@@ -110,7 +110,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             return m_SpriteMap.Values.ToArray();
         }
 
-        public CharacterCache character
+        public virtual CharacterCache character
         {
             get { return m_Character; }
         }
@@ -216,7 +216,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             return sprite;
         }
 
-        public MeshCache GetMesh(SpriteCache sprite)
+        public virtual MeshCache GetMesh(SpriteCache sprite)
         {
             if (sprite == null)
                 return null;
@@ -226,7 +226,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             return mesh;
         }
 
-        public MeshPreviewCache GetMeshPreview(SpriteCache sprite)
+        public virtual MeshPreviewCache GetMeshPreview(SpriteCache sprite)
         {
             if (sprite == null)
                 return null;
@@ -246,7 +246,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             return skeleton;
         }
 
-        public CharacterPartCache GetCharacterPart(SpriteCache sprite)
+        public virtual CharacterPartCache GetCharacterPart(SpriteCache sprite)
         {
             if (sprite == null)
                 return null;
@@ -581,7 +581,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             }
         }
 
-        public BoneCache[] CreateBoneCacheFromSpriteBones(SpriteBone[] spriteBones, float scale)
+        public BoneCache[] CreateBoneCacheFromSpriteBones(UnityEngine.U2D.SpriteBone[] spriteBones, float scale)
         {
             var bones = Array.ConvertAll(spriteBones, b => CreateCache<BoneCache>());
 
@@ -633,14 +633,14 @@ namespace UnityEditor.Experimental.U2D.Animation
             var dataProvider = spriteEditor.GetDataProvider<ISpriteLibDataProvider>();
             if (dataProvider != null)
             {
-                m_SpriteLibrary = CreateCache<SpriteLibraryCacheObject>();
-                m_SpriteLibrary.CopyFrom(dataProvider.GetSpriteLibrary());
+                m_SpriteCategoryList = CreateCache<SpriteCategoryListCacheObject>();
+                m_SpriteCategoryList.CopyFrom(dataProvider.GetSpriteCategoryList());
             }
         }
 
-        public SpriteLibraryCacheObject spriteLibrary
+        public SpriteCategoryListCacheObject spriteCategoryList
         {
-            get { return m_SpriteLibrary; }
+            get { return m_SpriteCategoryList; }
         }
     }
 }

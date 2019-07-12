@@ -3,10 +3,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     [Serializable]
-    public class BoneWeightChannel : IComparable<BoneWeightChannel>
+    internal class BoneWeightChannel : IComparable<BoneWeightChannel>
     {
         [SerializeField]
         private bool m_Enabled;
@@ -57,7 +57,7 @@ namespace UnityEditor.Experimental.U2D.Animation
     }
 
     [Serializable]
-    public class EditableBoneWeight : IEnumerable<BoneWeightChannel>
+    internal class EditableBoneWeight : IEnumerable<BoneWeightChannel>
     {
         [SerializeField]
         private List<BoneWeightChannel> m_Channels = new List<BoneWeightChannel>(5);

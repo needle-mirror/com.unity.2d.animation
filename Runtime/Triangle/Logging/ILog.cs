@@ -4,12 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Logging
 {
     using System.Collections.Generic;
 
-    public enum LogLevel
+    internal enum LogLevel
     {
         Info = 0,
         Warning = 1,
@@ -19,7 +19,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// A basic log interface.
     /// </summary>
-    public interface ILog<T> where T : ILogItem
+    internal interface ILog<T> where T : ILogItem
     {
         void Add(T item);
         void Clear();

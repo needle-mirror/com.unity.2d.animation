@@ -3,21 +3,8 @@
 /**********************************************************************************************************************/
 
 /* Horizontal scroller */
-Scroller.horizontal {
-    position:absolute;
-    height:0;
-    width:0;
-    visibility:hidden;
-    opacity:0;
-}
-
-/* Vertical scroller */
-Scroller.vertical {
-    position:absolute;
-    height:0;
-    width:0;
-    visibility:hidden;
-    opacity:0;
+Scroller {
+    display: none;
 }
 
 /**********************************************************************************************************************/
@@ -27,45 +14,3 @@ Scroller.vertical {
 ScrollView {
     flex: 1;
 }
-
-/*
-ScrollView #ContentViewport {
-    flex-direction:row;
-    position:absolute;
-    left:0;
-    top:0;
-    right:0;
-    bottom:0;
-}
-
-ScrollView #ContentViewport.VerticalScroll {
-    right:0;
-}
-
-ScrollView #ContentViewport.HorizontalScroll {
-    bottom:0;
-}
-
-ScrollView #ContentView {
-    position:absolute;
-}
-
-ScrollView.stretchContentWidth #ContentView {
-    left:0;
-    right:0;
-}
-
-ScrollView #HorizontalScroller {
-    position:absolute;
-    left:0;
-    bottom:0;
-    right:0;
-}
-
-ScrollView #VerticalScroller {
-    position:absolute;
-    top:0;
-    bottom:0;
-    right:0;
-}
-*/

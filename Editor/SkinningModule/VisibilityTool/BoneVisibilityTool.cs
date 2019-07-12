@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using UnityEngine.UIElements;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class BoneVisibilityTool : BoneTreeWidgetModel, IVisibilityTool
     {

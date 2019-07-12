@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.Experimental.U2D.Layout;
+using UnityEditor.U2D.Layout;
 using UnityEngine;
 using System.Linq;
+using UnityEditor.U2D;
 using UnityEditor.U2D.Sprites;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class SelectionTool : BaseTool
     {

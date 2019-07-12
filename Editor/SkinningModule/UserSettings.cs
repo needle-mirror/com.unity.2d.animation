@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.XR.WSA.Input;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     internal class SkinningModuleSettings
     {
@@ -141,9 +141,9 @@ namespace UnityEditor.Experimental.U2D.Animation
         }
     }
 
-    public class UserSettings : SettingsProvider
+    internal class UserSettings : SettingsProvider
     {
-        public const string kSettingsUniqueKey = "UnityEditor.Experimental.U2D.Animation/";
+        public const string kSettingsUniqueKey = "UnityEditor.U2D.Animation/";
         private static SelectionOutlineSettings s_SelectionOutlineSettings = new SelectionOutlineSettings();
         private static SkinningModuleSettings s_SkinningModuleSettings = new SkinningModuleSettings();
 

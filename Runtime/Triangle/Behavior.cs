@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
 {
     using System;
     using Animation.TriangleNet.Geometry;
@@ -97,7 +97,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <summary>
         /// No exact arithmetic.
         /// </summary>
-        public static bool NoExact { get; set; }
+        internal static bool NoExact { get; set; }
 
         #endregion
 

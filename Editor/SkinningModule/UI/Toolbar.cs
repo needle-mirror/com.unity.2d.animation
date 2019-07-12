@@ -1,10 +1,10 @@
 using UnityEngine;
-using UnityEngine.Experimental.U2D.Common;
+using UnityEngine.U2D.Common;
 using UnityEngine.UIElements;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
-    public class Toolbar : VisualElement
+    internal class Toolbar : VisualElement
     {
         public class ToolbarFactory : UxmlFactory<Toolbar, ToolbarUxmlTraits> {}
         public class ToolbarUxmlTraits : VisualElement.UxmlTraits {}

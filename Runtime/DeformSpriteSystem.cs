@@ -1,3 +1,5 @@
+#if ENABLE_ENTITIES
+
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -6,7 +8,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine.Scripting;
 
-namespace UnityEngine.Experimental.U2D.Animation
+namespace UnityEngine.U2D.Animation
 {
     [Preserve]
     [UnityEngine.ExecuteAlways]
@@ -14,7 +16,6 @@ namespace UnityEngine.Experimental.U2D.Animation
     [UpdateAfter(typeof(PrepareSkinningSystem))]
     class DeformSpriteSystem : JobComponentSystem
     {
-        List<SkinJob> m_Jobs = new List<SkinJob>(16);
         List<SpriteComponent> m_UniqueSpriteComponents = new List<SpriteComponent>(16);
         EntityQuery m_ComponentGroup;
 
@@ -57,20 +58,16 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            m_Jobs.Clear();
             m_UniqueSpriteComponents.Clear();
             EntityManager.GetAllUniqueSharedComponentData(m_UniqueSpriteComponents);
 
             var spriteComponentCount = m_UniqueSpriteComponents.Count;
-            var entitiesPerSprite = new NativeArray<int>(spriteComponentCount, Allocator.Temp);
-
-            m_Jobs.Capacity = spriteComponentCount;
+            var returnHandle = inputDeps;
             
             for (var i = 0; i < spriteComponentCount; i++)
             {
                 var spriteComponent = m_UniqueSpriteComponents[i];
                 var sprite = spriteComponent.Value;
-                var job = default(SkinJob);
                 var entityCount = 0;
 
                 if (sprite != null)
@@ -79,10 +76,9 @@ namespace UnityEngine.Experimental.U2D.Animation
                     var filteredEntities = m_ComponentGroup.ToEntityArray(Allocator.TempJob);
 
                     entityCount = filteredEntities.Length;
-                    entitiesPerSprite[i] = entityCount;
                     if (entityCount > 0)
                     {
-                        job = new SkinJob
+                        var skinJob = new SkinJob
                         {
                             entities = filteredEntities,
                             vertices = sprite.GetVertexAttribute<Vector3>(UnityEngine.Rendering.VertexAttribute.Position).SliceWithStride<float3>(),
@@ -92,43 +88,21 @@ namespace UnityEngine.Experimental.U2D.Animation
                             boneTransformArray = GetBufferFromEntity<BoneTransform>(),
                             deformedArray = GetBufferFromEntity<Vertex>()
                         };
-                        m_Jobs.Add(job);
+
+                        returnHandle = skinJob.Schedule(entityCount, 4, returnHandle);
                     }
                     else
                         filteredEntities.Dispose();
                 }
             }
 
+            var system = World.GetOrCreateSystem<EndPresentationEntityCommandBufferSystem>();
+            system.AddJobHandleForProducer(returnHandle);
 
-            if (m_Jobs.Count > 0)
-            {
-                var jobHandles = new NativeArray<JobHandle>(m_Jobs.Count, Allocator.Temp);
-                var prevHandle = inputDeps;
-
-                var jobIndex = 0;
-                for (var i = 0; i < entitiesPerSprite.Length; ++i)
-                {
-                    if (entitiesPerSprite[i] > 0)
-                    {
-                        jobHandles[jobIndex] = m_Jobs[jobIndex].Schedule(entitiesPerSprite[i], 4, prevHandle);
-                        prevHandle = jobHandles[jobIndex];
-                        ++jobIndex;
-                    }
-                }
-                
-                var combinedHandle = JobHandle.CombineDependencies(jobHandles);
-                jobHandles.Dispose();
-                entitiesPerSprite.Dispose();
-
-                var system = World.GetOrCreateSystem<EndPresentationEntityCommandBufferSystem>();
-                system.AddJobHandleForProducer(combinedHandle);
-                
-                return combinedHandle;
-            }
-
-            return inputDeps;
-
+            return returnHandle;
         }
     }
 
 }
+
+#endif

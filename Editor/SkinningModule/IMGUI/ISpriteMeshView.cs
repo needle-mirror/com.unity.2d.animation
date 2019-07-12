@@ -1,14 +1,8 @@
 using UnityEngine;
-using UnityEngine.U2D;
-using UnityEditor;
-using UnityEditorInternal;
-using UnityEditor.U2D.Interface;
-using UnityEngine.U2D.Interface;
-using System.Collections.Generic;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
-    public enum SpriteMeshViewMode
+    internal enum SpriteMeshViewMode
     {
         EditGeometry,
         CreateVertex,
@@ -16,7 +10,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         SplitEdge
     }
 
-    public enum MeshEditorAction
+    internal enum MeshEditorAction
     {
         None,
         CreateVertex,
@@ -29,7 +23,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         Remove
     }
 
-    public interface ISpriteMeshView
+    internal interface ISpriteMeshView
     {
         SpriteMeshViewMode mode { get; set; }
         ISelection<int> selection { get; set; }

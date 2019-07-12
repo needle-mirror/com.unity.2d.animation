@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor.Experimental.U2D.Common;
-using UnityEditor.Experimental.U2D.Animation.ClipperLib;
+using UnityEditor.U2D.Common;
+using UnityEditor.U2D.Animation.ClipperLib;
 using UnityEditor.U2D.Sprites;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     using Path = List<IntPoint>;
     using Paths = List<List<IntPoint>>;

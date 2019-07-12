@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .IO
 {
     using Animation.TriangleNet.Topology;
@@ -13,7 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Simple triangle class for input.
     /// </summary>
-    public class InputTriangle : ITriangle
+    internal class InputTriangle : ITriangle
     {
         internal int[] vertices;
         internal int label;

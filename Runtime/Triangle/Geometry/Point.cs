@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Geometry
 {
     using System;
@@ -18,7 +18,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
 #else
     [DebuggerDisplay("ID {ID} [{X}, {Y}]")]
 #endif
-    public class Point : IComparable<Point>, IEquatable<Point>
+    internal class Point : IComparable<Point>, IEquatable<Point>
     {
         internal int id;
         internal int label;

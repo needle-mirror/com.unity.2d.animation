@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
+namespace UnityEngine.U2D.Animation.TriangleNet
     .Logging
 {
     using System;
@@ -12,7 +12,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// A basic log item interface.
     /// </summary>
-    public interface ILogItem
+    internal interface ILogItem
     {
         DateTime Time { get; }
         LogLevel Level { get; }
