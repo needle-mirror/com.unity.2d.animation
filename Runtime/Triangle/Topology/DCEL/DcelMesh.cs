@@ -10,7 +10,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     using System.Collections.Generic;
     using Animation.TriangleNet.Geometry;
 
-    public class DcelMesh
+    internal class DcelMesh
     {
         protected List<Vertex> vertices;
         protected List<HalfEdge> edges;

@@ -17,7 +17,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <remarks>
     /// The default action is to set the region id and area constraint.
     /// </remarks>
-    public class RegionIterator
+    internal class RegionIterator
     {
         List<Triangle> region;
         public RegionIterator(Mesh mesh)

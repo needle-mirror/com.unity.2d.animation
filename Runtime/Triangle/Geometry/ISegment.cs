@@ -10,7 +10,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Interface for segment geometry.
     /// </summary>
-    public interface ISegment : IEdge
+    internal interface ISegment : IEdge
     {
         /// <summary>
         /// Gets the vertex at given index.

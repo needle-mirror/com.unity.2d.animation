@@ -1,13 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+#if ENABLE_ENTITIES
 
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
-using Unity.Collections;
-using Unity.Jobs;
 
 namespace UnityEngine.Experimental.U2D.Animation
 {
@@ -39,3 +33,5 @@ namespace UnityEngine.Experimental.U2D.Animation
         public float4 extents;
     }
 }
+
+#endif

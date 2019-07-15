@@ -57,7 +57,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
 
         private DebugWriter() {}
 
-        public static DebugWriter Session
+        internal static DebugWriter Session
         {
             get
             {

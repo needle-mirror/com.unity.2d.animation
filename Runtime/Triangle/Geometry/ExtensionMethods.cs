@@ -4,14 +4,14 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     using System;
     using Animation.TriangleNet.Meshing;
 
-    public static class ExtensionMethods
+    internal static class ExtensionMethods
     {
         #region IPolygon extensions
 
         /// <summary>
         /// Triangulates a polygon.
         /// </summary>
-        public static IMesh Triangulate(this IPolygon polygon)
+        internal static IMesh Triangulate(this IPolygon polygon)
         {
             return (new GenericMesher()).Triangulate(polygon, null, null);
         }
@@ -20,7 +20,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// Triangulates a polygon, applying constraint options.
         /// </summary>
         /// <param name="options">Constraint options.</param>
-        public static IMesh Triangulate(this IPolygon polygon, ConstraintOptions options)
+        internal static IMesh Triangulate(this IPolygon polygon, ConstraintOptions options)
         {
             return (new GenericMesher()).Triangulate(polygon, options, null);
         }
@@ -29,7 +29,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// Triangulates a polygon, applying quality options.
         /// </summary>
         /// <param name="quality">Quality options.</param>
-        public static IMesh Triangulate(this IPolygon polygon, QualityOptions quality)
+        internal static IMesh Triangulate(this IPolygon polygon, QualityOptions quality)
         {
             return (new GenericMesher()).Triangulate(polygon, null, quality);
         }
@@ -39,7 +39,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// </summary>
         /// <param name="options">Constraint options.</param>
         /// <param name="quality">Quality options.</param>
-        public static IMesh Triangulate(this IPolygon polygon, ConstraintOptions options, QualityOptions quality)
+        internal static IMesh Triangulate(this IPolygon polygon, ConstraintOptions options, QualityOptions quality)
         {
             return (new GenericMesher()).Triangulate(polygon, options, quality);
         }
@@ -50,7 +50,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <param name="options">Constraint options.</param>
         /// <param name="quality">Quality options.</param>
         /// <param name="triangulator">The triangulation algorithm.</param>
-        public static IMesh Triangulate(this IPolygon polygon, ConstraintOptions options, QualityOptions quality,
+        internal static IMesh Triangulate(this IPolygon polygon, ConstraintOptions options, QualityOptions quality,
             ITriangulator triangulator)
         {
             return (new GenericMesher(triangulator)).Triangulate(polygon, options, quality);
@@ -69,7 +69,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// </summary>
         /// <param name="p">Point to locate.</param>
         /// <returns>True, if point is inside or on the edge of this triangle.</returns>
-        public static bool Contains(this ITriangle triangle, Point p)
+        internal static bool Contains(this ITriangle triangle, Point p)
         {
             return Contains(triangle, p.X, p.Y);
         }
@@ -80,7 +80,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <param name="x">Point to locate.</param>
         /// <param name="y">Point to locate.</param>
         /// <returns>True, if point is inside or on the edge of this triangle.</returns>
-        public static bool Contains(this ITriangle triangle, double x, double y)
+        internal static bool Contains(this ITriangle triangle, double x, double y)
         {
             var t0 = triangle.GetVertex(0);
             var t1 = triangle.GetVertex(1);
@@ -117,7 +117,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
             return false;
         }
 
-        public static Rectangle Bounds(this ITriangle triangle)
+        internal static Rectangle Bounds(this ITriangle triangle)
         {
             var bounds = new Rectangle();
 

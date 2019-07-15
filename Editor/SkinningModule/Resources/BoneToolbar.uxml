@@ -8,7 +8,7 @@
           </ui:Button>
           <ui:Button name="EditJoints" tooltip="Edit bones position and rotation">
               <ui:Image name="EditJointsImage" />
-              <ui:Label text ="Edit Joints"/>
+              <ui:Label text ="Edit Bone"/>
           </ui:Button>
           <ui:Button name="CreateBone" tooltip="Create new bones">
               <ui:Image name="CreateBoneImage" />

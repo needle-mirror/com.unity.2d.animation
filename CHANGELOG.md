@@ -1,8 +1,38 @@
 # Changelog
-All notable changes to this package will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+## [2.2.0-preview.4] - 2019-07-16
+### Changed
+- Update documentation
+- Backport changes from Animation 3.0.2
+- Make Size property field in Weight Brush draggable for changing brush size
+- Change string hash for Category and Label name. This might break existing animation usage with SpriteResolver.
+- Rename SpriteLibraryAsset::GetCategorylabelNames to SpriteLibraryAsset::GetCategoryLabelNames
+
+### Fixed
+- Fixed Amount slider not working in Weight Slider Panel
+- Fixed exception when changing size to less than 0 in SpriteLibraryAssetInspector
+
+## [2.2.0-preview.3] - 2019-06-06
+### Changed
+- BoneGizmos can be toggled in the SceneView Gizmos dropdown
+- Scrollbar does not show for toolbar when required to scroll
+- Change Sprite Library implementation.
+ - APIs redesigned. This will cause compilation errors if previous APIs are used
+ - Data serialization change. Previous Asset and Component data will not be compatible
+
+### Fixed
+- Fixed Amount slider not working in Weight Slider Panel
+- Fixed exception when changing size to less than 0 in SpriteLibraryAssetInspector
+
+## [2.2.0-preview.2] - 2019-05-10
+### Added
+- BoneGizmos will only show in selected hierarchies.
+- Associate nearest Bone to Sprite intead of root Bone when no Bones are overlapping the Sprite
+- Fixed Sprite not showing after it is being culled due to bone animation
+- Add icons for Sprite Library Asset, Sprite Library Component and Sprite Resolver Component
+- Fixed Sprite Library Asset Inspector Property Field text clipping
+- SpriteResolver will assign Sprite to SpriteRenderer even it resolves to a missing Sprite
+- Add visual feedback in SpriteResolver Inspector for missing Sprite
 
 ## [2.2.0-preview.1] - 2019-05-09
 ### Added

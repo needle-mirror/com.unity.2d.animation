@@ -9,7 +9,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
 {
     using System.Collections.Generic;
 
-    public class Vertex : Animation.TriangleNet.Geometry.Point
+    internal class Vertex : Animation.TriangleNet.Geometry.Point
     {
         internal HalfEdge leaving;
 

@@ -6,7 +6,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Interface for polygon triangulation with quality constraints.
     /// </summary>
-    public interface IQualityMesher
+    internal interface IQualityMesher
     {
         /// <summary>
         /// Triangulates a polygon, applying quality options.

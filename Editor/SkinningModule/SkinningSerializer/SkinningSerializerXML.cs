@@ -7,7 +7,7 @@ using UnityEngine.Experimental.U2D;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public class SkinningXMLSerializer : ISkinningSerializer
+    internal class SkinningXMLSerializer : ISkinningSerializer
     {
         public bool CanDeserialize(string data)
         {

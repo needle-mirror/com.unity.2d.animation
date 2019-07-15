@@ -4,7 +4,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Mesh constraint options for polygon triangulation.
     /// </summary>
-    public class ConstraintOptions
+    internal class ConstraintOptions
     {
         // TODO: remove ConstraintOptions.UseRegions
 

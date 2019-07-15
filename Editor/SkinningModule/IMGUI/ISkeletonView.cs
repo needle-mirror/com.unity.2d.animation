@@ -1,18 +1,8 @@
 using UnityEngine;
-using UnityEditor;
-using UnityEditorInternal;
-using UnityEngine.U2D;
-using UnityEngine.Experimental.U2D;
-using UnityEditor.Experimental.U2D;
-using UnityEditor.Experimental.U2D.Animation;
-using System;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public enum SkeletonAction
+    internal enum SkeletonAction
     {
         None = 0,
         Select = 1 << 0,
@@ -27,7 +17,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         Remove = 1 << 10,
     }
 
-    public enum SkeletonMode
+    internal enum SkeletonMode
     {
         Disabled = SkeletonAction.None,
         Selection = SkeletonAction.Select,

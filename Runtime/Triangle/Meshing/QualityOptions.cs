@@ -7,7 +7,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Mesh constraint options for quality triangulation.
     /// </summary>
-    public class QualityOptions
+    internal class QualityOptions
     {
         /// <summary>
         /// Gets or sets a maximum angle constraint.

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public struct SliderData
+    internal struct SliderData
     {
         public Vector3 position;
         public Vector3 forward;
@@ -12,7 +12,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         public static readonly SliderData zero = new SliderData() { position = Vector3.zero, forward = Vector3.forward, up = Vector3.up, right = Vector3.right };
     }
 
-    public interface IGUIWrapper
+    internal interface IGUIWrapper
     {
         Vector2 mousePosition { get; }
         int mouseButton { get; }

@@ -17,7 +17,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Builds a delaunay triangulation using the sweepline algorithm.
     /// </summary>
-    public class SweepLine : ITriangulator
+    internal class SweepLine : ITriangulator
     {
         static int randomseed = 1;
         static int SAMPLERATE = 10;

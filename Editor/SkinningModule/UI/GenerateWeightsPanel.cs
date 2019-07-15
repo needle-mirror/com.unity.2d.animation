@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public class GenerateWeightsPanel : VisualElement
+    internal class GenerateWeightsPanel : VisualElement
     {
         public class GenerateWeightsPanelFactory : UxmlFactory<GenerateWeightsPanel, GenerateWeightsPanelUxmlTraits> {}
         public class GenerateWeightsPanelUxmlTraits : VisualElement.UxmlTraits {}

@@ -15,46 +15,46 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Gather mesh statistics.
     /// </summary>
-    public class Statistic
+    internal class Statistic
     {
         #region Static members
 
         /// <summary>
         /// Number of incircle tests performed.
         /// </summary>
-        public static long InCircleCount = 0;
-        public static long InCircleAdaptCount = 0;
+        internal static long InCircleCount = 0;
+        internal static long InCircleAdaptCount = 0;
 
         /// <summary>
         /// Number of counterclockwise tests performed.
         /// </summary>
-        public static long CounterClockwiseCount = 0;
-        public static long CounterClockwiseAdaptCount = 0;
+        internal static long CounterClockwiseCount = 0;
+        internal static long CounterClockwiseAdaptCount = 0;
 
         /// <summary>
         /// Number of 3D orientation tests performed.
         /// </summary>
-        public static long Orient3dCount = 0;
+        internal static long Orient3dCount = 0;
 
         /// <summary>
         /// Number of right-of-hyperbola tests performed.
         /// </summary>
-        public static long HyperbolaCount = 0;
+        internal static long HyperbolaCount = 0;
 
         /// <summary>
         /// // Number of circumcenter calculations performed.
         /// </summary>
-        public static long CircumcenterCount = 0;
+        internal static long CircumcenterCount = 0;
 
         /// <summary>
         /// Number of circle top calculations performed.
         /// </summary>
-        public static long CircleTopCount = 0;
+        internal static long CircleTopCount = 0;
 
         /// <summary>
         /// Number of vertex relocations.
         /// </summary>
-        public static long RelocationCount = 0;
+        internal static long RelocationCount = 0;
 
         #endregion
 
@@ -465,7 +465,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// If the triangle was obtuse, data[2] will be set to -1 and maximum angle
         /// is computed as (pi - acos(sqrt(data[1]))).
         /// </remarks>
-        public static void ComputeAngles(ITriangle triangle, double[] data)
+        internal static void ComputeAngles(ITriangle triangle, double[] data)
         {
             double min = 0.0;
             double max = 1.0;

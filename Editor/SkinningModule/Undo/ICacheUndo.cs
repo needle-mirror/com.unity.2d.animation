@@ -1,8 +1,6 @@
-using UnityEngine;
-
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public interface ICacheUndo
+    internal interface ICacheUndo
     {
         IUndo undoOverride { get; set; }
         bool isUndoOperationSet { get; }

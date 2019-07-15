@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public class SmoothingUtility
+    internal class SmoothingUtility
     {
         private static float[,] m_DataInTemp;
         private static float[,] m_DataOutTemp;

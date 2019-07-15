@@ -141,7 +141,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         }
     }
 
-    public class UserSettings : SettingsProvider
+    internal class UserSettings : SettingsProvider
     {
         public const string kSettingsUniqueKey = "UnityEditor.Experimental.U2D.Animation/";
         private static SelectionOutlineSettings s_SelectionOutlineSettings = new SelectionOutlineSettings();

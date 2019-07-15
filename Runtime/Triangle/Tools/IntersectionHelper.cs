@@ -9,7 +9,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
 {
     using Animation.TriangleNet.Geometry;
 
-    public static class IntersectionHelper
+    internal static class IntersectionHelper
     {
         /// <summary>
         /// Compute intersection of two segments.
@@ -23,7 +23,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// This is a special case of segment intersection. Since the calling algorithm assures
         /// that a valid intersection exists, there's no need to check for any special cases.
         /// </remarks>
-        public static void IntersectSegments(Point p0, Point p1, Point q0, Point q1, ref Point c0)
+        internal static void IntersectSegments(Point p0, Point p1, Point q0, Point q1, ref Point c0)
         {
             double ux = p1.x - p0.x;
             double uy = p1.y - p0.y;
@@ -53,7 +53,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// Based on Liang-Barsky function by Daniel White:
         /// http://www.skytopia.com/project/articles/compsci/clipping.html
         /// </remarks>
-        public static bool LiangBarsky(Rectangle rect, Point p0, Point p1, ref Point c0, ref Point c1)
+        internal static bool LiangBarsky(Rectangle rect, Point p0, Point p1, ref Point c0, ref Point c1)
         {
             // Define the x/y clipping values for the border.
             double xmin = rect.Left;
@@ -112,7 +112,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <param name="p1">Any point in ray direction (NOT the direction vector).</param>
         /// <param name="c1">The intersection point.</param>
         /// <returns>Returns false, if startpoint is outside the box.</returns>
-        public static bool BoxRayIntersection(Rectangle rect, Point p0, Point p1, ref Point c1)
+        internal static bool BoxRayIntersection(Rectangle rect, Point p0, Point p1, ref Point c1)
         {
             return BoxRayIntersection(rect, p0, p1.x - p0.x, p1.y - p0.y, ref c1);
         }
@@ -125,7 +125,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <param name="dx">X direction.</param>
         /// <param name="dy">Y direction.</param>
         /// <returns>Returns false, if startpoint is outside the box.</returns>
-        public static Point BoxRayIntersection(Rectangle rect, Point p, double dx, double dy)
+        internal static Point BoxRayIntersection(Rectangle rect, Point p, double dx, double dy)
         {
             var intersection = new Point();
 
@@ -146,7 +146,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <param name="dy">Y direction.</param>
         /// <param name="c">The intersection point.</param>
         /// <returns>Returns false, if startpoint is outside the box.</returns>
-        public static bool BoxRayIntersection(Rectangle rect, Point p, double dx, double dy, ref Point c)
+        internal static bool BoxRayIntersection(Rectangle rect, Point p, double dx, double dy, ref Point c)
         {
             double x = p.X;
             double y = p.Y;

@@ -11,7 +11,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     using System.Linq;
     using System.Collections.Generic;
 
-    public class Contour
+    internal class Contour
     {
         int marker;
 

@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
@@ -96,12 +95,20 @@ namespace UnityEditor.Experimental.U2D.Animation
             return selected;
         }
 
+        public bool NeedUpdatePreview()
+        {
+            return m_SpritePreviewNeedFetching.Count > 0;
+        }
+        
         void UpdateSpritePreviews()
         {
             for (int i = 0; i < m_SpritePreviewNeedFetching.Count; ++i)
             {
                 var index = m_SpritePreviewNeedFetching[i];
-                m_SpritePreviews[index] = AssetPreview.GetAssetPreview(m_SpriteList[index]);
+                if(m_SpriteList[index] == null)
+                    m_SpritePreviews[index] = EditorGUIUtility.Load("icons/console.erroricon.png") as Texture2D;
+                else
+                    m_SpritePreviews[index] = AssetPreview.GetAssetPreview(m_SpriteList[index]);
                 if (m_SpritePreviews[index] != null)
                 {
                     m_SpritePreviewNeedFetching.RemoveAt(i);

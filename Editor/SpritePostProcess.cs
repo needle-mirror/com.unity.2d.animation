@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public interface IAnimationAssetPostProcess
+    internal interface IAnimationAssetPostProcess
     {
         bool OnAfterPostProcess();
     }

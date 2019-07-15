@@ -15,7 +15,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Builds a delaunay triangulation using the incremental algorithm.
     /// </summary>
-    public class Incremental : ITriangulator
+    internal class Incremental : ITriangulator
     {
         Mesh mesh;
 

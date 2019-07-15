@@ -14,7 +14,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Sort an array of points using quicksort.
     /// </summary>
-    public class VertexSorter
+    internal class VertexSorter
     {
         private const int RANDOM_SEED = 57113;
 
@@ -33,7 +33,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// </summary>
         /// <param name="array">The vertex array.</param>
         /// <param name="seed">Random seed used for pivoting.</param>
-        public static void Sort(Vertex[] array, int seed = RANDOM_SEED)
+        internal static void Sort(Vertex[] array, int seed = RANDOM_SEED)
         {
             var qs = new VertexSorter(array, seed);
 
@@ -46,7 +46,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <param name="array">The vertex array.</param>
         /// <param name="length">The number of vertices to sort.</param>
         /// <param name="seed">Random seed used for pivoting.</param>
-        public static void Alternate(Vertex[] array, int length, int seed = RANDOM_SEED)
+        internal static void Alternate(Vertex[] array, int length, int seed = RANDOM_SEED)
         {
             var qs = new VertexSorter(array, seed);
 

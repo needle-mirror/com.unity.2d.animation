@@ -13,7 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// The adjacency matrix of the mesh.
     /// </summary>
-    public class AdjacencyMatrix
+    internal class AdjacencyMatrix
     {
         // Number of adjacency entries.
         int nnz;

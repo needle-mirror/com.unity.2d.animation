@@ -11,14 +11,14 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     using Animation.TriangleNet.Topology;
     using Animation.TriangleNet.Geometry;
 
-    public static class MeshValidator
+    internal static class MeshValidator
     {
         private static RobustPredicates predicates = RobustPredicates.Default;
 
         /// <summary>
         /// Test the mesh for topological consistency.
         /// </summary>
-        public static bool IsConsistent(Mesh mesh)
+        internal static bool IsConsistent(Mesh mesh)
         {
             Otri tri = default(Otri);
             Otri oppotri = default(Otri), oppooppotri = default(Otri);
@@ -114,7 +114,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <summary>
         /// Check if the mesh is (conforming) Delaunay.
         /// </summary>
-        public static bool IsDelaunay(Mesh mesh)
+        internal static bool IsDelaunay(Mesh mesh)
         {
             return IsDelaunay(mesh, false);
         }
@@ -122,7 +122,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <summary>
         /// Check if that the mesh is (constrained) Delaunay.
         /// </summary>
-        public static bool IsConstrainedDelaunay(Mesh mesh)
+        internal static bool IsConstrainedDelaunay(Mesh mesh)
         {
             return IsDelaunay(mesh, true);
         }

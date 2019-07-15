@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.Experimental.U2D.Layout
 {
-    public class VisibilityToolResizer : MouseManipulator
+    internal class VisibilityToolResizer : MouseManipulator
     {
         private Vector2 m_Start;
         private VisualElement m_Root;

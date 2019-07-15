@@ -4,7 +4,7 @@ using System;
 namespace UnityEditor.Experimental.U2D.Animation
 {
     [Serializable]
-    public struct Edge
+    internal struct Edge
     {
         [SerializeField]
         int m_Index1;

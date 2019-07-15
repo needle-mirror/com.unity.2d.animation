@@ -13,7 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Voronoi diagram interface.
     /// </summary>
-    public interface IVoronoi
+    internal interface IVoronoi
     {
         /// <summary>
         /// Gets the list of Voronoi vertices.

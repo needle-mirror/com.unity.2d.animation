@@ -19,7 +19,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// The Voronoi diagram is the dual of a pointset triangulation.
     /// </summary>
-    public abstract class VoronoiBase : DcelMesh
+    internal abstract class VoronoiBase : DcelMesh
     {
         protected IPredicates predicates;
 

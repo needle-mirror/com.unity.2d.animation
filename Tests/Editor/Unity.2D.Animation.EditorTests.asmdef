@@ -1,32 +1,18 @@
 {
     "name": "Unity.2D.Animation.EditorTests",
-    "references": [
-        "Unity.2D.Common.Editor",
-        "Unity.2D.Common.Runtime",
-        "Unity.2D.Animation.Editor",
-        "Unity.2D.Animation.Runtime",
-        "Unity.InternalAPIEngineBridge.001",
-        "Unity.Mathematics",
-        "Unity.2D.Sprite.Editor",
-        "Unity.Entities.Hybrid",
-        "Unity.Entities"
-    ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
+   "references": [
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [
-        "nunit.framework.dll",
-        "NSubstitute.dll"
+    "overrideReferences": true,
+    "optionalUnityReferences": [
+        "TestAssemblies"
     ],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [
-        "UNITY_INCLUDE_TESTS"
     ],
     "versionDefines": []
 }

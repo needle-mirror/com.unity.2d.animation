@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if ENABLE_ENTITIES
+
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -10,7 +11,7 @@ namespace UnityEngine.Experimental.U2D.Animation
     [Preserve]
     [UnityEngine.ExecuteAlways]
     [UpdateInGroup(typeof(PresentationSystemGroup))]
-    public class PrepareSkinningSystem : ComponentSystem
+    internal class PrepareSkinningSystem : ComponentSystem
     {
         EntityQuery m_ComponentGroup;
 
@@ -40,7 +41,7 @@ namespace UnityEngine.Experimental.U2D.Animation
                     var isVisible = spriteRenderer.isVisible || spriteSkin.ForceSkinning;
 
                     if (!isValid)
-                        SpriteRendererDataAccessExtensions.DeactivateDeformableBuffer(spriteRenderer);
+                        spriteSkin.DeactivateSkinning();
                     else if (isVisible)
                     {
                         spriteSkin.ForceSkinning = false;
@@ -78,3 +79,5 @@ namespace UnityEngine.Experimental.U2D.Animation
         }
     }
 }
+
+#endif

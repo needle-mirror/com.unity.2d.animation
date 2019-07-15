@@ -1,56 +1,121 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.Experimental.U2D.Animation;
+using UnityEngine.Serialization;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
+    /// <summary>
+    /// Structure that defines a Sprite Library Category Label
+    /// </summary>
     [Serializable]
-    public struct SpriteLibCategory
+    public struct SpriteCategoryLabel
     {
         [SerializeField]
-        public string name;
+        string m_Name;
         [SerializeField]
-        public List<string> spriteIds;
+        string m_SpriteId;
+
+        /// <summary>
+        /// Get and set the name for the Sprite label
+        /// </summary>
+        public string name
+        {
+            get { return m_Name; }
+            set { m_Name = value; }
+        }
+
+        /// <summary>
+        /// Get and set the Sprite Id.
+        /// </summary>
+        public string spriteId
+        {
+            get { return m_SpriteId; }
+            set { m_SpriteId = value; }
+        }
     }
 
+    /// <summary>
+    /// Structure that defines a Sprite Library Category.
+    /// </summary>
     [Serializable]
-    public struct SpriteLibrary
+    public struct SpriteCategory
     {
         [SerializeField]
-        public List<SpriteLibCategory> categories;
+        [FormerlySerializedAs("name")]
+        string m_Name;
+        [SerializeField]
+        List<SpriteCategoryLabel> m_Labels;
+
+        /// <summary>
+        /// Get and set the name for the Sprite Category
+        /// </summary>
+        public string name
+        {
+            get { return m_Name; }
+            set { m_Name = value; }
+        }
+
+        /// <summary>
+        /// Get and set the Sprites registered to this category.
+        /// </summary>
+        public List<SpriteCategoryLabel> labels
+        {
+            get { return m_Labels; }
+            set { m_Labels = value; }
+        }
     }
 
-    internal class SpriteLibraryCacheObject : SkinningObject
+    /// <summary>
+    /// A structure to hold a collection of SpriteCategory
+    /// </summary>
+    [Serializable]
+    public struct SpriteCategoryList
     {
         [SerializeField]
-        public List<SpriteLibCategory> categories = new List<SpriteLibCategory>();
+        [FormerlySerializedAs("categories")]
+        List<SpriteCategory> m_Categories;
 
-        public void CopyFrom(SpriteLibrary library)
+        /// <summary>
+        /// Get or set the a list of SpriteCategory
+        /// </summary>
+        public List<SpriteCategory> categories
+        {
+            get { return m_Categories; }
+            set { m_Categories = value; }
+        }
+    }
+
+    internal class SpriteCategoryListCacheObject : SkinningObject
+    {
+        [SerializeField]
+        public List<SpriteCategory> categories = new List<SpriteCategory>();
+
+        public void CopyFrom(SpriteCategoryList categoryList)
         {
             categories.Clear();
-            foreach (var cat in library.categories)
+            foreach (var cat in categoryList.categories)
             {
-                var spriteLibCategory = new SpriteLibCategory()
+                var spriteLibCategory = new SpriteCategory()
                 {
                     name = cat.name,
-                    spriteIds = new List<string>(cat.spriteIds)
+                    labels = new List<SpriteCategoryLabel>(cat.labels)
                 };
                 categories.Add(spriteLibCategory);
             }
         }
 
-        public SpriteLibrary ToSpriteLibrary()
+        public SpriteCategoryList ToSpriteLibrary()
         {
-            var spriteLibrary = new SpriteLibrary();
-            spriteLibrary.categories = new List<SpriteLibCategory>();
+            var spriteLibrary = new SpriteCategoryList();
+            spriteLibrary.categories = new List<SpriteCategory>();
             foreach (var cat in categories)
             {
-                var spriteLibCategory = new SpriteLibCategory()
+                var spriteLibCategory = new SpriteCategory()
                 {
                     name = cat.name,
-                    spriteIds = new List<string>(cat.spriteIds)
+                    labels = new List<SpriteCategoryLabel>(cat.labels)
                 };
                 spriteLibrary.categories.Add(spriteLibCategory);
             }
@@ -61,32 +126,42 @@ namespace UnityEditor.Experimental.U2D.Animation
         {
             for (int i = 0; i < categories.Count; ++i)
             {
-                var index = categories[i].spriteIds.FindIndex(x => x == sprite);
+                var index = categories[i].labels.FindIndex(x => x.spriteId == sprite);
                 if (index != -1)
-                    categories[i].spriteIds.RemoveAt(index);
+                    categories[i].labels.RemoveAt(index);
             }
         }
 
-        public void AddSpriteToCategory(string category, string sprite)
+        public void AddSpriteToCategory(string category, SpriteCategoryLabel label)
         {
-            if (string.IsNullOrEmpty(category))
+            if (string.IsNullOrEmpty(category) || string.IsNullOrEmpty(label.name))
             {
-                // Remove sprite from category
-                RemoveSpriteFromCategory(sprite);
+                // Remove sprite from name
+                RemoveSpriteFromCategory(label.spriteId);
             }
             else
             {
                 //find cateogry
                 var categoryIndex = categories.FindIndex(x => x.name == category);
-                var insertCategory = categoryIndex != -1 ? categories[categoryIndex] : new SpriteLibCategory() { name = category, spriteIds = new List<string>() };
-                if (insertCategory.spriteIds.FindIndex(x => x == sprite) == -1)
-                    insertCategory.spriteIds.Add(sprite);
+                if (categoryIndex == -1)
+                {
+                    // check if the hash might clash
+                    var hash = SpriteLibraryAsset.GetStringHash(category);
+                    if (categories.FindIndex(x => x.name != category && SpriteLibraryAsset.GetStringHash(x.name) == hash) != -1)
+                    {
+                        Debug.LogError("Unable to add Sprite to new Category due to name hash clash");
+                        return;
+                    }
+                }
+                var insertCategory = categoryIndex != -1 ? categories[categoryIndex] : new SpriteCategory() { name = category, labels = new List<SpriteCategoryLabel>() };
+                if (insertCategory.labels.FindIndex(x => x.spriteId == label.spriteId) == -1)
+                    insertCategory.labels.Add(label);
 
                 // now remove everything that has this sprite
                 foreach (var cat in categories)
                 {
                     if (cat.name != category)
-                        cat.spriteIds.Remove(sprite);
+                        cat.labels.RemoveAll(x => x.spriteId == label.spriteId);
                 }
                 if (categoryIndex == -1)
                     categories.Add(insertCategory);
@@ -95,14 +170,14 @@ namespace UnityEditor.Experimental.U2D.Animation
             }
         }
 
-        public void ChangeSpriteIndex(int index, string sprite)
+        public void ChangeSpriteLabelName(string labelname, string sprite)
         {
-            // find category which contain sprite
+            // find name which contain sprite
             var categoryIndex = -1;
             var spriteIndex = -1;
             for (int i = 0; i < categories.Count; ++i)
             {
-                spriteIndex = categories[i].spriteIds.FindIndex(x => x == sprite);
+                spriteIndex = categories[i].labels.FindIndex(x => x.spriteId == sprite);
                 if (spriteIndex != -1)
                 {
                     categoryIndex = i;
@@ -113,15 +188,35 @@ namespace UnityEditor.Experimental.U2D.Animation
             if (categoryIndex != -1 && spriteIndex != -1)
             {
                 var cat = categories[categoryIndex];
-                cat.spriteIds[spriteIndex] = cat.spriteIds[index];
-                cat.spriteIds[index] = sprite;
+                if (string.IsNullOrEmpty(labelname))
+                {
+                    cat.labels.RemoveAt(spriteIndex);
+                }
+                else
+                {
+                    var label = cat.labels[spriteIndex];
+                    label.name = labelname;
+                    cat.labels[spriteIndex] = label;
+                }
             }
         }
     }
 
+    /// <summary>An interface that allows Sprite Editor Modules to edit Sprite Library data for user custom importer.</summary>
+    /// <remarks>Implement this interface for [[ScriptedImporter]] to leverage on Sprite Editor Modules to edit Sprite Library data.</remarks>
     public interface ISpriteLibDataProvider
     {
-        SpriteLibrary GetSpriteLibrary();
-        void SetSpriteLibrary(SpriteLibrary spriteLibrary);
+        /// <summary>
+        /// Returns the SpriteCategoryList structure that represents the Sprite Library data.
+        /// </summary>
+        /// <returns>SpriteCategoryList data</returns>
+        SpriteCategoryList GetSpriteCategoryList();
+
+
+        /// <summary>
+        /// Sets the SpriteCategoryList structure that represents the Sprite Library data to the data provider
+        /// </summary>
+        /// <param name="spriteCategoryList">Data to set</param>
+        void SetSpriteCategoryList(SpriteCategoryList spriteCategoryList);
     }
 }

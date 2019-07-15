@@ -20,7 +20,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Mesh data structure.
     /// </summary>
-    public class Mesh : IMesh
+    internal class Mesh : IMesh
     {
         #region Variables
 

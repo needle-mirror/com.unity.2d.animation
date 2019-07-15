@@ -18,7 +18,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// The Voronoi Diagram is the dual of a pointset triangulation.
     /// </summary>
     [Obsolete("Use TriangleNet.Voronoi.StandardVoronoi class instead.")]
-    public class SimpleVoronoi : IVoronoi
+    internal class SimpleVoronoi : IVoronoi
     {
         IPredicates predicates = RobustPredicates.Default;
 

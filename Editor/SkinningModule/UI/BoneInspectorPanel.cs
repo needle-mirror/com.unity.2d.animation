@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public class BoneInspectorPanel : VisualElement
+    internal class BoneInspectorPanel : VisualElement
     {
         public class BoneInspectorPanelFactory : UxmlFactory<BoneInspectorPanel, BoneInspectorPanelUxmlTraits> {}
         public class BoneInspectorPanelUxmlTraits : VisualElement.UxmlTraits {}

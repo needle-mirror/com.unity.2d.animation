@@ -13,7 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// A simple rectangle class.
     /// </summary>
-    public class Rectangle
+    internal class Rectangle
     {
         double xmin, ymin, xmax, ymax;
 

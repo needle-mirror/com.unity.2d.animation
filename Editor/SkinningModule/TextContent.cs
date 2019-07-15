@@ -72,7 +72,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         public static string spriteCategoryChanged = "Sprite Category Changed";
         public static string spriteCategoryIndexChanged = "Sprite Category Index Changed";
         public static string category = "Category";
-        public static string index = "Index";
+        public static string label = "Label";
 
         // Other
         public static string generatingGeometry = "Generating Geometry";
@@ -85,6 +85,7 @@ namespace UnityEditor.Experimental.U2D.Animation
         public static string spriteVisibility = "SpriteVisibility";
         public static string name = "Name";
         public static string none = "None";
+        public static string size = "Size";
         public static string visibilityTab = "Visibility Tab";
         public static string addBoneInfluence = "Add Bone Influence";
         public static string removeBoneInfluence = "Remove Bone Influence";

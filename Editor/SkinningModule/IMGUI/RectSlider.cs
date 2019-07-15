@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public class RectSlider
+    internal class RectSlider
     {
         private static readonly int kRectSliderHashCode = "RectSlider".GetHashCode();
         private Vector2 m_StartPosition = Vector2.zero;

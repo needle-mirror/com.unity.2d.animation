@@ -14,7 +14,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Enumerates the edges of a triangulation.
     /// </summary>
-    public class EdgeIterator : IEnumerator<Edge>
+    internal class EdgeIterator : IEnumerator<Edge>
     {
         IEnumerator<Triangle> triangles;
         Otri tri = default(Otri);

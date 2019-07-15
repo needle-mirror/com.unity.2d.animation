@@ -11,12 +11,12 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     using System.Collections.Generic;
     using Animation.TriangleNet.Geometry;
 
-    public static class PolygonValidator
+    internal static class PolygonValidator
     {
         /// <summary>
         /// Test the polygon for consistency.
         /// </summary>
-        public static bool IsConsistent(IPolygon poly)
+        internal static bool IsConsistent(IPolygon poly)
         {
             var logger = Log.Instance;
 
@@ -95,7 +95,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <summary>
         /// Test the polygon for duplicate vertices.
         /// </summary>
-        public static bool HasDuplicateVertices(IPolygon poly)
+        internal static bool HasDuplicateVertices(IPolygon poly)
         {
             var logger = Log.Instance;
 
@@ -123,7 +123,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// </summary>
         /// <param name="poly">The polygon.</param>
         /// <param name="threshold">The angle threshold.</param>
-        public static bool HasBadAngles(IPolygon poly, double threshold = 2e-12)
+        internal static bool HasBadAngles(IPolygon poly, double threshold = 2e-12)
         {
             var logger = Log.Instance;
 

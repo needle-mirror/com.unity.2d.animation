@@ -12,7 +12,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     using Animation.TriangleNet.Geometry;
     using Animation.TriangleNet.Meshing;
 
-    public static class FileProcessor
+    internal static class FileProcessor
     {
         static List<IFileFormat> formats;
 
@@ -24,12 +24,12 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
             formats.Add(new TriangleFormat());
         }
 
-        public static void Add(IFileFormat format)
+        internal static void Add(IFileFormat format)
         {
             formats.Add(format);
         }
 
-        public static bool IsSupported(string file)
+        internal static bool IsSupported(string file)
         {
             foreach (var format in formats)
             {
@@ -49,7 +49,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// </summary>
         /// <param name="filename">The path of the file to read.</param>
         /// <returns>An instance of the <see cref="IPolygon" /> class.</returns>
-        public static IPolygon Read(string filename)
+        internal static IPolygon Read(string filename)
         {
             foreach (IPolygonFormat format in formats)
             {
@@ -67,7 +67,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// </summary>
         /// <param name="mesh">An instance of the <see cref="IPolygon" /> class.</param>
         /// <param name="filename">The path of the file to save.</param>
-        public static void Write(IPolygon polygon, string filename)
+        internal static void Write(IPolygon polygon, string filename)
         {
             foreach (IPolygonFormat format in formats)
             {
@@ -90,7 +90,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// </summary>
         /// <param name="filename">The path of the file to read.</param>
         /// <returns>An instance of the <see cref="IMesh" /> interface.</returns>
-        public static IMesh Import(string filename)
+        internal static IMesh Import(string filename)
         {
             foreach (IMeshFormat format in formats)
             {
@@ -108,7 +108,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// </summary>
         /// <param name="mesh">An instance of the <see cref="IMesh" /> interface.</param>
         /// <param name="filename">The path of the file to save.</param>
-        public static void Write(IMesh mesh, string filename)
+        internal static void Write(IMesh mesh, string filename)
         {
             foreach (IMeshFormat format in formats)
             {

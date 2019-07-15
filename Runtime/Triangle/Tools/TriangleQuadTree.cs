@@ -15,7 +15,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// A Quadtree implementation optimized for triangles.
     /// </summary>
-    public class TriangleQuadTree
+    internal class TriangleQuadTree
     {
         QuadNode root;
 

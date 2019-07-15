@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.Experimental.U2D.Layout
 {
-    public class ScrollableToolbar : VisualElement
+    internal class ScrollableToolbar : VisualElement
     {
         public class ScrollableToolbarFactory : UxmlFactory<ScrollableToolbar, ScrollableToolbarUxmlTraits> {}
         public class ScrollableToolbarUxmlTraits : VisualElement.UxmlTraits
@@ -72,7 +72,6 @@ namespace UnityEditor.Experimental.U2D.Layout
             m_IsHorizontal = isHorizontal;
             SetupScrolling();
 
-            //styleSheets.Add(Resources.Load<StyleSheet>("ScrollableToolbar");
             styleSheets.Add(Resources.Load<StyleSheet>("ScrollableToolbar"));
 
             // TODO: Add onto current ScrollView internal WheelEvent
@@ -83,7 +82,7 @@ namespace UnityEditor.Experimental.U2D.Layout
             m_ScrollView.contentViewport.pickingMode = PickingMode.Ignore;
             m_ScrollView.contentContainer.pickingMode = PickingMode.Ignore;
         }
-
+  
         public void AddToContainer(VisualElement element)
         {
             m_ScrollView.contentContainer.Add(element);

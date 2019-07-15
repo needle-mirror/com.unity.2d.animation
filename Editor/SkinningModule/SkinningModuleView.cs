@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public partial class SkinningModule
+    internal partial class SkinningModule
     {
         private LayoutOverlay m_LayoutOverlay;
         private BoneToolbar m_BoneToolbar;
@@ -79,7 +79,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             }
         }
 
-        [Shortcut("2D/Animation/Edit Joints", typeof(InternalEditorBridge.ShortcutContext), KeyCode.W, ShortcutModifiers.Shift)]
+        [Shortcut("2D/Animation/Edit Bone", typeof(InternalEditorBridge.ShortcutContext), KeyCode.W, ShortcutModifiers.Shift)]
         private static void EditJointsKey(ShortcutArguments args)
         {
             var sm = GetModuleFromContext(args);

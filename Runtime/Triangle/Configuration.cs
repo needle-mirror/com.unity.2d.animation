@@ -13,7 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Configure advanced aspects of the library.
     /// </summary>
-    public class Configuration
+    internal class Configuration
     {
         public Configuration()
             : this(() => RobustPredicates.Default, () => new TrianglePool())

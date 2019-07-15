@@ -20,7 +20,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// Vertices wich should not move (e.g. segment vertices) MUST have a
     /// boundary mark greater than 0.
     /// </remarks>
-    public class SimpleSmoother : ISmoother
+    internal class SimpleSmoother : ISmoother
     {
         TrianglePool pool;
         Configuration config;

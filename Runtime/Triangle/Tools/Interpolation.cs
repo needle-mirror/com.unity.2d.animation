@@ -3,7 +3,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
 {
     using Animation.TriangleNet.Geometry;
 
-    public static class Interpolation
+    internal static class Interpolation
     {
 #if USE_ATTRIBS
         /// <summary>
@@ -15,7 +15,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <remarks>
         /// The vertex is expected to lie inside the triangle.
         /// </remarks>
-        public static void InterpolateAttributes(Vertex vertex, ITriangle triangle, int n)
+        internal static void InterpolateAttributes(Vertex vertex, ITriangle triangle, int n)
         {
             Vertex org = triangle.GetVertex(0);
             Vertex dest = triangle.GetVertex(1);
@@ -67,7 +67,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <remarks>
         /// The point is expected to lie inside the triangle.
         /// </remarks>
-        public static void InterpolateZ(Point p, ITriangle triangle)
+        internal static void InterpolateZ(Point p, ITriangle triangle)
         {
             Vertex org = triangle.GetVertex(0);
             Vertex dest = triangle.GetVertex(1);

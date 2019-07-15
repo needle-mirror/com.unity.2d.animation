@@ -12,7 +12,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     using Animation.TriangleNet.Tools;
     using Animation.TriangleNet.Topology.DCEL;
 
-    public class StandardVoronoi : VoronoiBase
+    internal class StandardVoronoi : VoronoiBase
     {
         public StandardVoronoi(Mesh mesh)
             : this(mesh, mesh.bounds, new DefaultVoronoiFactory(), RobustPredicates.Default)

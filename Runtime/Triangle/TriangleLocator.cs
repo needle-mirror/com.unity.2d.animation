@@ -22,7 +22,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// Delaunay Triangulations," Proceedings of the Twelfth Annual Symposium on
     /// Computational Geometry, ACM, May 1996.
     /// </remarks>
-    public class TriangleLocator
+    internal class TriangleLocator
     {
         TriangleSampler sampler;
         Mesh mesh;
@@ -99,7 +99,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// a triangle, there are two edges by which one can leave that triangle.
         /// If both edges are valid ('searchpoint' is on the other side of both
         /// edges), one of the two is chosen by drawing a line perpendicular to
-        /// the entry edge (whose endpoints are 'forg' and 'fdest') passing through
+        /// the label edge (whose endpoints are 'forg' and 'fdest') passing through
         /// 'fapex'. Depending on which side of this perpendicular 'searchpoint'
         /// falls on, an exit edge is chosen.
         ///

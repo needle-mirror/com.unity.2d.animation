@@ -3,13 +3,13 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.Experimental.U2D.Layout
 {
-    public interface IDraggable
+    internal interface IDraggable
     {
         bool IsMovableNow();
         void UpdatePresenterPosition();
     }
 
-    public class Draggable : MouseManipulator
+    internal class Draggable : MouseManipulator
     {
         private Vector2 m_Start;
         protected bool m_Active;

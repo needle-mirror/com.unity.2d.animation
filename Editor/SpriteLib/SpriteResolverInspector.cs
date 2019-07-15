@@ -11,33 +11,41 @@ namespace UnityEditor.Experimental.U2D.Animation
     {
         static class Style
         {
-            public static GUIContent noSpriteLibContainer = EditorGUIUtility.TrTextContent("No Sprite Library Container Component found");
+            public static GUIContent noSpriteLibContainer = EditorGUIUtility.TrTextContent("No Sprite Library Container Component found or Sprite Library has no categories.");
             public static GUIContent categoryLabel = EditorGUIUtility.TrTextContent("Category");
-            public static GUIContent indexLabel = EditorGUIUtility.TrTextContent("Index");
+            public static GUIContent labelLabel = EditorGUIUtility.TrTextContent("Label");
             public static GUIContent categoryIsEmptyLabel = EditorGUIUtility.TrTextContent("Category is Empty");
         }
 
         struct SpriteCategorySelectionList
         {
+            public string categoryName;
+            public int categoryNameHash;
             public string[] names;
+            public int[] nameHash;
             public Sprite[] sprites;
         }
 
-        private SerializedProperty m_SpriteKeyCategory;
-        private SerializedProperty m_SpriteKeyVariant;
-        private SerializedProperty m_CategoryHash;
-
-        Dictionary<string, SpriteCategorySelectionList> m_SpriteLibSelection = new Dictionary<string, SpriteCategorySelectionList>();
+        private SerializedProperty m_SpriteCategoryHash;
+        private SerializedProperty m_SpritelabelHash;
+        private SpriteSkin m_SpriteSkin;
+        Dictionary<int, SpriteCategorySelectionList> m_SpriteLibSelection = new Dictionary<int, SpriteCategorySelectionList>();
         string[] m_CategorySelection;
+        int[] m_CategorySelectionHash;
         int m_CategorySelectionIndex = 0;
+        int m_PreviousCategoryHash = 0;
+        int m_labelSelectionIndex = 0;
+        int m_PreviouslabelHash = 0;
         SpriteSelectorWidget m_SpriteSelectorWidget = new SpriteSelectorWidget();
 
         public void OnEnable()
         {
-            m_SpriteKeyCategory = serializedObject.FindProperty("m_Category");
-            m_CategoryHash = serializedObject.FindProperty("m_CategoryHash");
-            m_SpriteKeyVariant = serializedObject.FindProperty("m_Index");
+            m_SpriteCategoryHash = serializedObject.FindProperty("m_CategoryHash");
+            m_SpritelabelHash = serializedObject.FindProperty("m_labelHash");
+            m_SpriteSkin = (target as SpriteResolver).GetComponent<SpriteSkin>();
 
+            m_PreviousCategoryHash = SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue);
+            m_PreviouslabelHash = SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue);
             UpdateSpriteLibrary();
         }
 
@@ -45,41 +53,69 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         void UpdateSpriteLibrary()
         {
-            var spriteLibs = spriteResolver.GetComponentsInParent<SpriteLibraryComponent>().Select(x => x).ToArray();
-            foreach (var spriteLib in spriteLibs)
+            m_SpriteLibSelection.Clear();
+            int categoryHash = SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue);
+            int labelHash = SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue);
+            var spriteLib = spriteResolver.GetComponentInParent<SpriteLibrary>();
+            if (spriteLib != null)
             {
-                foreach (var entries in spriteLib.entries)
+                foreach (var labels in spriteLib.labels)
                 {
-                    if (!m_SpriteLibSelection.ContainsKey(entries.category))
+                    if (!m_SpriteLibSelection.ContainsKey(labels.hash))
                     {
-                        var selectionList = new SpriteCategorySelectionList()
+                        var nameHash = labels.categoryList.Select(x => x.hash).Distinct().ToArray();
+                        if (nameHash.Length > 0)
                         {
-                            names = new string[entries.spriteList.Count],
-                            sprites = new Sprite[entries.spriteList.Count]
-                        };
-                        for (int i = 0; i < entries.spriteList.Count; ++i)
-                        {
-                            var spriteName = entries.spriteList[i] != null ? entries.spriteList[i].name : "Missing Sprite";
-                            selectionList.names[i] = string.Format("{0} - {1}", i, spriteName);
-                            selectionList.sprites[i] = entries.spriteList[i];
+                            var selectionList = new SpriteCategorySelectionList()
+                            {
+                                names = nameHash.Select(x =>
+                                {
+                                    var v = labels.categoryList.FirstOrDefault(y => y.hash == x);
+                                    return v.name;
+                                }).ToArray(),
+                                nameHash = nameHash,
+                                sprites = nameHash.Select(x =>
+                                {
+                                    var v = labels.categoryList.FirstOrDefault(y => y.hash == x);
+                                    return v.sprite;
+                                }).ToArray(),
+                                categoryName = labels.name,
+                                categoryNameHash = labels.hash
+                            };
+
+                            m_SpriteLibSelection.Add(labels.hash, selectionList);
                         }
-                        m_SpriteLibSelection.Add(entries.category, selectionList);
                     }
                 }
             }
             m_CategorySelection = new string[1 + m_SpriteLibSelection.Keys.Count];
-            m_CategorySelection[0] = "None";
+            m_CategorySelection[0] = TextContent.none;
+            m_CategorySelectionHash = new int[1 + m_SpriteLibSelection.Keys.Count];
+            m_CategorySelectionHash[0] = SpriteLibraryAsset.GetStringHash(TextContent.none);
             for (int i = 0; i < m_SpriteLibSelection.Keys.Count; ++i)
             {
-                m_CategorySelection[i + 1] = m_SpriteLibSelection.Keys.ElementAt(i);
+                var selection = m_SpriteLibSelection[m_SpriteLibSelection.Keys.ElementAt(i)];
+                m_CategorySelection[i + 1] = selection.categoryName;
+                m_CategorySelectionHash[i + 1] = selection.categoryNameHash;
+                if (selection.categoryNameHash == categoryHash)
+                    m_CategorySelectionIndex = i + 1;
             }
-            m_CategorySelectionIndex = Array.FindIndex(m_CategorySelection, x => x == m_SpriteKeyCategory.stringValue);
-            if (m_CategorySelectionIndex == -1)
-                m_CategorySelectionIndex = 0;
+            ValidateCategorySelectionIndexValue();
             if (m_CategorySelectionIndex > 0)
-                m_SpriteSelectorWidget.UpdateContents(m_SpriteLibSelection[m_CategorySelection[m_CategorySelectionIndex]].sprites);
-
+            {
+                m_SpriteSelectorWidget.UpdateContents(m_SpriteLibSelection[m_CategorySelectionHash[m_CategorySelectionIndex]].sprites);
+                if (m_SpriteLibSelection.ContainsKey(categoryHash))
+                {
+                    m_labelSelectionIndex = Array.FindIndex(m_SpriteLibSelection[categoryHash].nameHash, x => x == labelHash);
+                }
+            }
             spriteResolver.spriteLibChanged = false;
+        }
+
+        void ValidateCategorySelectionIndexValue()
+        {
+            if (m_CategorySelectionIndex < 0 || m_CategorySelectionHash.Length <= m_CategorySelectionIndex)
+                m_CategorySelectionIndex = 0;
         }
 
         public override void OnInspectorGUI()
@@ -89,9 +125,11 @@ namespace UnityEditor.Experimental.U2D.Animation
             if (spriteResolver.spriteLibChanged)
                 UpdateSpriteLibrary();
 
-            m_CategorySelectionIndex = Array.FindIndex(m_CategorySelection, x => x == m_SpriteKeyCategory.stringValue);
-            if (m_CategorySelectionIndex == -1)
-                m_CategorySelectionIndex = 0;
+            var currentlabelHashValue = SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue);
+            var currentCategoryHashValue = SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue);
+
+            m_CategorySelectionIndex = Array.FindIndex(m_CategorySelectionHash, x => x == currentCategoryHashValue);
+            ValidateCategorySelectionIndexValue();
 
             if (m_CategorySelection.Length == 1)
             {
@@ -100,37 +138,66 @@ namespace UnityEditor.Experimental.U2D.Animation
             else
             {
                 EditorGUI.BeginChangeCheck();
-                var selectionIndex = m_SpriteKeyVariant.intValue;
                 m_CategorySelectionIndex = EditorGUILayout.Popup(Style.categoryLabel, m_CategorySelectionIndex, m_CategorySelection);
                 if (m_CategorySelectionIndex != 0)
                 {
-                    var selection = m_SpriteLibSelection[m_CategorySelection[m_CategorySelectionIndex]];
+                    var selection = m_SpriteLibSelection[m_CategorySelectionHash[m_CategorySelectionIndex]];
                     if (selection.names.Length <= 0)
                     {
                         EditorGUILayout.LabelField(Style.categoryIsEmptyLabel);
                     }
                     else
                     {
-                        if (selectionIndex < 0 || selectionIndex >= selection.names.Length)
-                            selectionIndex = 0;
-                        selectionIndex = EditorGUILayout.Popup(Style.indexLabel, selectionIndex, selection.names);
-                        selectionIndex = m_SpriteSelectorWidget.ShowGUI(selectionIndex);
+                        if (m_labelSelectionIndex < 0 || m_labelSelectionIndex >= selection.names.Length)
+                            m_labelSelectionIndex = 0;
+                        m_labelSelectionIndex = EditorGUILayout.Popup(Style.labelLabel, m_labelSelectionIndex, selection.names);
+                        m_labelSelectionIndex = m_SpriteSelectorWidget.ShowGUI(m_labelSelectionIndex);
                     }
                 }
 
                 if (EditorGUI.EndChangeCheck())
                 {
-                    if (m_CategorySelectionIndex > 0)
-                        m_SpriteSelectorWidget.UpdateContents(m_SpriteLibSelection[m_CategorySelection[m_CategorySelectionIndex]].sprites);
-                    m_SpriteKeyCategory.stringValue = m_CategorySelectionIndex > 0 ? m_CategorySelection[m_CategorySelectionIndex] : "";
-                    m_SpriteKeyVariant.intValue = selectionIndex;
-                    m_CategoryHash.intValue = SpriteLibraryAsset.GetCategoryHash(m_SpriteKeyCategory.stringValue);
+                    currentCategoryHashValue = m_CategorySelectionHash[m_CategorySelectionIndex];
+                    if (m_SpriteLibSelection.ContainsKey(currentCategoryHashValue))
+                    {
+                        var hash = m_SpriteLibSelection[currentCategoryHashValue].nameHash;
+                        if (hash.Length > 0)
+                        {
+                            if (m_labelSelectionIndex < 0 || m_labelSelectionIndex >= hash.Length)
+                                m_labelSelectionIndex = 0;
+                            currentlabelHashValue = m_SpriteLibSelection[currentCategoryHashValue].nameHash[m_labelSelectionIndex];
+                        }
+                    }
+
+                    m_SpriteCategoryHash.floatValue = SpriteResolver.ConvertIntToFloat(currentCategoryHashValue);
+                    m_SpritelabelHash.floatValue = SpriteResolver.ConvertIntToFloat(currentlabelHashValue);
                     serializedObject.ApplyModifiedProperties();
 
                     var sf = target as SpriteResolver;
-                    sf.RefreshSpriteFromSpriteKey();
+                    if (m_SpriteSkin != null)
+                        m_SpriteSkin.ignoreNextSpriteChange = true;
+                    sf.ResolveSpriteToSpriteRenderer();
                 }
+
+                if (m_PreviousCategoryHash != currentCategoryHashValue)
+                {
+                    if (m_SpriteLibSelection.ContainsKey(currentCategoryHashValue))
+                    {
+                        m_SpriteSelectorWidget.UpdateContents(m_SpriteLibSelection[currentCategoryHashValue].sprites);
+                    }
+                    m_PreviousCategoryHash = currentCategoryHashValue;
+                }
+
+                if (m_PreviouslabelHash != currentlabelHashValue)
+                {
+                    if (m_SpriteLibSelection.ContainsKey(currentCategoryHashValue))
+                        m_labelSelectionIndex = Array.FindIndex(m_SpriteLibSelection[currentCategoryHashValue].nameHash, x => x == currentlabelHashValue);
+                    m_PreviouslabelHash = currentlabelHashValue;
+                }
+
                 serializedObject.ApplyModifiedProperties();
+                if (m_SpriteSelectorWidget.NeedUpdatePreview())
+                    this.Repaint();
             }
         }
     }

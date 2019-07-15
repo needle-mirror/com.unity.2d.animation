@@ -21,14 +21,14 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// The Converter class provides methods for mesh reconstruction and conversion.
     /// </summary>
-    public static class Converter
+    internal static class Converter
     {
         #region Triangle mesh conversion
 
         /// <summary>
         /// Reconstruct a triangulation from its raw data representation.
         /// </summary>
-        public static Mesh ToMesh(Polygon polygon, IList<ITriangle> triangles)
+        internal static Mesh ToMesh(Polygon polygon, IList<ITriangle> triangles)
         {
             return ToMesh(polygon, triangles.ToArray());
         }
@@ -36,7 +36,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <summary>
         /// Reconstruct a triangulation from its raw data representation.
         /// </summary>
-        public static Mesh ToMesh(Polygon polygon, ITriangle[] triangles)
+        internal static Mesh ToMesh(Polygon polygon, ITriangle[] triangles)
         {
             Otri tri = default(Otri);
             Osub subseg = default(Osub);
@@ -347,7 +347,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
 
         #region DCEL conversion
 
-        public static DcelMesh ToDCEL(Mesh mesh)
+        internal static DcelMesh ToDCEL(Mesh mesh)
         {
             var dcel = new DcelMesh();
 

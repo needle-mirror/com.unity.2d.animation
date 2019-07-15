@@ -1,11 +1,10 @@
 ﻿using System;
-using UnityEditor.Experimental.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public class PastePanel : VisualElement
+    internal class PastePanel : VisualElement
     {
         public class PastePanelFactory : UxmlFactory<PastePanel, PastePanelUxmlTraits> {}
         public class PastePanelUxmlTraits : VisualElement.UxmlTraits {}

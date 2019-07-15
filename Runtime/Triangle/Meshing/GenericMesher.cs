@@ -16,7 +16,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Create meshes of point sets or polygons.
     /// </summary>
-    public class GenericMesher
+    internal class GenericMesher
     {
         Configuration config;
         ITriangulator triangulator;
@@ -93,7 +93,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <param name="nx">Number of segments in x direction.</param>
         /// <param name="ny">Number of segments in y direction.</param>
         /// <returns>Mesh</returns>
-        public static IMesh StructuredMesh(double width, double height, int nx, int ny)
+        internal static IMesh StructuredMesh(double width, double height, int nx, int ny)
         {
             if (width <= 0.0)
             {
@@ -115,7 +115,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <param name="nx">Number of segments in x direction.</param>
         /// <param name="ny">Number of segments in y direction.</param>
         /// <returns>Mesh</returns>
-        public static IMesh StructuredMesh(Rectangle bounds, int nx, int ny)
+        internal static IMesh StructuredMesh(Rectangle bounds, int nx, int ny)
         {
             var polygon = new Polygon((nx + 1) * (ny + 1));
 

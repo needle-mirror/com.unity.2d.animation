@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.Experimental.U2D;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public interface ISkinningSerializer
+    internal interface ISkinningSerializer
     {
         bool CanDeserialize(string data);
         SkinningCopyData Deserialize(string data);
@@ -13,7 +12,7 @@ namespace UnityEditor.Experimental.U2D.Animation
     }
 
     [Serializable]
-    public class SkinningCopySpriteData
+    internal class SkinningCopySpriteData
     {
         public string spriteName;
         public List<SpriteBone> spriteBones;
@@ -24,7 +23,7 @@ namespace UnityEditor.Experimental.U2D.Animation
     }
 
     [Serializable]
-    public class SkinningCopyData
+    internal class SkinningCopyData
     {
         public float pixelsPerUnit;
         public List<SkinningCopySpriteData> copyData = new List<SkinningCopySpriteData>();

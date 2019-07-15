@@ -15,7 +15,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     using HVertex = Animation.TriangleNet.Topology.DCEL.Vertex;
     using TVertex = Animation.TriangleNet.Geometry.Vertex;
 
-    public class BoundedVoronoi : VoronoiBase
+    internal class BoundedVoronoi : VoronoiBase
     {
         int offset;
 

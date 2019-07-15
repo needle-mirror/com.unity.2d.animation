@@ -13,7 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Interface for mesh I/O.
     /// </summary>
-    public interface IMeshFormat : IFileFormat
+    internal interface IMeshFormat : IFileFormat
     {
         /// <summary>
         /// Read a file containing a mesh.

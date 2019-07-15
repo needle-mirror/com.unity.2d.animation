@@ -45,7 +45,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// The bounding box also makes it easy to traverse the convex hull, as the
     /// divide-and-conquer algorithm needs to do.
     /// </remarks>
-    public class Dwyer : ITriangulator
+    internal class Dwyer : ITriangulator
     {
         // Random is not threadsafe, so don't make this static.
         // Random rand = new Random(DateTime.Now.Millisecond);
@@ -148,7 +148,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// the remaining bounding triangles (those that have not been converted
         /// into real triangles) into a single fan.
         ///
-        /// On entry, 'farleft' and 'innerleft' are bounding triangles of the left
+        /// On label, 'farleft' and 'innerleft' are bounding triangles of the left
         /// triangulation.  The origin of 'farleft' is the leftmost vertex, and
         /// the destination of 'innerleft' is the rightmost vertex of the
         /// triangulation.  Similarly, 'innerright' and 'farright' are bounding

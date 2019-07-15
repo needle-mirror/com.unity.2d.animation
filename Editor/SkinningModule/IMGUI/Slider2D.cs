@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public class Slider2D
+    internal class Slider2D
     {
         private static Vector2 s_CurrentMousePosition;
         private static Vector2 s_DragStartScreenPosition;

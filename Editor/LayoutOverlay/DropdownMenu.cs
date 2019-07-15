@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.Experimental.U2D.Layout
 {
-	public class DropdownMenu : VisualElement
+	internal class DropdownMenu : VisualElement
 	{
 		public class DropdownMenuFactory : UxmlFactory<DropdownMenu, DropdownMenuUxmlTraits> {}
 		public class DropdownMenuUxmlTraits : VisualElement.UxmlTraits {}

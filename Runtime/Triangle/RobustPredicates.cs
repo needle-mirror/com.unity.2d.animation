@@ -24,7 +24,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// command prompt with the command "CL /P /C EXACT.C", see
     /// http://msdn.microsoft.com/en-us/library/8z9z0bx6.aspx
     /// </remarks>
-    public class RobustPredicates : IPredicates
+    internal class RobustPredicates : IPredicates
     {
         #region Default predicates instance (Singleton)
 
@@ -34,7 +34,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
         /// <summary>
         /// Gets the default configuration instance.
         /// </summary>
-        public static RobustPredicates Default
+        internal static RobustPredicates Default
         {
             get
             {

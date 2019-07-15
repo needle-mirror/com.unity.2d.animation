@@ -7,7 +7,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Default factory for Voronoi / DCEL mesh objects.
     /// </summary>
-    public class DefaultVoronoiFactory : IVoronoiFactory
+    internal class DefaultVoronoiFactory : IVoronoiFactory
     {
         public void Initialize(int vertexCount, int edgeCount, int faceCount)
         {

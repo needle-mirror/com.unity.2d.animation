@@ -8,7 +8,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
 {
     using Animation.TriangleNet.Geometry;
 
-    public interface IPredicates
+    internal interface IPredicates
     {
         double CounterClockwise(Point a, Point b, Point c);
 

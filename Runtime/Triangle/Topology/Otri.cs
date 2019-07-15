@@ -19,7 +19,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// of the triangle. Hence, there are three possible orientations. By convention, each
     /// edge always points counterclockwise about the corresponding triangle.
     /// </remarks>
-    public struct Otri
+    internal struct Otri
     {
         internal Triangle tri;
         internal int orient; // Ranges from 0 to 2.

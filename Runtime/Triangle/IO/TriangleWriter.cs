@@ -17,7 +17,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Helper methods for writing Triangle file formats.
     /// </summary>
-    public class TriangleWriter
+    internal class TriangleWriter
     {
         static NumberFormatInfo nfi = NumberFormatInfo.InvariantInfo;
 

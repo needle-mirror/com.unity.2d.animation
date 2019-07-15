@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public class SkinningSerializerJSON : ISkinningSerializer
+    internal class SkinningSerializerJSON : ISkinningSerializer
     {
         public bool CanDeserialize(string data)
         {

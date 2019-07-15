@@ -2,13 +2,25 @@ using System;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.Experimental.U2D.Common;
+
+#if ENABLE_ENTITIES
 using Unity.Entities;
+#endif
 
 namespace UnityEngine.Experimental.U2D.Animation
 {
+
     [Preserve]
-    public class SpriteSkinEntity : GameObjectEntity
+    internal class SpriteSkinEntity
+#if ENABLE_ENTITIES
+        : GameObjectEntity
+#else
+        : MonoBehaviour
+#endif
     {
+
+#if ENABLE_ENTITIES
+        bool enableEntitiesCached = true;
 #if UNITY_EDITOR
         static bool assemblyReload = false;
 #endif
@@ -24,16 +36,29 @@ namespace UnityEngine.Experimental.U2D.Animation
             }
         }
 
+        bool entitiesEnabled
+        {
+            get
+            {
+                if (m_SpriteSkin == null)
+                    return false;
+                return m_SpriteSkin.entitiesEnabled;
+            }
+        }
+
         protected override void OnEnable()
         {
-            base.OnEnable();
-            SetupEntity();
-            SetupSpriteSkin();
+            if (entitiesEnabled)
+            { 
+                base.OnEnable();
+                SetupEntity();
+                SetupSpriteSkin();
 
-#if UNITY_EDITOR
-            UnityEditor.AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
-            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
-#endif
+    #if UNITY_EDITOR
+                UnityEditor.AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
+                UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
+    #endif
+            }
         }
 
 #if UNITY_EDITOR
@@ -50,11 +75,16 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         protected override void OnDisable()
         {
-            DeactivateSkinning();
+            if (entitiesEnabled)
+            { 
+                DeactivateSkinning();
 #if UNITY_EDITOR
             if (!assemblyReload)
 #endif
-            base.OnDisable();
+                base.OnDisable();
+            }
+            if (spriteSkin.isValid)
+                spriteSkin.entitiesEnabled = false;
         }
 
         private void SetupEntity()
@@ -73,7 +103,7 @@ namespace UnityEngine.Experimental.U2D.Animation
             if (spriteSkin != null)
             {
                 spriteSkin.ForceSkinning = true;
-                
+
                 if (spriteSkin.bounds.extents != Vector3.zero) //Maybe log a warning?
                     InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, spriteSkin.bounds);
             }
@@ -84,5 +114,20 @@ namespace UnityEngine.Experimental.U2D.Animation
             if (spriteSkin != null)
                 spriteSkin.DeactivateSkinning();
         }
+
+        private void Update()
+        {
+            if (entitiesEnabled != enableEntitiesCached)
+            {
+                if (entitiesEnabled)
+                    OnEnable();
+                else
+             
+                    OnDisable();
+                enableEntitiesCached = entitiesEnabled;
+            }
+        }
+
+#endif
     } 
 }

@@ -12,7 +12,7 @@ namespace UnityEngine.Experimental.U2D.Animation.TriangleNet
     /// <summary>
     /// Triangle interface.
     /// </summary>
-    public interface ITriangle
+    internal interface ITriangle
     {
         /// <summary>
         /// Gets or sets the triangle ID.

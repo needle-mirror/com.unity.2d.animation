@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UnityEditor.Experimental.U2D.Animation
 {
-    public interface IOutlineGenerator
+    internal interface IOutlineGenerator
     {
         void GenerateOutline(ITextureDataProvider textureDataProvider, Rect rect, float detail, byte alphaTolerance, bool holeDetection, out Vector2[][] paths);
     }
