@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.0-preview.5] - 2019-08-07
+###Fixed
+- Fix Sprite visual might get corrupted when swapping Sprite with Sprite Resolver.
+
 ## [2.2.0-preview.4] - 2019-07-16
 ### Changed
 - Update documentation

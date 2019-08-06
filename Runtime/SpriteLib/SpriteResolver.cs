@@ -13,6 +13,7 @@ namespace UnityEngine.Experimental.U2D.Animation
     /// </Description>
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(-1)]
     public class SpriteResolver : MonoBehaviour
     {
         // These are for animation
