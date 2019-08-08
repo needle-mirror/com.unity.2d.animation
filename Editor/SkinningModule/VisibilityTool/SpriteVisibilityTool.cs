@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 using System;
 using System.Linq;
+using UnityEngine.Experimental.U2D.Animation;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
@@ -126,7 +127,7 @@ namespace UnityEditor.U2D.Animation
 
         private void OnSpriteSelectedChanged(SpriteCache sprite)
         {
-            if(m_UpdateViewOnSelection)
+            if (m_UpdateViewOnSelection)
                 m_Model.view.SetSelection(sprite);
             m_UpdateViewOnSelection = true;
         }
@@ -290,7 +291,7 @@ namespace UnityEditor.U2D.Animation
             {
                 m_UpdateViewOnSelection = false;
                 m_Events.selectedSpriteChanged.Invoke(newSelected);
-                if(newSelected == null)
+                if (newSelected == null)
                     m_Model.view.SetSelectionIds(selectedIds);
             }
         }
@@ -414,7 +415,8 @@ namespace UnityEditor.U2D.Animation
 
         public bool IsLabelDuplicate(SpriteCategory category, string labelName)
         {
-            return category.labels.Count(x => x.name == labelName) > 1;
+            var hash = SpriteLibraryAsset.GetStringHash(labelName);
+            return category.labels.Count(x => x.name == labelName || hash == SpriteLibraryAsset.GetStringHash(x.name)) > 1;
         }
 
         public void SetCategoryLabelName(string labelname, TreeViewItem treeViewItem)
@@ -432,7 +434,7 @@ namespace UnityEditor.U2D.Animation
                 }
             }
         }
-        
+
         public bool SupportCateogry(TreeViewItem treeViewItem)
         {
             var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
@@ -457,7 +459,7 @@ namespace UnityEditor.U2D.Animation
             if (SupportConvertToCatgory(treeViewItem))
             {
                 var groupItem = treeViewItem as SpriteVisibilityGroupItem;
-                foreach(var item in groupItem.childItems)
+                foreach (var item in groupItem.childItems)
                     ConvertLayerToCategory(item);
             }
             else
@@ -754,7 +756,7 @@ namespace UnityEditor.U2D.Animation
                 m_Style.focused.background = m_Style.normal.background;
                 m_Style.focused.scaledBackgrounds = m_Style.normal.scaledBackgrounds;
                 m_Style.focused.textColor = m_Style.normal.textColor;
-                m_WarningIcon = EditorGUIUtility.TrIconContent("console.warnicon.sml", "Duplicate label name found. Please use a different name");
+                m_WarningIcon = EditorGUIUtility.TrIconContent("console.warnicon.sml", "Duplicate label name found or label hash value clash. Please use a different name");
             }
         }
 
@@ -911,7 +913,7 @@ namespace UnityEditor.U2D.Animation
             string categoryName = EditorGUI.DelayedTextField(cellRect, "");
             if (EditorGUI.EndChangeCheck())
             {
-                if(Array.FindIndex(k_DefaultCategoryList, x => x == categoryName) == -1)
+                if (Array.FindIndex(k_DefaultCategoryList, x => x == categoryName) == -1)
                     GetController().SetCategoryForSprite(categoryName, item);
                 m_CurrentEdittingItem = null;
             }

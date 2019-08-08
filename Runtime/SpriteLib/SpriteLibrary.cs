@@ -8,6 +8,7 @@ namespace UnityEngine.Experimental.U2D.Animation
     /// Component that holds a Sprite Library Asset. The component is used by SpriteResolver Component to query for Sprite based on Category and Index
     /// </summary>
     [DisallowMultipleComponent]
+    [AddComponentMenu("2D Animation/Sprite Library (Experimental)")]
     public class SpriteLibrary : MonoBehaviour
     {
         internal class StringAndHash
@@ -37,7 +38,7 @@ namespace UnityEngine.Experimental.U2D.Animation
                 return false;
             }
 
-            public static bool operator !=(StringAndHash l, StringAndHash r)
+            public static bool operator!=(StringAndHash l, StringAndHash r)
             {
                 return !(l == r);
             }
@@ -145,10 +146,10 @@ namespace UnityEngine.Experimental.U2D.Animation
             else
                 label = new Dictionary<StringAndHash, Sprite>();
 
-            
+
             if (addToList && !m_Overrides.ContainsKey(category))
             {
-                if(string.IsNullOrEmpty(category.name))
+                if (string.IsNullOrEmpty(category.name))
                     Debug.LogWarning("Adding override category with no name");
                 m_Overrides.Add(category, label);
             }
@@ -179,14 +180,14 @@ namespace UnityEngine.Experimental.U2D.Animation
         }
 
         /// <summary>
-        /// Add or replace an override when querying for the given Category. All the labels in the Category will be added.
+        /// Add or replace an override when querying for the given Category. All the categories in the Category will be added.
         /// </summary>
         /// <param name="spriteLib">Sprite Library Asset to query</param>
         /// <param name="category">Category name from the Sprite Library Asset to add override</param>
         public void AddOverride(SpriteLibraryAsset spriteLib, string category)
         {
             var categoryHash = SpriteLibraryAsset.GetStringHash(category);
-            var cat = spriteLib.labels.FirstOrDefault(x => x.hash == categoryHash);
+            var cat = spriteLib.categories.FirstOrDefault(x => x.hash == categoryHash);
             if (cat != null)
             {
                 var label = GetCategoryOverride(category, true);
@@ -251,7 +252,7 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         internal List<SpriteLibCategory> labels
         {
-            get { return m_SpriteLibraryAsset != null ? m_SpriteLibraryAsset.labels : new List<SpriteLibCategory>(); }
+            get { return m_SpriteLibraryAsset != null ? m_SpriteLibraryAsset.categories : new List<SpriteLibCategory>(); }
         }
 
         /// <summary>

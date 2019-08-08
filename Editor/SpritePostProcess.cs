@@ -184,7 +184,6 @@ namespace UnityEditor.U2D.Animation
                     }
 
                     var indicesArray = new NativeArray<ushort>(indices.Length, Allocator.Temp);
-
                     for (int i = 0; i < indices.Length; ++i)
                         indicesArray[i] = (ushort)indices[i];
 
@@ -195,6 +194,16 @@ namespace UnityEditor.U2D.Animation
                     vertexArray.Dispose();
                     boneWeightArray.Dispose();
                     indicesArray.Dispose();
+
+                    // Deformed Sprites require proper Tangent Channels if Lit. Enable Tangent channels.
+                    if (hasBones)
+                    {
+                        var tangentArray = new NativeArray<Vector4>(vertices.Length, Allocator.Temp);
+                        for (int i = 0; i < vertices.Length; ++i)
+                            tangentArray[i] = new Vector4(1.0f, 0.0f, 0, -1.0f);
+                        sprite.SetVertexAttribute<Vector4>(VertexAttribute.Tangent, tangentArray);
+                        tangentArray.Dispose();
+                    }
 
                     dataChanged = true;
 

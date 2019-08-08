@@ -1,12 +1,16 @@
+
+
 # Swapping Sprite Library Assets
 
 When you need to make a bigger visual change to a Sprite model (for example, switching colors for a character depending on which team it is on), you can use the method detailed in [Changing part of a character’s appearance](CharacterParts.md) for each individual Sprite on the model. 
 
 However, if there are a large number of Sprites you want to change, there is a quicker method that requires additional setup, but allows for a more efficient way to swap all Sprites at once. With this method, you create another __Sprite Library Asset__ with the alternative Sprites, then in the Sprite Library component, swap the Sprite Library Asset to the one that contains the alternative Sprites. 
 
-The following example uses one set of Sprites that are in color, and one set of identical Sprites that are in greyscale.![Example character in color in the left-hand image, and in greyscale in the right-hand image.](images/bothsprites.PNG)
+The following example uses one set of Sprites that are in color, and one set of identical Sprites that are in greyscale.
 
-Here’s an example workflow for the setup of an additional [Sprite Library Asset](SLAsset.md) and how to swap the original Library with it.
+![Example character in color in the left-hand image, and in greyscale in the right-hand image.](images/bothsprites.PNG)
+
+Below is the example workflow for the setup of an additional [Sprite Library Asset](SLAsset.md) and how to swap the original Library with it.
 
 1. In your image editor (such as Photoshop), create two versions of the Sprites you need to use. In this example, one is set in color, and the other is set in greyscale.
 

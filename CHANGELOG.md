@@ -1,8 +1,21 @@
 # Changelog
-All notable changes to this package will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+## [3.0.4] - 2019-08-09
+### Added
+- Add related test packages
+- Added tangent deform for lighting support
+
+### Fixed
+- Fixed Amount slider not working in Weight Slider Panel
+- Fixed exception when changing size to less than 0 in SpriteLibraryAssetInspector
+- Fixed Sprite visual corruption when swapping Sprite using SpriteResolver
+
+###Changed
+- Make Size property field in Weight Brush draggable for changing brush size
+- Rename SpriteLibraryAsset::GetCategorylabelNames to SpriteLibraryAsset::GetCategoryLabelNames
+- Change string hash for Category and Label name. This might break existing animation usage with SpriteResolver.
+- Add Experimental tag on Sprite Swap related features
+
 
 ## [3.0.3] - 2019-07-17
 ### Changed

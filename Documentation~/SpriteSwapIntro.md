@@ -1,4 +1,4 @@
-# Sprite Swap Overview
+# Sprite Swap Overview (Experimental Feature)
 
 __Sprite Swap__ is a feature that enables you to change a GameObject’s rendered Sprite, but keep the same skeleton rig and Animation Clips. This enables you to quickly and easily create  [multiple characters](SLASwap.md) that look different, but have the same animation rigs. You can also use Sprite Swap to switch the displayed Sprite on each frame at run time, to create [frame-by-frame animation](FFanimation.md).
 

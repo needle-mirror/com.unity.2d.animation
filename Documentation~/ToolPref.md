@@ -2,7 +2,7 @@
 
 Adjust the 2D Animation tool settings from its Preferences menu by going to menu: __Edit__ > __Preferences__ > __2D__ > __Animation__. It provides several options to customize aspects of the animation tool.
 
-![Tool Preferences](images/2DAnimationV2_ToolPreferences.png)
+Tool Preferences![Tool Preferences](images/2DAnimationV2_ToolPreferences.png)
 
 | Setting                    | Function                                                     |
 | -------------------------- | ------------------------------------------------------------ |
@@ -11,6 +11,5 @@ Adjust the 2D Animation tool settings from its Preferences menu by going to menu
 | __Sprite Outline Size__    | Use the slider to adjust the outline thickness of a selected Sprite. |
 | __Bone Outline Size__      | Use the slider to adjust the outline thickness of a selected  bone. |
 
-![Compact windows](images/2DAnimationV2_compacted.png)
-
-Icons are shown with ‘Compact windows’ enabled.
+Only tool icons are shown with ‘Compact windows’ enabled.
+![Only tool icons are shown with ‘Compact windows’ enabled.](images/2DAnimationV2_compacted.png)

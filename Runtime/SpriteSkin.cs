@@ -12,6 +12,7 @@ namespace UnityEngine.U2D.Animation
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
     [RequireComponent(typeof(SpriteSkinEntity))]
+    [AddComponentMenu("2D Animation/Sprite Skin")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
 
     internal class SpriteSkin : MonoBehaviour
@@ -23,7 +24,9 @@ namespace UnityEngine.U2D.Animation
         [SerializeField]
         private Bounds m_Bounds;
 
-        private NativeArray<Vector3> m_DeformedVertices;
+        // The deformed vertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite  Asset data.
+        // The order of storage if present is POSITION, NORMALS, TANGENTS.
+        private NativeArray<byte> m_DeformedVertices;
         private SpriteRenderer m_SpriteRenderer;
         private int m_TransformsHash = 0;
         private bool m_ForceSkinning;
@@ -74,25 +77,26 @@ namespace UnityEngine.U2D.Animation
         }
 
 #endif
-        NativeArray<Vector3> deformedVertices
+
+        NativeArray<byte> deformedVertices
         {
             get
             {
                 if (sprite != null)
                 {
-                    var spriteVertexCount = sprite.GetVertexCount();
+                    var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
                     if (m_DeformedVertices.IsCreated)
                     {
                         if (m_DeformedVertices.Length != spriteVertexCount)
                         {
                             m_DeformedVertices.Dispose();
-                            m_DeformedVertices = new NativeArray<Vector3>(spriteVertexCount, Allocator.Persistent);
+                            m_DeformedVertices = new NativeArray<byte>(spriteVertexCount, Allocator.Persistent);
                             m_TransformsHash = 0;
                         }
                     }
                     else
                     {
-                        m_DeformedVertices = new NativeArray<Vector3>(spriteVertexCount, Allocator.Persistent);
+                        m_DeformedVertices = new NativeArray<byte>(spriteVertexCount, Allocator.Persistent);
                         m_TransformsHash = 0;
                     }
                 }

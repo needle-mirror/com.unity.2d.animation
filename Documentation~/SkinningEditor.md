@@ -1,11 +1,13 @@
 # Skinning Editor module
 
-With the __2D Animation__ package installed in your Project, the __Skinning Editor__ becomes available in the __Sprite Editor.__ The Skinning Editor is the main tool for you to create your animation skeleton and bones, and weighing them to your [imported](PreparingArtwork.md) character artwork.
+When you install the 2D Animation package in your Project, the __Skinning Editor__ becomes available in the __Sprite Editor.__ The Skinning Editor is the main tool for you to create your animation skeleton and bones, and weighing them to your [imported](PreparingArtwork.md) character artwork.
 
-Select the Skinning Editor by following the steps below:
+To select the __Skinning Editor__ follow the steps below:
 
-1. Select the imported Character  and select the __Sprite Editor__.
-2. Select the __Skinning Editor__ module from the dropdown menu in the __Sprite Editor__ window. The following options and tools then appear.![The Skinning Editor interface](images/2DAnimationV2_SkinnerUI_expanded.png)The Skinning Editor interface
+1. Select the imported Asset and select the __Sprite Editor__.
+2. Select the __Skinning Editor__ module from the dropdown menu in the __Sprite Editor__ window. The following options and tools then appear.
+
+![The Skinning Editor interface](images/2DAnimationV2_SkinnerUI_expanded.png)The Skinning Editor interface
 
 | Tool                                                         | Default Shortcut | Function                                                     |
 | :----------------------------------------------------------- | :--------------: | :----------------------------------------------------------- |
@@ -19,29 +21,28 @@ Select the Skinning Editor by following the steps below:
 | ![icon_EditJoints](images/icon_EditJoints.png)Edit Joints    |    Shift + W     | Reposition the bones into a new positions. These changes are automatically saved as the default bind pose for the Restore Bind Pose tool.<br/>Sprite geometry does not deform with the bones in this mode, even if the bones are attached as influencers. |
 | ![icon_CreateBone](images/icon_CreateBone.png)Create Bone    |    Shift + E     | Click and drag to create bones.                              |
 | ![icon_SplitBone](images/icon_SplitBone.png)Split Bone       |    Shift + R     | Splits the selected bone.                                    |
-| ![icon_GenGeo](images/icon_GenGeo.png)Auto Geometry          |    Shift + A     | Autogenerate meshes for Sprites.                             |
-| ![icon_EditGeo](images/icon_EditGeo.png)Edit Geometry        |    Shift + S     | Edit generated meshes by repositioning vertices.             |
+| ![icon_GenGeo](images/icon_GenGeo.png)Auto Geometry          |    Shift + A     | Select to auto-generate Meshes for Sprites.                  |
+| ![icon_EditGeo](images/icon_EditGeo.png)Edit Geometry        |    Shift + S     | Edit generated Meshes by repositioning vertices.             |
 | ![icon_CreateVertex](images/icon_CreateVertex.png)Create Vertex |    Shift + D     | Create new vertices to create geometry.                      |
 | ![icon_CreateEdge](images/icon_CreateEdge.png)Create Edge    |    Shift + G     | Create new edges to create geometry.                         |
 | ![icon_SplitEdge](images/icon_SplitEdge.png)Split Edge       |    Shift + H     | Split an existing edge into two.                             |
-| ![icon_GenWeights](images/icon_GenWeights.png)Auto Weights   |    Shift + Z     | Autogenerate weights for geometry.                           |
+| ![icon_GenWeights](images/icon_GenWeights.png)Auto Weights   |    Shift + Z     | Auto-generate weights for geometry.                          |
 | ![icon_WeightSlider](images/icon_WeightSlider.png)Weight Slider |    Shift + X     | Adjust weights via slider control.                           |
 | ![icon_WeightPaint](images/icon_WeightPaint.png)Weight Brush |    Shift + C     | Adjust weights by painting with a brush.                     |
 | ![icon_BoneInfluence](images/icon_BoneInfluence.png)Bone Influence |    Shift + V     | Select which bones influence a Sprite.                       |
-| Toggle Tool Text                                             |    Shift + `     | Show or hide text on tool buttons                            |
+| Toggle Tool Text                                             |    Shift + `     | Show or hide text on tool buttons.                           |
 
 ## Selecting a Sprite
 
-To select a Sprite in the Skinning Editor window:
-
-1. Double-click a Sprite to select it.
-2. If there are multiple Sprites that overlay each other, double-click to cycle through all Sprites under the cursor location.
-3. Double-click on a blank space in the Editor window to deselect all Sprites.
+1. To select a Sprite in the Skinning Editor window:
+   1. Double-click a Sprite to select it.
+   2. If there are multiple Sprites that overlay each other, double-click to cycle through all Sprites at the cursor location.
+   3. Double-click on a blank area to deselect all Sprites.
 
 ## Selecting Bone and Mesh Vertices
 
-To select a bone or mesh vertex: 
+To select a bone or Mesh vertex: 
 
-1. Click directly on a bone or mesh vertex to select it.
-2. Click and drag a selection box over multiple bones or vertices to select them all at once.
-3. Right click to deselect any selected bone or mesh vertices.
+1. Click a bone or Mesh vertex to select it.
+2. Click and drag a selection box over multiple bones or vertices to select them at once.
+3. Right click to deselect any selected bone or Mesh vertices.

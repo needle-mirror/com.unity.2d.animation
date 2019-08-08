@@ -10,7 +10,8 @@ namespace UnityEditor.Experimental.U2D.Animation
     {
         static class Style
         {
-            public static GUIContent duplicateWarning = EditorGUIUtility.TrIconContent("console.warnicon.sml", "Duplicate label name found. Please use a different nameLabel");
+            public static GUIContent duplicateWarningText = EditorGUIUtility.TrTextContent("Duplicate name found or name hash clashes. Please use a different name");
+            public static GUIContent duplicateWarning = EditorGUIUtility.TrIconContent("console.warnicon.sml", duplicateWarningText.text);
             public static GUIContent nameLabel = new GUIContent(TextContent.label);
             public static int indentWidth = 15;
             public static int lineSpacing = 3;
@@ -33,7 +34,9 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         public void OnDisable()
         {
-            (target as SpriteLibraryAsset).UpdateHashes();
+            var sla = target as SpriteLibraryAsset;
+            if (sla != null)
+                sla.UpdateHashes();
         }
 
         float GetElementHeight(int index)
@@ -41,7 +44,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             var property = m_Labels.GetArrayElementAtIndex(index);
             var spriteListProp = property.FindPropertyRelative("m_CategoryList");
             if (spriteListProp.isExpanded)
-                return (spriteListProp.arraySize + 1) * (EditorGUIUtility.singleLineHeight + Style.lineSpacing)+ kElementHeight;
+                return (spriteListProp.arraySize + 1) * (EditorGUIUtility.singleLineHeight + Style.lineSpacing) + kElementHeight;
 
             return kElementHeight;
         }
@@ -68,6 +71,8 @@ namespace UnityEditor.Experimental.U2D.Animation
                     // Check if this nameLabel is already taken
                     if (!IsNameInUsed(newCatName, m_Labels, "m_Name", 0))
                         categoryProp.stringValue = newCatName;
+                    else
+                        Debug.LogWarning(Style.duplicateWarningText.text);
                 }
             }
 
@@ -82,14 +87,13 @@ namespace UnityEditor.Experimental.U2D.Animation
                 var sizeRect = vaRect;
                 sizeRect.width = 100;
                 int size = EditorGUI.IntField(sizeRect, TextContent.size, spriteListProp.arraySize);
-                if (size != spriteListProp.arraySize)
+                if (size != spriteListProp.arraySize && size >= 0)
                     spriteListProp.arraySize = size;
                 vaRect.y += EditorGUIUtility.singleLineHeight + Style.lineSpacing;
                 DrawSpriteListProperty(vaRect, spriteListProp);
                 EditorGUIUtility.labelWidth = labelWidth;
             }
         }
-
 
         void DrawSpriteListProperty(Rect rect, SerializedProperty spriteListProp)
         {
@@ -146,21 +150,22 @@ namespace UnityEditor.Experimental.U2D.Animation
         bool IsNameInUsed(string name, SerializedProperty property, string propertyField, int threshold)
         {
             int count = 0;
+            var nameHash = SpriteLibraryAsset.GetStringHash(name);
             for (int i = 0; i < property.arraySize; ++i)
             {
                 var sp = property.GetArrayElementAtIndex(i);
-                if (sp.FindPropertyRelative(propertyField).stringValue == name)
+                var otherName = sp.FindPropertyRelative(propertyField).stringValue;
+                var otherNameHash = SpriteLibraryAsset.GetStringHash(otherName);
+                if (otherName == name || nameHash == otherNameHash)
                 {
                     count++;
                     if (count > threshold)
                         return true;
                 }
-
             }
 
             return false;
         }
-
 
         void OnAddCallback(ReorderableList list)
         {

@@ -13,7 +13,7 @@ namespace UnityEditor.Experimental.U2D.Animation
     {
         static class Style
         {
-            public static GUIContent noSpriteLibContainer = EditorGUIUtility.TrTextContent("No Sprite Library Container Component found or Sprite Library has no labels.");
+            public static GUIContent noSpriteLibContainer = EditorGUIUtility.TrTextContent("No Sprite Library Container Component found or Sprite Library has no categories.");
             public static GUIContent categoryLabel = EditorGUIUtility.TrTextContent("Category");
             public static GUIContent labelLabel = EditorGUIUtility.TrTextContent("Label");
             public static GUIContent categoryIsEmptyLabel = EditorGUIUtility.TrTextContent("Category is Empty");
@@ -59,7 +59,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             int categoryHash = SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue);
             int labelHash = SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue);
             var spriteLib = spriteResolver.GetComponentInParent<SpriteLibrary>();
-            if(spriteLib != null)
+            if (spriteLib != null)
             {
                 foreach (var labels in spriteLib.labels)
                 {
@@ -170,7 +170,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                             currentlabelHashValue = m_SpriteLibSelection[currentCategoryHashValue].nameHash[m_labelSelectionIndex];
                         }
                     }
-                        
+
                     m_SpriteCategoryHash.floatValue = SpriteResolver.ConvertIntToFloat(currentCategoryHashValue);
                     m_SpritelabelHash.floatValue = SpriteResolver.ConvertIntToFloat(currentlabelHashValue);
                     serializedObject.ApplyModifiedProperties();
@@ -190,15 +190,15 @@ namespace UnityEditor.Experimental.U2D.Animation
                     m_PreviousCategoryHash = currentCategoryHashValue;
                 }
 
-                if(m_PreviouslabelHash != currentlabelHashValue)
+                if (m_PreviouslabelHash != currentlabelHashValue)
                 {
-                    if(m_SpriteLibSelection.ContainsKey(currentCategoryHashValue))
+                    if (m_SpriteLibSelection.ContainsKey(currentCategoryHashValue))
                         m_labelSelectionIndex = Array.FindIndex(m_SpriteLibSelection[currentCategoryHashValue].nameHash, x => x == currentlabelHashValue);
                     m_PreviouslabelHash = currentlabelHashValue;
                 }
 
                 serializedObject.ApplyModifiedProperties();
-                if(m_SpriteSelectorWidget.NeedUpdatePreview())
+                if (m_SpriteSelectorWidget.NeedUpdatePreview())
                     this.Repaint();
             }
         }

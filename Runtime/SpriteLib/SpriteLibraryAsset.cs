@@ -2,11 +2,18 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine.Assertions;
 
 namespace UnityEngine.Experimental.U2D.Animation
 {
+    internal interface INameHash
+    {
+        string name { get; set; }
+        int hash { get; }
+    }
+
     [Serializable]
-    internal class Categorylabel
+    internal class Categorylabel : INameHash
     {
         [SerializeField]
         string m_Name;
@@ -34,7 +41,7 @@ namespace UnityEngine.Experimental.U2D.Animation
     }
 
     [Serializable]
-    internal class SpriteLibCategory
+    internal class SpriteLibCategory : INameHash
     {
         [SerializeField]
         string m_Name;
@@ -67,22 +74,43 @@ namespace UnityEngine.Experimental.U2D.Animation
             foreach (var s in m_CategoryList)
                 s.UpdateHash();
         }
+
+        internal void ValidateLabels()
+        {
+            SpriteLibraryAsset.RenameDuplicate(m_CategoryList,
+                (originalName, newName)
+                =>
+                {
+                    Debug.LogWarning(string.Format("Label {0} renamed to {1} due to hash clash", originalName, newName));
+                });
+        }
     }
 
     /// <summary>
     /// A custom Asset that stores Sprites grouping
     /// </summary>
     /// <Description>
-    /// Sprites are grouped under a given category as labels. Each category and label needs to have
+    /// Sprites are grouped under a given category as categories. Each category and label needs to have
     /// a name specified so that it can be queried.
     /// </Description>
-    [CreateAssetMenu(order = 350)]
+    [CreateAssetMenu(order = 350, menuName = "Sprite Library Asset (Experimental)")]
     public class SpriteLibraryAsset : ScriptableObject
     {
         [SerializeField]
         private List<SpriteLibCategory> m_Labels = new List<SpriteLibCategory>();
 
-        internal List<SpriteLibCategory> labels { get { return m_Labels; } set { m_Labels = value; } }
+        internal List<SpriteLibCategory> categories
+        {
+            get
+            {
+                return m_Labels;
+            }
+            set
+            {
+                m_Labels = value;
+                ValidateCategories();
+            }
+        }
 
         internal Sprite GetSprite(int categoryHash, int labelHash)
         {
@@ -122,19 +150,24 @@ namespace UnityEngine.Experimental.U2D.Animation
         }
 
         /// <summary>
+        /// (Obsolete) Returns the labels' name for the given name
+        /// </summary>
+        /// <param name="category">Category name</param>
+        /// <returns>A Enumerable string representing labels' name</returns>
+        [Obsolete("GetCategorylabelNames has been deprecated. Please use GetCategoryLabelNames (UnityUpgradable) -> GetCategoryLabelNames()")]
+        public IEnumerable<string> GetCategorylabelNames(string category)
+        {
+            return GetCategoryLabelNames(category);
+        }
+
+        /// <summary>
         /// Returns the labels' name for the given name
         /// </summary>
         /// <param name="category">Category name</param>
         /// <returns>A Enumerable string representing labels' name</returns>
-        public IEnumerable<string> GetCategorylabelNames(string category)
+        public IEnumerable<string> GetCategoryLabelNames(string category)
         {
             var label = m_Labels.FirstOrDefault(x => x.name == category);
-            return label == null ? new string[0] : label.categoryList.Select(x => x.name);
-        }
-
-        internal IEnumerable<string> GetCategorylabelNames(int category)
-        {
-            var label = m_Labels.FirstOrDefault(x => x.hash == category);
             return label == null ? new string[0] : label.categoryList.Select(x => x.name);
         }
 
@@ -162,13 +195,18 @@ namespace UnityEngine.Experimental.U2D.Animation
             Categorylabel categorylabel = null;
             SpriteLibCategory libCategory = null;
             libCategory = m_Labels.FirstOrDefault(x => x.hash == catHash);
-            
+
             if (libCategory != null)
             {
+                Assert.AreEqual(libCategory.name, category, "Category string  hash clashes with another existing Category. Please use another string");
+
                 var labelHash = SpriteLibraryAsset.GetStringHash(label);
                 categorylabel = libCategory.categoryList.FirstOrDefault(y => y.hash == labelHash);
                 if (categorylabel != null)
+                {
+                    Assert.AreEqual(categorylabel.name, label, "Label string hash clashes with another existing label. Please use another string");
                     categorylabel.sprite = sprite;
+                }
                 else
                 {
                     categorylabel = new Categorylabel()
@@ -244,9 +282,68 @@ namespace UnityEngine.Experimental.U2D.Animation
 #endif
         }
 
-        internal static int GetStringHash(string value)
+        internal void ValidateCategories()
         {
-            return Animator.StringToHash(value);
+            RenameDuplicate(m_Labels, (originalName, newName)
+                =>
+                {
+                    Debug.LogWarning(string.Format("Category {0} renamed to {1} due to hash clash", originalName, newName));
+                });
+            for (int i = 0; i < m_Labels.Count; ++i)
+            {
+                // Verify categories have no hash clash
+                var category = m_Labels[i];
+
+                // Verify labels have no clash
+                category.ValidateLabels();
+            }
+        }
+
+        internal static void RenameDuplicate(IEnumerable<INameHash> nameHashList, Action<string, string> onRename)
+        {
+            const int k_IncrementMax = 1000;
+            for (int i = 0; i < nameHashList.Count(); ++i)
+            {
+                // Verify categories have no hash clash
+                var category = nameHashList.ElementAt(i);
+                var categoriesClash = nameHashList.Where(x => (x.hash == category.hash || x.name == category.name) && x != category);
+                int increment = 0;
+                for (int j = 0; j < categoriesClash.Count(); ++j)
+                {
+                    var categoryClash = categoriesClash.ElementAt(j);
+
+                    while (increment < k_IncrementMax)
+                    {
+                        var name = categoryClash.name;
+                        name = string.Format("{0}_{1}", name, increment);
+                        var nameHash = SpriteLibraryAsset.GetStringHash(name);
+                        var exist = nameHashList.FirstOrDefault(x => (x.hash == nameHash || x.name == name) && x != categoryClash);
+                        if (exist == null)
+                        {
+                            onRename(categoryClash.name, name);
+                            categoryClash.name = name;
+                            break;
+                        }
+                        ++increment;
+                    }
+                }
+            }
+        }
+
+        // Allow delegate override for test
+        internal static Func<string, int> GetStringHash = Default_GetStringHash;
+        internal static int Default_GetStringHash(string value)
+        {
+#if DEBUG_GETSTRINGHASH_CLASH
+            if (value == "abc" || value == "123")
+                value = "abc";
+#endif
+            var hash = Animator.StringToHash(value);
+            var bytes = BitConverter.GetBytes(hash);
+            var exponentialBit = BitConverter.IsLittleEndian ? 3 : 1;
+            if (bytes[exponentialBit] == 0xFF)
+                bytes[exponentialBit] -= 1;
+            return BitConverter.ToInt32(bytes, 0);
         }
     }
 }

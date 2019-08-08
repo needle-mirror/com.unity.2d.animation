@@ -131,29 +131,44 @@ namespace UnityEditor.U2D.Animation
             LinkSliderToIntegerField(this.Q<Slider>("StepSlider"), m_StepField);
 
             m_ModeField.RegisterValueChangedCallback((evt) =>
-                {
-                    SetupMode();
-                });
+            {
+                SetupMode();
+            });
 
             m_AmountSlider.RegisterValueChangedCallback((evt) =>
-                {
-                    if (!evt.Equals(m_AmountField.value))
-                        m_AmountField.value = (float)System.Math.Round((double)evt.newValue, 2);
-                });
-            m_AmountField.RegisterValueChangedCallback((evt) =>
-                {
-                    var newValue = Mathf.Clamp(evt.newValue, m_AmountSlider.lowValue, m_AmountSlider.highValue);
+            {
+                if (!evt.Equals(m_AmountField.value))
+                    m_AmountField.value = (float)System.Math.Round((double)evt.newValue, 2);
+                if (m_SliderActive)
+                    sliderChanged?.Invoke(m_AmountField.value);
+            });
+            m_AmountSlider.RegisterCallback<MouseCaptureEvent>(evt =>
+            {
+                m_SliderActive = true;
+                sliderStarted?.Invoke();
+            }, TrickleDown.TrickleDown);
 
-                    if (focusController.focusedElement == m_AmountField && !newValue.Equals(m_AmountSlider.value))
-                    {
-                        sliderStarted();
-                        sliderChanged(newValue);
-                        sliderEnded();
-                        Focus();
-                        m_AmountField.value = 0f;
-                        m_AmountSlider.value = 0f;
-                    }
-                });
+            m_AmountSlider.RegisterCallback<MouseCaptureOutEvent>(evt =>
+            {
+                m_SliderActive = false;
+                sliderEnded?.Invoke();
+                m_AmountSlider.value = 0;
+            }, TrickleDown.TrickleDown);
+
+            m_AmountField.RegisterValueChangedCallback((evt) =>
+            {
+                var newValue = Mathf.Clamp(evt.newValue, m_AmountSlider.lowValue, m_AmountSlider.highValue);
+
+                if (focusController.focusedElement == m_AmountField && !newValue.Equals(m_AmountSlider.value))
+                {
+                    sliderStarted();
+                    sliderChanged(newValue);
+                    sliderEnded();
+                    Focus();
+                    m_AmountField.value = 0f;
+                    m_AmountSlider.value = 0f;
+                }
+            });
 
             m_WeightInspectorPanel.weightsChanged += () => weightsChanged();
         }
@@ -190,15 +205,15 @@ namespace UnityEditor.U2D.Animation
         private void LinkSliderToIntegerField(Slider slider, IntegerField field)
         {
             slider.RegisterValueChangedCallback((evt) =>
-                {
-                    if (!evt.newValue.Equals(field.value))
-                        field.value = Mathf.RoundToInt(evt.newValue);
-                });
+            {
+                if (!evt.newValue.Equals(field.value))
+                    field.value = Mathf.RoundToInt(evt.newValue);
+            });
             field.RegisterValueChangedCallback((evt) =>
-                {
-                    if (!evt.newValue.Equals((int)slider.value))
-                        slider.value = evt.newValue;
-                });
+            {
+                if (!evt.newValue.Equals((int)slider.value))
+                    slider.value = evt.newValue;
+            });
         }
 
         public void UpdateWeightInspector(ISpriteMeshData spriteMeshData, string[] boneNames, ISelection<int> selection, ICacheUndo cacheUndo)
@@ -222,10 +237,12 @@ namespace UnityEditor.U2D.Animation
 
             m_BonePopup = new PopupField<string>(new List<string>(names), 0);
             m_BonePopup.name = "BonePopupField";
+            m_BonePopup.label = TextContent.bone;
+            m_BonePopup.tooltip = TextContent.boneToolTip;
             m_BonePopup.RegisterValueChangedCallback((evt) =>
-                {
-                    bonePopupChanged(boneIndex);
-                });
+            {
+                bonePopupChanged(boneIndex);
+            });
             m_BonePopupContainer.Add(m_BonePopup);
         }
 
@@ -245,43 +262,12 @@ namespace UnityEditor.U2D.Animation
             var mode = clone.Q<VisualElement>("Mode");
             var modeField = new EnumField(WeightEditorMode.AddAndSubtract);
             modeField.name = "ModeField";
+            modeField.label = TextContent.mode;
+            modeField.tooltip = TextContent.modeTooltip;
             mode.Add(modeField);
 
             clone.BindElements();
             return clone;
-        }
-
-        public override void HandleEvent(EventBase evt)
-        {
-            base.HandleEvent(evt);
-            DoDeltaSliderBehaviour(m_AmountSlider, evt);
-        }
-
-        private void DoDeltaSliderBehaviour(Slider slider, EventBase evt)
-        {
-            if (evt.target == slider)
-            {
-                if (evt is MouseCaptureEvent)
-                {
-                    m_SliderActive = true;
-                    if (sliderStarted != null)
-                        sliderStarted();
-                }
-
-                if (m_SliderActive && evt is ChangeEvent<float>)
-                {
-                    if (sliderChanged != null)
-                        sliderChanged(slider.value);
-                }
-
-                if (m_SliderActive && evt is MouseCaptureOutEvent)
-                {
-                    m_SliderActive = false;
-                    if (sliderEnded != null)
-                        sliderEnded();
-                    slider.value = 0f;
-                }
-            }
         }
     }
 }

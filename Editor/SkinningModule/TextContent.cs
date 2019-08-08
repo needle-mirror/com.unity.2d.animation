@@ -98,5 +98,8 @@ namespace UnityEditor.U2D.Animation
         public static string copyError1 = "Unable to convert copied data to Skinning Module paste data.";
         public static string copyError2 = "There is no copied data to paste.";
         public static string copyError3 = "Target has a different number of Sprites ({0}) compared to copied source ({1}) for Mesh copy.";
+        public static string mode = "Mode";
+        public static string modeTooltip = "Different operation mode for weight adjustment";
+        public static string boneToolTip = "The bone that is affecting";
     }
 }

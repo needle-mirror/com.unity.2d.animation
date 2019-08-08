@@ -4,12 +4,12 @@ Sprite Swap offers a quick way to change one Sprite on a model, while everything
 
 In the following example, one Sprite represents a green scarf, and one represents a red scarf. 
 
-![Example character wearing a green scarf in the left-hand image, and a blue scarf in the right-hand image.](images\bothscarves.PNG)
+![Example character wearing a green scarf in the left-hand image, and a blue scarf in the right-hand image.](images/bothscarves.PNG)
 
 Here’s an example workflow for how you might change the scarf on a 2D character, while everything else remains the same:
 
 1. Place the Sprites you want to swap in the Sprite Library Asset, and assign them all to a Category named __Scarf__. You can do this directly via the the [Skinning Editor](SkinningEditor.md) (see [Editor Integration](EditInter.md)).
-   ![](images\image_11.png)
+   ![](images/image_11.png)
 
    
    
@@ -19,7 +19,7 @@ Here’s an example workflow for how you might change the scarf on a 2D characte
 
 The __Sprite Resolver__ displays the two Sprites available in the ‘Scarf’ Category. You can then swap between all available options in the Sprite Resolver component settings.
 
-![Sprite Resolver’s Label set to ‘green scarf’.](images\image_13.png)
+![Sprite Resolver’s Label set to ‘green scarf’.](images/image_13.png)
 
-![Sprite Resolver’s Label set to ‘blue scarf’.](images\image_14.png)
+![Sprite Resolver’s Label set to ‘blue scarf’.](images/image_14.png)
 

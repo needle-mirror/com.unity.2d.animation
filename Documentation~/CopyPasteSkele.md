@@ -1,10 +1,10 @@
 # Copy and Paste Skeleton Rigs
 
-After you have setup the animation skeleton and bone weights for your character, you can reuse the setup for other characters by using the __Copy__ and __Paste__ commands. Currently these commands only affect Sprite data, and only data associated to a Sprite can be transffered between different character setups.
+After you have setup the animation skeleton and bone weights for your character, you can reuse the setup for other characters by using the __Copy__ and __Paste__ commands. Currently these commands only affect Sprite data, and only data associated to a Sprite can be transferred between different character setups.
 
 ## Copy
 
-To copy a Sprite's data, simply select a Sprite and use the __Copy__ command. If no Sprite is selected, all the Sprites' data currently active in the [Skinning Editor window](SkinningEditor.md) will be copied.
+To copy a Sprite's data, simply select a Sprite and use the __Copy__ command. If no Sprite is selected, all the Sprites' data currently active in the [Skinning Editor](SkinningEditor.md) window will be copied.
 
 ## Paste
 
@@ -23,5 +23,5 @@ The following is shows the behaviour for different scenarios when using the Copy
 
 |                                   | Copy from a Selected Sprite                | Copy With No Sprite Selected                                 |
 | --------------------------------- | ------------------------------------------ | ------------------------------------------------------------ |
-| __Paste With Sprite Selected__    | Data will be copied to the selected Sprite | All Sprite with the same name from the Copy source will be pasted to the selected image. |
-| __Paste With No Sprite Selected__ | No data is pasted                          | All Sprites with the same name from the Copy source will have the data pasted |
+| __Paste With Sprite Selected__    | Data will be copied to the selected Sprite | All Sprites with the same name from the Copy source will be pasted into the selected Sprite. |
+| __Paste With No Sprite Selected__ | No data is pasted                          | All Sprites with the same name from the Copy source will have the data pasted into the selected Sprite. |

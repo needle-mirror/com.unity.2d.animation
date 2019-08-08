@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Experimental.U2D.Animation;
 using UnityEngine.Serialization;
 
 namespace UnityEditor.U2D.Animation
@@ -142,6 +144,16 @@ namespace UnityEditor.U2D.Animation
             {
                 //find cateogry
                 var categoryIndex = categories.FindIndex(x => x.name == category);
+                if (categoryIndex == -1)
+                {
+                    // check if the hash might clash
+                    var hash = SpriteLibraryAsset.GetStringHash(category);
+                    if (categories.FindIndex(x => x.name != category && SpriteLibraryAsset.GetStringHash(x.name) == hash) != -1)
+                    {
+                        Debug.LogError("Unable to add Sprite to new Category due to name hash clash");
+                        return;
+                    }
+                }
                 var insertCategory = categoryIndex != -1 ? categories[categoryIndex] : new SpriteCategory() { name = category, labels = new List<SpriteCategoryLabel>() };
                 if (insertCategory.labels.FindIndex(x => x.spriteId == label.spriteId) == -1)
                     insertCategory.labels.Add(label);

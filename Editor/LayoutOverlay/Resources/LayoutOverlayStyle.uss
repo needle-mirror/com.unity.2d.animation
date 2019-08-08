@@ -58,6 +58,14 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow {
     padding-right : 12px;
 }
 
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow #ModeField {
+    margin-left : 0;
+}
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow #BonePopupField {
+    margin-left : 0;
+}
+
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow > #unity-content-container {
     flex:1 0 auto;
 }
@@ -69,6 +77,7 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-row {
     margin-right : 0;
     margin-top : 0;
     margin-bottom : 0;
+    flex : 1 0 auto;
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-row-space {
@@ -78,6 +87,50 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-row-space {
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-editor {
     flex-direction: row;
     flex: 6;
+}
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-popup {
+    margin-left : 0px;
+    flex : 1 0 auto;
+}
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-popup .unity-enum-field {
+    flex : 1 0 auto;
+}
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-popup .unity-popup-field {
+    flex : 1 0 auto;
+}
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-popup .unity-label {
+    min-width : auto;
+    flex : 4;
+}
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-popup .unity-enum-field__input,
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-popup .unity-popup-field__input {
+    flex : 6;
+    min-width : auto;
+}
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-toggle {
+    margin-left : 0px;
+    flex : 1;
+}
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-toggle .unity-toggle__input {
+    justify-content : flex-end;
+}
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-integerfield {
+    margin-left : 0px;
+    flex : 1;
+}
+
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-integerfield IntegerInput {
+    margin-left : 0px;
+    flex : 6;
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .slider-field {
@@ -92,21 +145,6 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Label {
     margin-bottom : 2px;
 }
 
-LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow EnumField {
-    flex: 1;
-    margin-left : 0;
-    margin-top : 0;
-    margin-bottom : 0;
-    align-self: center;
-}
-
-LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow PopupField {
-    flex: 1;
-    margin-left : 0;
-    margin-top : 0;
-    margin-bottom : 0;
-    align-self: center;
-}
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .unity-slider__input{
     margin-left :1px;
