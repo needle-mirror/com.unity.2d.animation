@@ -127,6 +127,22 @@ namespace UnityEngine.Experimental.U2D.Animation
             return null;
         }
 
+        internal Sprite GetSprite(int categoryHash, int labelHash, out bool validEntry)
+        {
+            var category = m_Labels.FirstOrDefault(x => x.hash == categoryHash);
+            if (category != null)
+            {
+                var spritelabel = category.categoryList.FirstOrDefault(x => x.hash == labelHash);
+                if (spritelabel != null)
+                {
+                    validEntry = true;
+                    return spritelabel.sprite;
+                }
+            }
+            validEntry = false;
+            return null;
+        }
+
         /// <summary>
         /// Returns the Sprite registered in the Asset given the Category and Label value
         /// </summary>
@@ -154,7 +170,7 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// </summary>
         /// <param name="category">Category name</param>
         /// <returns>A Enumerable string representing labels' name</returns>
-        [Obsolete("GetCategorylabelNames has been deprecated. Please use GetCategoryLabelNames (UnityUpgradable) -> GetCategoryLabelNames()")]
+        [Obsolete("GetCategorylabelNames has been deprecated. Please use GetCategoryLabelNames (UnityUpgradable) -> GetCategoryLabelNames(*)")]
         public IEnumerable<string> GetCategorylabelNames(string category)
         {
             return GetCategoryLabelNames(category);

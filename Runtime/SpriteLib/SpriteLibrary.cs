@@ -108,11 +108,20 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         internal Sprite GetSprite(int categoryHash, int labelHash)
         {
+            return GetSprite(categoryHash, labelHash, out _);
+        }
+
+        internal Sprite GetSprite(int categoryHash, int labelHash, out bool validEntry)
+        {
+            validEntry = false;
             var cat = new StringAndHash(categoryHash);
             var label = new StringAndHash(labelHash);
             if (m_Overrides.ContainsKey(cat) && m_Overrides[cat].ContainsKey(label))
+            {
+                validEntry = true;
                 return m_Overrides[cat][label];
-            return m_SpriteLibraryAsset == null ? null : m_SpriteLibraryAsset.GetSprite(categoryHash, labelHash);
+            }
+            return m_SpriteLibraryAsset == null ? null : m_SpriteLibraryAsset.GetSprite(categoryHash, labelHash, out validEntry);
         }
 
         internal string GetCategoryNameFromHash(int categoryHash)

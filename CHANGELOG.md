@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.1-preview.1] - 2019-09-04
+### Changed
+- Bump version number due to new dependencies and validation check.
+- Sprite and Group in Sprite Visibility Window appear in same order as original art source file
+
+### Added
+- Optional performance boost by installing Burst package.
+
 ## [2.2.0-preview.5] - 2019-08-07
 ###Fixed
 - Fix Sprite visual might get corrupted when swapping Sprite with Sprite Resolver.

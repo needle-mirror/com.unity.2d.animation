@@ -454,7 +454,8 @@ namespace UnityEditor.Experimental.U2D.Animation
                     characterPart.sprite = GetSprite(p.spriteId);
                     characterPart.bones = characterPartBones;
                     characterPart.parentGroup = p.parentGroup;
-
+                    characterPart.order = p.order;
+                    
                     var mesh = characterPart.sprite.GetMesh();
                     if (mesh != null)
                         mesh.SetCompatibleBoneSet(characterPartBones);
@@ -470,6 +471,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                         var group = CreateCache<CharacterGroupCache>();
                         group.name = x.name;
                         group.parentGroup = x.parentGroup;
+                        group.order = x.order;
                         return group;
                     }).ToArray();
                 }

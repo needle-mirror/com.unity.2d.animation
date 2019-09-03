@@ -4,9 +4,12 @@ using UnityEngine.Experimental.U2D.Common;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Burst;
+using Unity.Jobs;
 
 namespace UnityEngine.Experimental.U2D.Animation
 {
+
     internal enum SpriteSkinValidationResult
     {
         SpriteNotFound,
@@ -189,6 +192,33 @@ namespace UnityEngine.Experimental.U2D.Animation
             return boneTransformHash;
         }
 
+        internal static void Deform(float4x4 rootInv, NativeSlice<float3> vertices, NativeSlice<BoneWeight> boneWeights, NativeArray<float4x4> boneTransforms, NativeSlice<float4x4> bindPoses, NativeArray<float3> deformed)
+        {
+            if (boneTransforms.Length == 0)
+                return;
+
+            for (var i = 0; i < boneTransforms.Length; i++)
+            {
+                var bindPoseMat = bindPoses[i];
+                var boneTransformMat = boneTransforms[i];
+                boneTransforms[i] = math.mul(rootInv, math.mul(boneTransformMat, bindPoseMat));
+            }
+
+            for (var i = 0; i < vertices.Length; i++)
+            {
+                var bone0 = boneWeights[i].boneIndex0;
+                var bone1 = boneWeights[i].boneIndex1;
+                var bone2 = boneWeights[i].boneIndex2;
+                var bone3 = boneWeights[i].boneIndex3;
+
+                deformed[i] =
+                    math.transform(boneTransforms[bone0], vertices[i]) * boneWeights[i].weight0 +
+                    math.transform(boneTransforms[bone1], vertices[i]) * boneWeights[i].weight1 +
+                    math.transform(boneTransforms[bone2], vertices[i]) * boneWeights[i].weight2 +
+                    math.transform(boneTransforms[bone3], vertices[i]) * boneWeights[i].weight3;
+            }
+        }
+
         internal unsafe static void Deform(Matrix4x4 rootInv, NativeSlice<Vector3> vertices, NativeSlice<BoneWeight> boneWeights, NativeArray<Matrix4x4> boneTransforms, NativeSlice<Matrix4x4> bindPoses, NativeArray<Vector3> deformableVertices)
         {
             var verticesFloat3 = vertices.SliceWithStride<float3>();
@@ -209,33 +239,6 @@ namespace UnityEngine.Experimental.U2D.Animation
 #endif
         }
 
-        internal static void Deform(float4x4 rootInv, NativeSlice<float3> vertices, NativeSlice<BoneWeight> boneWeights, NativeArray<float4x4> boneTransforms, NativeSlice<float4x4> bindPoses, NativeArray<float3> deformed)
-        {
-            if(boneTransforms.Length == 0)
-                return;
-
-            for (var i = 0; i < boneTransforms.Length; i++)
-            {
-                var bindPoseMat = bindPoses[i];
-                var boneTransformMat = boneTransforms[i];
-                boneTransforms[i] = math.mul(rootInv,  math.mul(boneTransformMat, bindPoseMat));
-            }
-
-            for (var i = 0; i < vertices.Length; i++)
-            {
-                var bone0 = boneWeights[i].boneIndex0;
-                var bone1 = boneWeights[i].boneIndex1;
-                var bone2 = boneWeights[i].boneIndex2;
-                var bone3 = boneWeights[i].boneIndex3;
-
-                deformed[i] =
-                    math.transform(boneTransforms[bone0], vertices[i]) * boneWeights[i].weight0 +
-                    math.transform(boneTransforms[bone1], vertices[i]) * boneWeights[i].weight1 +
-                    math.transform(boneTransforms[bone2], vertices[i]) * boneWeights[i].weight2 +
-                    math.transform(boneTransforms[bone3], vertices[i]) * boneWeights[i].weight3;
-            }
-        }
-
         internal unsafe static void Deform(Sprite sprite, Matrix4x4 invRoot, Transform[] boneTransformsArray, ref NativeArray<Vector3> deformableVertices)
         {
             Debug.Assert(sprite != null);
@@ -252,12 +255,10 @@ namespace UnityEngine.Experimental.U2D.Animation
 
             for (var i = 0; i < boneTransformsArray.Length; ++i)
                 boneTransforms[i] = boneTransformsArray[i].localToWorldMatrix;
-
             Deform(invRoot, vertices, boneWeights, boneTransforms, bindPoses, deformableVertices);
-
             boneTransforms.Dispose();
         }
-        
+
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
         private static AtomicSafetyHandle CreateSafetyChecks<T>(ref NativeArray<T> array) where T : struct
         {

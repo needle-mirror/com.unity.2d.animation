@@ -7,10 +7,9 @@
         "Unity.2D.Common.Runtime",
         "Unity.2D.Animation.Runtime",
         "Unity.2D.Animation.Triangle.Runtime",
-        "Unity.Entities.Editor",
-        "Unity.2D.Sprite.Editor"
+        "Unity.2D.Sprite.Editor",
+        "Unity.Burst"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
@@ -22,9 +21,10 @@
     "defineConstraints": [],
     "versionDefines": [
         {
-            "name": "com.unity.entities",
-            "expression": "1.0.0",
-            "define": "ENABLE_ENTITIES"
+            "name": "com.unity.burst",
+            "expression": "0.0.1",
+            "define": "ENABLE_ANIMATION_BURST"
         }
-    ]
+    ],
+    "noEngineReferences": false
 }

@@ -44,11 +44,16 @@ namespace UnityEditor.Experimental.U2D.Animation
         public CharacterGroup[] characterGroups;
     }
 
+    internal interface ICharacterOrder
+    {
+        int order { get; set;}
+    }
+    
     /// <summary>
     /// Data structure representing CharacterPart grouping
     /// </summary>
     [Serializable]
-    public struct CharacterGroup
+    public struct CharacterGroup : ICharacterOrder
     {
         /// <summary>
         /// Name of the CharacterGroup
@@ -58,13 +63,25 @@ namespace UnityEditor.Experimental.U2D.Animation
         /// The parent group index it belongs to. Set to -1 if does not have a parent.
         /// </summary>
         public int parentGroup;
+
+        [SerializeField]
+        int m_Order;
+
+        /// <summary>
+        /// The order of the group in the list
+        /// </summary>
+        public int order
+        {
+            get => m_Order;
+            set => m_Order = value;
+        }
     }
 
     /// <summary>
     /// Data structure representing a character part
     /// </summary>
     [Serializable]
-    public struct CharacterPart
+    public struct CharacterPart : ICharacterOrder
     {
         /// <summary>
         /// Position for the Sprite in the character
@@ -82,5 +99,17 @@ namespace UnityEditor.Experimental.U2D.Animation
         /// CharacterGroup that the part belongs to
         /// </summary>
         public int parentGroup;
+        
+        [SerializeField]
+        int m_Order;
+
+        /// <summary>
+        /// The order of the part in the list
+        /// </summary>
+        public int order
+        {
+            get => m_Order;
+            set => m_Order = value;
+        }
     }
 }

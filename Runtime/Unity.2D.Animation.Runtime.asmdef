@@ -7,8 +7,8 @@
         "Unity.Mathematics",
         "Unity.Entities.Hybrid",
         "Unity.Transforms",
-        "Unity.Burst",
-        "Unity.Transforms.Hybrid"
+        "Unity.Transforms.Hybrid",
+        "Unity.Burst"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -16,5 +16,13 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.burst",
+            "expression": "0.0.1",
+            "define": "ENABLE_ANIMATION_BURST"
+        }
+    ],
+    "noEngineReferences": false
 }

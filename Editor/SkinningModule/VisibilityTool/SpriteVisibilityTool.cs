@@ -51,12 +51,13 @@ namespace UnityEditor.Experimental.U2D.Animation
     {
         bool m_UpdateViewOnSelection = true;
 
-        interface ISpriteVisibilityItem
+        internal interface ISpriteVisibilityItem
         {
             bool visibility { get; set; }
+            ICharacterOrder characterOrder { get;}
         }
 
-        class SpriteVisibilityGroupItem : ISpriteVisibilityItem
+        internal class SpriteVisibilityGroupItem : ISpriteVisibilityItem
         {
             public CharacterGroupCache group;
             public ISpriteVisibilityItem[] childItems;
@@ -73,9 +74,11 @@ namespace UnityEditor.Experimental.U2D.Animation
                     group.isVisible = value;
                 }
             }
+            
+            public ICharacterOrder characterOrder { get { return group; } }
         }
 
-        class SpriteVisibilitySpriteItem : ISpriteVisibilityItem
+        internal class SpriteVisibilitySpriteItem : ISpriteVisibilityItem
         {
             public CharacterPartCache sprite;
             bool ISpriteVisibilityItem.visibility
@@ -83,6 +86,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                 get { return sprite.isVisible; }
                 set { sprite.isVisible = value; }
             }
+            public ICharacterOrder characterOrder { get { return sprite; } }
         }
 
         ISpriteVisibilityToolModel m_Model;
@@ -183,13 +187,25 @@ namespace UnityEditor.Experimental.U2D.Animation
                 var groupParts = parts.Where(x => x.parentGroup < 0);
                 foreach (var part in groupParts)
                 {
-                    var ii = CreateTreeViewItem(part, groups, -1);
+                    var ii = CreateTreeViewItem(part, groups, 0);
                     rows.Add(ii);
                 }
             }
+            rows.Sort((x, y) =>
+            {
+                var x1 = (TreeViewItemBase<ISpriteVisibilityItem>)x;
+                var y1 = (TreeViewItemBase<ISpriteVisibilityItem>)y;
+                return SpriteVisibilityItemOrderSort(x1.customData, y1.customData);
+            });
+            
             return rows;
         }
 
+        int SpriteVisibilityItemOrderSort(ISpriteVisibilityItem x, ISpriteVisibilityItem y)
+        {
+            return x.characterOrder.order.CompareTo(y.characterOrder.order);
+        }
+        
         private List<TreeViewItem> CreateTreeGroup(int level, CharacterGroupCache[] groups, CharacterPartCache[] parts, int depth)
         {
             var items = new List<TreeViewItem>();
@@ -199,7 +215,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                 {
                     var item = new TreeViewItemBase<ISpriteVisibilityItem>(groups[j].GetInstanceID(), depth, groups[j].name, new SpriteVisibilityGroupItem()
                     {
-                        group = groups[j]
+                        group = groups[j],
                     });
                     items.Add(item);
                     var children = new List<ISpriteVisibilityItem>();
@@ -228,13 +244,13 @@ namespace UnityEditor.Experimental.U2D.Animation
             return items;
         }
 
-        private TreeViewItem CreateTreeViewItem(CharacterPartCache part, CharacterGroupCache[] groups, int level)
+        private TreeViewItem CreateTreeViewItem(CharacterPartCache part, CharacterGroupCache[] groups, int depth)
         {
             var name = part.sprite.name;
-            return new TreeViewItemBase<ISpriteVisibilityItem>(part.sprite.GetInstanceID(), level, name,
+            return new TreeViewItemBase<ISpriteVisibilityItem>(part.sprite.GetInstanceID(), depth, name,
                 new SpriteVisibilitySpriteItem()
                 {
-                    sprite = part
+                    sprite = part,
                 });
         }
 
