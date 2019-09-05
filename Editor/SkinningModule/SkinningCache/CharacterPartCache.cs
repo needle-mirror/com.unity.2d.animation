@@ -6,15 +6,23 @@ using UnityEngine;
 namespace UnityEditor.U2D.Animation
 {
     [Serializable]
-    internal class CharacterGroupCache : SkinningObject
+    internal class CharacterGroupCache : SkinningObject, ICharacterOrder
     {
         [SerializeField]
         public int parentGroup;
         [SerializeField]
         public bool isVisible = true;
+        [SerializeField]
+        private int m_Order = -1;
+
+        public virtual int order
+        {
+            get => m_Order;
+            set => m_Order = value;
+        }
     }
 
-    internal class CharacterPartCache : TransformCache
+    internal class CharacterPartCache : TransformCache, ICharacterOrder
     {
         [SerializeField]
         private SpriteCache m_Sprite;
@@ -24,7 +32,15 @@ namespace UnityEditor.U2D.Animation
         private bool m_IsVisible = true;
         [SerializeField]
         private int m_ParentGroup = -1;
+        [SerializeField]
+        private int m_Order = -1;
 
+        public virtual int order
+        {
+            get => m_Order;
+            set => m_Order = value;
+        }
+        
         public int parentGroup
         {
             get { return m_ParentGroup; }

@@ -1,8 +1,9 @@
-using UnityEngine;
+#pragma warning disable 0168 // variable declared but not used.
+
 using UnityEngine.Scripting;
 using UnityEngine.U2D.Common;
 using Unity.Collections;
-using UnityEngine.U2D;
+using UnityEngine.Profiling;
 using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.U2D.Animation
@@ -11,7 +12,6 @@ namespace UnityEngine.U2D.Animation
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
-    [RequireComponent(typeof(SpriteSkinEntity))]
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
 
@@ -23,14 +23,23 @@ namespace UnityEngine.U2D.Animation
         private Transform[] m_BoneTransforms;
         [SerializeField]
         private Bounds m_Bounds;
+        [SerializeField]
+        private bool m_UseBatching = true;
 
         // The deformed vertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite  Asset data.
         // The order of storage if present is POSITION, NORMALS, TANGENTS.
         private NativeArray<byte> m_DeformedVertices;
         private SpriteRenderer m_SpriteRenderer;
+        private Sprite m_CurrentDeformSprite;
         private int m_TransformsHash = 0;
         private bool m_ForceSkinning;
-        private Sprite m_CurrentDeformSprite;
+        private bool m_BatchSkinning = false;
+
+        public bool batchSkinning
+        {
+            get { return m_BatchSkinning; }
+            set { m_BatchSkinning = value; }
+        }
 
 #if UNITY_EDITOR
         internal static Events.UnityEvent onDrawGizmos = new Events.UnityEvent();
@@ -44,41 +53,33 @@ namespace UnityEngine.U2D.Animation
         }
 #endif
 
-#if ENABLE_ENTITIES
-
-        [SerializeField]
-        private bool m_EnableEntities = false;
-        private SpriteSkinEntity m_SpriteSkinEntity;
-
-        SpriteSkinEntity spriteSkinEntity
+#if ENABLE_ANIMATION_BURST
+        void OnEnable()
         {
-            get
+            if (m_UseBatching)
             {
-                if (m_SpriteSkinEntity == null)
-                    m_SpriteSkinEntity = GetComponent<SpriteSkinEntity>();
-
-                return m_SpriteSkinEntity;
+                SpriteSkinComposite.instance.AddSpriteSkin(this);
+                m_BatchSkinning = true;
             }
         }
-
-        public bool entitiesEnabled
-        {
-            get { return m_EnableEntities; }
-            set { m_EnableEntities = value; }
-        }
-
-        private void Awake()
-        {
-            if (spriteSkinEntity != null)
-            {
-                spriteSkinEntity.enabled = false;
-                spriteSkinEntity.enabled = true;
-            }
-        }
-
 #endif
 
-        NativeArray<byte> deformedVertices
+        internal void UseBatching(bool value)
+        {
+            m_UseBatching = value;
+            if (m_UseBatching)
+            {
+                SpriteSkinComposite.instance.AddSpriteSkin(this);
+                m_BatchSkinning = true;
+            }
+            else
+            {
+                SpriteSkinComposite.instance.RemoveSpriteSkin(this);
+                m_BatchSkinning = false;
+            }
+        }
+
+        internal NativeArray<byte> deformedVertices
         {
             get
             {
@@ -108,20 +109,20 @@ namespace UnityEngine.U2D.Animation
         {
             if (m_DeformedVertices.IsCreated)
                 m_DeformedVertices.Dispose();
+#if ENABLE_ANIMATION_BURST
+            SpriteSkinComposite.instance.RemoveSpriteSkin(this);
+            m_BatchSkinning = false;
+#endif
         }
 
         void LateUpdate()
         {
-#if ENABLE_ENTITIES
-            if(entitiesEnabled)
-                return;
-#endif
             if (m_CurrentDeformSprite != sprite)
             {
                 DeactivateSkinning();
                 m_CurrentDeformSprite = sprite;
             }
-            if (isValid)
+            if (isValid && !batchSkinning)
             {
                 var inputVertices = deformedVertices;
                 var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
@@ -136,6 +137,28 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
+        internal bool GetSpriteSkinBatchData(ref SpriteSkinBatchData data)
+        {
+            if (m_CurrentDeformSprite != sprite)
+            {
+                DeactivateSkinning();
+                m_CurrentDeformSprite = sprite;
+            }
+            if (isValid)
+            {
+                Profiler.BeginSample("SpriteSkin.UpdateBounds");
+                SpriteSkinUtility.UpdateBounds(this);
+                Profiler.EndSample();
+                data.sprite = sprite;
+                data.boneTransform = boneTransforms;
+                Profiler.BeginSample("SpriteSkin.worldToLocalMatrix");
+                data.worldToLocalMatrix = gameObject.transform.worldToLocalMatrix;
+                Profiler.EndSample();
+                return true;
+            }
+            return false;
+        }
+        
         internal Sprite sprite
         {
             get

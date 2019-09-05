@@ -22,11 +22,8 @@ When you import PSB files into the Editor with the  [PSD Importer](https://docs.
    
 4. Next, create a new GameObject and add the __Sprite Renderer__ component to it.
    
-   
-   
 5. Add the[ Sprite Library component](SLComponent.md) to the same GameObject, and assign the new Sprite Library Asset set up in step 3 to the __Sprite Library Asset__ box.
    
-
 6. Add the [Sprite Resolver component](SRComponent.md) to the same GameObject. 
 
    ![](images/image_10.png)

@@ -9,51 +9,21 @@ using UnityEngine.U2D;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal interface IAnimationAssetPostProcess
-    {
-        bool OnAfterPostProcess();
-    }
-
     internal class SpritePostProcess : AssetPostprocessor
     {
         private static List<object> m_AssetList;
 
-        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+        void OnPostprocessSprites(Texture2D texture, Sprite[] sprites)
         {
             var dataProviderFactories = new SpriteDataProviderFactories();
             dataProviderFactories.Init();
-            m_AssetList = new List<object>();
-            List<string> assetPathModified = new List<string>();
-            
-            foreach (var importedAsset in importedAssets)
+            ISpriteEditorDataProvider ai = dataProviderFactories.GetSpriteEditorDataProviderFromObject(AssetImporter.GetAtPath(assetPath));
+            if (ai != null)
             {
-                var asset = AssetDatabase.LoadMainAssetAtPath(importedAsset);
-                ISpriteEditorDataProvider ai = dataProviderFactories.GetSpriteEditorDataProviderFromObject(asset);
-                if (ai != null)
-                {
-                    ai.InitSpriteEditorDataProvider();
-                    var assets = AssetDatabase.LoadAllAssetsAtPath(importedAsset);
-                    var sprites = assets.OfType<Sprite>().ToArray<Sprite>();
-                    bool dataChanged = false;
-                    dataChanged = PostProcessBoneData(ai,  sprites);
-                    dataChanged |= PostProcessSpriteMeshData(ai, sprites);
-                    if (ai is IAnimationAssetPostProcess)
-                        dataChanged |= ((IAnimationAssetPostProcess)ai).OnAfterPostProcess();
-                    if (dataChanged)
-                    {
-                        assetPathModified.Add(importedAsset);
-                        m_AssetList.AddRange(assets);
-                    }
-                }
-            }
-
-            if (assetPathModified.Count > 0 && m_AssetList.Count > 0)
-            {
-                var originalValue = EditorPrefs.GetBool("VerifySavingAssets", false);
-                EditorPrefs.SetBool("VerifySavingAssets", false);
-                AssetDatabase.ForceReserializeAssets(assetPathModified, ForceReserializeAssetsOptions.ReserializeMetadata);
-                EditorPrefs.SetBool("VerifySavingAssets", originalValue);
-                m_AssetList.Clear();
+                float definitionScale = CalculateDefinitionScale(texture, ai.GetDataProvider<ITextureDataProvider>());
+                ai.InitSpriteEditorDataProvider();
+                PostProcessBoneData(ai, definitionScale, sprites);
+                PostProcessSpriteMeshData(ai, definitionScale, sprites);
                 BoneGizmo.instance.ClearSpriteBoneCache();
             }
         }
@@ -102,7 +72,7 @@ namespace UnityEditor.U2D.Animation
             bindPose[i] = mat;
         }
 
-        static bool PostProcessBoneData(ISpriteEditorDataProvider spriteDataProvider, Sprite[] sprites)
+        static bool PostProcessBoneData(ISpriteEditorDataProvider spriteDataProvider, float definitionScale, Sprite[] sprites)
         {
             var boneDataProvider = spriteDataProvider.GetDataProvider<ISpriteBoneDataProvider>();
             var textureDataProvider = spriteDataProvider.GetDataProvider<ITextureDataProvider>();
@@ -111,8 +81,6 @@ namespace UnityEditor.U2D.Animation
                 return false;
 
             bool dataChanged = false;
-
-            float definitionScale = CalculateDefinitionScale(textureDataProvider);
 
             foreach (var sprite in sprites)
             {
@@ -141,7 +109,7 @@ namespace UnityEditor.U2D.Animation
             return dataChanged;
         }
 
-        static bool PostProcessSpriteMeshData(ISpriteEditorDataProvider spriteDataProvider, Sprite[] sprites)
+        static bool PostProcessSpriteMeshData(ISpriteEditorDataProvider spriteDataProvider, float definitionScale, Sprite[] sprites)
         {
             var spriteMeshDataProvider = spriteDataProvider.GetDataProvider<ISpriteMeshDataProvider>();
             var boneDataProvider = spriteDataProvider.GetDataProvider<ISpriteBoneDataProvider>();
@@ -150,8 +118,6 @@ namespace UnityEditor.U2D.Animation
                 return false;
 
             bool dataChanged = false;
-            float definitionScale = CalculateDefinitionScale(textureDataProvider);
-
             foreach (var sprite in sprites)
             {
                 var guid = sprite.GetSpriteID();
@@ -225,11 +191,10 @@ namespace UnityEditor.U2D.Animation
             return dataChanged;
         }
 
-        static float CalculateDefinitionScale(ITextureDataProvider dataProvider)
+        static float CalculateDefinitionScale(Texture2D texture, ITextureDataProvider dataProvider)
         {
             float definitionScale = 1;
-            var texture = dataProvider.texture;
-            if (texture != null)
+            if (texture != null && dataProvider != null)
             {
                 int actualWidth = 0, actualHeight = 0;
                 dataProvider.GetTextureActualWidthAndHeight(out actualWidth, out actualHeight);

@@ -8,7 +8,7 @@ In the following example, one Sprite represents a green scarf, and one represent
 
 Here’s an example workflow for how you might change the scarf on a 2D character, while everything else remains the same:
 
-1. Place the Sprites you want to swap in the Sprite Library Asset, and assign them all to a Category named __Scarf__. You can do this directly via the the [Skinning Editor](SkinningEditor.md) (see [Editor Integration](EditInter.md)).
+1. Place the Sprites you want to swap in the Sprite Library Asset, and assign them all to a Category named __Scarf__. You can do this directly via the the [Skinning Editor](SkinningEditor.md) (see [Sprite Visibilty Panel](EditInter.md)).
    ![](images/image_11.png)
 
    

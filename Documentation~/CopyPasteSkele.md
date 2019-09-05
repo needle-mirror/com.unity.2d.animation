@@ -12,16 +12,16 @@ To paste a Sprite's data to another Sprite, select the Sprite that you want to p
 
 ![Paste Dialog](images/PasteDialog.png)
 
-| __Option__ | Function                                      |
-| ---------- | --------------------------------------------- |
-| __Bones__  | Paste Bone data                               |
-| __Mesh__   | Paste the Mesh data                           |
-| __Flip X__ | Paste the data with mirrored along the X-axis |
-| __Flip Y__ | Paste the data mirrored along the Y-axis      |
+| __Option__ | Function                                       |
+| ---------- | ---------------------------------------------- |
+| __Bones__  | Paste Bone data.                               |
+| __Mesh__   | Paste the Mesh data.                           |
+| __Flip X__ | Paste the data with mirrored along the X-axis. |
+| __Flip Y__ | Paste the data mirrored along the Y-axis.      |
 
-The following is shows the behaviour for different scenarios when using the Copy and Paste tool
+The following are different scenarios possible with the Copy and Paste tool.
 
-|                                   | Copy from a Selected Sprite                | Copy With No Sprite Selected                                 |
-| --------------------------------- | ------------------------------------------ | ------------------------------------------------------------ |
-| __Paste With Sprite Selected__    | Data will be copied to the selected Sprite | All Sprites with the same name from the Copy source will be pasted into the selected Sprite. |
-| __Paste With No Sprite Selected__ | No data is pasted                          | All Sprites with the same name from the Copy source will have the data pasted into the selected Sprite. |
+|                                   | Copy from a Selected Sprite                 | Copy With No Sprite Selected                                 |
+| --------------------------------- | ------------------------------------------- | ------------------------------------------------------------ |
+| __Paste With Sprite Selected__    | Data will be copied to the selected Sprite. | All Sprites with the same name from the Copy source will be pasted into the selected Sprite. |
+| __Paste With No Sprite Selected__ | No data is pasted.                          | All Sprites with the same name from the Copy source will have the data pasted into the selected Sprite. |

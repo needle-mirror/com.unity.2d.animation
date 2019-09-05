@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.5] - 2019-09-06
+### Added
+- Optional performance boost by installing Burst package.
+- Samples showing different how to produce different outcomes
+
+### Changed
+- Sprite and Group in Sprite Visibility Window appear in same order as original art source file
+
+### Fixed
+- Fix missing bone data in Sprite when importing with AssetDatabase V2
+
 ## [3.0.4] - 2019-08-09
 ### Added
 - Add related test packages

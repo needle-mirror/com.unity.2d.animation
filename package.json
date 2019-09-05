@@ -1,8 +1,8 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "unity": "2019.3",
-  "unityRelease": "0a13",
+  "unityRelease": "0b3",
   "displayName": "2D Animation",
   "description": "2D Animation provides the all the necessary tooling and runtime components for skeletal animation using Sprites.",
   "keywords": [
@@ -16,12 +16,19 @@
     "com.unity.2d.sprite": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "3.0.4",
+    "com.unity.2d.animation.tests": "3.0.5",
     "com.unity.2d.common.tests": "2.0.2"
   },
+  "samples": [
+    {
+      "displayName": "2D Animation Samples",
+      "description": "Various 2D Animation sample scenes to show different usage of the 2D Animation tooling for various outcomes.",
+      "path": "Samples~/AnimationSamples"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.cds.internal.unity3d.com:unity/2d.git",
-    "revision": "4119d66437811a18e6b884479b21e365529bfdf1"
+    "revision": "32fbfc4d3040a10e35abd2efee35086c77b66837"
   }
 }

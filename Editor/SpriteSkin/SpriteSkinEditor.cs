@@ -22,7 +22,8 @@ namespace UnityEditor.U2D.Animation
             public static readonly GUIContent transformArrayContainsNull = new GUIContent("Bone list contains unassigned references");
             public static readonly GUIContent InvalidTransformArrayLength = new GUIContent("The number of Sprite's Bind Poses and the number of Transforms should match");
             public static readonly GUIContent spriteBoundsLabel = new GUIContent("Bounds");
-            public static readonly GUIContent enableEntitiesLabel = new GUIContent("Enable Entities.");
+            public static readonly GUIContent useManager = new GUIContent("Enable batching");
+            public static readonly GUIContent experimental = new GUIContent("Experimental");
         }
 
         private static Color s_BoundingBoxHandleColor = new Color(255, 255, 255, 150) / 255;
@@ -30,20 +31,25 @@ namespace UnityEditor.U2D.Animation
         private SerializedProperty m_RootBoneProperty;
         private SerializedProperty m_BoneTransformsProperty;
         private SerializedProperty m_BoundsProperty;
-        private SerializedProperty m_EnableEntitiesProperty;
         private SpriteSkin m_SpriteSkin;
         private ReorderableList m_ReorderableList;
         private Sprite m_CurrentSprite;
         private BoxBoundsHandle m_BoundsHandle = new BoxBoundsHandle();
         private bool m_NeedsRebind = false;
+#if ENABLE_ANIMATION_BURST
+        private SerializedProperty m_UseBatching;
+        private bool m_ExperimentalFold;
+#endif
 
         private void OnEnable()
         {
             m_SpriteSkin = (SpriteSkin)target;
             m_RootBoneProperty = serializedObject.FindProperty("m_RootBone");
+#if ENABLE_ANIMATION_BURST
+            m_UseBatching = serializedObject.FindProperty("m_UseBatching");
+#endif
             m_BoneTransformsProperty = serializedObject.FindProperty("m_BoneTransforms");
             m_BoundsProperty = serializedObject.FindProperty("m_Bounds");
-            m_EnableEntitiesProperty = serializedObject.FindProperty("m_EnableEntities");
             m_CurrentSprite = m_SpriteSkin.spriteRenderer.sprite;
             m_BoundsHandle.axes = BoxBoundsHandle.Axes.X | BoxBoundsHandle.Axes.Y;
             m_BoundsHandle.SetColor(s_BoundingBoxHandleColor);
@@ -140,8 +146,22 @@ namespace UnityEditor.U2D.Animation
             }
 
             EditorGUILayout.PropertyField(m_BoundsProperty, Contents.spriteBoundsLabel);
-#if ENABLE_ENTITIES
-            EditorGUILayout.PropertyField(m_EnableEntitiesProperty, Contents.enableEntitiesLabel);
+#if ENABLE_ANIMATION_BURST
+            m_ExperimentalFold = EditorGUILayout.Foldout(m_ExperimentalFold, Contents.experimental, true);
+            if (m_ExperimentalFold)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.PropertyField(m_UseBatching, Contents.useManager);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    foreach (var obj in targets)
+                    {
+                        ((SpriteSkin)obj).UseBatching(m_UseBatching.boolValue);
+                    }
+                }
+                EditorGUI.indentLevel--;
+            }
 #endif
 
             EditorGUILayout.Space();
@@ -299,6 +319,7 @@ namespace UnityEditor.U2D.Animation
 
                     EditorUtility.SetDirty(spriteSkin);
                 }
+                BoneGizmo.instance.boneGizmoController.OnSelectionChanged();
             }
         }
 

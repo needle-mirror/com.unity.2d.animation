@@ -1,4 +1,4 @@
-## Sprite Resolver component
+# Sprite Resolver component
 
 The __Sprite Resolver__ component pulls information from the [Sprite Library Asset](SLAsset.md) set in the [Sprite Library component](SLComponent.md) on the same GameObject. It automatically applies the selected Sprite to the [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer.html). This allows you to swap the Sprite Renderer’s Sprite to other ones in the Sprite Library Asset during run time.
 

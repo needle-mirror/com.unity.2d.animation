@@ -111,15 +111,14 @@ namespace UnityEngine.Experimental.U2D.Animation
             }
         }
 
-        internal Sprite GetSprite()
+        internal Sprite GetSprite(out bool validEntry)
         {
             var lib = spriteLibrary;
             if (lib != null)
             {
-                var sprite = lib.GetSprite(m_CategoryHashInt, m_LabelHashInt);
-                if (sprite != null)
-                    return sprite;
+                return lib.GetSprite(m_CategoryHashInt, m_LabelHashInt, out validEntry);
             }
+            validEntry = false;
             return null;
         }
 
@@ -130,9 +129,10 @@ namespace UnityEngine.Experimental.U2D.Animation
         {
             m_PreviousCategoryHash = m_CategoryHashInt;
             m_PreviouslabelHash = m_LabelHashInt;
-            var sprite = GetSprite();
+            bool validEntry;
+            var sprite = GetSprite(out validEntry);
             var sr = spriteRenderer;
-            if (sr != null)
+            if (sr != null && (sprite != null || validEntry))
                 sr.sprite = sprite;
         }
 
