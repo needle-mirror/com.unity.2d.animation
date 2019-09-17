@@ -24,7 +24,7 @@ namespace UnityEditor.U2D.Animation
 
         public GenerateWeightsPanel()
         {
-            styleSheets.Add(Resources.Load<StyleSheet>("GenerateWeightsPanelStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/GenerateWeightsPanelStyle.uss"));
             if (EditorGUIUtility.isProSkin)
                 AddToClassList("Dark");
             AddToClassList("AssociateBoneEnabled");
@@ -84,7 +84,7 @@ namespace UnityEditor.U2D.Animation
 
         public static GenerateWeightsPanel GenerateFromUXML()
         {
-            var visualTree = Resources.Load("GenerateWeightsPanel") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/GenerateWeightsPanel.uxml");
             var clone = visualTree.CloneTree().Q<GenerateWeightsPanel>("GenerateWeightsPanel");
             clone.BindElements();
             return clone;

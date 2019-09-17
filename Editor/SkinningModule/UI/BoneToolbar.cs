@@ -14,7 +14,7 @@ namespace UnityEditor.U2D.Animation
 
         public BoneToolbar()
         {
-            styleSheets.Add(Resources.Load<StyleSheet>("BoneToolbarStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/BoneToolbarStyle.uss"));
         }
 
         public void BindElements()
@@ -82,7 +82,7 @@ namespace UnityEditor.U2D.Animation
 
         public static BoneToolbar GenerateFromUXML()
         {
-            var visualTree = Resources.Load("BoneToolbar") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/BoneToolbar.uxml");
             var clone = visualTree.CloneTree().Q<BoneToolbar>("BoneToolbar");
             clone.BindElements();
             return clone;

@@ -39,9 +39,9 @@ namespace UnityEditor.U2D.Animation
             set { m_HeaderLabel.text = value; }
         }
 
-        static internal SpriteBoneInfluenceWindow CreateFromUXML(string uxml)
+        static internal SpriteBoneInfluenceWindow CreateFromUXML()
         {
-            var visualTree = Resources.Load(uxml) as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/SpriteBoneInfluenceWindow.uxml");
             var ve = visualTree.CloneTree().Q("SpriteBoneInfluenceWindow") as SpriteBoneInfluenceWindow;
             ve.BindElements();
             return ve;
@@ -55,7 +55,7 @@ namespace UnityEditor.U2D.Animation
             m_InfluencesList.onSelectionChanged = (s) => onSelectionChanged(s);
             m_InfluencesList.GetController = InternalGetController;
             m_HeaderLabel = this.Q<PopupWindow>();
-            this.styleSheets.Add(Resources.Load<StyleSheet>("SpriteBoneInfluenceWindowStyle"));
+            this.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/SpriteBoneInfluenceWindowStyle.uss"));
         }
 
         SpriteBoneInflueceToolController InternalGetController()

@@ -14,7 +14,7 @@ namespace UnityEditor.U2D.Animation
 
         public WeightToolbar()
         {
-            styleSheets.Add(Resources.Load<StyleSheet>("WeightToolbarStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/WeightToolbarStyle.uss"));
         }
 
         public void EnableBoneInfluenceWidget()
@@ -44,7 +44,7 @@ namespace UnityEditor.U2D.Animation
 
         public static WeightToolbar GenerateFromUXML()
         {
-            var visualTree = Resources.Load("WeightToolbar") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/WeightToolbar.uxml");
             var clone = visualTree.CloneTree().Q<WeightToolbar>("WeightToolbar");
             clone.BindElements();
             return clone;

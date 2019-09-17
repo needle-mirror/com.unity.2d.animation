@@ -28,11 +28,11 @@ namespace UnityEditor.U2D.Animation
 
         public static VisibilityToolWindow CreateFromUXML()
         {
-            var visualTree = Resources.Load("VisibilityToolWindow") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/VisibilityToolWindow.uxml");
             var ve = visualTree.CloneTree().Q("VisibilityToolWindow") as VisibilityToolWindow;
             var resizer = ve.Q("Resizer");
             resizer.AddManipulator(new VisibilityToolResizer());
-            ve.styleSheets.Add(Resources.Load<StyleSheet>("VisibilityTool"));
+            ve.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/VisibilityTool.uss"));
             if (EditorGUIUtility.isProSkin)
                 ve.AddToClassList("Dark");
             ve.BindElements();

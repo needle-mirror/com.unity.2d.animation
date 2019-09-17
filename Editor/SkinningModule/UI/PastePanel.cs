@@ -42,7 +42,7 @@ namespace UnityEditor.U2D.Animation
 
         public PastePanel()
         {
-            styleSheets.Add(Resources.Load<StyleSheet>("PastePanelStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/PastePanelStyle.uss"));
             if (EditorGUIUtility.isProSkin)
                 AddToClassList("Dark");
 
@@ -68,7 +68,7 @@ namespace UnityEditor.U2D.Animation
 
         public static PastePanel GenerateFromUXML()
         {
-            var visualTree = Resources.Load("PastePanel") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/PastePanel.uxml");
             var clone = visualTree.CloneTree().Q<PastePanel>("PastePanel");
             clone.BindElements();
             return clone;

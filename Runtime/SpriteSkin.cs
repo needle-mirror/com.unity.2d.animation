@@ -107,6 +107,7 @@ namespace UnityEngine.U2D.Animation
 
         void OnDisable()
         {
+            DeactivateSkinning();
             if (m_DeformedVertices.IsCreated)
                 m_DeformedVertices.Dispose();
 #if ENABLE_ANIMATION_BURST

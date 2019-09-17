@@ -33,7 +33,7 @@ namespace UnityEditor.U2D.Animation
 
         public GenerateGeometryPanel()
         {
-            styleSheets.Add(Resources.Load<StyleSheet>("GenerateGeometryPanelStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/GenerateGeometryPanelStyle.uss"));
             RegisterCallback<MouseDownEvent>((e) => { e.StopPropagation(); });
             RegisterCallback<MouseUpEvent>((e) => { e.StopPropagation(); });
         }
@@ -131,7 +131,7 @@ namespace UnityEditor.U2D.Animation
 
         public static GenerateGeometryPanel GenerateFromUXML()
         {
-            var visualTree = Resources.Load("GenerateGeometryPanel") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/GenerateGeometryPanel.uxml");
             var clone = visualTree.CloneTree().Q<GenerateGeometryPanel>("GenerateGeometryPanel");
             clone.BindElements();
             return clone;

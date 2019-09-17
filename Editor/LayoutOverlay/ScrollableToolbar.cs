@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.U2D.Animation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -72,7 +73,7 @@ namespace UnityEditor.U2D.Layout
             m_IsHorizontal = isHorizontal;
             SetupScrolling();
 
-            styleSheets.Add(Resources.Load<StyleSheet>("ScrollableToolbar"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("LayoutOverlay/ScrollableToolbar.uss"));
 
             // TODO: Add onto current ScrollView internal WheelEvent
             m_ScrollView.RegisterCallback<WheelEvent>(OnScrollWheel);

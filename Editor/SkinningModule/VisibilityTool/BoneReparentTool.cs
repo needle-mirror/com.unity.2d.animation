@@ -87,7 +87,7 @@ namespace UnityEditor.U2D.Animation
 
         static internal BoneReparentToolWindow CreateFromUXML()
         {
-            var visualTree = Resources.Load("BoneReparentWindow") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/BoneReparentWindow.uxml");
             var ve = visualTree.CloneTree().Q("BoneReparentToolWindow") as BoneReparentToolWindow;
             ve.BindElements();
             return ve;
@@ -98,7 +98,7 @@ namespace UnityEditor.U2D.Animation
             m_ToolView = this.Q<BoneReparentToolView>();
             m_ToolView.GetModel = InternalGetModel;
             m_ToolView.GetController = InternalGetController;
-            this.styleSheets.Add(Resources.Load<StyleSheet>("BoneReparentStyle"));
+            this.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/BoneReparentStyle.uss"));
         }
 
         IBoneTreeViewModel InternalGetModel()

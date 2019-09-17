@@ -102,7 +102,7 @@ namespace UnityEditor.U2D.Animation
 
         public WeightPainterPanel()
         {
-            styleSheets.Add(Resources.Load<StyleSheet>("WeightPainterPanelStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/WeightPainterPanelStyle.uss"));
             if (EditorGUIUtility.isProSkin)
                 AddToClassList("Dark");
 
@@ -232,8 +232,17 @@ namespace UnityEditor.U2D.Animation
 
         private void UpdateBonePopup(string[] names)
         {
+            VisualElement boneElement = null;
+            if (m_ModeField != null && mode == WeightEditorMode.Smooth)
+            {
+                boneElement = this.Q<VisualElement>("Bone");
+                boneElement.SetHiddenFromLayout(false);
+            }
+
             if (m_BonePopup != null)
-                m_BonePopup.RemoveFromHierarchy();
+            {
+                m_BonePopupContainer.Remove(m_BonePopup);
+            }
 
             m_BonePopup = new PopupField<string>(new List<string>(names), 0);
             m_BonePopup.name = "BonePopupField";
@@ -244,6 +253,11 @@ namespace UnityEditor.U2D.Animation
                 bonePopupChanged(boneIndex);
             });
             m_BonePopupContainer.Add(m_BonePopup);
+
+            if (boneElement != null)
+            {
+                boneElement.SetHiddenFromLayout(true);
+            }
         }
 
         internal void SetBoneSelectionByName(string boneName)
@@ -254,7 +268,7 @@ namespace UnityEditor.U2D.Animation
 
         public static WeightPainterPanel GenerateFromUXML()
         {
-            var visualTree = Resources.Load("WeightPainterPanel") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/WeightPainterPanel.uxml");
             var clone = visualTree.CloneTree().Q<WeightPainterPanel>("WeightPainterPanel");
 
             // EnumField can only get type of Enum from the current running assembly when defined through UXML

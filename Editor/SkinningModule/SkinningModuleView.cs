@@ -235,7 +235,7 @@ namespace UnityEditor.U2D.Animation
 
         private void AddMainUI(VisualElement mainView)
         {
-            var visualTree = Resources.Load("LayoutOverlay") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("LayoutOverlay/LayoutOverlay.uxml");
             VisualElement clone = visualTree.CloneTree();
             m_LayoutOverlay = clone.Q<LayoutOverlay>("LayoutOverlay");
 

@@ -15,7 +15,7 @@ namespace UnityEditor.U2D.Animation
 
         public CopyToolbar()
         {
-            styleSheets.Add(Resources.Load<StyleSheet>("CopyToolbarStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/CopyToolbarStyle.uss"));
         }
 
         public void DoCopy()
@@ -39,7 +39,7 @@ namespace UnityEditor.U2D.Animation
 
         public static CopyToolbar GenerateFromUXML()
         {
-            var visualTree = Resources.Load("CopyToolbar") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/CopyToolbar.uxml");
             var clone = visualTree.CloneTree().Q<CopyToolbar>("CopyToolbar");
             clone.BindElements();
             return clone;

@@ -12,7 +12,7 @@ namespace UnityEditor.U2D.Animation
         public Toolbar()
         {
             AddToClassList("Toolbar");
-            styleSheets.Add(Resources.Load<StyleSheet>("ToolbarStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/ToolbarStyle.uss"));
             if (EditorGUIUtility.isProSkin)
                 AddToClassList("Dark");
         }

@@ -38,9 +38,9 @@ namespace UnityEditor.U2D.Animation
 
         public SpriteBoneInfluenceListWidget()
         {
-            var visualTree = Resources.Load("SpriteBoneInfluenceListWidget") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/SpriteBoneInfluenceListWidget.uxml");
             var ve = visualTree.CloneTree().Q("Container");
-            ve.styleSheets.Add(Resources.Load<StyleSheet>("SpriteBoneInfluenceListWidgetStyle"));
+            ve.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/SpriteBoneInfluenceListWidgetStyle.uss"));
             if (EditorGUIUtility.isProSkin)
                 AddToClassList("Dark");
             this.Add(ve);

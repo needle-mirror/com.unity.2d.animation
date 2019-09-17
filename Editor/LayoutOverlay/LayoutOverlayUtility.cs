@@ -1,30 +1,35 @@
 ﻿using System;
+using UnityEditor.U2D.Animation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-internal static class LayoutOverlayUtility
+namespace UnityEditor.U2D.Layout
 {
-    public static Button CreateButton(string name, Action clickEvent, string tooltip = null, string text = null, string imageResourcePath = null, string stylesheetPath = null)
+    internal static class LayoutOverlayUtility
     {
-        Button button = new Button(clickEvent);
-        button.name = name;
-        button.tooltip = tooltip;
-
-        if (!String.IsNullOrEmpty(text))
-            button.text = text;
-        if (!String.IsNullOrEmpty(imageResourcePath))
+        public static Button CreateButton(string name, Action clickEvent, string tooltip = null, string text = null, string imageResourcePath = null, string stylesheetPath = null)
         {
-            var texture = Resources.Load<Texture>(imageResourcePath);
-            if (texture != null)
-            {
-                Image image = new Image();
-                image.image = texture;
-                button.Add(image);
-            }
-        }
-        if (!String.IsNullOrEmpty(stylesheetPath))
-            button.styleSheets.Add(Resources.Load<StyleSheet>(stylesheetPath));
+            Button button = new Button(clickEvent);
+            button.name = name;
+            button.tooltip = tooltip;
 
-        return button;
+            if (!String.IsNullOrEmpty(text))
+                button.text = text;
+            if (!String.IsNullOrEmpty(imageResourcePath))
+            {
+                var texture = ResourceLoader.Load<Texture>(imageResourcePath);
+                if (texture != null)
+                {
+                    Image image = new Image();
+                    image.image = texture;
+                    button.Add(image);
+                }
+            }
+            if (!String.IsNullOrEmpty(stylesheetPath))
+                button.styleSheets.Add(ResourceLoader.Load<StyleSheet>(stylesheetPath));
+
+            return button;
+        }
     }
+
 }

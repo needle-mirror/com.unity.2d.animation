@@ -16,7 +16,7 @@ namespace UnityEditor.U2D.Animation
 
         public MeshToolbar()
         {
-            styleSheets.Add(Resources.Load<StyleSheet>("MeshToolbarStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/MeshToolbarStyle.uss"));
         }
 
         public void BindElements()
@@ -58,7 +58,7 @@ namespace UnityEditor.U2D.Animation
 
         public static MeshToolbar GenerateFromUXML()
         {
-            var visualTree = Resources.Load("MeshToolbar") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/MeshToolbar.uxml");
             var clone = visualTree.CloneTree().Q<MeshToolbar>("MeshToolbar");
             clone.BindElements();
             return clone;

@@ -255,7 +255,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (m_View == null)
             {
-                m_View = SpriteBoneInfluenceWindow.CreateFromUXML("SpriteBoneInfluenceWindow");
+                m_View = SpriteBoneInfluenceWindow.CreateFromUXML();
                 m_Controller.OnViewCreated();
             }
 

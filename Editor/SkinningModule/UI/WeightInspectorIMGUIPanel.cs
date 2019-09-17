@@ -19,7 +19,7 @@ namespace UnityEditor.U2D.Animation
         public WeightInspectorIMGUIPanel()
         {
             name = "WeightInspectorIMGUIPanel";
-            styleSheets.Add(Resources.Load<StyleSheet>("WeightInspectorIMGUIPanelStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/WeightInspectorIMGUIPanelStyle.uss"));
 
             this.Add(new IMGUIContainer(OnGUI));
             this.pickingMode = PickingMode.Ignore;

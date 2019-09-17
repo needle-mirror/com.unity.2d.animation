@@ -6,9 +6,9 @@ namespace UnityEditor.U2D.Animation
 {
     internal static class IconUtility
     {
-        static public readonly string k_LightIconResourcePath = "Icons/Light";
-        static public readonly string k_DarkIconResourcePath = "Icons/Dark";
-        static public readonly string k_SelectedResourceIconPath = "Icons/Selected";
+        static public readonly string k_LightIconResourcePath = "SkinningModule/Icons/Light";
+        static public readonly string k_DarkIconResourcePath = "SkinningModule/Icons/Dark";
+        static public readonly string k_SelectedResourceIconPath = "SkinningModule/Icons/Selected";
 
         public static Texture2D LoadIconResource(string name, string personalPath, string proPath)
         {
@@ -20,12 +20,12 @@ namespace UnityEditor.U2D.Animation
                 iconPath = System.IO.Path.Combine(personalPath, name);
             if (EditorGUIUtility.pixelsPerPoint > 1.0f)
             {
-                var icon2x = Resources.Load<Texture2D>(iconPath + "@2x");
+                var icon2x = ResourceLoader.Load<Texture2D>(iconPath + "@2x.png");
                 if (icon2x != null)
                     return icon2x;
             }
 
-            return Resources.Load<Texture2D>(iconPath);
+            return ResourceLoader.Load<Texture2D>(iconPath+".png");
         }
     }
 }

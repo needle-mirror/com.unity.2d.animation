@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.6] - 2019-09-18
+### Changed
+- Remove usage of Resource folder for assets needed by package.
+
+### Fixed
+- Fix GC allocation when using Sprite Resolver.
+
 ## [3.0.5] - 2019-09-06
 ### Added
 - Optional performance boost by installing Burst package.

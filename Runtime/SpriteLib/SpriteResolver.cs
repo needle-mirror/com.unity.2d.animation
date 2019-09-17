@@ -164,16 +164,18 @@ namespace UnityEngine.Experimental.U2D.Animation
             }
         }
 
-        internal static int ConvertFloatToInt(float f)
+        internal unsafe static int ConvertFloatToInt(float f)
         {
-            var bytes = BitConverter.GetBytes(f);
-            return BitConverter.ToInt32(bytes, 0);
+            float* fp = &f;
+            int* i = (int*)fp;
+            return *i;
         }
 
-        internal static float ConvertIntToFloat(int f)
+        internal unsafe static float ConvertIntToFloat(int f)
         {
-            var bytes = BitConverter.GetBytes(f);
-            return BitConverter.ToSingle(bytes, 0);
+            int* fp = &f;
+            float* i = (float*)fp;
+            return *i;
         }
 
 #if UNITY_EDITOR

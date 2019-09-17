@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using UnityEditor.U2D.Animation;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Layout
@@ -90,7 +90,7 @@ namespace UnityEditor.U2D.Layout
 		public LayoutOverlay()
 		{
 			this.StretchToParentSize();
-			styleSheets.Add(Resources.Load<StyleSheet>("LayoutOverlayStyle"));
+			styleSheets.Add(ResourceLoader.Load<StyleSheet>("LayoutOverlay/LayoutOverlayStyle.uss"));
 		}
 	}
 }

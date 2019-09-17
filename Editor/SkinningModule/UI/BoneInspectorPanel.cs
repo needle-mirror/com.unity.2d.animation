@@ -29,7 +29,7 @@ namespace UnityEditor.U2D.Animation
 
         public BoneInspectorPanel()
         {
-            styleSheets.Add(Resources.Load<StyleSheet>("BoneInspectorPanelStyle"));
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/BoneInspectorPanelStyle.uss"));
 
             RegisterCallback<MouseDownEvent>((e) => { e.StopPropagation(); });
             RegisterCallback<MouseUpEvent>((e) => { e.StopPropagation(); });
@@ -55,7 +55,7 @@ namespace UnityEditor.U2D.Animation
 
         public static BoneInspectorPanel GenerateFromUXML()
         {
-            var visualTree = Resources.Load("BoneInspectorPanel") as VisualTreeAsset;
+            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/BoneInspectorPanel.uxml");
             var clone = visualTree.CloneTree().Q<BoneInspectorPanel>("BoneInspectorPanel");
             clone.BindElements();
             return clone;

@@ -129,10 +129,27 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         internal Sprite GetSprite(int categoryHash, int labelHash, out bool validEntry)
         {
-            var category = m_Labels.FirstOrDefault(x => x.hash == categoryHash);
+            SpriteLibCategory category = null;
+            for (int i = 0; i < m_Labels.Count; ++i)
+            {
+                if (m_Labels[i].hash == categoryHash)
+                {
+                    category = m_Labels[i];
+                    break;
+                }
+            }
+            
             if (category != null)
             {
-                var spritelabel = category.categoryList.FirstOrDefault(x => x.hash == labelHash);
+                Categorylabel spritelabel = null;
+                for (int i = 0; i < category.categoryList.Count; ++i)
+                {
+                    if (category.categoryList[i].hash == labelHash)
+                    {
+                        spritelabel = category.categoryList[i];
+                        break;
+                    }
+                }
                 if (spritelabel != null)
                 {
                     validEntry = true;

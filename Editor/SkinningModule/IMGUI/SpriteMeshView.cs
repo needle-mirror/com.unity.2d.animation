@@ -28,9 +28,9 @@ namespace UnityEditor.U2D.Animation
 
             public Styles()
             {
-                Texture2D pointNormal = Resources.Load<Texture2D>("dotCyan");
-                Texture2D pointHovered = Resources.Load<Texture2D>("dotYellow");
-                Texture2D pointSelected = Resources.Load<Texture2D>("dotYellow");
+                Texture2D pointNormal = ResourceLoader.Load<Texture2D>("SkinningModule/dotCyan.png");
+                Texture2D pointHovered = ResourceLoader.Load<Texture2D>("SkinningModule/dotYellow.png");
+                Texture2D pointSelected = ResourceLoader.Load<Texture2D>("SkinningModule/dotYellow.png");
 
                 pointNormalStyle = new GUIStyle();
                 pointNormalStyle.normal.background = pointNormal;
