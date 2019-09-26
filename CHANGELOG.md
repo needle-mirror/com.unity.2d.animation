@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.1-preview.2] - 2019-09-27
+### Fixed
+- Fix case 1181183 where visual glitches appeared when SpriteSkin's GameObject is enabled after being disabled.
+
 ## [2.2.1-preview.1] - 2019-09-04
 ### Changed
 - Bump version number due to new dependencies and validation check.
