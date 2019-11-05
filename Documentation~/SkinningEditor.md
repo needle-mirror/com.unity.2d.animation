@@ -38,7 +38,7 @@ The following are the Skinning Editor’s tools, their functions, and shortcuts:
 
 The [Sprite Visibility panel](SpriteVis.md) is found on the right side of the Skinning Editor. It controls the visibility of the Sprite Meshes and bones in the Skinning Editor window, and displays the Sprites according to their Layer and Group order in the source art file (see image below). Refer to the [Sprite Visibility panel](SpriteVis.md) page for more details of the panel’s functions.
 
-![](images\AnimWin_PhotoshopWin_match.png)
+![](images/AnimWin_PhotoshopWin_match.png)
 
 ## Selecting a Sprite
 

@@ -78,19 +78,19 @@ namespace UnityEditor.U2D.Animation
                 }
             };
 
-            m_ListView.onSelectionChanged += OnListViewSelectionChanged;
+            m_ListView.onSelectionChange += OnListViewSelectionChanged;
             m_AddButton = this.Q<Button>("AddButton");
             m_AddButton.clickable.clicked += OnAddButtonClick;
             m_RemoveButton = this.Q<Button>("RemoveButton");
             m_RemoveButton.clickable.clicked += OnRemoveButtonClick;
         }
 
-        private void OnListViewSelectionChanged(List<object> o)
+        private void OnListViewSelectionChanged(IEnumerable<object> o)
         {
             if (m_IgnoreSelectionChange)
                 return;
 
-            var selectedBones = o.ConvertAll(x => x as BoneCache).ToArray();
+            var selectedBones = o.OfType<BoneCache>().ToArray();
 
             onSelectionChanged(selectedBones);
         }

@@ -101,6 +101,13 @@ namespace UnityEditor.U2D.Animation
         [SerializeField]
         private bool m_IsVisible = true;
 
+        public bool NotInDefaultPose()
+        {
+            return localPosition != m_DefaultPose.pose.position
+                   || localRotation != m_DefaultPose.pose.rotation
+                   || localLength != m_DefaultPose.length;
+        }
+
         public bool isVisible
         {
             get { return m_IsVisible; }

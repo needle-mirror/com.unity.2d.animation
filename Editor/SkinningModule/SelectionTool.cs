@@ -100,7 +100,8 @@ namespace UnityEditor.U2D.Animation
 
         private void SetFromSpriteEditor()
         {
-            selectedSprite = skinningCache.GetSprite(selectedSpriteAssetID);
+            if (selectedSprite == null)
+                selectedSprite = skinningCache.GetSprite(selectedSpriteAssetID);
             spriteEditor.RequestRepaint();
         }
 

@@ -33,7 +33,7 @@
           <ui:Button name="GenerateGeometryButton" text="Generate For Selected" tooltip="Generate Geometry for the selected Sprite"/>
         </ui:VisualElement>
         <ui:VisualElement name="GenerateMultipleSprite" class="form-row">
-          <ui:Button name="GenerateGeometryAllButton" text="Generate For All Visibile" tooltip="Generate Geometry for all the Sprites"/>
+          <ui:Button name="GenerateGeometryAllButton" text="Generate For All Visible" tooltip="Generate Geometry for all the Sprites"/>
         </ui:VisualElement>
       </ui:VisualElement>
     </ui:PopupWindow>

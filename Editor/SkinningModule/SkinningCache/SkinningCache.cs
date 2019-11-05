@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEditor.U2D.Layout;
 using UnityEditor.U2D.Sprites;
@@ -63,26 +64,65 @@ namespace UnityEditor.U2D.Animation
         [SerializeField]
         private SkeletonSelection m_SkeletonSelection = new SkeletonSelection();
         [SerializeField]
-        private IndexedSelection m_VertexSelection = new IndexedSelection();
-        [SerializeField]
         private SpriteCategoryListCacheObject m_SpriteCategoryList;
+        [SerializeField] 
+        private ISkinningCachePersistentState m_State;
+
+        private StringBuilder m_StringBuilder = new StringBuilder();
 
         public BaseTool selectedTool
         {
             get { return m_SelectedTool; }
-            set { m_SelectedTool = value; }
+            set
+            {
+                m_SelectedTool = value;
+                try
+                {
+                    m_State.lastUsedTool = m_ToolMap[value];
+                }
+                catch (KeyNotFoundException)
+                {
+                    m_State.lastUsedTool = Tools.EditPose;
+                }
+            }
         }
 
         public virtual SkinningMode mode
         {
             get { return m_Mode; }
-            set { m_Mode = CheckModeConsistency(value); }
+            set
+            {
+                m_Mode = CheckModeConsistency(value);
+                m_State.lastMode = m_Mode;
+            }
         }
 
         public SpriteCache selectedSprite
         {
             get { return m_SelectedSprite; }
-            set { m_SelectedSprite = value; }
+            set
+            {
+                m_SelectedSprite = value;
+                m_State.lastSpriteId = m_SelectedSprite ? m_SelectedSprite.id : String.Empty;
+            }
+        }
+
+        public float brushSize
+        {
+            get { return m_State.lastBrushSize; }
+            set { m_State.lastBrushSize = value; }
+        }
+
+        public float brushHardness
+        {
+            get { return m_State.lastBrushHardness; }
+            set { m_State.lastBrushHardness = value; }
+        }
+
+        public float brushStep
+        {
+            get { return m_State.lastBrushStep; }
+            set { m_State.lastBrushStep = value; }
         }
 
         public SkeletonSelection skeletonSelection
@@ -92,7 +132,7 @@ namespace UnityEditor.U2D.Animation
 
         public IndexedSelection vertexSelection
         {
-            get { return m_VertexSelection; }
+            get { return m_State.lastVertexSelection; }
         }
 
         public SkinningEvents events
@@ -120,6 +160,12 @@ namespace UnityEditor.U2D.Animation
             get { return character != null; }
         }
 
+        public bool applyingChanges
+        {
+            get;
+            set;
+        }
+
         private SkinningMode CheckModeConsistency(SkinningMode mode)
         {
             if (mode == SkinningMode.Character && hasCharacter == false)
@@ -128,7 +174,7 @@ namespace UnityEditor.U2D.Animation
             return mode;
         }
 
-        public void Create(ISpriteEditor spriteEditor)
+        public void Create(ISpriteEditor spriteEditor, ISkinningCachePersistentState state)
         {
             Clear();
 
@@ -137,6 +183,9 @@ namespace UnityEditor.U2D.Animation
             var meshProvider = spriteEditor.GetDataProvider<ISpriteMeshDataProvider>();
             var spriteRects = dataProvider.GetSpriteRects();
             var textureProvider = spriteEditor.GetDataProvider<ITextureDataProvider>();
+
+            m_State = state;
+            m_State.lastTexture = textureProvider.texture;
 
             for (var i = 0; i < spriteRects.Length; i++)
             {
@@ -192,6 +241,170 @@ namespace UnityEditor.U2D.Animation
 
             var switchModeTool = CreateTool<SwitchModeTool>();
             m_ToolMap.Add(Tools.SwitchMode, switchModeTool);
+        }
+
+        public void RestoreFromPersistentState()
+        {
+            mode = m_State.lastMode;
+            events.skinningModeChanged.Invoke(mode);
+
+            SpriteCache lastSprite;
+            var hasLastSprite = m_SpriteMap.TryGetValue(m_State.lastSpriteId, out lastSprite);
+            if (hasLastSprite)
+            {
+                selectedSprite = lastSprite;
+            }
+            else
+            {
+                vertexSelection.Clear();
+            }
+
+            BaseTool baseTool;
+            if (m_ToolMap.TryGetValue(m_State.lastUsedTool, out baseTool))
+            {
+                selectedTool = baseTool;
+            }
+            else if (m_ToolMap.TryGetValue(Tools.EditPose, out baseTool))
+            {
+                selectedTool = baseTool;
+            }
+
+            var visibilityTool = m_ToolMap[Tools.Visibility];
+            if (m_State.lastVisibilityToolActive)
+                visibilityTool.Activate();
+        }
+
+        public void RestoreToolStateFromPersistentState()
+        {
+            events.boneSelectionChanged.RemoveListener(BoneSelectionChanged);
+            events.skeletonPreviewPoseChanged.RemoveListener(SkeletonPreviewPoseChanged);
+            events.toolChanged.RemoveListener(ToolChanged);
+
+            SkeletonCache skeleton = null;
+            if (hasCharacter)
+                skeleton = character.skeleton;
+            else if (selectedSprite != null)
+                skeleton = selectedSprite.GetSkeleton();
+
+            skeletonSelection.Clear();
+            if (skeleton != null && m_State.lastBoneSelectionIds.Count > 0)
+            {
+                bool selectionChanged = false;
+                foreach (var bone in skeleton.bones)
+                {
+                    var id = GetBoneNameHash(m_StringBuilder, bone);
+                    if (m_State.lastBoneSelectionIds.Contains(id))
+                    {
+                        skeletonSelection.Select(bone, true);
+                        selectionChanged = true;
+                    }
+                }
+                if (selectionChanged)
+                    events.boneSelectionChanged.Invoke();
+            }
+
+            if (m_State.lastPreviewPose.Count > 0)
+            {
+                if (hasCharacter)
+                {
+                    UpdatePoseFromPersistentState(character.skeleton, null);
+                }
+                foreach (var sprite in m_SkeletonMap.Keys)
+                {
+                    UpdatePoseFromPersistentState(m_SkeletonMap[sprite], sprite);
+                }
+            }
+
+            events.boneSelectionChanged.AddListener(BoneSelectionChanged);
+            events.skeletonPreviewPoseChanged.AddListener(SkeletonPreviewPoseChanged);
+            events.toolChanged.AddListener(ToolChanged);
+        }
+
+        private void UpdatePoseFromPersistentState(SkeletonCache skeleton, SpriteCache sprite)
+        {
+            bool poseChanged = false;
+            foreach (var bone in skeleton.bones)
+            {
+                var id = GetBoneNameHash(m_StringBuilder, bone, sprite);
+                BonePose pose;
+                if (m_State.lastPreviewPose.TryGetValue(id, out pose))
+                {
+                    bone.localPose = pose;
+                    poseChanged = true;
+                }
+            }
+            if (poseChanged)
+            {
+                skeleton.SetPosePreview();
+                events.skeletonPreviewPoseChanged.Invoke(skeleton);    
+            }
+        }
+
+        private const string kBoneNameSeparator = "/";
+
+        private int GetBoneNameHash(StringBuilder sb, BoneCache bone, SpriteCache sprite = null)
+        {
+            sb.Clear();
+            BuildBoneName(sb, bone);
+            sb.Append(kBoneNameSeparator);
+            if (sprite != null)
+            {
+                sb.Append(sprite.id);
+            }
+            else
+            {
+                sb.Append(0);
+            }
+            return Animator.StringToHash(sb.ToString());
+        }
+        
+        private void BuildBoneName(StringBuilder sb, BoneCache bone)
+        {
+            if (bone.parentBone != null)
+            {
+                BuildBoneName(sb, bone.parentBone);
+                sb.Append(kBoneNameSeparator);
+            }
+            sb.Append(bone.name);
+        }
+
+        private void BoneSelectionChanged()
+        {
+            m_State.lastBoneSelectionIds.Clear();
+            m_State.lastBoneSelectionIds.Capacity = skeletonSelection.elements.Length;
+            for (var i = 0; i < skeletonSelection.elements.Length; ++i)
+            {
+                var bone = skeletonSelection.elements[i];
+                m_State.lastBoneSelectionIds.Add(GetBoneNameHash(m_StringBuilder, bone));
+            }
+        }
+
+        private void SkeletonPreviewPoseChanged(SkeletonCache sc)
+        {
+            if (applyingChanges)
+                return;
+
+            m_State.lastPreviewPose.Clear();
+            if (hasCharacter)
+            {
+                StorePersistentStatePoseForSkeleton(character.skeleton, null);
+            }
+            foreach (var sprite in m_SkeletonMap.Keys)
+            {
+                StorePersistentStatePoseForSkeleton(m_SkeletonMap[sprite], sprite);
+            }
+        }
+
+        private void StorePersistentStatePoseForSkeleton(SkeletonCache skeleton, SpriteCache sprite)
+        {
+            foreach (var bone in skeleton.bones)
+            {
+                var id = GetBoneNameHash(m_StringBuilder, bone, sprite);
+                if (bone.NotInDefaultPose())
+                {
+                    m_State.lastPreviewPose[id] = bone.localPose;
+                }
+            }
         }
 
         public void Clear()
@@ -272,6 +485,15 @@ namespace UnityEditor.U2D.Animation
             BaseTool t;
             m_ToolMap.TryGetValue(tool, out t);
             return t;
+        }
+
+        public override void BeginUndoOperation(string operationName)
+        {
+            if (isUndoOperationSet == false)
+            {
+                base.BeginUndoOperation(operationName);
+                undo.RegisterCompleteObjectUndo(m_State, operationName);
+            }
         }
 
         public UndoScope UndoScope(string operationName)
@@ -614,14 +836,14 @@ namespace UnityEditor.U2D.Animation
 
         public bool IsOnVisualElement()
         {
-            if (m_SelectedTool == null || m_SelectedTool.layoutOverlay == null)
+            if (selectedTool == null || selectedTool.layoutOverlay == null)
                 return false;
 
-            var overlay = m_SelectedTool.layoutOverlay;
+            var overlay = selectedTool.layoutOverlay;
             var point = InternalEngineBridge.GUIUnclip(Event.current.mousePosition);
             point = overlay.parent.parent.LocalToWorld(point);
 
-            var selectedElement = m_SelectedTool.layoutOverlay.panel.Pick(point);
+            var selectedElement = selectedTool.layoutOverlay.panel.Pick(point);
             if (selectedElement != null
                 && selectedElement.pickingMode != PickingMode.Ignore
                 && selectedElement.FindCommonAncestor(overlay) == overlay)
@@ -643,6 +865,15 @@ namespace UnityEditor.U2D.Animation
         public SpriteCategoryListCacheObject spriteCategoryList
         {
             get { return m_SpriteCategoryList; }
+        }
+
+        private void ToolChanged(ITool tool)
+        {
+            var visibilityTool = GetTool(Tools.Visibility);
+            if ((ITool) visibilityTool == tool)
+            {
+                m_State.lastVisibilityToolActive = visibilityTool.isActive;
+            }
         }
     }
 }

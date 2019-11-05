@@ -29,7 +29,7 @@ namespace UnityEditor.U2D.Animation
         private IUndo m_DefaultUndo = new UnityEngineUndo();
         private IUndo m_UndoOverride = null;
 
-        private IUndo undo
+        protected IUndo undo
         {
             get
             {
@@ -56,7 +56,7 @@ namespace UnityEditor.U2D.Animation
             undo.IncrementCurrentGroup();
         }
 
-        public void BeginUndoOperation(string operationName)
+        public virtual void BeginUndoOperation(string operationName)
         {
             if (isUndoOperationSet == false)
             {

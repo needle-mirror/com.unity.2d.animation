@@ -1,6 +1,6 @@
 # Sprite Visibility panel
 
-Toggle the __Sprite Visibility panel__ by selecting the __Visibility__ button along the top right of the __Skinning Window__: ![](images\Visibility_button.PNG)
+Toggle the __Sprite Visibility panel__ by selecting the __Visibility__ button along the top right of the __Skinning Window__: ![](images/Visibility_button.PNG)
 
 The panel appears on the right-side of the editor window. It has two sliders at the top that control the visibility of the ![](C:/Users/Saman/Documents/GitHub/2d/Packages/com.unity.2d.animation/Documentation~/images/bone_icon.png)bones and ![](C:/Users/Saman/Documents/GitHub/2d/Packages/com.unity.2d.animation/Documentation~/images/mesh_icon.png)Sprite meshes within the editor window. Move either slider further to the left to decrease the visibility of the bones or meshes respectively, and to the right to increase their visibility. 
 
@@ -8,13 +8,13 @@ The panel appears on the right-side of the editor window. It has two sliders at 
 
 The panel has two main tabs - __Bone__ and __Sprite__. Both tabs show either the order of bones or Sprite meshes of the currently selected Character rig respectively. 
 
-![The Bone tab selected.](images\bone_tree.PNG)
+![The Bone tab selected.](images/bone_tree.PNG)
 
-Select the Bone tab bring up the bone hierarchy tree of the Character Rig. You can reparent and reorder bones by dragging them along the list, and toggle the visibility of each bone by selecting the ![](images\visibility_icon.PNG) icon next to it.
+Select the Bone tab bring up the bone hierarchy tree of the Character Rig. You can reparent and reorder bones by dragging them along the list, and toggle the visibility of each bone by selecting the ![](images/visibility_icon.PNG) icon next to it.
 
 Select the Sprite tab to see the list of Sprite meshes in the Skinning editor window. The names and order of the Sprites mirror their names, layer and grouping order in the original PSB source file. 
 
-![](images\AnimWin_PhotoshopWin_match.png)
+![](images/AnimWin_PhotoshopWin_match.png)
 
 The Sprite tab has two additional columns for the __Category__ and __Label__ of each Sprite in the character prefab. A Category contains a collection of Sprites that are differentiated by their Labels, and these two properties are found in the [Sprite Library Asset](SLAsset.md) that Unity automatically creates when a PSB file is imported with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest). These two properties are part of the [Sprite Swapping](SpriteSwapIntro.md) workflow, and enables several possible [functions and uses](Examples.md), such as creating [frame-by-frame animations](FFanimation.md). 
 

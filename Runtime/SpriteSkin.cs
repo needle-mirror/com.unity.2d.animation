@@ -1,9 +1,11 @@
 #pragma warning disable 0168 // variable declared but not used.
+#if ENABLE_ANIMATION_COLLECTION && ENABLE_ANIMATION_BURST
+#define ENABLE_SPRITESKIN_COMPOSITE
+#endif
 
 using UnityEngine.Scripting;
 using UnityEngine.U2D.Common;
 using Unity.Collections;
-using UnityEngine.Profiling;
 using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.U2D.Animation
@@ -15,25 +17,26 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
 
-    internal class SpriteSkin : MonoBehaviour
+    internal partial class SpriteSkin : MonoBehaviour
     {
         [SerializeField]
         private Transform m_RootBone;
         [SerializeField]
-        private Transform[] m_BoneTransforms;
+        private Transform[] m_BoneTransforms = new Transform[0];
         [SerializeField]
         private Bounds m_Bounds;
         [SerializeField]
         private bool m_UseBatching = true;
 
-        // The deformed vertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite  Asset data.
+        // The deformed m_SpriteVertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite  Asset data.
         // The order of storage if present is POSITION, NORMALS, TANGENTS.
         private NativeArray<byte> m_DeformedVertices;
         private SpriteRenderer m_SpriteRenderer;
         private Sprite m_CurrentDeformSprite;
-        private int m_TransformsHash = 0;
         private bool m_ForceSkinning;
         private bool m_BatchSkinning = false;
+        bool m_IsValid;
+        int m_TransformsHash = 0;
 
         public bool batchSkinning
         {
@@ -53,30 +56,29 @@ namespace UnityEngine.U2D.Animation
         }
 #endif
 
-#if ENABLE_ANIMATION_BURST
+
         void OnEnable()
         {
-            if (m_UseBatching)
-            {
-                SpriteSkinComposite.instance.AddSpriteSkin(this);
-                m_BatchSkinning = true;
-            }
+            CacheValidFlag();
+            UpdateSpriteDeform();
+            OnEnableBatch();
         }
-#endif
+
+        void CacheValidFlag()
+        {
+            m_IsValid = isValid;
+        }
+
+        void Reset()
+        {
+            CacheValidFlag();
+            OnResetBatch();
+        }
 
         internal void UseBatching(bool value)
         {
             m_UseBatching = value;
-            if (m_UseBatching)
-            {
-                SpriteSkinComposite.instance.AddSpriteSkin(this);
-                m_BatchSkinning = true;
-            }
-            else
-            {
-                SpriteSkinComposite.instance.RemoveSpriteSkin(this);
-                m_BatchSkinning = false;
-            }
+            UseBatchingBatch();
         }
 
         internal NativeArray<byte> deformedVertices
@@ -110,27 +112,29 @@ namespace UnityEngine.U2D.Animation
             DeactivateSkinning();
             if (m_DeformedVertices.IsCreated)
                 m_DeformedVertices.Dispose();
-#if ENABLE_ANIMATION_BURST
-            SpriteSkinComposite.instance.RemoveSpriteSkin(this);
-            m_BatchSkinning = false;
-#endif
-        }
+            OnDisableBatch();
+       }
 
+#if ENABLE_SPRITESKIN_COMPOSITE
+        internal void OnLateUpdate()
+#else
         void LateUpdate()
+#endif
         {
             if (m_CurrentDeformSprite != sprite)
             {
                 DeactivateSkinning();
                 m_CurrentDeformSprite = sprite;
+                UpdateSpriteDeform();
             }
-            if (isValid && !batchSkinning)
+            if (isValid && !batchSkinning && this.enabled)
             {
                 var inputVertices = deformedVertices;
                 var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
                 if (inputVertices.Length > 0 && m_TransformsHash != transformHash)
                 {
                     SpriteSkinUtility.Deform(sprite, gameObject.transform.worldToLocalMatrix, boneTransforms, ref inputVertices);
-                    SpriteSkinUtility.UpdateBounds(this);
+                    SpriteSkinUtility.UpdateBounds(this, transform.worldToLocalMatrix, rootBone.localToWorldMatrix);
                     InternalEngineBridge.SetDeformableBuffer(spriteRenderer, inputVertices);
                     m_TransformsHash = transformHash;
                     m_CurrentDeformSprite = sprite;
@@ -138,28 +142,6 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        internal bool GetSpriteSkinBatchData(ref SpriteSkinBatchData data)
-        {
-            if (m_CurrentDeformSprite != sprite)
-            {
-                DeactivateSkinning();
-                m_CurrentDeformSprite = sprite;
-            }
-            if (isValid)
-            {
-                Profiler.BeginSample("SpriteSkin.UpdateBounds");
-                SpriteSkinUtility.UpdateBounds(this);
-                Profiler.EndSample();
-                data.sprite = sprite;
-                data.boneTransform = boneTransforms;
-                Profiler.BeginSample("SpriteSkin.worldToLocalMatrix");
-                data.worldToLocalMatrix = gameObject.transform.worldToLocalMatrix;
-                Profiler.EndSample();
-                return true;
-            }
-            return false;
-        }
-        
         internal Sprite sprite
         {
             get
@@ -183,13 +165,23 @@ namespace UnityEngine.U2D.Animation
         internal Transform[] boneTransforms
         {
             get { return m_BoneTransforms; }
-            set { m_BoneTransforms = value; }
+            set
+            {
+                m_BoneTransforms = value;
+                CacheValidFlag();
+                OnBoneTransformChanged();
+            }
         }
 
         internal Transform rootBone
         {
             get { return m_RootBone; }
-            set { m_RootBone = value; }
+            set
+            {
+                m_RootBone = value;
+                CacheValidFlag();
+                OnRootBoneTransformChanged();
+            }
         }
 
         internal Bounds bounds
@@ -217,5 +209,7 @@ namespace UnityEngine.U2D.Animation
 
             SpriteRendererDataAccessExtensions.DeactivateDeformableBuffer(spriteRenderer);
         }
+
+
     }
 }

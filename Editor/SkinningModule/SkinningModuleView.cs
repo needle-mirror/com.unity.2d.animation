@@ -1,3 +1,4 @@
+using System;
 using UnityEditor.U2D.Common;
 using UnityEditor.U2D.Layout;
 using UnityEngine;
@@ -269,6 +270,12 @@ namespace UnityEditor.U2D.Animation
                 m_BoneToolbar.SetEnabled(!spriteEditor.editingDisabled);
                 m_MeshToolbar.SetEnabled(!spriteEditor.editingDisabled);
                 m_WeightToolbar.SetEnabled(!spriteEditor.editingDisabled);
+            }
+
+            if (spriteEditor.editingDisabled == m_LayoutOverlay.rightOverlay.enabledSelf)
+            {
+                m_LayoutOverlay.rightOverlay.SetEnabled(!spriteEditor.editingDisabled);
+                m_LayoutOverlay.rightOverlay.visible = !spriteEditor.editingDisabled;
             }
         }
 

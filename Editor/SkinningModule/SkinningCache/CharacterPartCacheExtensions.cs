@@ -15,7 +15,8 @@ namespace UnityEditor.U2D.Animation
             var spriteSkeletonBones = spriteSkeleton.bones;
             var characterPartBones = characterPart.bones;
 
-            Debug.Assert(spriteSkeletonBones.Length == characterPartBones.Length);
+            if (spriteSkeletonBones.Length != characterPartBones.Length)
+                return;
 
             for (var i = 0; i < characterPartBones.Length; ++i)
             {

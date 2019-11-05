@@ -89,6 +89,13 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.skinningModeChanged.AddListener(OnSkinningModeChanged);
             skinningCache.events.boneSelectionChanged.AddListener(OnBoneSelectionChanged);
 
+            m_Brush.size = skinningCache.brushSize;
+            m_Brush.hardness = skinningCache.brushHardness;
+            m_Brush.step = skinningCache.brushStep;
+            m_WeightPainterPanel.size = (int) m_Brush.size;
+            m_WeightPainterPanel.hardness = (int) m_Brush.hardness;
+            m_WeightPainterPanel.step = (int) m_Brush.step;
+
             UpdatePanel();
         }
 
@@ -363,9 +370,9 @@ namespace UnityEditor.U2D.Animation
 
                 Handles.matrix *= matrix;
 
-                m_Brush.size = m_WeightPainterPanel.size;
-                m_Brush.hardness = m_WeightPainterPanel.hardness;
-                m_Brush.step = m_WeightPainterPanel.step;
+                skinningCache.brushSize = m_Brush.size = m_WeightPainterPanel.size;
+                skinningCache.brushHardness = m_Brush.hardness = m_WeightPainterPanel.hardness;
+                skinningCache.brushStep = m_Brush.step = m_WeightPainterPanel.step;
 
                 if (m_Brush.isHot || !skinningCache.IsOnVisualElement())
                 {

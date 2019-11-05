@@ -36,6 +36,8 @@ namespace UnityEditor.U2D.Animation
         private Sprite m_CurrentSprite;
         private BoxBoundsHandle m_BoundsHandle = new BoxBoundsHandle();
         private bool m_NeedsRebind = false;
+        private bool m_BoneTransformChanged = false;
+        private bool m_RootBoneTransformChanged = false;
 #if ENABLE_ANIMATION_BURST
         private SerializedProperty m_UseBatching;
         private bool m_ExperimentalFold;
@@ -94,7 +96,10 @@ namespace UnityEditor.U2D.Animation
                     rect.y += 2f;
                     rect.height = EditorGUIUtility.singleLineHeight;
                     SerializedProperty element = m_BoneTransformsProperty.GetArrayElementAtIndex(index);
+                    EditorGUI.BeginChangeCheck();
                     EditorGUI.PropertyField(rect, element, content);
+                    if (EditorGUI.EndChangeCheck())
+                        m_BoneTransformChanged = true;
                 };
         }
 
@@ -134,7 +139,10 @@ namespace UnityEditor.U2D.Animation
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(m_RootBoneProperty);
             if (EditorGUI.EndChangeCheck())
+            {
                 m_NeedsRebind = true;
+                m_RootBoneTransformChanged = true;
+            }
 
             EditorGUILayout.Space();
 
@@ -170,6 +178,8 @@ namespace UnityEditor.U2D.Animation
 
             if (m_NeedsRebind)
                 Rebind();
+
+            ReInitSpriteComposite();
 
             if (spriteChanged && !m_SpriteSkin.ignoreNextSpriteChange)
             {
@@ -237,6 +247,20 @@ namespace UnityEditor.U2D.Animation
             }
 
             m_NeedsRebind = false;
+        }
+
+        private void ReInitSpriteComposite()
+        {
+            if (m_BoneTransformChanged || m_RootBoneTransformChanged)
+            {
+                foreach (var t in targets)
+                {
+                    var spriteSkin = t as SpriteSkin;
+                    spriteSkin.ReInitSpriteSkinCompositeEntry();
+                }
+                m_BoneTransformChanged = false;
+                m_RootBoneTransformChanged = false;
+            }
         }
 
         private void ResetBounds(string undoName = "Reset Bounds")
