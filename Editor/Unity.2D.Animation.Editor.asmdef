@@ -8,7 +8,8 @@
         "Unity.2D.Animation.Runtime",
         "Unity.2D.Animation.Triangle.Runtime",
         "Unity.2D.Sprite.Editor",
-        "Unity.Burst"
+        "Unity.Burst",
+        "Unity.Collections"
     ],
     "includePlatforms": [
         "Editor"
@@ -24,6 +25,11 @@
             "name": "com.unity.burst",
             "expression": "0.0.1",
             "define": "ENABLE_ANIMATION_BURST"
+        },
+        {
+            "name": "com.unity.collections",
+            "expression": "0.1.1-preview",
+            "define": "ENABLE_ANIMATION_COLLECTION"
         }
     ],
     "noEngineReferences": false

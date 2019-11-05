@@ -49,10 +49,10 @@ namespace UnityEngine.U2D.Animation
 
             public void Execute(int i)
             {
-                var rootInv = localToWorldArray[i].Value;
+                var rootTransformId = localToWorldArray[i].Value;
                 var boneTransforms = boneTransformArray[entities[i]].Reinterpret<float4x4>().AsNativeArray();
                 var deformableVertices = deformedArray[entities[i]].Reinterpret<float3>().AsNativeArray();
-                SpriteSkinUtility.Deform(rootInv, vertices, boneWeights, boneTransforms, bindPoses, deformableVertices);
+                SpriteSkinUtility.Deform(rootTransformId, vertices, boneWeights, boneTransforms, bindPoses, deformableVertices);
             }
         }
 

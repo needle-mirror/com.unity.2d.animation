@@ -409,10 +409,10 @@ namespace UnityEngine.U2D.Animation
             spriteSkin.bounds = bounds;
         }
 
-        internal static void UpdateBounds(this SpriteSkin spriteSkin)
+        internal static void UpdateBounds(this SpriteSkin spriteSkin, Matrix4x4 worldToLocal, Matrix4x4 rootLocalToWorld)
         {
-            var worldToLocal = spriteSkin.transform.worldToLocalMatrix;
-            var rootLocalToWorld = spriteSkin.rootBone.localToWorldMatrix;
+            //var worldToLocal = spriteSkin.transform.worldToLocalMatrix;
+            //var rootLocalToWorld = spriteSkin.rootBone.localToWorldMatrix;
             var unityBounds = spriteSkin.bounds;
             var matrix = math.mul(worldToLocal, rootLocalToWorld);
             var center = new float4(unityBounds.center, 1);

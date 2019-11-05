@@ -11,8 +11,11 @@ For character animation with the __2D Animation package__, the [PSD Importer pac
 
 ## Optional Performance Boost
 
-You can improve the animated Sprite deformation performance at runtime by installing the [Burst ](https://docs.unity3d.com/Packages/com.unity.burst@latest)package from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite mesh deformation.
+You can improve the animated Sprite deformation performance at runtime by installing the [Burst ](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections ](https://docs.unity3d.com/Packages/com.unity.collections@latest)package from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation and low-level array utilities to speed up Unity’s processing of Sprite mesh deformation.
 
-With the Burst package installed, the Experimental __Enable batching__ setting becomes available to the __Sprite Skin__ component of the Sprites that make up a Character Prefab.  As the implementation of the performance boost might contain bugs, you can have any Sprite Skins switch back to the previous implementation by clearing this option in its component settings.
+With the packages installed, the Experimental Enable batching setting becomes available to the Sprite Skin component of the Sprites that make up a Character Prefab. As the implementation of the performance boost might contain bugs, you can have any Sprite Skins switch back to the previous implementation by clearing this option in its component settings.
 
-![](images\SpriteSkin_inspect_exp.png)
+The package is currently tested based on [Burst ](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.1.2 and [Collections ](https://docs.unity3d.com/Packages/com.unity.collections@latest)version 0.1.1-preview.
+
+
+![](images/SpriteSkin_inspect_exp.png)

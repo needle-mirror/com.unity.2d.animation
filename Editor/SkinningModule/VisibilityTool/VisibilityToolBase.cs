@@ -39,6 +39,7 @@ namespace UnityEditor.U2D.Animation
         {
             m_Container = new IMGUIContainer(OnGUI);
             this.Add(m_Container);
+            m_TreeViewState.searchString = "";
         }
 
         protected void SetupSearchField()

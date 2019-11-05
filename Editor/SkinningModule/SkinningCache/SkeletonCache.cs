@@ -64,6 +64,7 @@ namespace UnityEditor.U2D.Animation
                 bone.RestoreDefaultPose();
 
             m_IsPosePreview = false;
+            skinningCache.events.skeletonPreviewPoseChanged.Invoke(this);
         }
 
         public void SetPosePreview()

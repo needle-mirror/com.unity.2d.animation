@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.0.8] - 2019-11-06
+### Changed
+- Improve optional performance boost by installing Burst and Collections package. Currently tested with 
+    - com.unity.collections 0.1.1-preview
+    - com.unity.burst 1.1.2
+
+### Added
+- Skinning Module now persists the following state after Apply or Revert is clicked in Sprite Editor Window
+    - Current view mode i.e. Character or Spritesheet Mode
+    - Sprite Selection
+    - Bone Selection
+    - Preview Pose
+    - Vertex Selection
+    - Visibililty Tool Active State
+    - Weight Brush Settings
+
+## [3.0.7] - 2019-10-18
+### Fixed
+- Fix Search reset button is visible in Visibility tool when nothing is entered into the search field (case 1182627)
+- Fix Sprite outline disappears when the Selected Outline Color alpha value is less than 255 (case 1186776)
+- Fix button's label spelling error in 'Generate For All Visible' (case 1188621)
+
 ## [3.0.6] - 2019-09-18
 ### Changed
 - Remove usage of Resource folder for assets needed by package.

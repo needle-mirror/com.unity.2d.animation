@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace UnityEngine.U2D.Animation
+﻿namespace UnityEngine.U2D.Animation
 {
     internal class SpriteSkinManager
     {
@@ -11,6 +7,7 @@ namespace UnityEngine.U2D.Animation
         [ExecuteInEditMode]
         internal class SpriteSkinManagerInternal : MonoBehaviour
         {
+#if ENABLE_ANIMATION_COLLECTION
             void LateUpdate()
             {
                 if (SpriteSkinComposite.instance.helperGameObject != gameObject)
@@ -20,6 +17,7 @@ namespace UnityEngine.U2D.Animation
                 }
                 SpriteSkinComposite.instance.LateUpdate();
             }
+#endif
         }
     }
 }

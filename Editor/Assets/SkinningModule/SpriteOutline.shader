@@ -21,7 +21,7 @@ Shader "com.unity3d.animation/SpriteOutline"
         Cull Off
         Lighting Off
         ZWrite Off
-        Blend One OneMinusSrcAlpha
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -101,17 +101,14 @@ Shader "com.unity3d.animation/SpriteOutline"
 
                 half w = sqrt(gx * gx + gy * gy) * 1.25;
 
-                w = min(w, 1);
-                fixed4 c = _OutlineColor * w;
-                if (c.a >= 1)
+                float4 c = _OutlineColor;
+                if (w >= 1)
                 {
                     if (_AdjustLinearForGamma)
                         c.rgb = LinearToGammaSpace(c.rgb);
                 }
                 else
                     discard;
-
-
 
                 return c;
 

@@ -19,7 +19,7 @@ namespace UnityEditor.U2D.Animation
         private SpriteOutlineRenderer m_SpriteOutlineRenderer;
         private MeshPreviewTool m_MeshPreviewTool;
         private SkinningMode m_PreviousSkinningMode;
-        private SpriteBoneInfluenceTool m_CharcterSpriteTool;
+        private SpriteBoneInfluenceTool m_CharacterSpriteTool;
         private HorizontalToggleTools m_HorizontalToggleTools;
         private AnimationAnalytics m_Analytics;
         private ModuleToolGroup m_ModuleToolGroup;
@@ -50,15 +50,13 @@ namespace UnityEditor.U2D.Animation
 
             using (skinningCache.DisableUndoScope())
             {
-                skinningCache.Create(spriteEditor);
+                skinningCache.Create(spriteEditor, SkinningCachePersistentState.instance);
                 skinningCache.CreateToolCache(spriteEditor, m_LayoutOverlay);
-                m_CharcterSpriteTool = skinningCache.CreateTool<SpriteBoneInfluenceTool>();
-                m_CharcterSpriteTool.Initialize(m_LayoutOverlay);
+                m_CharacterSpriteTool = skinningCache.CreateTool<SpriteBoneInfluenceTool>();
+                m_CharacterSpriteTool.Initialize(m_LayoutOverlay);
                 m_MeshPreviewTool = skinningCache.CreateTool<MeshPreviewTool>();
                 SetupModuleToolGroup();
                 m_MeshPreviewTool.Activate();
-
-                ActivateTool(skinningCache.GetTool(Tools.EditPose));
 
                 m_SpriteOutlineRenderer = new SpriteOutlineRenderer(spriteEditor, skinningCache.events);
 
@@ -76,18 +74,31 @@ namespace UnityEditor.U2D.Animation
                 skinningCache.events.spriteLibraryChanged.AddListener(OnSpriteLibraryChanged);
                 skinningCache.events.meshPreviewBehaviourChange.AddListener(OnMeshPreviewBehaviourChange);
 
-                m_PreviousSkinningMode = skinningCache.mode;
+                skinningCache.RestoreFromPersistentState();
+                ActivateTool(skinningCache.selectedTool);
+                skinningCache.RestoreToolStateFromPersistentState();
 
-                SetupSpriteEditor();
+                // Set state for Switch Mode tool
+                m_PreviousSkinningMode = skinningCache.mode;
+                if (skinningCache.mode == SkinningMode.Character)
+                {
+                    skinningCache.GetTool(Tools.SwitchMode).Deactivate();
+                }
+                else
+                {
+                    skinningCache.GetTool(Tools.SwitchMode).Activate();
+                }
+                SetupSpriteEditor(true);
+
+                // Set state for Weight Toolbar
                 if (skinningCache.hasCharacter)
                 {
                     m_WeightToolbar.EnableBoneInfluenceWidget();
-                    skinningCache.GetTool(Tools.SwitchMode).Deactivate();
-                    // Do not select any sprite by default in character mode
-                    skinningCache.events.selectedSpriteChanged.Invoke(null);
                 }
                 else
+                {
                     m_WeightToolbar.DisableBoneInfluenceWidget();
+                }
 
                 m_HorizontalToggleTools = new HorizontalToggleTools(skinningCache)
                 {
@@ -108,8 +119,8 @@ namespace UnityEditor.U2D.Animation
 
                 UpdateCollapseToolbar();
             }
-        }
-
+        }    
+  
         public override void OnModuleDeactivate()
         {
             if (m_SpriteOutlineRenderer != null)
@@ -191,7 +202,7 @@ namespace UnityEditor.U2D.Animation
             SetupSpriteEditor();
         }
 
-        private void SetupSpriteEditor()
+        private void SetupSpriteEditor(bool setPreviewTexture = false)
         {
             var textureProvider = spriteEditor.GetDataProvider<ITextureDataProvider>();
             if (textureProvider == null)
@@ -213,7 +224,7 @@ namespace UnityEditor.U2D.Animation
                 height = skinningCache.character.dimension.y;
             }
 
-            if (m_PreviousSkinningMode != skinningCache.mode)
+            if (m_PreviousSkinningMode != skinningCache.mode || setPreviewTexture)
             {
                 m_PreviousSkinningMode = skinningCache.mode;
                 spriteEditor.SetPreviewTexture(emptyTexture, width, height);
@@ -436,10 +447,12 @@ namespace UnityEditor.U2D.Animation
             if (apply)
             {
                 m_Analytics.FlushEvent();
+                skinningCache.applyingChanges = true;
                 skinningCache.RestoreBindPose();
                 ApplyBone();
                 ApplyMesh();
                 ApplyCharacter();
+                skinningCache.applyingChanges = false;
                 DoApplyAnalytics();
             }
 
@@ -559,3 +572,4 @@ namespace UnityEditor.U2D.Animation
         }
     }
 }
+

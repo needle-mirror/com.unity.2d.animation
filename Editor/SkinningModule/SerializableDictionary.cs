@@ -21,6 +21,19 @@ namespace UnityEditor.U2D.Animation
             set { m_Dictionary[key] = value; }
         }
 
+        public TKey this[TValue value]
+        {
+            get
+            {
+                m_Keys = new List<TKey>(m_Dictionary.Keys);
+                m_Values = new List<TValue>(m_Dictionary.Values);
+                var index = m_Values.FindIndex(x => x.Equals(value));
+                if (index < 0)
+                    throw new KeyNotFoundException();
+                return m_Keys[index];
+            }
+        }
+
         public ICollection<TKey> Keys
         {
             get { return m_Dictionary.Keys; }
@@ -105,9 +118,7 @@ namespace UnityEditor.U2D.Animation
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             Debug.Assert(m_Keys.Count == m_Values.Count);
-
             Clear();
-
             for (var i = 0; i < m_Keys.Count; ++i)
                 Add(m_Keys[i], m_Values[i]);
         }
