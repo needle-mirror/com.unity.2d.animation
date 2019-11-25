@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.0.1] - 2019-11-26
+### Changed
+- Changed how Samples are imported into the user's project
+- Updated Third Party Notices file
+
+### Fixed
+- Fix Animation Samples crashes when installing on certain machines (case 1185787)
+
 ## [4.0.0] - 2019-11-06
 ### Changed
 - Version bump for Unity 2020.1
