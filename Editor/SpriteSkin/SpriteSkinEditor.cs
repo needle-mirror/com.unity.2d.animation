@@ -1,3 +1,7 @@
+#if ENABLE_ANIMATION_COLLECTION && ENABLE_ANIMATION_BURST
+#define ENABLE_ANIMATION_PERFORMANCE
+#endif
+
 using UnityEngine;
 using UnityEditorInternal;
 using UnityEngine.U2D.Animation;
@@ -38,7 +42,7 @@ namespace UnityEditor.U2D.Animation
         private bool m_NeedsRebind = false;
         private bool m_BoneTransformChanged = false;
         private bool m_RootBoneTransformChanged = false;
-#if ENABLE_ANIMATION_BURST
+#if ENABLE_ANIMATION_PERFORMANCE
         private SerializedProperty m_UseBatching;
         private bool m_ExperimentalFold;
 #endif
@@ -47,7 +51,7 @@ namespace UnityEditor.U2D.Animation
         {
             m_SpriteSkin = (SpriteSkin)target;
             m_RootBoneProperty = serializedObject.FindProperty("m_RootBone");
-#if ENABLE_ANIMATION_BURST
+#if ENABLE_ANIMATION_PERFORMANCE
             m_UseBatching = serializedObject.FindProperty("m_UseBatching");
 #endif
             m_BoneTransformsProperty = serializedObject.FindProperty("m_BoneTransforms");
@@ -154,7 +158,7 @@ namespace UnityEditor.U2D.Animation
             }
 
             EditorGUILayout.PropertyField(m_BoundsProperty, Contents.spriteBoundsLabel);
-#if ENABLE_ANIMATION_BURST
+#if ENABLE_ANIMATION_PERFORMANCE
             m_ExperimentalFold = EditorGUILayout.Foldout(m_ExperimentalFold, Contents.experimental, true);
             if (m_ExperimentalFold)
             {

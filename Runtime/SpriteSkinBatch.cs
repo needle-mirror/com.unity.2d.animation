@@ -8,8 +8,8 @@ using UnityEngine.Profiling;
 
 namespace UnityEngine.U2D.Animation
 {
+    public sealed  partial class SpriteSkin : MonoBehaviour
 #if ENABLE_SPRITESKIN_COMPOSITE
-    internal partial class SpriteSkin : MonoBehaviour
     {
         int m_TransformId;
         NativeArray<int> m_BoneTransformId;
@@ -58,7 +58,7 @@ namespace UnityEngine.U2D.Animation
             m_BatchSkinning = false;
         }
 
-        public void UpdateSpriteDeform()
+        internal void UpdateSpriteDeform()
         {
             if (sprite == null)
             {
@@ -251,7 +251,6 @@ namespace UnityEngine.U2D.Animation
         }
     }
 #else
-    internal partial class SpriteSkin : MonoBehaviour
     {
         void OnEnableBatch(){}
         internal void UpdateSpriteDeform(){}

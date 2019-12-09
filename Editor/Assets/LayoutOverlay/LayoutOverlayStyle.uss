@@ -66,6 +66,10 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow #BonePopupField {
     margin-left : 0;
 }
 
+LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow #BonePopupField .unity-popup-field__input {
+    flex-basis : 0px;
+}
+
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow > #unity-content-container {
     flex:1 0 auto;
 }

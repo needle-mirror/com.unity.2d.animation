@@ -234,41 +234,6 @@ namespace UnityEngine.U2D.Animation
         }
     }
 
-    internal static class NativeArrayHelpers
-    {
-        public static unsafe void ResizeIfNeeded<T>(ref NativeArray<T> nativeArray, int size) where T : struct
-        {
-            if (!nativeArray.IsCreated || nativeArray.Length != size)
-            {
-                nativeArray.Dispose();
-                nativeArray = new NativeArray<T>(size, Allocator.Persistent);
-            }
-        }
-
-        public static unsafe void DisposeIfCreated<T>(this NativeArray<T> nativeArray) where T : struct
-        {
-            if (nativeArray.IsCreated)
-                nativeArray.Dispose();
-        }
-
-        [WriteAccessRequired]
-        public static unsafe void CopyFromNativeSlice<T, S>(this NativeArray<T> nativeArray, int dstStartIndex, int dstEndIndex, NativeSlice<S> slice, int srcStartIndex, int srcEndIndex) where T : struct where S : struct
-        {
-            if ((dstEndIndex - dstStartIndex) != (srcEndIndex - srcStartIndex))
-                throw new System.ArgumentException($"Destination and Source copy counts must match.", nameof(slice));
-
-            var dstSizeOf = UnsafeUtility.SizeOf<T>();
-            var srcSizeOf = UnsafeUtility.SizeOf<T>();
-
-            byte* srcPtr = (byte*)slice.GetUnsafeReadOnlyPtr();
-            srcPtr = srcPtr + (srcStartIndex * srcSizeOf);
-            byte* dstPtr = (byte*)nativeArray.GetUnsafePtr();
-            dstPtr = dstPtr + (dstStartIndex * dstSizeOf);
-            UnsafeUtility.MemCpyStride(dstPtr, srcSizeOf, srcPtr, slice.Stride, dstSizeOf, srcEndIndex - srcStartIndex);
-        }
-
-    }
-
     internal class SpriteSkinComposite : ScriptableObject
     {
 
@@ -294,7 +259,7 @@ namespace UnityEngine.U2D.Animation
 
         List<SpriteSkin> m_SpriteSkins = new List<SpriteSkin>();
         List<SpriteSkin> m_SpriteSkinLateUpdate = new List<SpriteSkin>();
-        NativeArray<byte> m_DeformedVertices;
+        DeformVerticesBuffer m_DeformedVerticesBuffer;
         NativeArray<float4x4> m_FinalBoneTransforms;
         SpriteSkinBatchProcessData m_SpriteSkinBatchProcessData;
         
@@ -307,7 +272,6 @@ namespace UnityEngine.U2D.Animation
         TransformAccessJob m_WorldToLocalTransformAccessJob;
         JobHandle m_BoundJobHandle;
         JobHandle m_DeformJobHandle;
-
         [SerializeField]
         GameObject m_Helper;
 
@@ -390,7 +354,7 @@ namespace UnityEngine.U2D.Animation
         void Init()
         {
             if(m_LocalToWorldTransformAccessJob == null)
-            m_LocalToWorldTransformAccessJob = new TransformAccessJob();
+                m_LocalToWorldTransformAccessJob = new TransformAccessJob();
             if(m_WorldToLocalTransformAccessJob == null)
                 m_WorldToLocalTransformAccessJob = new TransformAccessJob();
         }
@@ -417,7 +381,7 @@ namespace UnityEngine.U2D.Animation
             }
             m_SpriteSkinBatchProcessData = new SpriteSkinBatchProcessData(1);
 
-            m_DeformedVertices = new NativeArray<byte>(1, Allocator.Persistent);
+            m_DeformedVerticesBuffer = new DeformVerticesBuffer(DeformVerticesBuffer.k_DefaultBufferSize);
             m_FinalBoneTransforms = new NativeArray<float4x4>(1, Allocator.Persistent);
             m_PerSkinJobData = new NativeArray<PerSkinJobData>(1, Allocator.Persistent);
             m_SpriteSkinData = new NativeArray<SpriteSkinData>(1, Allocator.Persistent);
@@ -434,7 +398,7 @@ namespace UnityEngine.U2D.Animation
             m_BoundJobHandle.Complete();
             foreach (var spriteSkin in m_SpriteSkins)
                 spriteSkin.batchSkinning = false;
-            m_DeformedVertices.DisposeIfCreated();
+            m_DeformedVerticesBuffer.Dispose();
             m_PerSkinJobData.DisposeIfCreated();
             m_SpriteSkinData.DisposeIfCreated();
             m_BoneLookupData.DisposeIfCreated();
@@ -487,7 +451,7 @@ namespace UnityEngine.U2D.Animation
                 Profiler.EndSample();
 
                 NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, m_SkinBatch.bindPosesIndex.y);
-                NativeArrayHelpers.ResizeIfNeeded(ref m_DeformedVertices, vertexBufferSize);
+                var deformVertices = m_DeformedVerticesBuffer.GetBuffer(vertexBufferSize);
                 NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, m_SkinBatch.bindPosesIndex.y);
                 NativeArrayHelpers.ResizeIfNeeded(ref m_VertexLookupData, m_SkinBatch.verticesIndex.y);
 
@@ -534,7 +498,7 @@ namespace UnityEngine.U2D.Animation
 
                 SkinDeformBatchedJob skinJobBatched = new SkinDeformBatchedJob()
                 {
-                    vertices = m_DeformedVertices,
+                    vertices = deformVertices,
                     vertexLookupData = m_VertexLookupData,
                     spriteSkinData = m_SpriteSkinData,
                     perSkinJobData = m_PerSkinJobData,
@@ -545,7 +509,7 @@ namespace UnityEngine.U2D.Animation
                 m_DeformJobHandle.Complete();
                 m_BoundJobHandle.Complete();
                 Profiler.BeginSample("WriteBack");
-                byte* ptrVertices = (byte*)m_DeformedVertices.GetUnsafeReadOnlyPtr();
+                byte* ptrVertices = (byte*)deformVertices.GetUnsafeReadOnlyPtr();
                 for (int i = 0; i < batchCount; ++i)
                 {
                     var skinData = m_SpriteSkinData[i];
@@ -553,7 +517,7 @@ namespace UnityEngine.U2D.Animation
                     var copyFrom = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptrVertices, vertexBufferLength, Allocator.None);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-                    NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref copyFrom, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(m_DeformedVertices));
+                    NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref copyFrom, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(deformVertices));
 #endif
                     SetDeformableBuffer(m_SpriteSkins[skinData.spriteSkinIndex].spriteRenderer, copyFrom);
                     InternalEngineBridge.SetLocalAABB(m_SpriteSkins[skinData.spriteSkinIndex].spriteRenderer, m_SpriteSkinBatchProcessData.newSpriteBound[i]);

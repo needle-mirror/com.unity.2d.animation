@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.1.0] - 2019-12-10
+### Changed
+- Changed how Samples are imported into the user's project
+- Updated Third Party Notices file
+
+### Fixed
+- Fix Animation Samples crashes when installing on certain machines (case 1185787)
+- Fix visual glitch when using SpriteSwap with Multi-threaded rendering (case 1203380)
+- Fix bone name misaligned under Weight Slider Inspector when a name contains more than 26 letters (case 1200873)
+- Fix bones not chained correctly when splitting bone in certain cases
+- Fix 'Label' and 'Sprite' name overlaps with its input field when preset of "Sprite Library Asset" is created (case 1201061)
+- Fix bone names can be empty (case 1200861)
+- Fix bone gets created even though clicked on Visibility Panel (case 1200857)
+- Fix NullReferenceException when using shortcut 'Shift+1' in certain cases (case 1200849)
+
+### Added
+- Expose SpriteSkin component to be accessible from scripts.
+
 ## [3.0.8] - 2019-11-06
 ### Changed
 - Improve optional performance boost by installing Burst and Collections package. Currently tested with 
@@ -139,17 +157,17 @@
   1. Prefabs with SpriteSkin loses references to bone hierarchy when Library folder is rebuilt/different.
   2. The scene viewport shows the character without any bones applied, needing an re-import.
 
-## [1.0.16-preview.1] - 2018-7-18
+## [1.0.16-preview.1] - 2018-07-18
 ### Added
 - Fix error log about VertexAttribute
 
-## [1.0.16-preview] - 2018-6-20
+## [1.0.16-preview] - 2018-06-20
 ### Added
 - Fix Documentation warnings
 - Fix error log complaining about DidReloadScripts signature.
 - Fix issues with generate outline
 
-## [1.0.15-preview] - 2018-4-12
+## [1.0.15-preview] - 2018-04-12
 ### Added
 - New Version suffix (preview)
 - Improved Scene View gizmos for better manipulation of bone rotation and position

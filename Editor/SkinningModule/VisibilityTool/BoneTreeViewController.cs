@@ -212,9 +212,10 @@ namespace UnityEditor.U2D.Animation
             if (item == null)
                 return;
 
-            item.displayName = newName;
-            if (item.customData != null && item.customData.name != newName)
+            if (item.customData != null && item.customData.name != newName && !string.IsNullOrEmpty(newName)
+                && !string.IsNullOrWhiteSpace(newName))
             {
+                item.displayName = newName;
                 using (m_Model.UndoScope(TextContent.boneName))
                 {
                     m_Model.SetName(item.customData, newName);

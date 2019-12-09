@@ -7,14 +7,14 @@ namespace UnityEditor.U2D.Animation
     {
         private BoneInspectorPanel m_BoneInspectorPanel;
 
-        public event Action<string> onBoneNameChanged = (name) => {};
-        public event Action<int> onBoneDepthChanged = (depth) => {};
+        public event Action<BoneCache, string> onBoneNameChanged = (b, s) => {};
+        public event Action<BoneCache, int> onBoneDepthChanged = (b, i) => {};
 
         public SkeletonToolView()
         {
             m_BoneInspectorPanel = BoneInspectorPanel.GenerateFromUXML();
-            m_BoneInspectorPanel.onBoneNameChanged += (n) =>  onBoneNameChanged(n);
-            m_BoneInspectorPanel.onBoneDepthChanged += (d) => onBoneDepthChanged(d);
+            m_BoneInspectorPanel.onBoneNameChanged += (b, n) =>  onBoneNameChanged(b, n);
+            m_BoneInspectorPanel.onBoneDepthChanged += (b, d) => onBoneDepthChanged(b, d);
             Hide();
         }
         
@@ -23,14 +23,18 @@ namespace UnityEditor.U2D.Animation
             layout.rightOverlay.Add(m_BoneInspectorPanel);
         }
 
-        public void Show()
+        public void Show(BoneCache target)
         {
+            m_BoneInspectorPanel.target = target;
             m_BoneInspectorPanel.SetHiddenFromLayout(false);
         }
 
+        public BoneCache target => m_BoneInspectorPanel.target;
+
         public void Hide()
         {
-            m_BoneInspectorPanel.SetHiddenFromLayout(true);
+            m_BoneInspectorPanel.HidePanel();
+            m_BoneInspectorPanel.target = null;
         }
 
         public void Update(string name, int depth)
