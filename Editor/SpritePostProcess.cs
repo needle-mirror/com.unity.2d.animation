@@ -1,3 +1,6 @@
+#if ENABLE_ANIMATION_COLLECTION && ENABLE_ANIMATION_BURST
+#define ENABLE_ANIMATION_PERFORMANCE
+#endif
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
@@ -6,6 +9,7 @@ using UnityEditor.U2D.Sprites;
 
 using UnityEngine.Rendering;
 using UnityEngine.U2D;
+using UnityEngine.U2D.Animation;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -26,6 +30,20 @@ namespace UnityEditor.U2D.Animation
                 PostProcessSpriteMeshData(ai, definitionScale, sprites);
                 BoneGizmo.instance.ClearSpriteBoneCache();
             }
+
+            // Get all SpriteSkin in scene and inform them to refresh their cache
+            RefreshSpriteSkinCache();
+        }
+
+        static void RefreshSpriteSkinCache()
+        {
+#if ENABLE_ANIMATION_PERFORMANCE
+            var spriteSkins = GameObject.FindObjectsOfType<SpriteSkin>();
+            foreach (var ss in spriteSkins)
+            {
+                ss.ResetSprite();
+            }
+#endif
         }
 
         static void CalculateLocaltoWorldMatrix(int i, SpriteRect spriteRect, float definitionScale, float pixelsPerUnit, List<UnityEngine.U2D.SpriteBone> spriteBone, ref UnityEngine.U2D.SpriteBone?[] outpriteBone, ref NativeArray<Matrix4x4> bindPose)

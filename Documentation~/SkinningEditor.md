@@ -27,12 +27,12 @@ The following are the Skinning Editor’s tools, their functions, and shortcuts:
 | ![icon_SplitBone](images/icon_SplitBone.png)<br />__Split Bone__ |    Shift + R     | Splits the selected bone.                                    |
 | ![icon_GenGeo](images/icon_GenGeo.png)<br />__Auto Geometry__ |    Shift + A     | Select to auto-generate Meshes for Sprites.                  |
 | ![icon_EditGeo](images/icon_EditGeo.png)<br />__Edit Geometry__ |    Shift + S     | Edit generated Meshes by repositioning vertices.             |
-| ![icon_CreateVertex](images/icon_CreateVertex.png)<br />__Create Vertex__ |    Shift + D     | Create new vertices to create geometry.                      |
+| ![icon_CreateVertex](images/icon_CreateVertex.png)<br />__Create Vertex__ |    Shift + J     | Create new vertices to create geometry.                      |
 | ![icon_CreateEdge](images/icon_CreateEdge.png)<br />__Create Edge__ |    Shift + G     | Create new edges to create geometry.                         |
 | ![icon_SplitEdge](images/icon_SplitEdge.png)<br />__Split Edge__ |    Shift + H     | Split an existing edge into two.                             |
 | ![icon_GenWeights](images/icon_GenWeights.png)<br />__Auto Weights__ |    Shift + Z     | Auto-generate weights for geometry.                          |
 | ![icon_WeightSlider](images/icon_WeightSlider.png)<br />__Weight Slider__ |    Shift + X     | Adjust weights via slider control.                           |
-| ![icon_WeightPaint](images/icon_WeightPaint.png)<br />__Weight Brush__ |    Shift + C     | Adjust weights by painting with a brush.                     |
+| ![icon_WeightPaint](images/icon_WeightPaint.png)<br />__Weight Brush__ |    Shift + N     | Adjust weights by painting with a brush.                     |
 | ![icon_BoneInfluence](images/icon_BoneInfluence.png)<br />__Bone Influence__ |    Shift + V     | Select which bones influence a Sprite.                       |
 | __Toggle Tool Text__                                         |    Shift + `     | Show or hide text on tool buttons.                           |
 

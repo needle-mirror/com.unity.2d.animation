@@ -13,7 +13,6 @@ namespace UnityEditor.Experimental.U2D.Animation
             public static GUIContent duplicateWarningText = EditorGUIUtility.TrTextContent("Duplicate name found or name hash clashes. Please use a different name");
             public static GUIContent duplicateWarning = EditorGUIUtility.TrIconContent("console.warnicon.sml", duplicateWarningText.text);
             public static GUIContent nameLabel = new GUIContent(TextContent.label);
-            public static int indentWidth = 15;
             public static int lineSpacing = 3;
         }
 
@@ -79,19 +78,19 @@ namespace UnityEditor.Experimental.U2D.Animation
             EditorGUI.PropertyField(vaRect, spriteListProp);
             if (spriteListProp.isExpanded)
             {
-                vaRect.x += Style.indentWidth;
-                vaRect.width -= Style.indentWidth;
+                EditorGUI.indentLevel++;
+                var indentedRect = EditorGUI.IndentedRect(vaRect);
                 var labelWidth = EditorGUIUtility.labelWidth;
-                EditorGUIUtility.labelWidth = 40;
-                vaRect.y += EditorGUIUtility.singleLineHeight + Style.lineSpacing;
-                var sizeRect = vaRect;
-                sizeRect.width = 100;
+                EditorGUIUtility.labelWidth = 40 + indentedRect.x - vaRect.x;
+                indentedRect.y += EditorGUIUtility.singleLineHeight + Style.lineSpacing;
+                var sizeRect = indentedRect;
                 int size = EditorGUI.IntField(sizeRect, TextContent.size, spriteListProp.arraySize);
                 if (size != spriteListProp.arraySize && size >= 0)
                     spriteListProp.arraySize = size;
-                vaRect.y += EditorGUIUtility.singleLineHeight + Style.lineSpacing;
-                DrawSpriteListProperty(vaRect, spriteListProp);
+                indentedRect.y += EditorGUIUtility.singleLineHeight + Style.lineSpacing;
+                DrawSpriteListProperty(indentedRect, spriteListProp);
                 EditorGUIUtility.labelWidth = labelWidth;
+                EditorGUI.indentLevel--;
             }
         }
 
@@ -133,7 +132,6 @@ namespace UnityEditor.Experimental.U2D.Animation
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-
             EditorGUI.BeginChangeCheck();
             if (EditorGUI.EndChangeCheck())
                 SetupOrderList();

@@ -152,15 +152,15 @@ namespace UnityEditor.U2D.Animation
             }
             set
             {
-                if (value != null && m_ChainedChild != value && value.parentBone == this)
+                if (m_ChainedChild != value)
                 {
-                    m_ChainedChild = value;
-
-                    if (m_ChainedChild != null)
-                        OrientToChainedChild(false);
+                    if (value == null || value.parentBone == this)
+                    {
+                        m_ChainedChild = value;
+                        if(m_ChainedChild != null)
+                            OrientToChainedChild(false);
+                    }
                 }
-                else
-                    m_ChainedChild = null;
             }
         }
 

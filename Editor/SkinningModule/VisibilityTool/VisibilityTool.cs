@@ -49,6 +49,8 @@ namespace UnityEditor.U2D.Animation
             m_MeshOpacitySlider.RegisterValueChangedCallback(OnMeshOpacitySliderValueChangd);
             RegisterCallback<MouseDownEvent>(OpacityChangeBegin, TrickleDown.TrickleDown);
             RegisterCallback<MouseCaptureOutEvent>(OpacityChangeEnd, TrickleDown.TrickleDown);
+            // case 1200857 StopPropagation when bubbling up so that main IMGUI doesn't get the event
+            RegisterCallback<MouseDownEvent>(evt => evt.StopPropagation());
             m_Tabs = new List<Button>();
             m_SelectorContainer.Clear();
         }

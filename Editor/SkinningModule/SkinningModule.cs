@@ -226,8 +226,12 @@ namespace UnityEditor.U2D.Animation
 
             if (m_PreviousSkinningMode != skinningCache.mode || setPreviewTexture)
             {
-                m_PreviousSkinningMode = skinningCache.mode;
                 spriteEditor.SetPreviewTexture(emptyTexture, width, height);
+                if (m_PreviousSkinningMode != skinningCache.mode)
+                {
+                    m_PreviousSkinningMode = skinningCache.mode;
+                    spriteEditor.ResetZoomAndScroll();
+                }
             }
 
             spriteEditor.spriteRects = new List<SpriteRect>();

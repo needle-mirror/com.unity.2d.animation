@@ -88,6 +88,8 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.boneSelectionChanged.AddListener(BoneSelectionChanged);
             skinningCache.events.selectedSpriteChanged.AddListener(SelectedSpriteChanged);
             skinningCache.events.skinningModeChanged.AddListener(SkinningModeChanged);
+            skinningCache.events.boneDepthChanged.AddListener(BoneDataChanged);
+            skinningCache.events.boneNameChanged.AddListener(BoneDataChanged);
             skeletonStyle = null;
         }
 
@@ -98,7 +100,15 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.boneSelectionChanged.RemoveListener(BoneSelectionChanged);
             skinningCache.events.selectedSpriteChanged.RemoveListener(SelectedSpriteChanged);
             skinningCache.events.skinningModeChanged.RemoveListener(SkinningModeChanged);
+            skinningCache.events.boneDepthChanged.RemoveListener(BoneDataChanged);
+            skinningCache.events.boneNameChanged.RemoveListener(BoneDataChanged);
             skeletonStyle = null;
+        }
+
+        void BoneDataChanged(BoneCache bone)
+        {
+            if(m_SkeletonToolView.target == bone)
+                m_SkeletonToolView.Update(bone.name, Mathf.RoundToInt(bone.depth));
         }
 
         private void SelectedSpriteChanged(SpriteCache sprite)
@@ -121,7 +131,7 @@ namespace UnityEditor.U2D.Animation
             if (enableBoneInspector && selectedBone != null && selectionCount == 1)
             {
                 m_SkeletonToolView.Update(selectedBone.name, Mathf.RoundToInt(selectedBone.depth));
-                m_SkeletonToolView.Show();
+                m_SkeletonToolView.Show(selectedBone);
             }
         }
 
@@ -153,35 +163,38 @@ namespace UnityEditor.U2D.Animation
             m_UnselectTool.OnGUI();
         }
 
-        private void BoneNameChanged(string name)
+        private void BoneNameChanged(BoneCache selectedBone, string name)
         {
-            var selectedBone = skinningCache.skeletonSelection.activeElement;
-
-            Debug.Assert(selectedBone != null);
-
-            if (string.Compare(selectedBone.name, name) == 0)
-                return;
-
-            using (skinningCache.UndoScope(TextContent.boneName))
+            if (selectedBone != null)
             {
-                selectedBone.name = name;
-                skinningCache.events.boneNameChanged.Invoke(selectedBone);
+                if (string.Compare(selectedBone.name, name) == 0)
+                    return;
+
+                if(string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
+                    m_SkeletonToolView.Update(selectedBone.name, Mathf.RoundToInt(selectedBone.depth));
+                else
+                {
+                    using (skinningCache.UndoScope(TextContent.boneName))
+                    {
+                        selectedBone.name = name;
+                        skinningCache.events.boneNameChanged.Invoke(selectedBone);
+                    }
+                }
             }
         }
 
-        private void BoneDepthChanged(int depth)
+        private void BoneDepthChanged(BoneCache selectedBone, int depth)
         {
-            var selectedBone = skinningCache.skeletonSelection.activeElement;
-
-            Debug.Assert(selectedBone != null);
-
-            if (Mathf.RoundToInt(selectedBone.depth) == depth)
-                return;
-
-            using (skinningCache.UndoScope(TextContent.boneDepth))
+            if (selectedBone != null)
             {
-                selectedBone.depth = depth;
-                skinningCache.events.boneDepthChanged.Invoke(selectedBone);
+                if (Mathf.RoundToInt(selectedBone.depth) == depth)
+                    return;
+
+                using (skinningCache.UndoScope(TextContent.boneDepth))
+                {
+                    selectedBone.depth = depth;
+                    skinningCache.events.boneDepthChanged.Invoke(selectedBone);
+                }   
             }
         }
     }

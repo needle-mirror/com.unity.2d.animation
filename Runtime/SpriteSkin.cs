@@ -10,6 +10,47 @@ using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.U2D.Animation
 {
+    struct DeformVerticesBuffer
+    {
+        public const int k_DefaultBufferSize = 2;
+        int m_BufferCount;
+        int m_CurrentBuffer;
+        NativeArray<byte>[] m_DeformedVertices;
+
+        public DeformVerticesBuffer(int bufferCount)
+        {
+            m_BufferCount = bufferCount;
+            m_DeformedVertices = new NativeArray<byte>[m_BufferCount];
+            for (int i = 0; i < m_BufferCount; ++i)
+            {
+                m_DeformedVertices[i] = new NativeArray<byte>(1, Allocator.Persistent);
+            }
+            m_CurrentBuffer = 0;
+        }
+
+        public void Dispose()
+        {
+            for (int i = 0; i < m_BufferCount; ++i)
+            {
+                if (m_DeformedVertices[i].IsCreated)
+                    m_DeformedVertices[i].Dispose();
+            }
+        }
+
+        public ref NativeArray<byte> GetBuffer(int expectedSize)
+        {
+            m_CurrentBuffer = (m_CurrentBuffer + 1) % m_BufferCount;
+            if (m_DeformedVertices[m_CurrentBuffer].IsCreated)
+                m_DeformedVertices[m_CurrentBuffer].Dispose();
+            m_DeformedVertices[m_CurrentBuffer] = new NativeArray<byte>(expectedSize, Allocator.Persistent);
+            return ref m_DeformedVertices[m_CurrentBuffer];
+
+        }
+    }
+
+    /// <summary>
+    /// Deforms the Sprite that is currently assigned to the SpriteRenderer in the same GameObject
+    /// </summary>
     [Preserve]
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
@@ -17,7 +58,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
 
-    internal partial class SpriteSkin : MonoBehaviour
+    public sealed partial class SpriteSkin : MonoBehaviour
     {
         [SerializeField]
         private Transform m_RootBone;
@@ -30,7 +71,8 @@ namespace UnityEngine.U2D.Animation
 
         // The deformed m_SpriteVertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite  Asset data.
         // The order of storage if present is POSITION, NORMALS, TANGENTS.
-        private NativeArray<byte> m_DeformedVertices;
+        private DeformVerticesBuffer m_DeformedVertices;
+        private int m_CurrentDeformVerticesLength = 0;
         private SpriteRenderer m_SpriteRenderer;
         private Sprite m_CurrentDeformSprite;
         private bool m_ForceSkinning;
@@ -38,7 +80,7 @@ namespace UnityEngine.U2D.Animation
         bool m_IsValid;
         int m_TransformsHash = 0;
 
-        public bool batchSkinning
+        internal bool batchSkinning
         {
             get { return m_BatchSkinning; }
             set { m_BatchSkinning = value; }
@@ -49,7 +91,7 @@ namespace UnityEngine.U2D.Animation
         private void OnDrawGizmos() { onDrawGizmos.Invoke(); }
 
         private bool m_IgnoreNextSpriteChange = true;
-        public bool ignoreNextSpriteChange
+        internal bool ignoreNextSpriteChange
         {
             get { return m_IgnoreNextSpriteChange; }
             set { m_IgnoreNextSpriteChange = value; }
@@ -62,6 +104,7 @@ namespace UnityEngine.U2D.Animation
             CacheValidFlag();
             UpdateSpriteDeform();
             OnEnableBatch();
+            m_DeformedVertices = new DeformVerticesBuffer(DeformVerticesBuffer.k_DefaultBufferSize);
         }
 
         void CacheValidFlag()
@@ -81,39 +124,29 @@ namespace UnityEngine.U2D.Animation
             UseBatchingBatch();
         }
 
-        internal NativeArray<byte> deformedVertices
+        internal ref NativeArray<byte> GetDeformedVertices(int spriteVertexCount)
         {
-            get
+            if (sprite != null)
             {
-                if (sprite != null)
+                if (m_CurrentDeformVerticesLength != spriteVertexCount)
                 {
-                    var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
-                    if (m_DeformedVertices.IsCreated)
-                    {
-                        if (m_DeformedVertices.Length != spriteVertexCount)
-                        {
-                            m_DeformedVertices.Dispose();
-                            m_DeformedVertices = new NativeArray<byte>(spriteVertexCount, Allocator.Persistent);
-                            m_TransformsHash = 0;
-                        }
-                    }
-                    else
-                    {
-                        m_DeformedVertices = new NativeArray<byte>(spriteVertexCount, Allocator.Persistent);
-                        m_TransformsHash = 0;
-                    }
+                    m_TransformsHash = 0;
+                    m_CurrentDeformVerticesLength = spriteVertexCount;
                 }
-                return m_DeformedVertices;
             }
+            else
+            {
+                m_CurrentDeformVerticesLength = 0;
+            }
+            return ref m_DeformedVertices.GetBuffer(m_CurrentDeformVerticesLength);
         }
 
         void OnDisable()
         {
             DeactivateSkinning();
-            if (m_DeformedVertices.IsCreated)
-                m_DeformedVertices.Dispose();
+            m_DeformedVertices.Dispose();
             OnDisableBatch();
-       }
+        }
 
 #if ENABLE_SPRITESKIN_COMPOSITE
         internal void OnLateUpdate()
@@ -129,10 +162,11 @@ namespace UnityEngine.U2D.Animation
             }
             if (isValid && !batchSkinning && this.enabled)
             {
-                var inputVertices = deformedVertices;
                 var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
-                if (inputVertices.Length > 0 && m_TransformsHash != transformHash)
+                var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
+                if (spriteVertexCount > 0 && m_TransformsHash != transformHash)
                 {
+                    var inputVertices = GetDeformedVertices(spriteVertexCount);
                     SpriteSkinUtility.Deform(sprite, gameObject.transform.worldToLocalMatrix, boneTransforms, ref inputVertices);
                     SpriteSkinUtility.UpdateBounds(this, transform.worldToLocalMatrix, rootBone.localToWorldMatrix);
                     InternalEngineBridge.SetDeformableBuffer(spriteRenderer, inputVertices);
@@ -162,10 +196,14 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        internal Transform[] boneTransforms
+        /// <summary>
+        /// Returns the Transform Components that is used for deformation
+        /// </summary>
+        /// <returns>An array of Transform Components</returns>
+        public Transform[] boneTransforms
         {
             get { return m_BoneTransforms; }
-            set
+            internal set
             {
                 m_BoneTransforms = value;
                 CacheValidFlag();
@@ -173,10 +211,14 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        internal Transform rootBone
+        /// <summary>
+        /// Returns the Transform Component that represents the root bone for deformation
+        /// </summary>
+        /// <returns>A Transform Component</returns>
+        public Transform rootBone
         {
             get { return m_RootBone; }
-            set
+            internal set
             {
                 m_RootBone = value;
                 CacheValidFlag();
@@ -195,7 +237,7 @@ namespace UnityEngine.U2D.Animation
             get { return this.Validate() == SpriteSkinValidationResult.Ready; }
         }
 
-        protected virtual void OnDestroy()
+        void OnDestroy()
         {
             DeactivateSkinning();
         }
@@ -210,6 +252,11 @@ namespace UnityEngine.U2D.Animation
             SpriteRendererDataAccessExtensions.DeactivateDeformableBuffer(spriteRenderer);
         }
 
+        internal void ResetSprite()
+        {
+            m_CurrentDeformSprite = null;
+            CacheValidFlag();
+        }
 
     }
 }

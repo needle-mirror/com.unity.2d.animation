@@ -39,12 +39,16 @@ namespace UnityEditor.U2D.Animation
         private static void DisablePoseModeKey(ShortcutArguments args)
         {
             var sm = GetModuleFromContext(args);
-            if (sm != null && !sm.spriteEditor.editingDisabled && sm.skinningCache.GetEffectiveSkeleton(sm.skinningCache.selectedSprite).isPosePreview)
+            if (sm != null && !sm.spriteEditor.editingDisabled)
             {
-                using (sm.skinningCache.UndoScope(TextContent.restorePose))
+                var effectiveSkeleton = sm.skinningCache.GetEffectiveSkeleton(sm.skinningCache.selectedSprite);
+                if (effectiveSkeleton != null && effectiveSkeleton.isPosePreview)
                 {
-                    sm.skinningCache.RestoreBindPose();
-                    sm.skinningCache.events.shortcut.Invoke("#1");
+                    using (sm.skinningCache.UndoScope(TextContent.restorePose))
+                    {
+                        sm.skinningCache.RestoreBindPose();
+                        sm.skinningCache.events.shortcut.Invoke("#1");
+                    }   
                 }
             }
         }
@@ -135,7 +139,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        [Shortcut("2D/Animation/Create Vertex", typeof(InternalEditorBridge.ShortcutContext), KeyCode.D, ShortcutModifiers.Shift)]
+        [Shortcut("2D/Animation/Create Vertex", typeof(InternalEditorBridge.ShortcutContext), KeyCode.J, ShortcutModifiers.Shift)]
         private static void CreateVertex(ShortcutArguments args)
         {
             var sm = GetModuleFromContext(args);
@@ -190,7 +194,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        [Shortcut("2D/Animation/Weight Brush", typeof(InternalEditorBridge.ShortcutContext), KeyCode.C, ShortcutModifiers.Shift)]
+        [Shortcut("2D/Animation/Weight Brush", typeof(InternalEditorBridge.ShortcutContext), KeyCode.N, ShortcutModifiers.Shift)]
         private static void WeightBrushKey(ShortcutArguments args)
         {
             var sm = GetModuleFromContext(args);
