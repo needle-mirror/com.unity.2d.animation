@@ -11,9 +11,19 @@ namespace UnityEditor.U2D.Animation
         [SerializeField]
         public int parentGroup;
         [SerializeField]
-        public bool isVisible = true;
+        private bool m_IsVisible = true;
         [SerializeField]
         private int m_Order = -1;
+
+        public bool isVisible
+        {
+            get => m_IsVisible;
+            set
+            {
+                m_IsVisible = value;
+                skinningCache.GroupVisibilityChanged(this);
+            }
+        }
 
         public virtual int order
         {
@@ -50,7 +60,12 @@ namespace UnityEditor.U2D.Animation
         public virtual bool isVisible
         {
             get { return m_IsVisible; }
-            set { m_IsVisible = value; }
+            set
+            {
+                m_IsVisible = value;
+                if (skinningCache != null)
+                    skinningCache.SpriteVisibilityChanged(this);
+            }
         }
 
         public int BoneCount { get { return m_Bones.Count; } }

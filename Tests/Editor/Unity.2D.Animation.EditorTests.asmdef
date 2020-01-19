@@ -1,6 +1,8 @@
 {
     "name": "Unity.2D.Animation.EditorTests",
-   "references": [
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [
         "Editor"
@@ -8,11 +10,13 @@
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
-    "optionalUnityReferences": [
-        "TestAssemblies"
+    "precompiledReferences": [
+        "nunit.framework.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }

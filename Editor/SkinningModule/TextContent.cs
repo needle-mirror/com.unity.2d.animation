@@ -38,6 +38,7 @@ namespace UnityEditor.U2D.Animation
         public static string setParentBone = "Set Parent Bone";
         public static string visibilityChange = "VisibilityChange";
         public static string boneSelection = "Bone Selection";
+        public static string expandBones = "Expand Bones";
         public static string meshVisibility = "Mesh Visibility";
         public static string meshOpacity = "Mesh Opacity";
         public static string opacityChange = "Opacity Change";

@@ -1,25 +1,25 @@
 # Changing Parts of a Character
 
-Sprite Swap offers a quick way to change one Sprite on a model, while everything else remains identical. This means you can alter part of a character’s appearance (for example, change a scarf to a different color) while the rest of the character remains the same. 
+You can use __Sprite Swap__ to quickly change only one Sprite on the character Prefab without affecting the other Sprites. This means you can alter part of a character’s appearance (for example, change a scarf to a different color) while the rest of the character remains the same. 
 
-In the following example, one Sprite represents a green scarf, and one represents a red scarf. 
+In the following example, we have two Sprites that are variations of the character’s scarf - one green and one blue. This workflow demonstrates how to switch from one to the other in the same Prefab.
 
-![Example character wearing a green scarf in the left-hand image, and a blue scarf in the right-hand image.](images/bothscarves.PNG)
+![](images/bothscarves.PNG)<br/>__Left:__ The original green scarf. __Right:__ An alternate blue scarf.
 
-Here’s an example workflow for how you might change the scarf on a 2D character, while everything else remains the same:
+1. Place the Sprites for both scarves into the same Sprite Library Asset, and add them both to the same Category named ‘Scarf’. You can do this directly in the Skinning Editor via the Sprite tab in the [Sprite Visibility panel](SpriteVis.md).
+   
+2. Give each of the Sprites a unique __Label__.
 
-1. Place the Sprites you want to swap in the Sprite Library Asset, and assign them all to a Category named __Scarf__. You can do this directly via the the [Skinning Editor](SkinningEditor.md) (see [Sprite Visibilty Panel](EditInter.md)).
    ![](images/image_11.png)
 
    
-   
-2. In the Scene, select the character Prefab, and then select the Sprite of the scarf.
 
-3. To swap between the different Sprites, select the Sprite Resolver component’s __Label__ drop-down, and select which one you want to swap to.
+3. In the __Scene__, select the character Prefab and then select the ‘Scarf’ GameObject the Hierarchy window.
 
-The __Sprite Resolver__ displays the two Sprites available in the ‘Scarf’ Category. You can then swap between all available options in the Sprite Resolver component settings.
+4. Go to the [Sprite Resolver component](SLAsset.html#sprite-resolver-component) of the ‘Scarf’ GameObject. The __Sprite Resolver__‘s visual selector displays the two Sprites available in the ‘Scarf’ __Category__.
 
-![Sprite Resolver’s Label set to ‘green scarf’.](images/image_13.png)
+   ![](images/image_13.png)
 
-![Sprite Resolver’s Label set to ‘blue scarf’.](images/image_14.png)
+5. Select the ‘blue scarf’ to switch the Sprite rendered by the ‘Scarf’ GameObject to it instead.
 
+   ![](images/image_14.png)<br/>Sprite Resolver’s Label set to ‘blue scarf’.

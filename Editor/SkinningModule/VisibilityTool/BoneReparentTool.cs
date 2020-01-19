@@ -116,6 +116,11 @@ namespace UnityEditor.U2D.Animation
             ((IBoneVisibilityToolView)toolView).OnBoneSelectionChange(skeleton);
         }
 
+        public void OnBoneExpandedChange(BoneCache[] bones)
+        {
+            ((IBoneVisibilityToolView)toolView).OnBoneExpandedChange(bones);
+        }
+
         public void OnBoneNameChanged(BoneCache bone)
         {
             ((IBoneVisibilityToolView)toolView).OnBoneNameChanged(bone);

@@ -125,6 +125,12 @@ namespace UnityEditor.U2D.Animation
             set { m_State.lastBrushStep = value; }
         }
 
+        public int visibililtyToolIndex
+        {
+            get { return m_State.lastVisibilityToolIndex; }
+            set { m_State.lastVisibilityToolIndex = value; }
+        }
+        
         public SkeletonSelection skeletonSelection
         {
             get { return m_SkeletonSelection; }
@@ -271,7 +277,9 @@ namespace UnityEditor.U2D.Animation
 
             var visibilityTool = m_ToolMap[Tools.Visibility];
             if (m_State.lastVisibilityToolActive)
+            {
                 visibilityTool.Activate();
+            }
         }
 
         public void RestoreToolStateFromPersistentState()
@@ -315,6 +323,39 @@ namespace UnityEditor.U2D.Animation
                 }
             }
 
+            if (m_State.lastBoneVisibility.Count > 0)
+            {
+                if (hasCharacter)
+                {
+                    UpdateVisibilityFromPersistentState(character.skeleton, null);
+                }
+
+                foreach (var sprite in m_SkeletonMap.Keys)
+                {
+                    UpdateVisibilityFromPersistentState(m_SkeletonMap[sprite], sprite);
+                }
+            }
+
+            if (m_State.lastSpriteVisibility.Count > 0 && hasCharacter)
+            {
+                foreach (var characterPart in character.parts)
+                {
+                    if (m_State.lastSpriteVisibility.TryGetValue(characterPart.sprite.id, out var visibility))
+                    {
+                        characterPart.isVisible = visibility;
+                    }
+                }
+
+                foreach (var characterGroup in character.groups)
+                {
+                    var groupHash = GetCharacterGroupHash(m_StringBuilder, characterGroup, character);
+                    if (m_State.lastGroupVisibility.TryGetValue(groupHash, out var visibility))
+                    {
+                        characterGroup.isVisible = visibility;
+                    }
+                }
+            }
+
             events.boneSelectionChanged.AddListener(BoneSelectionChanged);
             events.skeletonPreviewPoseChanged.AddListener(SkeletonPreviewPoseChanged);
             events.toolChanged.AddListener(ToolChanged);
@@ -340,13 +381,25 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private const string kBoneNameSeparator = "/";
+        private void UpdateVisibilityFromPersistentState(SkeletonCache skeleton, SpriteCache sprite)
+        {
+            foreach (var bone in skeleton.bones)
+            {
+                var id = GetBoneNameHash(m_StringBuilder, bone, sprite);
+                if (m_State.lastBoneVisibility.TryGetValue(id, out var visibility))
+                {
+                    bone.isVisible = visibility;
+                }
+            }
+        }
+
+        private const string kNameSeparator = "/";
 
         private int GetBoneNameHash(StringBuilder sb, BoneCache bone, SpriteCache sprite = null)
         {
             sb.Clear();
             BuildBoneName(sb, bone);
-            sb.Append(kBoneNameSeparator);
+            sb.Append(kNameSeparator);
             if (sprite != null)
             {
                 sb.Append(sprite.id);
@@ -363,9 +416,26 @@ namespace UnityEditor.U2D.Animation
             if (bone.parentBone != null)
             {
                 BuildBoneName(sb, bone.parentBone);
-                sb.Append(kBoneNameSeparator);
+                sb.Append(kNameSeparator);
             }
             sb.Append(bone.name);
+        }
+
+        private int GetCharacterGroupHash(StringBuilder sb, CharacterGroupCache characterGroup, CharacterCache characterCache)
+        {
+            sb.Clear();
+            BuildGroupName(sb, characterGroup, characterCache);
+            return Animator.StringToHash(sb.ToString());
+        }
+
+        private void BuildGroupName(StringBuilder sb, CharacterGroupCache group, CharacterCache characterCache)
+        {
+            if (group.parentGroup >= 0 && group.parentGroup < characterCache.groups.Length)
+            {
+                BuildGroupName(sb, characterCache.groups[group.parentGroup], characterCache);
+                sb.Append(kNameSeparator);
+            }
+            sb.Append(group.order);
         }
 
         private void BoneSelectionChanged()
@@ -407,6 +477,109 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
+        internal void BoneVisibilityChanged(SkeletonCache sc)
+        {
+            if (applyingChanges)
+                return;
+
+            m_State.lastBoneVisibility.Clear();
+            if (hasCharacter)
+            {
+                StorePersistentStateVisibilityForSkeleton(character.skeleton, null);
+            }
+            foreach (var sprite in m_SkeletonMap.Keys)
+            {
+                StorePersistentStateVisibilityForSkeleton(m_SkeletonMap[sprite], sprite);
+            }
+        }
+
+        private void StorePersistentStateVisibilityForSkeleton(SkeletonCache skeleton, SpriteCache sprite)
+        {
+            foreach (var bone in skeleton.bones)
+            {
+                var id = GetBoneNameHash(m_StringBuilder, bone, sprite);
+                m_State.lastBoneVisibility[id] = bone.isVisible;
+            }
+        }
+
+        internal void BoneExpansionChanged(BoneCache[] boneCaches)
+        {
+            if (applyingChanges)
+                return;
+
+            m_State.lastBoneExpansion.Clear();
+            if (hasCharacter)
+            {
+                foreach (var bone in boneCaches)
+                {
+                    if (character.skeleton.bones.Contains(bone))
+                    {
+                        var id = GetBoneNameHash(m_StringBuilder, bone, null);
+                        m_State.lastBoneExpansion[id] = true;    
+                    }
+                }
+            }
+
+            foreach (var sprite in m_SkeletonMap.Keys)
+            {
+                var skeleton = m_SkeletonMap[sprite];
+                foreach (var bone in boneCaches)
+                {
+                    if (skeleton.bones.Contains(bone))
+                    {
+                        var id = GetBoneNameHash(m_StringBuilder, bone, sprite);
+                        m_State.lastBoneExpansion[id] = true;    
+                    }
+                }
+            }
+        }
+
+        internal BoneCache[] GetExpandedBones()
+        {
+            HashSet<BoneCache> expandedBones = new HashSet<BoneCache>();
+            if (m_State.lastBoneExpansion.Count > 0)
+            {
+                if (hasCharacter)
+                {
+                    foreach (var bone in character.skeleton.bones)
+                    {
+                        var id = GetBoneNameHash(m_StringBuilder, bone, null);
+                        if (m_State.lastBoneExpansion.TryGetValue(id, out var expanded))
+                        {
+                            expandedBones.Add(bone);
+                        }    
+                    }
+                }
+                foreach (var sprite in m_SkeletonMap.Keys)
+                {
+                    var skeleton = m_SkeletonMap[sprite];
+                    foreach (var bone in skeleton.bones)
+                    {
+                        var id = GetBoneNameHash(m_StringBuilder, bone, sprite);
+                        if (m_State.lastBoneExpansion.TryGetValue(id, out var expanded))
+                        {
+                            expandedBones.Add(bone);
+                        }    
+                    }
+                }
+            }
+            return expandedBones.ToArray();
+        }
+
+        internal void SpriteVisibilityChanged(CharacterPartCache cc)
+        {
+            m_State.lastSpriteVisibility[cc.sprite.id] = cc.isVisible;
+        }
+
+        internal void GroupVisibilityChanged(CharacterGroupCache gc)
+        {
+            if (!hasCharacter)
+                return;
+
+            var groupHash = GetCharacterGroupHash(m_StringBuilder, gc, character);
+            m_State.lastGroupVisibility[groupHash] = gc.isVisible;
+        }
+        
         public void Clear()
         {
             Destroy();

@@ -45,7 +45,7 @@ namespace UnityEditor.U2D.Animation
 
         private void OnBoneSelectionChanged()
         {
-            m_Model.view.OnBoneSelectionChange(m_Model.GetBoneSeletion());
+            m_Model.view.OnBoneSelectionChange(m_Model.GetBoneSelection());
         }
 
         private void OnBoneNameChanged(BoneCache bone)
@@ -62,7 +62,8 @@ namespace UnityEditor.U2D.Animation
         private void SetupSkeleton()
         {
             m_Model.view.OnSelectionChange(m_Model.GetSelectedSkeleton());
-            m_Model.view.OnBoneSelectionChange(m_Model.GetBoneSeletion());
+            m_Model.view.OnBoneExpandedChange(m_Model.GetExpandedBones());
+            m_Model.view.OnBoneSelectionChange(m_Model.GetBoneSelection());
         }
 
         public void SetAllVisibility(bool visibility)
@@ -144,6 +145,15 @@ namespace UnityEditor.U2D.Animation
             {
                 m_Model.SelectBones(selectedBones);
                 m_SkinningEvents.boneSelectionChanged.Invoke();
+            }
+        }
+
+        public void ExpandBones(IList<int> expandedIds, IList<TreeViewItem> items)
+        {
+            var expandedBones = items.Where(x => expandedIds.Contains(x.id)).Select(y => ((TreeViewItemBase<BoneCache>)y).customData).ToArray();
+            using (m_Model.UndoScope(TextContent.expandBones))
+            {
+                m_Model.SetExpandedBones(expandedBones);
             }
         }
 

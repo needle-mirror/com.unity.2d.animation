@@ -42,9 +42,14 @@ namespace UnityEditor.U2D.Animation
             return m_Data.allVisibility;
         }
 
-        public SkeletonSelection GetBoneSeletion()
+        public SkeletonSelection GetBoneSelection()
         {
             return skinningCache.skeletonSelection;
+        }
+
+        public BoneCache[] GetExpandedBones()
+        {
+            return skinningCache.GetExpandedBones();
         }
 
         public int GetDepth(BoneCache bone)
@@ -67,10 +72,16 @@ namespace UnityEditor.U2D.Animation
             skinningCache.skeletonSelection.elements = bones.ToCharacterIfNeeded();
         }
 
+        public void SetExpandedBones(BoneCache[] bones)
+        {
+            skinningCache.BoneExpansionChanged(bones);
+        }
+
         public virtual void SetAllVisibility(SkeletonCache skeleton, bool visibility)
         {
             m_Data.allVisibility = visibility;
             SetAllBoneVisibility(skeleton, visibility);
+            UpdateVisibilityFromPersistentState();
         }
 
         public static void SetAllBoneVisibility(SkeletonCache skeleton, bool visibility)
@@ -123,11 +134,17 @@ namespace UnityEditor.U2D.Animation
         public void SetVisibility(BoneCache bone, bool visibility)
         {
             bone.isVisible = visibility;
+            UpdateVisibilityFromPersistentState();
         }
 
         public UndoScope UndoScope(string value)
         {
             return skinningCache.UndoScope(value);
+        }
+
+        private void UpdateVisibilityFromPersistentState()
+        {
+            skinningCache.BoneVisibilityChanged(GetSelectedSkeleton());
         }
 
         public bool hasCharacter {get { return skinningCache.hasCharacter; } }
@@ -146,8 +163,10 @@ namespace UnityEditor.U2D.Animation
         void SetAllVisibility(SkeletonCache skeleton, bool visibility);
         bool GetAllVisibility();
         void SelectBones(BoneCache[] bones);
+        void SetExpandedBones(BoneCache[] bones);
         IBoneVisibilityToolView view { get; }
-        SkeletonSelection GetBoneSeletion();
+        SkeletonSelection GetBoneSelection();
+        BoneCache[] GetExpandedBones();
         SkeletonCache GetSelectedSkeleton();
         bool hasCharacter { get; }
         SkinningMode mode { get; }

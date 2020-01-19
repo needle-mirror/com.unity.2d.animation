@@ -128,6 +128,11 @@ namespace UnityEditor.U2D.Animation
             ((BoneTreeView)m_TreeView).OnBoneSelectionChanged(bones);
         }
 
+        public void OnBoneExpandedChange(BoneCache[] bones)
+        {
+            ((BoneTreeView)m_TreeView).OnBoneExpandedChanged(bones);
+        }
+
         public void OnBoneNameChanged(BoneCache bone)
         {
             ((BoneTreeView)m_TreeView).OnBoneNameChanged(bone);
@@ -148,10 +153,15 @@ namespace UnityEditor.U2D.Animation
             : base(treeViewState, columnHeader)
         {
             columnIndexForTreeFoldouts = 1;
-            Reload();
+            ReloadView();
         }
 
         public void SetupHierarchy()
+        {
+            ReloadView();
+        }
+
+        private void ReloadView()
         {
             Reload();
         }
@@ -169,6 +179,15 @@ namespace UnityEditor.U2D.Animation
             SetSelection(ids);
         }
 
+        public void OnBoneExpandedChanged(BoneCache[] bones)
+        {
+            var expandIds = GetController().GetIDsToSelect(bones);
+            if (expandIds.Length == 0)
+                return;
+
+            SetExpanded(expandIds.Union(GetExpanded()).ToList());
+        }
+        
         public void OnBoneNameChanged(BoneCache bone)
         {
             GetController().SetTreeViewBoneName(GetRows(), bone);
@@ -177,6 +196,11 @@ namespace UnityEditor.U2D.Animation
         protected override void SelectionChanged(IList<int> selectedIds)
         {
             GetController().SelectBones(selectedIds, GetRows());
+        }
+
+        protected override void ExpandedStateChanged()
+        {
+            GetController().ExpandBones(GetExpanded(), GetRows());
         }
 
         protected override float GetCustomRowHeight(int row, TreeViewItem item)

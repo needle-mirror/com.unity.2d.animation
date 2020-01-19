@@ -168,7 +168,7 @@ namespace UnityEngine.U2D.Animation
                 {
                     var inputVertices = GetDeformedVertices(spriteVertexCount);
                     SpriteSkinUtility.Deform(sprite, gameObject.transform.worldToLocalMatrix, boneTransforms, ref inputVertices);
-                    SpriteSkinUtility.UpdateBounds(this, transform.worldToLocalMatrix, rootBone.localToWorldMatrix);
+                    SpriteSkinUtility.UpdateBounds(this, inputVertices);
                     InternalEngineBridge.SetDeformableBuffer(spriteRenderer, inputVertices);
                     m_TransformsHash = transformHash;
                     m_CurrentDeformSprite = sprite;

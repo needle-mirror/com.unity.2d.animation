@@ -7,6 +7,7 @@ using UnityEditorInternal;
 using UnityEngine.U2D.Animation;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine.U2D;
+using UnityEngine.U2D.Common;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -157,7 +158,6 @@ namespace UnityEditor.U2D.Animation
                 EditorGUI.EndDisabledGroup();
             }
 
-            EditorGUILayout.PropertyField(m_BoundsProperty, Contents.spriteBoundsLabel);
 #if ENABLE_ANIMATION_PERFORMANCE
             m_ExperimentalFold = EditorGUILayout.Foldout(m_ExperimentalFold, Contents.experimental, true);
             if (m_ExperimentalFold)
@@ -221,7 +221,7 @@ namespace UnityEditor.U2D.Animation
 
             var rootBone = spriteSkin.rootBone;
 
-            using (new Handles.DrawingScope(rootBone.localToWorldMatrix))
+            using (new Handles.DrawingScope(spriteSkin.transform.localToWorldMatrix))
             {
                 var bounds = spriteSkin.bounds;
                 m_BoundsHandle.center = bounds.center;
@@ -233,6 +233,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     Undo.RecordObject(spriteSkin, "Resize Bounds");
                     spriteSkin.bounds = new Bounds(m_BoundsHandle.center, m_BoundsHandle.size);
+                    InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, spriteSkin.bounds);
                 }
             }
         }
