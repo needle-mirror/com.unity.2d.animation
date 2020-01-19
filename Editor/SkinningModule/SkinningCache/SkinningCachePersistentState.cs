@@ -34,6 +34,26 @@ namespace UnityEditor.U2D.Animation
             get;
         }
 
+        SerializableDictionary<int, bool> lastBoneVisibility
+        {
+            get;
+        }
+
+        SerializableDictionary<int, bool> lastBoneExpansion
+        {
+            get;
+        }
+
+        SerializableDictionary<string, bool> lastSpriteVisibility
+        {
+            get;
+        }
+
+        SerializableDictionary<int, bool> lastGroupVisibility
+        {
+            get;
+        }
+
         SkinningMode lastMode
         {
             get;
@@ -41,6 +61,12 @@ namespace UnityEditor.U2D.Animation
         }
 
         bool lastVisibilityToolActive
+        {
+            get;
+            set;
+        }
+
+        int lastVisibilityToolIndex
         {
             get;
             set;
@@ -89,9 +115,26 @@ namespace UnityEditor.U2D.Animation
         private SerializableDictionary<int, BonePose> m_SkeletonPreviewPose =
             new SerializableDictionary<int, BonePose>();
 
+        [SerializeField]
+        private SerializableDictionary<int, bool> m_BoneVisibility =
+            new SerializableDictionary<int, bool>();
+
+        [SerializeField]
+        private SerializableDictionary<int, bool> m_BoneExpansion =
+            new SerializableDictionary<int, bool>();
+
+        [SerializeField]
+        private SerializableDictionary<string, bool> m_SpriteVisibility =
+            new SerializableDictionary<string, bool>();
+
+        [SerializeField]
+        private SerializableDictionary<int, bool> m_GroupVisibility =
+            new SerializableDictionary<int, bool>();
+
         [SerializeField] private IndexedSelection m_VertexSelection;
 
         [SerializeField] private bool m_VisibilityToolActive;
+        [SerializeField] private int m_VisibilityToolIndex = -1;
 
         [SerializeField] private float m_LastBrushSize = 25f;
         [SerializeField] private float m_LastBrushHardness = 1f;
@@ -111,7 +154,12 @@ namespace UnityEditor.U2D.Animation
             m_LastTexture = null;
             m_VertexSelection.Clear();
             m_SkeletonPreviewPose.Clear();
+            m_BoneVisibility.Clear();
+            m_BoneExpansion.Clear();
+            m_SpriteVisibility.Clear();
+            m_GroupVisibility.Clear();
             m_VisibilityToolActive = false;
+            m_VisibilityToolIndex = -1;
         }
 
         public string lastSpriteId
@@ -143,6 +191,10 @@ namespace UnityEditor.U2D.Animation
                     m_LastBoneSelectionIds.Clear();
                     m_VertexSelection.Clear();
                     m_SkeletonPreviewPose.Clear();
+                    m_BoneVisibility.Clear();
+                    m_BoneExpansion.Clear();
+                    m_SpriteVisibility.Clear();
+                    m_GroupVisibility.Clear();
                 }
 
                 m_LastTexture = value;
@@ -152,6 +204,26 @@ namespace UnityEditor.U2D.Animation
         public SerializableDictionary<int, BonePose> lastPreviewPose
         {
             get { return m_SkeletonPreviewPose; }
+        }
+
+        public SerializableDictionary<int, bool> lastBoneVisibility
+        {
+            get { return m_BoneVisibility; }
+        }
+
+        public SerializableDictionary<int, bool> lastBoneExpansion
+        {
+            get { return m_BoneExpansion; }
+        }
+
+        public SerializableDictionary<string, bool> lastSpriteVisibility
+        {
+            get { return m_SpriteVisibility; }
+        }
+
+        public SerializableDictionary<int, bool> lastGroupVisibility
+        {
+            get { return m_GroupVisibility; }
         }
 
         public SkinningMode lastMode
@@ -164,6 +236,12 @@ namespace UnityEditor.U2D.Animation
         {
             get { return m_VisibilityToolActive; }
             set { m_VisibilityToolActive = value; }
+        }
+
+        public int lastVisibilityToolIndex
+        {
+            get { return m_VisibilityToolIndex; }
+            set { m_VisibilityToolIndex = value; }
         }
 
         public IndexedSelection lastVertexSelection

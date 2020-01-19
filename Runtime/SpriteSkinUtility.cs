@@ -391,46 +391,47 @@ namespace UnityEngine.U2D.Animation
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformedPosSlice, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(deformVertexData));
 #endif
-
-            var rootBone = spriteSkin.rootBone;
+            
             spriteSkin.Bake(ref deformVertexData);
-            var bounds = new Bounds();
-
-            if (deformVertexData.Length > 0)
-            {
-                bounds.min = rootBone.InverseTransformPoint(deformedPosSlice[0]);
-                bounds.max = bounds.min;
-            }
-
-            foreach(var v in deformedPosSlice)
-                bounds.Encapsulate(rootBone.InverseTransformPoint(v));
-
-            bounds.extents = Vector3.Scale(bounds.extents, new Vector3(1.25f, 1.25f, 1f)); 
-            spriteSkin.bounds = bounds;
+            UpdateBounds(spriteSkin, deformVertexData);
+            deformVertexData.Dispose();
         }
 
-        internal static void UpdateBounds(this SpriteSkin spriteSkin, Matrix4x4 worldToLocal, Matrix4x4 rootLocalToWorld)
+        internal static Bounds CalculateSpriteSkinBounds(NativeSlice<float3> deformablePositions)
         {
-            //var worldToLocal = spriteSkin.transform.worldToLocalMatrix;
-            //var rootLocalToWorld = spriteSkin.rootBone.localToWorldMatrix;
-            var unityBounds = spriteSkin.bounds;
-            var matrix = math.mul(worldToLocal, rootLocalToWorld);
-            var center = new float4(unityBounds.center, 1);
-            var extents = new float4(unityBounds.extents, 0);
-            var p0 = math.mul(matrix, center + new float4(-extents.x, -extents.y, extents.z, extents.w));
-            var p1 = math.mul(matrix, center + new float4(-extents.x, extents.y, extents.z, extents.w));
-            var p2 = math.mul(matrix, center + extents);
-            var p3 = math.mul(matrix, center + new float4(extents.x, -extents.y, extents.z, extents.w));
-            var min = math.min(p0, math.min(p1, math.min(p2, p3)));
-            var max = math.max(p0, math.max(p1, math.max(p2, p3)));
-            extents = (max - min) * 0.5f;
-            center = min + extents;
-            var newBounds = new Bounds()
+            float3 min = deformablePositions[0];
+            float3 max = deformablePositions[0];
+
+            for (int j = 1; j < deformablePositions.Length; ++j)
             {
-                center = new Vector3(center.x, center.y, center.z),
-                extents = new Vector3(extents.x, extents.y, extents.z)
-            };            
-            InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, newBounds);
+                min = math.min(min, deformablePositions[j]);
+                max = math.max(max, deformablePositions[j]);
+            }
+            
+            float3 ext = (max - min) * 0.5F;
+            float3 ctr = min + ext;
+            Bounds bounds = new Bounds();
+            bounds.center = ctr;
+            bounds.extents = ext;
+            return bounds;
+        }
+
+        internal static unsafe void UpdateBounds(this SpriteSkin spriteSkin, NativeArray<byte> deformedVertices)
+        {
+            byte* deformedPosOffset = (byte*)NativeArrayUnsafeUtility.GetUnsafePtr(deformedVertices);            
+            var spriteVertexCount = spriteSkin.sprite.GetVertexCount();
+            var spriteVertexStreamSize = spriteSkin.sprite.GetVertexStreamSize();            
+            NativeSlice<float3> deformedPositions = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset, spriteVertexStreamSize, spriteVertexCount);
+
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+            var handle = CreateSafetyChecks<float3>(ref deformedPositions);
+#endif
+            spriteSkin.bounds = CalculateSpriteSkinBounds(deformedPositions);
+            
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+            DisposeSafetyChecks(handle);
+#endif           
+            InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, spriteSkin.bounds);
         }
     }
 }

@@ -139,7 +139,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        [Shortcut("2D/Animation/Create Vertex", typeof(InternalEditorBridge.ShortcutContext), KeyCode.D, ShortcutModifiers.Shift)]
+        [Shortcut("2D/Animation/Create Vertex", typeof(InternalEditorBridge.ShortcutContext), KeyCode.J, ShortcutModifiers.Shift)]
         private static void CreateVertex(ShortcutArguments args)
         {
             var sm = GetModuleFromContext(args);
@@ -194,7 +194,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        [Shortcut("2D/Animation/Weight Brush", typeof(InternalEditorBridge.ShortcutContext), KeyCode.C, ShortcutModifiers.Shift)]
+        [Shortcut("2D/Animation/Weight Brush", typeof(InternalEditorBridge.ShortcutContext), KeyCode.N, ShortcutModifiers.Shift)]
         private static void WeightBrushKey(ShortcutArguments args)
         {
             var sm = GetModuleFromContext(args);

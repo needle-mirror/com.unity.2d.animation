@@ -166,9 +166,6 @@ namespace UnityEditor.U2D.Animation
 
     internal class VisibilityTool : BaseTool, IVisibilityToolModel
     {
-        [SerializeField]
-        private int m_CurrentToolIndex = -1;
-
         private VisibilityToolWindow m_ToolView;
 
         private MeshPreviewBehaviour m_MeshPreviewBehaviour = new MeshPreviewBehaviour();
@@ -216,7 +213,17 @@ namespace UnityEditor.U2D.Animation
             m_Controller.Deactivate();
         }
 
-        int IVisibilityToolModel.currentToolIndex { get { return m_CurrentToolIndex; } set { m_CurrentToolIndex = value; } }
+        int IVisibilityToolModel.currentToolIndex
+        {
+            get
+            {
+                return skinningCache.visibililtyToolIndex;
+            }
+            set
+            {
+                skinningCache.visibililtyToolIndex = value;
+            }
+        }
 
         float IVisibilityToolModel.boneOpacityValue
         {
@@ -319,14 +326,16 @@ namespace UnityEditor.U2D.Animation
             }
             m_SkeletonTool = skeletonTool;
             m_MeshPreviewBehaviour = meshPreviewBehaviour;
-            currentTool = defaultTool;
         }
 
         public void Activate()
         {
             m_Model.view.Show();
 
+            if (currentTool == null)
+                currentTool = defaultTool;
             ActivateTool(currentTool);
+
             m_Model.view.SetBoneOpacitySliderValue(m_Model.boneOpacityValue);
             m_Model.view.SetMeshOpacitySliderValue(m_Model.meshOpacityValue);
             m_Model.view.onBoneOpacitySliderChange -= OnBoneOpacityChange;

@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.1.1] - 2020-01-20
+###Fixed
+- Fix 2D Animation not working when reloading scene in runtime (case 1211100)
+
+###Added
+- Bone visibility persist after apply
+- Sprite visibility persist after apply
+
+###Changed
+- Deformed Sprite's bounds are now calculated and bounds property is removed from SpriteSkin's inspector (case 1208712)
+- Changed default shortcut key for "Animation/Create Vertex" from "Shift-D" to "Shift-J"
+- Changed default shortcut key for "Animation/Weight Brush" from "Shift-C" to "Shift-N"
+
 ## [3.1.0] - 2019-12-10
 ### Changed
 - Changed how Samples are imported into the user's project

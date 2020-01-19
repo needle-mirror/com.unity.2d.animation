@@ -234,6 +234,28 @@ namespace UnityEngine.U2D.Animation
         }
     }
 
+#if ENABLE_ANIMATION_BURST
+    [BurstCompile]
+#endif 
+    internal struct CalculateSpriteSkinAABBJob : IJobParallelFor
+    {
+        public NativeSlice<byte> vertices;
+        public NativeArray<Bounds> bounds;
+        [ReadOnly]
+        public NativeArray<SpriteSkinData> spriteSkinData;
+        public unsafe void Execute(int i)
+        {
+            var spriteSkin = spriteSkinData[i];
+            byte* deformedPosOffset = (byte*)vertices.GetUnsafePtr();
+            NativeSlice<float3> deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset + spriteSkin.deformVerticesStartPos, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
+            
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+            NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableVerticesFloat3, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
+#endif
+
+            bounds[i] = SpriteSkinUtility.CalculateSpriteSkinBounds(deformableVerticesFloat3);
+        }
+    }    
     internal class SpriteSkinComposite : ScriptableObject
     {
 
@@ -378,6 +400,9 @@ namespace UnityEngine.U2D.Animation
                 m_Helper = new GameObject("SpriteSkinManager");
                 m_Helper.hideFlags = HideFlags.HideAndDontSave;
                 m_Helper.AddComponent<SpriteSkinManager.SpriteSkinManagerInternal>();
+#if !UNITY_EDITOR
+                GameObject.DontDestroyOnLoad(m_Helper);
+#endif
             }
             m_SpriteSkinBatchProcessData = new SpriteSkinBatchProcessData(1);
 
@@ -454,20 +479,8 @@ namespace UnityEngine.U2D.Animation
                 var deformVertices = m_DeformedVerticesBuffer.GetBuffer(vertexBufferSize);
                 NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, m_SkinBatch.bindPosesIndex.y);
                 NativeArrayHelpers.ResizeIfNeeded(ref m_VertexLookupData, m_SkinBatch.verticesIndex.y);
-
-                UpdateBoundJob updateBoundJob = new UpdateBoundJob
-                {
-                    rootTransformId = m_SpriteSkinBatchProcessData.rootTransformId,
-                    rootBoneTransformId = m_SpriteSkinBatchProcessData.rootBoneTransformId,
-                    boneTransform = m_LocalToWorldTransformAccessJob.transformMatrix,
-                    rootTransform = m_WorldToLocalTransformAccessJob.transformMatrix,
-                    spriteSkinBound = m_SpriteSkinBatchProcessData.spriteBound,
-                    bounds = m_SpriteSkinBatchProcessData.newSpriteBound,
-                    rootTransformIndex = m_WorldToLocalTransformAccessJob.transformData,
-                    boneTransformIndex = m_LocalToWorldTransformAccessJob.transformData
-                };
                 var jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle);
-                m_BoundJobHandle = updateBoundJob.Schedule(batchCount, 8, jobHandle);
+
                 Profiler.BeginSample("SpriteSkin.Prepare");
                 PrepareDeformJob prepareJob = new PrepareDeformJob
                 {
@@ -479,7 +492,6 @@ namespace UnityEngine.U2D.Animation
                 };
                 jobHandle = prepareJob.Schedule();
                 Profiler.EndSample();
-
 
                 BoneDeformBatchedJob boneJobBatched = new BoneDeformBatchedJob()
                 {
@@ -505,8 +517,16 @@ namespace UnityEngine.U2D.Animation
                     finalBoneTransforms = m_FinalBoneTransforms,
                 };
                 m_DeformJobHandle = skinJobBatched.Schedule(m_SkinBatch.verticesIndex.y, 16, jobHandle);
+                
+                CalculateSpriteSkinAABBJob updateBoundJob = new CalculateSpriteSkinAABBJob
+                {
+                    vertices = deformVertices,
+                    spriteSkinData = m_SpriteSkinData,
+                    bounds = m_SpriteSkinBatchProcessData.newSpriteBound,
+                };
+                m_BoundJobHandle = updateBoundJob.Schedule(batchCount, 16, m_DeformJobHandle);                
+                
                 JobHandle.ScheduleBatchedJobs();
-                m_DeformJobHandle.Complete();
                 m_BoundJobHandle.Complete();
                 Profiler.BeginSample("WriteBack");
                 byte* ptrVertices = (byte*)deformVertices.GetUnsafeReadOnlyPtr();
@@ -520,6 +540,7 @@ namespace UnityEngine.U2D.Animation
                     NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref copyFrom, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(deformVertices));
 #endif
                     SetDeformableBuffer(m_SpriteSkins[skinData.spriteSkinIndex].spriteRenderer, copyFrom);
+                    m_SpriteSkins[skinData.spriteSkinIndex].bounds = m_SpriteSkinBatchProcessData.newSpriteBound[i];
                     InternalEngineBridge.SetLocalAABB(m_SpriteSkins[skinData.spriteSkinIndex].spriteRenderer, m_SpriteSkinBatchProcessData.newSpriteBound[i]);
                     ptrVertices = ptrVertices + vertexBufferLength;
                 }
