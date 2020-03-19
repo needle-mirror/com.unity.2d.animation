@@ -23,15 +23,16 @@ namespace UnityEngine.U2D.Animation
         int m_SpriteVertexStreamSize;
         int m_SpriteVertexCount;
         int m_SpriteTangentVertexOffset;
+        int m_DataIndex = -1;
+        bool m_BoneCacheUpdateToDate = false;
 
         void OnEnableBatch()
         {
-            if (m_UseBatching)
+            if (m_UseBatching && m_BatchSkinning == false)
             {
                 SpriteSkinComposite.instance.AddSpriteSkin(this);
                 m_BatchSkinning = true;
-                CacheBatchBoneTransform();
-                CacheBatchRootBoneTransform();
+                CacheBoneTransformIds(true);
             }
             else
                 SpriteSkinComposite.instance.AddSpriteSkinForLateUpdate(this);
@@ -44,8 +45,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (m_UseBatching)
             {
-                CacheBatchBoneTransform();
-                CacheBatchRootBoneTransform();
+                CacheBoneTransformIds(true);
             }
         }
 
@@ -85,65 +85,67 @@ namespace UnityEngine.U2D.Animation
             
         }
 
-        void CacheBatchRootBoneTransform()
+        void CacheBoneTransformIds(bool forceUpdate = false)
         {
-            SpriteSkinComposite.instance.RemoveTransformById(m_RootBoneTransformId);
-            if (rootBone != null)
+            if (!m_BoneCacheUpdateToDate || forceUpdate)
             {
-                m_RootBoneTransformId = rootBone.GetInstanceID();
-                if(this.enabled)
-                    SpriteSkinComposite.instance.AddSpriteSkinRootBoneTransform(this);
-            }
-            else
-                m_RootBoneTransformId = 0;
-        }
-
-        void CacheBatchBoneTransform()
-        {
-            if (boneTransforms != null)
-            {
-                int boneCount = 0;
-                for (int i = 0; i < boneTransforms.Length; ++i)
+                SpriteSkinComposite.instance.RemoveTransformById(m_RootBoneTransformId);
+                if (rootBone != null)
                 {
-                    if (boneTransforms[i] != null)
-                        ++boneCount;
-                }
-
-
-                if (m_BoneTransformId.IsCreated)
-                {
-                    for (int i = 0; i < m_BoneTransformId.Length; ++i)
-                        SpriteSkinComposite.instance.RemoveTransformById(m_BoneTransformId[i]);
-                    NativeArrayHelpers.ResizeIfNeeded(ref m_BoneTransformId,boneCount);
+                    m_RootBoneTransformId = rootBone.GetInstanceID();
+                    if (this.enabled)
+                        SpriteSkinComposite.instance.AddSpriteSkinRootBoneTransform(this);
                 }
                 else
+                    m_RootBoneTransformId = 0;
+
+                if (boneTransforms != null)
                 {
-                    m_BoneTransformId = new NativeArray<int>(boneCount, Allocator.Persistent);
-                }
-                    
-                m_BoneTransformIdNativeSlice = new NativeCustomSlice<int>(m_BoneTransformId);
-                for (int i = 0, j = 0; i < m_BoneTransformId.Length; ++i)
-                {
-                    if (boneTransforms[i] != null)
+                    int boneCount = 0;
+                    for (int i = 0; i < boneTransforms.Length; ++i)
                     {
-                        m_BoneTransformId[j] = boneTransforms[i].GetInstanceID();
-                        ++j;
+                        if (boneTransforms[i] != null)
+                            ++boneCount;
+                    }
+
+
+                    if (m_BoneTransformId.IsCreated)
+                    {
+                        for (int i = 0; i < m_BoneTransformId.Length; ++i)
+                            SpriteSkinComposite.instance.RemoveTransformById(m_BoneTransformId[i]);
+                        NativeArrayHelpers.ResizeIfNeeded(ref m_BoneTransformId, boneCount);
+                    }
+                    else
+                    {
+                        m_BoneTransformId = new NativeArray<int>(boneCount, Allocator.Persistent);
+                    }
+
+                    m_BoneTransformIdNativeSlice = new NativeCustomSlice<int>(m_BoneTransformId);
+                    for (int i = 0, j = 0; i < boneTransforms.Length; ++i)
+                    {
+                        if (boneTransforms[i] != null)
+                        {
+                            m_BoneTransformId[j] = boneTransforms[i].GetInstanceID();
+                            ++j;
+                        }
+                    }
+                    if (this.enabled)
+                    {
+                        SpriteSkinComposite.instance.AddSpriteSkinBoneTransform(this);
                     }
                 }
-                if (this.enabled)
-                {
-                    SpriteSkinComposite.instance.AddSpriteSkinBoneTransform(this);
-                }
-            }
-            else
-            {
-                if (m_BoneTransformId.IsCreated)
-                    NativeArrayHelpers.ResizeIfNeeded(ref m_BoneTransformId, 0);
                 else
-                    m_BoneTransformId = new NativeArray<int>(0, Allocator.Persistent);
+                {
+                    if (m_BoneTransformId.IsCreated)
+                        NativeArrayHelpers.ResizeIfNeeded(ref m_BoneTransformId, 0);
+                    else
+                        m_BoneTransformId = new NativeArray<int>(0, Allocator.Persistent);
+                }
+                CacheValidFlag();
+                m_BoneCacheUpdateToDate = true;
             }
         }
-
+        
         void UseBatchingBatch()
         {
             if (!this.enabled)
@@ -154,8 +156,7 @@ namespace UnityEngine.U2D.Animation
                 SpriteSkinComposite.instance.AddSpriteSkin(this);
                 SpriteSkinComposite.instance.RemoveSpriteSkinForLateUpdate(this);
                 m_BatchSkinning = true;
-                CacheBatchBoneTransform();
-                CacheBatchRootBoneTransform();
+                CacheBoneTransformIds();
             }
             else
             {
@@ -176,21 +177,19 @@ namespace UnityEngine.U2D.Animation
             }
             SpriteSkinComposite.instance.RemoveTransformById(m_RootBoneTransformId);
             m_RootBoneTransformId = -1;
+            m_BoneCacheUpdateToDate = false;
         }
 
-        internal bool GetSpriteSkinBatchData(ref NativeArray<SpriteSkinData> data, ref SpriteSkinBatchProcessData batchProcessData, ref PerSkinJobData perskinJobData, ref int vertexBufferSize, int index, int spriteSkinIndex)
+        internal bool GetSpriteSkinBatchData(ref NativeArray<SpriteSkinData> data, ref SpriteSkinBatchProcessData batchProcessData, ref PerSkinJobData perskinJobData, ref int vertexBufferSize, int dataIndex, int spriteSkinIndex)
         {
-            if (m_CurrentDeformSprite != sprite)
-            {
-                DeactivateSkinning();
-                m_CurrentDeformSprite = sprite;
-                UpdateSpriteDeform();
-                CacheValidFlag();
-            }
-            if (m_IsValid)
+            CacheBoneTransformIds();
+            CacheCurrentSprite();
+            if (m_IsValid && (alwaysUpdate || spriteRenderer.isVisible) && spriteRenderer.enabled)
             {
                 Profiler.BeginSample("SpriteSkinData");
-                data[index] = new SpriteSkinData()
+                m_DataIndex = dataIndex;
+                m_CurrentDeformVerticesLength = m_SpriteVertexCount * m_SpriteVertexStreamSize;
+                data[dataIndex] = new SpriteSkinData()
                 {
                     vertices = m_SpriteVertices,
                     boneWeights = m_SpriteBoneWeights,
@@ -208,20 +207,21 @@ namespace UnityEngine.U2D.Animation
                 };
                 Profiler.EndSample();
                 Profiler.BeginSample("BatchProcessData");
-                batchProcessData.rootBoneTransformId[index] = m_RootBoneTransformId;
-                batchProcessData.rootTransformId[index] = m_TransformId;
-                batchProcessData.spriteBound[index] = bounds;
+                batchProcessData.rootBoneTransformId[dataIndex] = m_RootBoneTransformId;
+                batchProcessData.rootTransformId[dataIndex] = m_TransformId;
+                batchProcessData.spriteBound[dataIndex] = bounds;
                 Profiler.EndSample();
 
                 Profiler.BeginSample("PerskinJobData");
                 perskinJobData.verticesIndex.x = perskinJobData.verticesIndex.y;
                 perskinJobData.verticesIndex.y = perskinJobData.verticesIndex.x + m_SpriteVertexCount;
-                vertexBufferSize += m_SpriteVertexCount * m_SpriteVertexStreamSize;
+                vertexBufferSize += m_CurrentDeformVerticesLength;
                 perskinJobData.bindPosesIndex.x = perskinJobData.bindPosesIndex.y;
                 perskinJobData.bindPosesIndex.y = perskinJobData.bindPosesIndex.x + m_SpriteBindPoses.Length;
                 Profiler.EndSample();
                 return true;
             }
+            m_DataIndex = -1;
             return false;
         }
 
@@ -229,7 +229,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (this.enabled)
             {
-                CacheBatchBoneTransform();
+                CacheBoneTransformIds(true);
             }
         }
 
@@ -237,18 +237,21 @@ namespace UnityEngine.U2D.Animation
         {
             if (this.enabled)
             {
-                CacheBatchRootBoneTransform();
+                CacheBoneTransformIds(true);
             }
         }
-        internal void ReInitSpriteSkinCompositeEntry()
+        
+        void OnBeforeSerializeBatch()
+        {}
+
+        void OnAfterSerializeBatch()
         {
-            if (m_BatchSkinning && this.enabled)
-            {
-                CacheValidFlag();
-                CacheBatchBoneTransform();
-                CacheBatchRootBoneTransform();
-            }
+#if UNITY_EDITOR
+            m_BoneCacheUpdateToDate = false;
+#endif
         }
+
+
     }
 #else
     {
@@ -259,7 +262,8 @@ namespace UnityEngine.U2D.Animation
         void OnDisableBatch(){}
         void OnBoneTransformChanged(){}
         void OnRootBoneTransformChanged(){}
-        internal void ReInitSpriteSkinCompositeEntry(){}
+        void OnBeforeSerializeBatch(){}
+        void OnAfterSerializeBatch(){}
     }
 #endif
 

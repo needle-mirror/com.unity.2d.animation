@@ -1,29 +1,41 @@
-# Character rigging
+# Character skinning and weighting workflow
 
-Follow the below steps to create the bones and skeleton for animating your character:
+The following steps are the general workflow you can use to prepare your character for animation with the Skinning Editor. The steps detail how to create the bones, generate the meshes, and adjust the weights for your character.
 
-1. Select the![icon_small_CreateBone](images/icon_small_CreateBone.png)__Create Bone__ tool to begin creating the bones of the character skeleton.
+1. Use the [Create Bone](SkinEdToolsShortcuts.html#bone-tools) tool to build the bones of the character skeleton:
 
-2. With the tool selected, click in the __Sprite Editor __window to define the start-point of the bone. Move the cursor to where the bone should end, and click again to set the bone’s end-point.
-
-3. To create a continuous chain of bones, select the ![icon_small_CreateBone](images/icon_small_CreateBone.png)__Create Bone__ tool and click the end-point of an existing bone. The new bone is started from the end-point, creating a chain.
+   - With the tool selected, click to define the start-point of the bone. Then move the cursor to where the bone should end, and click again to set the bone’s end-point.
    
-4. Once all bones are created, generate the Mesh geometry for the Sprites. It is recommended to use the ![icon_small_GenGeo](images/icon_small_GenGeo.png)__Auto Geometry__ tool to autogenerate the Sprites’s geometry Mesh. Then refine the geometry with the ![icon_small_CreateVertex](images/icon_small_CreateVertex.png)__Create Vertex__ and ![icon_small_CreateEdge](images/icon_small_CreateEdge.png)__Create Edge__ tools.
+   - After creating a bone, the tool allows you to set the end-point of the second bone and so on, in order to create a chain of bones.
+
+   - To continue a chain of bones from any bone, select the __Create Bone__ tool and click an existing bone, then click its end-point. A new bone is started from the end-point, creating a chain. 
+
+   - Alternatively, you can set the start-point of the new bone away from its parent bone. The child bone still belongs to the same chain and this is reflected in the [bone hierarchy](SpriteVis.html#bone-tab-and-hierarchy-tree).
+
+      ![](images/BoneChain.png)<br/>A faded link shows the red and blue bones are connected in a chain.
+
+1. After creating the bones of the character, generate the geometry Mesh for the __Sprites__. It is recommended to use the [Auto Geometry](SkinEdToolsShortcuts.html#geometry-tools) tool to auto-generate the geometry Mesh. 
+
+   - With the __Auto Geometry__ tool selected, select a Sprite and then select the __Generate For Selected button__ to generate a Mesh for that Sprite only. To __Generate For All Visible Sprites__, click the generate button without selecting any Sprite.
    
-5. To edit the bones that influence a Sprite, select the ![icon_small_BoneInfluence](images/icon_small_BoneInfluence.png)__Bone Influence__ tool and double-click a Sprite to select it. A list of bones currently influencing the Sprite appears.
+1. Refine the generated Meshes further by using the [Edit Geometry](SkinEdToolsShortcuts.html#geometry-tools) Geometry tool, or create your own Mesh outline with the [Create Vertex](SkinEdToolsShortcuts.html#geometry-tools) and [Create Edge](SkinEdToolsShortcuts.html#geometry-tools) Geometry tools.
 
-   - To remove any of the listed bones, select it in the list and click '-' to remove them.
+1. [Paint weights](SkinEdToolsShortcuts.html#weight-tools) onto the Sprite geometry to adjust how much influence a bone has on the vertices of the Mesh. This affects how the mesh deforms when the character is animated. It is recommended to use the [Auto Weights](SkinEdToolsShortcuts.html#weight-tools) tool to auto-generate the weights. The __Auto Weights__ tool only generates weights for Sprites that have both a geometry Mesh, and bones intersecting their Mesh:
 
-   - To add a bone, select it in the __Sprite Window__ and click + to add it to the list.
-
-6. The weight attached to vertices affects the influence between bones and the Sprites' geometry. Select the  ![icon_small_GenWeight](images/icon_small_GenWeight.png)__Auto Weights__ tool to autogenerate the weight of a selected Sprites. To generate weights for all Sprites at once, deselect all Sprites before selecting the tool. Refine the weights of the vertices with the ![icon_small_WeightPainter](images/icon_small_WeightPainter.png)__Weight Brush__ and ![icon_small_WeightSlider](images/icon_small_WeightSlider.png)__Weight Slider__ tools.
+   - The __Generate For All Visible__ button is available when you do not select any specific Sprite. Select it to generate weights for all valid Sprite Meshes in the editor.
+   - The __Generate For Selected__ button is available when you have a Sprite selected in the editor. Select it to generate weights for only the selected Sprite.
    
-7. Test the skeleton rig previewing poses with the ![icon_small_PreviewPose](images/icon_small_PreviewPose.png)__Preview Pose__ tool. Move and rotate the different bones to check their influence on the geometry Mesh. Previewing poses can also be done while using the following tools: the ![icon_small_WeightPainter](images/icon_small_WeightPainter.png)__Weight Brush__, ![icon_small_WeightSlider](images/icon_small_WeightSlider.png)__Weight Slider__, ![icon_small_BoneInfluence](images/icon_small_BoneInfluence.png)__Bone Influence__, ![icon_small_GenWeight](images/icon_small_GenWeight-1543300126435.png)__Auto Weights__, and ![icon_small_Visibility](images/icon_small_Visibility.png)__Visibility__ tools.
+1. Use the [Weight Slider](SkinEdToolsShortcuts.html#weight-slider) and [Weight Brush](SkinEdToolsShortcuts.html#weight-brush) tools to further adjust the weights of the Mesh vertices.
 
-To restore a skeleton rig to its original pose, select ![icon_small_RestoreBind](images/icon_small_RestoreBind.png)__Reset Pose__. The default pose can be edited with the ![icon_small_EditJoints](images/icon_small_EditJoints.png)__Edit Joints__ tool.
+1. To edit which bones influence a Sprite, select it and then go to the [Bone Influence](SkinEdToolsShortcuts.html#bone-influence) tool. A list of bones currently influencing the Sprite’s Mesh are listed in this panel at the bottom-right of the editor. 
 
-## Animating
+   - To remove a bone, select it from the list and select __Remove (-)__ at the bottom right of the list.
 
-To begin animating, drag the Asset into the Scene. This creates a GameObject that reassembles the imported character as it originally appeared in the PSB file in the form of a Prefab. The Prefab contains multiple child GameObjects in the order that represents their layer hierarchy.
+      ![](images/BoneInf_panel.png)<br/>Select __Remove (-)__ at the bottom right of the panel.
 
-With the new GameObject in the Scene, you can begin animating it with the general [Unity animation workflow and tools](https://docs.unity3d.com/Manual/AnimationSection.html).
+   - To add a bone as an influencer to the currently selected Sprite Mesh, select the bone in the editor window and select __Add (+)__ to add it to the list.
+   
+1. Test your rigged character by posing it with the [Preview Pose](SkinEdToolsShortcuts.html#preview-pose) tool. Move and rotate the different bones to check that the geometry Mesh deforms properly. Previewing poses can also be done while the following tools are selected: the __Weight Brush__, __Weight Slider__, __Bone Influence__, __Auto Weights__, and __Visibility__ tools.
+
+   - To restore a rigged character to its original pose, select __Reset Pose__ from the [Editor toolbar](SkinEdToolsShortcuts.html#editor-toolbar).
+   - Edit the default pose by moving the character bones and joints with the [Edit Bone](SkinEdToolsShortcuts.html#editor-toolbar) tool.

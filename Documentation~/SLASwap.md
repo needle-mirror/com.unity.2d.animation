@@ -1,39 +1,29 @@
-
-
 # Swapping Sprite Library Assets
 
-When you need to make a bigger visual change to a Sprite model (for example, switching colors for a character depending on which team it is on), you can use the method detailed in [Changing part of a character’s appearance](CharacterParts.md) for each individual Sprite on the model. 
+If swapping each Sprite individually takes too much effort, you can instead swap the entire __Sprite Library Asset__ to another one containing alternate Sprites.
 
-However, if there are a large number of Sprites you want to change, there is a quicker method that requires additional setup, but allows for a more efficient way to swap all Sprites at once. With this method, you create another __Sprite Library Asset__ with the alternative Sprites, then in the Sprite Library component, swap the Sprite Library Asset to the one that contains the alternative Sprites. 
+The following example shows how to switch from a Sprite Library Asset of color Sprites to another one containing identical Sprites but in grayscale:
 
-The following example uses one set of Sprites that are in color, and one set of identical Sprites that are in greyscale.
+![](images/bothsprites.PNG)<br/>__Left:__ Prefab with the colored Sprite Library Asset. __Right:__ Prefab with the grayscale Sprite Library Asset.
 
-![Example character in color in the left-hand image, and in greyscale in the right-hand image.](images/bothsprites.PNG)
+1. Create variants of your character artwork. In this example, a grayscale variant of the original artwork was created in Photoshop (or any other compatible image editor).
 
-Below is the example workflow for the setup of an additional [Sprite Library Asset](SLAsset.md) and how to swap the original Library with it.
+2. [Import](PreparingArtwork.md) both .psb files into the Unity Editor. Both become separate Prefabs in the Asset window.
 
-1. In your image editor (such as Photoshop), create two versions of the Sprites you need to use. In this example, one is set in color, and the other is set in greyscale.
+3. Select the color Prefab and open it in the [Skinning Editor](SkinningEditor.md). Assign each Sprite of the character to a unique [Category](SpriteVis.html#how-to-create-a-category). It is suggested to name each __Category__ and __Label__ after the respective body part of the character. Apply the changes once you are ready, and exit the __Sprite Editor__.
 
-2. Import the PSB files for each character into Unity. Both appear in the Asset window as separate Prefabs. If your files are not in the PSB format, refer to the steps in [Sprite Swap manual setup](SSManual.md) to manually set up your Sprite Library Assets.
+   ![](images/image_15.png)<br/>The Category and Label names for the color Prefab.
 
-3. In the [Skinning Editor](SkinningEditor.md), assign each part of the characters to a unique __Category __(for example, create a ‘Left Hand’ category for the ‘left hand’ Sprite, and so on).
+4. Select the grayscale Prefab, and give its corresponding Sprites the same __Category__ and __Label__ names as the color Prefab. 
 
-4. Make sure the corresponding Sprite parts in both Prefabs have the same Category name and Label as their counterpart. For example, the head Sprites of both the color and greyscale characters must be in the same ‘Head’ Category and have the same Label. 
+   ![](images/image_16.png)<br/>Give the same Category and Label names to the grayscale Prefab.
 
-   ![The Category and Label setup for the colorful character.](images/image_15.png)
+5. Drag the color Prefab into the Scene view, and go to the root GameObject. The [Sprite Library component](SLAsset.html#sprite-library-component) is attached to the root GameObject and refers to the default __Sprite Library Asset__ that [Unity automatically generated](SpriteSwapIntro.html#how-unity-generates-sprite-swap-assets-and-components).  
 
-   ![The Category and Label setup for the greyscale character.](images/image_16.png)
+   ![](images/image_17.png)<br/>The color Sprite Library Asset.
 
-5. Drag the Prefab for the colorful character into the Scene. In the Inspector window, navigate to its Sprite Library component.
+6. With the Inspector window the color Prefab remaining open, go to the Asset window and expand the grayscale Prefab. Find the grayscale Prefab __Sprite Library Asset__ and drag it to the color Prefab‘s __Sprite Library Asset__ box, which replaces the color Prefab’s original Sprite Library Asset.
 
-   ![](images/image_17.png)
-   
-   
-   
-6. Next, select the Prefab for the character in greyscale. Drag the Sprite Library Asset from its Sprite Library component’s __Sprite Library Asset__ field, and drop it into the colorful character’s corresponding __Sprite Library Asset __field. This replaces the Asset that was already assigned to it.
-   
-7. The colorful character’s Sprites should now have switched to their greyscale counterparts in the greyscale character’s Sprite Library Asset.
+7. The Sprites of the color Prefab should have switched to their grayscale counterparts of the grayscale Sprite Library Asset.
 
-   ![](images/image_18.png)
-
-__Known issue__: Because Unity automatically generates the default Sprite Library Asset as a sub-Asset of the Prefabs, both Sprite Library Assets have identical names, and you cannot rename them.
+   ![](images/image_18.png)<br/>The grayscale version of the color Sprite Library Asset.

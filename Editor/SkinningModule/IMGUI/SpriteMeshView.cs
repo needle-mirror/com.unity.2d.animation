@@ -126,7 +126,7 @@ namespace UnityEditor.U2D.Animation
             var vertexControlID = guiWrapper.GetControlID(m_VertexHashCode, FocusType.Passive);
             var edgeControlID = guiWrapper.GetControlID(m_EdgeHashCode, FocusType.Passive);
 
-            if (guiWrapper.eventType == EventType.Layout)
+            if (guiWrapper.eventType == EventType.Layout || guiWrapper.eventType == EventType.MouseMove)
             {
                 m_NearestVertexDistance = float.MaxValue;
                 m_NearestEdgeDistance = float.MaxValue;
@@ -158,7 +158,7 @@ namespace UnityEditor.U2D.Animation
             if (guiWrapper.IsControlNearest(m_HoveredEdgeControlID))
                 m_HoveredEdge = m_NearestEdge;
 
-            if (guiWrapper.eventType == EventType.Layout)
+            if (guiWrapper.eventType == EventType.Layout || guiWrapper.eventType == EventType.MouseMove)
                 if (m_PrevHoveredVertex != m_HoveredVertex)
                     guiWrapper.Repaint();
         }

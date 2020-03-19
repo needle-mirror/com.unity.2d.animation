@@ -90,7 +90,7 @@ namespace UnityEditor.U2D.Animation
             if (m_IgnoreSelectionChange)
                 return;
 
-            var selectedBones = o.ConvertAll(x => x as BoneCache).ToArray();
+            var selectedBones = o.OfType<BoneCache>().ToArray();
 
             onSelectionChanged(selectedBones);
         }

@@ -26,8 +26,9 @@ namespace UnityEditor.U2D.Animation
             public static readonly GUIContent InvalidTransformArray = new GUIContent("Bone list is invalid");
             public static readonly GUIContent transformArrayContainsNull = new GUIContent("Bone list contains unassigned references");
             public static readonly GUIContent InvalidTransformArrayLength = new GUIContent("The number of Sprite's Bind Poses and the number of Transforms should match");
-            public static readonly GUIContent spriteBoundsLabel = new GUIContent("Bounds");
             public static readonly GUIContent useManager = new GUIContent("Enable batching");
+            public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update"
+                , "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
             public static readonly GUIContent experimental = new GUIContent("Experimental");
         }
 
@@ -35,18 +36,17 @@ namespace UnityEditor.U2D.Animation
 
         private SerializedProperty m_RootBoneProperty;
         private SerializedProperty m_BoneTransformsProperty;
-        private SerializedProperty m_BoundsProperty;
+        private SerializedProperty m_AlwaysUpdateProperty;
         private SpriteSkin m_SpriteSkin;
         private ReorderableList m_ReorderableList;
         private Sprite m_CurrentSprite;
         private BoxBoundsHandle m_BoundsHandle = new BoxBoundsHandle();
         private bool m_NeedsRebind = false;
-        private bool m_BoneTransformChanged = false;
-        private bool m_RootBoneTransformChanged = false;
 #if ENABLE_ANIMATION_PERFORMANCE
         private SerializedProperty m_UseBatching;
         private bool m_ExperimentalFold;
 #endif
+        private bool m_BoneFold = true;
 
         private void OnEnable()
         {
@@ -56,7 +56,7 @@ namespace UnityEditor.U2D.Animation
             m_UseBatching = serializedObject.FindProperty("m_UseBatching");
 #endif
             m_BoneTransformsProperty = serializedObject.FindProperty("m_BoneTransforms");
-            m_BoundsProperty = serializedObject.FindProperty("m_Bounds");
+            m_AlwaysUpdateProperty = serializedObject.FindProperty("m_AlwaysUpdate");
             m_CurrentSprite = m_SpriteSkin.spriteRenderer.sprite;
             m_BoundsHandle.axes = BoxBoundsHandle.Axes.X | BoxBoundsHandle.Axes.Y;
             m_BoundsHandle.SetColor(s_BoundingBoxHandleColor);
@@ -79,10 +79,7 @@ namespace UnityEditor.U2D.Animation
         private void SetupReorderableList()
         {
             m_ReorderableList = new ReorderableList(serializedObject, m_BoneTransformsProperty, false, true, false, false);
-            m_ReorderableList.drawHeaderCallback = (Rect rect) =>
-                {
-                    GUI.Label(rect, Contents.listHeaderLabel);
-                };
+            m_ReorderableList.headerHeight = 1.0f;
             m_ReorderableList.elementHeightCallback = (int index) =>
                 {
                     return EditorGUIUtility.singleLineHeight + 6;
@@ -101,10 +98,7 @@ namespace UnityEditor.U2D.Animation
                     rect.y += 2f;
                     rect.height = EditorGUIUtility.singleLineHeight;
                     SerializedProperty element = m_BoneTransformsProperty.GetArrayElementAtIndex(index);
-                    EditorGUI.BeginChangeCheck();
                     EditorGUI.PropertyField(rect, element, content);
-                    if (EditorGUI.EndChangeCheck())
-                        m_BoneTransformChanged = true;
                 };
         }
 
@@ -130,6 +124,7 @@ namespace UnityEditor.U2D.Animation
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+            EditorGUILayout.PropertyField(m_AlwaysUpdateProperty, Contents.alwaysUpdate);
 
             var sprite = m_SpriteSkin.spriteRenderer.sprite;
             var spriteChanged = m_CurrentSprite != sprite;
@@ -146,17 +141,33 @@ namespace UnityEditor.U2D.Animation
             if (EditorGUI.EndChangeCheck())
             {
                 m_NeedsRebind = true;
-                m_RootBoneTransformChanged = true;
             }
 
-            EditorGUILayout.Space();
-
-            if (!serializedObject.isEditingMultipleObjects)
+            m_BoneFold = EditorGUILayout.Foldout(m_BoneFold, Contents.listHeaderLabel, true);
+            if (m_BoneFold)
             {
-                EditorGUI.BeginDisabledGroup(m_SpriteSkin.rootBone == null);
-                m_ReorderableList.DoLayoutList();
-                EditorGUI.EndDisabledGroup();
+                EditorGUILayout.Space();
+                if (!serializedObject.isEditingMultipleObjects)
+                {
+                    EditorGUI.BeginDisabledGroup(m_SpriteSkin.rootBone == null);
+                    m_ReorderableList.DoLayoutList();
+                    EditorGUI.EndDisabledGroup();
+                }
             }
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            EditorGUI.BeginDisabledGroup(!EnableCreateBones());
+            DoGenerateBonesButton();
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUI.BeginDisabledGroup(!EnableSetBindPose());
+            DoResetBindPoseButton();
+            EditorGUI.EndDisabledGroup();
+
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
 
 #if ENABLE_ANIMATION_PERFORMANCE
             m_ExperimentalFold = EditorGUILayout.Foldout(m_ExperimentalFold, Contents.experimental, true);
@@ -176,14 +187,10 @@ namespace UnityEditor.U2D.Animation
             }
 #endif
 
-            EditorGUILayout.Space();
-
             serializedObject.ApplyModifiedProperties();
 
             if (m_NeedsRebind)
                 Rebind();
-
-            ReInitSpriteComposite();
 
             if (spriteChanged && !m_SpriteSkin.ignoreNextSpriteChange)
             {
@@ -191,51 +198,7 @@ namespace UnityEditor.U2D.Animation
                 m_SpriteSkin.ignoreNextSpriteChange = false;
             }
 
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-
-            EditorGUI.BeginDisabledGroup(!EnableCreateBones());
-            DoGenerateBonesButton();
-            EditorGUI.EndDisabledGroup();
-
-            EditorGUI.BeginDisabledGroup(!EnableSetBindPose());
-            DoResetBindPoseButton();
-            EditorGUI.EndDisabledGroup();
-
-            EditorGUI.BeginDisabledGroup(!EnableResetBoundsButton());
-            DoResetBoundsButton();
-            EditorGUI.EndDisabledGroup();
-
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
-
             DoValidationWarnings();
-        }
-
-        private void OnSceneGUI()
-        {
-            var spriteSkin = target as SpriteSkin;
-
-            if (!spriteSkin.isValid)
-                return;
-
-            var rootBone = spriteSkin.rootBone;
-
-            using (new Handles.DrawingScope(spriteSkin.transform.localToWorldMatrix))
-            {
-                var bounds = spriteSkin.bounds;
-                m_BoundsHandle.center = bounds.center;
-                m_BoundsHandle.size = bounds.size;
-
-                EditorGUI.BeginChangeCheck();
-                m_BoundsHandle.DrawHandle();
-                if (EditorGUI.EndChangeCheck())
-                {
-                    Undo.RecordObject(spriteSkin, "Resize Bounds");
-                    spriteSkin.bounds = new Bounds(m_BoundsHandle.center, m_BoundsHandle.size);
-                    InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, spriteSkin.bounds);
-                }
-            }
         }
 
         private void Rebind()
@@ -252,20 +215,6 @@ namespace UnityEditor.U2D.Animation
             }
 
             m_NeedsRebind = false;
-        }
-
-        private void ReInitSpriteComposite()
-        {
-            if (m_BoneTransformChanged || m_RootBoneTransformChanged)
-            {
-                foreach (var t in targets)
-                {
-                    var spriteSkin = t as SpriteSkin;
-                    spriteSkin.ReInitSpriteSkinCompositeEntry();
-                }
-                m_BoneTransformChanged = false;
-                m_RootBoneTransformChanged = false;
-            }
         }
 
         private void ResetBounds(string undoName = "Reset Bounds")
@@ -304,11 +253,6 @@ namespace UnityEditor.U2D.Animation
         }
 
         private bool EnableSetBindPose()
-        {
-            return IsAnyTargetValid();
-        }
-
-        private bool EnableResetBoundsButton()
         {
             return IsAnyTargetValid();
         }
@@ -367,14 +311,6 @@ namespace UnityEditor.U2D.Animation
                     spriteSkin.ResetBindPose();
                 }
             }
-        }
-
-        private void DoResetBoundsButton()
-        {
-            if (GUILayout.Button("Reset Bounds", GUILayout.MaxWidth(125f)))
-                ResetBounds();
-
-            SceneView.RepaintAll();
         }
 
         private void DoValidationWarnings()

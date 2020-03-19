@@ -1,16 +1,18 @@
-# Frame-by-Frame Animation
+# Frame-by-frame animation
 
-You can use Sprite Swap to quickly swap the Sprites rendered at run time, to create a frame-by-frame animation. This is useful for simple animations, such as to show a character blinking. It is recommended that you [change the keyframe tangent](#Change-the-keyframe-tangent) setting in the Animation window first before following the workflow below:
+By using [Sprite Swap](SpriteSwapIntro.md), you can create frame-by-frame style animations by swapping to different Sprites on each frame at runtime. This is useful for simple animations, such as to show a character blinking. It is recommended that you first [change the keyframe tangent](#change-the-keyframe-tangent) before continuing with the workflow below:
 
-1. Place the Sprites for each animation frame in the [Sprite Library Asset](SLAsset.md), and assign them all to the same __Category__.  Give each Sprite a __Label__. Label names must be unique in their Category.
+1. In your character Prefab’s __Sprite Library Asset__ (which can be automatically or [manually created](SSManual.md)), add a new __Category__. Add the Sprite for each frame of your animation to this Category, and give them each a unique __Label__ name.
 
-2. Select your character Prefab, and bring it into the Scene.
+2. Select your character Prefab and drag it into the Scene view.
 
-3. Open the [Animation](https://docs.unity3d.com/Manual/AnimationOverview.html) window, and select your character Prefab. and Select the __Add Property__ button, and select the [Sprite Resolver component](SRComponent.md)’s __Label__ property. 
+3. Open the [Animation](https://docs.unity3d.com/Manual/AnimationOverview.html) window, and select your character Prefab. Then select the __Add Property__ button, and select the [Sprite Resolver component](SRComponent.md)’s __Label__ property. 
 
    ![](images/2DAnim_SpriteSwap_property.png)
 
-4. Change the __Label__ property at each keyframe in the Animation window in order of your Animation frames. This simulates a frame-by-frame animation style.
+   
+
+4. Change the __Label__ property at each keyframe in the Animation window in the order they should appear for your animation. This simulates a frame-by-frame animation style.
 
 ## Change the Keyframe Tangent
 
@@ -18,4 +20,4 @@ When animating with the Category and Label value of the Sprite Resolver in the A
 
 ![](images/SpriteResolverCheck.png)
 
-This is because the Sprite Resolver component uses the defined string hash value to locate the desired Sprite. If the values between keyframe’s are interpolated, the Sprite Resolver will not be able to resolve to the correct Sprite.
+This is because the Sprite Resolver component uses the defined string hash value to locate the desired Sprite. If the values between keyframe’s are interpolated, the Sprite Resolver will not be able to resolve and render the correct Sprite.

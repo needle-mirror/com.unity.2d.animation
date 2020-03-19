@@ -458,7 +458,8 @@ namespace UnityEditor.U2D.Animation
                 skinningCache.applyingChanges = false;
                 DoApplyAnalytics();
             }
-
+            else
+                skinningCache.Revert();
             return true;
         }
 

@@ -1,5 +1,30 @@
 # Changelog
 
+## [3.2.1] - 2020-03-20
+### Fixed
+- Fixed inconsistent line ending
+
+## [3.2.0] - 2020-02-20
+### Added
+- Add alwaysUpdate option to SpriteSkin to determine if SpriteSkin execution should occur even when the associated SpriteRenderer is culled
+- Added message to inform user on dependent packages when viewing certain sample Scenes
+- Added API to access deformed vertices from SpriteSkin
+
+### Changed
+- Improved SpriteSkinEditor UI
+- Adjust length of popup and value fields for Weight Slider Window
+
+### Removed
+- Remove Bounds Gizmo from SpriteSkin
+- Remove Reset Bounds button from SpriteSkinEditor
+
+### Fixed
+- Fixed Sprite asset used by SpriteSkin in Scene is being deleted
+- Fixed broken documentation links in inspectors
+- Fixed Sprite deformation not updated when GameObject is being enabled
+- Fixed exception after reverting from creating new vertices and edges
+- Fixed visual defect after undoing changes to Bone Transform properties in SpriteSkin's Inspector
+
 ## [3.1.1] - 2020-01-20
 ###Fixed
 - Fix 2D Animation not working when reloading scene in runtime (case 1211100)

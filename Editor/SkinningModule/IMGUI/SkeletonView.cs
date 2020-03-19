@@ -114,7 +114,7 @@ namespace UnityEditor.U2D.Animation
                 m_HoveredTailID = m_NearestTailId;
             }
 
-            if (m_GUIWrapper.eventType == EventType.Layout && m_PrevHoveredBoneID != m_HoveredBoneID)
+            if ((m_GUIWrapper.eventType == EventType.Layout && m_PrevHoveredBoneID != m_HoveredBoneID) || m_GUIWrapper.eventType == EventType.MouseMove) 
                 m_GUIWrapper.Repaint();
         }
 
@@ -127,8 +127,6 @@ namespace UnityEditor.U2D.Animation
         {
             if (mode == SkeletonMode.Disabled)
                 return;
-
-            Debug.Assert (m_GUIWrapper.eventType == EventType.Layout);
 
             var sliderData = new SliderData()
             {

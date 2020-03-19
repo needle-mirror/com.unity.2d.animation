@@ -1,17 +1,21 @@
-* [Introduction](index.md)
-* [Preparing And Importing Artwork](PreparingArtwork.md)
+* [Introduction to 2D Animation](index.md)
+
+* [Preparing and importing artwork](PreparingArtwork.md)
+
 * [Skinning Editor](SkinningEditor.md)
   * [Tool Preferences](ToolPref.md)
-  * [Sprite Visiblity Panel](SpriteVis.md)
-* [Character Rigging and Animation](CharacterRig.md)
-* [Copy and Paste Skeleton Rigs](CopyPasteSkele.md)
-* [Sprite Swapping Introduction (Experimental)](SpriteSwapIntro.md)
-  * [Sprite Library Asset](SLAsset.md)
-  * [Sprite Library component](SLComponent.md)
-  * [Sprite Resolver component](SRComponent.md)
-* [Sprite Swap and 2D Animation Integration](2DAnimInter.md)
-* [Sprite Swap Manual Setup](SSManual.md)
-* [Usage Examples](Examples.md)
-  * [Frame-by-Frame Animation](FFanimation.md)
-  * [Changing Parts of a Character](CharacterParts.md)
+  * [Editor tools and shortcuts](SkinEdToolsShortcuts.md)
+  * [Sprite Visiblity panel](SpriteVis.md)
+  
+* [Character skinning and weighting workflow](CharacterRig.md)
+
+* [Animating your character](CopyPasteSkele.md)
+
+* [Sprite Swap workflow - Experimental Feature](SpriteSwapIntro.md)
+  * [Sprite Library Asset and other components](SLAsset.md)
+  * [Sprite Swap manual setup](SSManual.md)
+  
+* [Usage examples](Examples.md)
+  * [Frame-by-frame animation](FFanimation.md)
+  * [Changing parts of a character](CharacterParts.md)
   * [Swapping Sprite Library Assets](SLASwap.md)

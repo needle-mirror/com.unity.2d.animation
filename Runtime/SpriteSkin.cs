@@ -3,13 +3,27 @@
 #define ENABLE_SPRITESKIN_COMPOSITE
 #endif
 
+using System;
+using System.Collections.Generic;
 using UnityEngine.Scripting;
 using UnityEngine.U2D.Common;
 using Unity.Collections;
+using UnityEngine.Rendering;
 using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.U2D.Animation
 {
+    public struct PositionVertex
+    {
+        public Vector3 position;
+    }
+
+    public struct PositionTangentVertex
+    {
+        public Vector3 position;
+        public Vector4 tangent;
+    }
+
     struct DeformVerticesBuffer
     {
         public const int k_DefaultBufferSize = 2;
@@ -40,11 +54,17 @@ namespace UnityEngine.U2D.Animation
         public ref NativeArray<byte> GetBuffer(int expectedSize)
         {
             m_CurrentBuffer = (m_CurrentBuffer + 1) % m_BufferCount;
-            if (m_DeformedVertices[m_CurrentBuffer].IsCreated)
+            if (m_DeformedVertices[m_CurrentBuffer].IsCreated && m_DeformedVertices[m_CurrentBuffer].Length != expectedSize)
+            {
                 m_DeformedVertices[m_CurrentBuffer].Dispose();
-            m_DeformedVertices[m_CurrentBuffer] = new NativeArray<byte>(expectedSize, Allocator.Persistent);
+                m_DeformedVertices[m_CurrentBuffer] = new NativeArray<byte>(expectedSize, Allocator.Persistent);
+            }
             return ref m_DeformedVertices[m_CurrentBuffer];
+        }
 
+        internal ref NativeArray<byte> GetCurrentBuffer()
+        {
+            return ref m_DeformedVertices[m_CurrentBuffer];
         }
     }
 
@@ -53,12 +73,13 @@ namespace UnityEngine.U2D.Animation
     /// </summary>
     [Preserve]
     [ExecuteInEditMode]
+    [DefaultExecutionOrder(-1)]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
-
-    public sealed partial class SpriteSkin : MonoBehaviour
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.1/manual/index.html")]
+    public sealed partial class SpriteSkin : MonoBehaviour, ISerializationCallbackReceiver
     {
         [SerializeField]
         private Transform m_RootBone;
@@ -68,16 +89,18 @@ namespace UnityEngine.U2D.Animation
         private Bounds m_Bounds;
         [SerializeField]
         private bool m_UseBatching = true;
+        [SerializeField] 
+        private bool m_AlwaysUpdate = true;
 
         // The deformed m_SpriteVertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite  Asset data.
         // The order of storage if present is POSITION, NORMALS, TANGENTS.
         private DeformVerticesBuffer m_DeformedVertices;
         private int m_CurrentDeformVerticesLength = 0;
         private SpriteRenderer m_SpriteRenderer;
-        private Sprite m_CurrentDeformSprite;
+        private int m_CurrentDeformSprite = 0;
         private bool m_ForceSkinning;
         private bool m_BatchSkinning = false;
-        bool m_IsValid;
+        bool m_IsValid = false;
         int m_TransformsHash = 0;
 
         internal bool batchSkinning
@@ -98,11 +121,15 @@ namespace UnityEngine.U2D.Animation
         }
 #endif
 
+        private int GetSpriteInstanceID()
+        {
+            return sprite != null ? sprite.GetInstanceID() : 0;
+        }
 
         void OnEnable()
         {
-            CacheValidFlag();
-            UpdateSpriteDeform();
+            m_TransformsHash = 0;
+            CacheCurrentSprite();
             OnEnableBatch();
             m_DeformedVertices = new DeformVerticesBuffer(DeformVerticesBuffer.k_DefaultBufferSize);
         }
@@ -110,6 +137,8 @@ namespace UnityEngine.U2D.Animation
         void CacheValidFlag()
         {
             m_IsValid = isValid;
+            if(!m_IsValid)
+                DeactivateSkinning();
         }
 
         void Reset()
@@ -120,8 +149,11 @@ namespace UnityEngine.U2D.Animation
 
         internal void UseBatching(bool value)
         {
-            m_UseBatching = value;
-            UseBatchingBatch();
+            if (m_UseBatching != value)
+            {
+                m_UseBatching = value;
+                UseBatchingBatch();
+            }
         }
 
         internal ref NativeArray<byte> GetDeformedVertices(int spriteVertexCount)
@@ -141,6 +173,120 @@ namespace UnityEngine.U2D.Animation
             return ref m_DeformedVertices.GetBuffer(m_CurrentDeformVerticesLength);
         }
 
+        /// <summary>
+        /// Returns whether this SpriteSkin has currently deformed vertices.
+        /// </summary>
+        /// <returns>Returns true if this SpriteSkin has currently deformed vertices. Returns false otherwise.</returns>
+        public bool HasCurrentDeformedVertices()
+        {
+            if (!m_IsValid)
+                return false;
+
+#if ENABLE_SPRITESKIN_COMPOSITE
+            return m_DataIndex >= 0;
+#else
+            return m_CurrentDeformVerticesLength > 0 && m_DeformedVertices.GetCurrentBuffer().IsCreated;
+#endif
+        }
+        
+        /// <summary>
+        /// Gets a byte array to the currently deformed vertices for this SpriteSkin.
+        /// </summary>
+        /// <returns>Returns a reference to the currently deformed vertices. This is valid only for this calling frame.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when there are no currently deformed vertices</exception>
+        internal NativeArray<byte> GetCurrentDeformedVertices()
+        {
+            if (!m_IsValid)
+                throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
+
+#if ENABLE_SPRITESKIN_COMPOSITE
+            if (m_DataIndex < 0)
+            {
+                throw new InvalidOperationException("There are no currently deformed vertices.");
+            }
+            return SpriteSkinComposite.instance.GetDeformableBufferForSprite(m_DataIndex);
+#else
+            if (m_CurrentDeformVerticesLength <= 0)
+                throw new InvalidOperationException("There are no currently deformed vertices.");
+            var buffer = m_DeformedVertices.GetCurrentBuffer();
+            if (!buffer.IsCreated)
+                throw new InvalidOperationException("There are no currently deformed vertices.");
+            return buffer;
+#endif
+        }
+
+        /// <summary>
+        /// Gets an array of currently deformed position vertices for this SpriteSkin.
+        /// </summary>
+        /// <returns>Returns a reference to the currently deformed vertices. This is valid only for this calling frame.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when there are no currently deformed vertices or if the deformed vertices does not contain only
+        /// position data.
+        /// </exception>
+        internal NativeSlice<PositionVertex> GetCurrentDeformedVertexPositions()
+        {
+            if (sprite.HasVertexAttribute(VertexAttribute.Tangent))
+                throw new InvalidOperationException("This SpriteSkin has deformed tangents");
+            if (!sprite.HasVertexAttribute(VertexAttribute.Position))
+                throw new InvalidOperationException("This SpriteSkin does not have deformed positions.");
+
+            var deformedBuffer = GetCurrentDeformedVertices();
+            return deformedBuffer.Slice().SliceConvert<PositionVertex>();
+        }
+
+        /// <summary>
+        /// Gets an array of currently deformed position and tangent vertices for this SpriteSkin.
+        /// </summary>
+        /// <returns>
+        /// Returns a reference to the currently deformed position and tangent vertices. This is valid only for this calling frame.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when there are no currently deformed vertices or if the deformed vertices does not contain only
+        /// position and tangent data.
+        /// </exception>
+        internal NativeSlice<PositionTangentVertex> GetCurrentDeformedVertexPositionsAndTangents()
+        {
+            if (!sprite.HasVertexAttribute(VertexAttribute.Tangent))
+                throw new InvalidOperationException("This SpriteSkin does not have deformed tangents");
+            if (!sprite.HasVertexAttribute(VertexAttribute.Position))
+                throw new InvalidOperationException("This SpriteSkin does not have deformed positions.");
+
+            var deformedBuffer = GetCurrentDeformedVertices();
+            return deformedBuffer.Slice().SliceConvert<PositionTangentVertex>();
+        }
+
+        /// <summary>
+        /// Gets an enumerable to iterate through all deformed vertex positions of this SpriteSkin.
+        /// </summary>
+        /// <returns>Returns an IEnumerable to deformed vertex positions.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when there is no vertex positions or deformed vertices.</exception>
+        public IEnumerable<Vector3> GetDeformedVertexPositionData()
+        {
+            bool hasPosition = sprite.HasVertexAttribute(Rendering.VertexAttribute.Position);
+            if (!hasPosition)
+                throw new InvalidOperationException("Sprite does not have vertex position data.");
+
+            var rawBuffer = GetCurrentDeformedVertices();
+            var rawSlice = rawBuffer.Slice(sprite.GetVertexStreamOffset(VertexAttribute.Position));
+            return new NativeCustomSliceEnumerator<Vector3>(rawSlice, sprite.GetVertexCount(), sprite.GetVertexStreamSize());
+        }
+
+        /// <summary>
+        /// Gets an enumerable to iterate through all deformed vertex tangents of this SpriteSkin. 
+        /// </summary>
+        /// <returns>Returns an IEnumerable to deformed vertex tangents.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when there is no vertex tangents or deformed vertices.</exception>
+        public IEnumerable<Vector4> GetDeformedVertexTangentData()
+        {
+            bool hasTangent = sprite.HasVertexAttribute(Rendering.VertexAttribute.Tangent);
+            if (!hasTangent)
+                throw new InvalidOperationException("Sprite does not have vertex tangent data.");
+
+            var rawBuffer = GetCurrentDeformedVertices();
+            var rawSlice = rawBuffer.Slice(sprite.GetVertexStreamOffset(VertexAttribute.Tangent));
+            return new NativeCustomSliceEnumerator<Vector4>(rawSlice, sprite.GetVertexCount(), sprite.GetVertexStreamSize());
+        }
+
         void OnDisable()
         {
             DeactivateSkinning();
@@ -154,13 +300,8 @@ namespace UnityEngine.U2D.Animation
         void LateUpdate()
 #endif
         {
-            if (m_CurrentDeformSprite != sprite)
-            {
-                DeactivateSkinning();
-                m_CurrentDeformSprite = sprite;
-                UpdateSpriteDeform();
-            }
-            if (isValid && !batchSkinning && this.enabled)
+            CacheCurrentSprite();
+            if (isValid && !batchSkinning && this.enabled && (this.alwaysUpdate || this.spriteRenderer.isVisible))
             {
                 var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
                 var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
@@ -171,11 +312,23 @@ namespace UnityEngine.U2D.Animation
                     SpriteSkinUtility.UpdateBounds(this, inputVertices);
                     InternalEngineBridge.SetDeformableBuffer(spriteRenderer, inputVertices);
                     m_TransformsHash = transformHash;
-                    m_CurrentDeformSprite = sprite;
+                    m_CurrentDeformSprite = GetSpriteInstanceID();
                 }
             }
         }
 
+        void CacheCurrentSprite()
+        {
+            if (m_CurrentDeformSprite != GetSpriteInstanceID())
+            {
+                DeactivateSkinning();
+                m_CurrentDeformSprite = GetSpriteInstanceID();
+                UpdateSpriteDeform();
+                CacheValidFlag();
+                m_TransformsHash = 0;
+            }
+        }
+        
         internal Sprite sprite
         {
             get
@@ -232,6 +385,16 @@ namespace UnityEngine.U2D.Animation
             set { m_Bounds = value; }
         }
 
+        /// <summary>
+        /// Determines if the SpriteSkin executes even if the associated
+        /// SpriteRenderer has been culled from view.
+        /// </summary>
+        public bool alwaysUpdate
+        {
+            get => m_AlwaysUpdate;
+            set => m_AlwaysUpdate = value;
+        }
+
         internal bool isValid
         {
             get { return this.Validate() == SpriteSkinValidationResult.Ready; }
@@ -254,9 +417,18 @@ namespace UnityEngine.U2D.Animation
 
         internal void ResetSprite()
         {
-            m_CurrentDeformSprite = null;
+            m_CurrentDeformSprite = 0;
             CacheValidFlag();
         }
 
+        public void OnBeforeSerialize()
+        {
+            OnBeforeSerializeBatch();
+        }
+
+        public void OnAfterDeserialize()
+        {
+            OnAfterSerializeBatch();
+        }
     }
 }

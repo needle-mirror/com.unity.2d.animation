@@ -94,6 +94,7 @@ namespace UnityEngine.Experimental.U2D.Animation
     /// a name specified so that it can be queried.
     /// </Description>
     [CreateAssetMenu(order = 350, menuName = "Sprite Library Asset (Experimental)")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.1/manual/SLAsset.html")]
     public class SpriteLibraryAsset : ScriptableObject
     {
         [SerializeField]

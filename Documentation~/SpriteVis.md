@@ -1,26 +1,36 @@
 # Sprite Visibility panel
 
-Toggle the __Sprite Visibility panel__ by selecting the __Visibility__ button along the top right of the __Skinning Window__: ![](images/Visibility_button.PNG)
+Toggle the __Sprite Visibility__ panel by selecting the __Visibility tool__ button along the top right of the editor window: 
 
-The panel appears on the right-side of the editor window. It has two sliders at the top that control the visibility of the ![](C:/Users/Saman/Documents/GitHub/2d/Packages/com.unity.2d.animation/Documentation~/images/bone_icon.png)bones and ![](C:/Users/Saman/Documents/GitHub/2d/Packages/com.unity.2d.animation/Documentation~/images/mesh_icon.png)Sprite meshes within the editor window. Move either slider further to the left to decrease the visibility of the bones or meshes respectively, and to the right to increase their visibility. 
+![](images/Highlighted_Visibility_icon.png)
+
+The panel appears on the right-side of the editor window. It has two sliders at the top that control the visibility of the ![](images/bone_icon.png)bones and ![](images/mesh_icon.png)Sprite meshes within the editor window. Move either slider further to the left to decrease the visibility of the bones or meshes respectively, and to the right to increase their visibility. 
 
 ![](images/image_3.png)
 
-The panel has two main tabs - __Bone__ and __Sprite__. Both tabs show either the order of bones or Sprite meshes of the currently selected Character rig respectively. 
+The panel has two main tabs - __Bone__ and __Sprite__.  The Bone tab displays the [Bone hierarchy](#bone-tab-and-hierarchy-tree) of the character Prefab, and the Sprite tab displays the names of the Sprites, their grouping hierarchy, and __Category__ and __Label__ information.
 
-![The Bone tab selected.](images/bone_tree.PNG)
+## Bone tab and hierarchy tree
 
-Select the Bone tab bring up the bone hierarchy tree of the Character Rig. You can reparent and reorder bones by dragging them along the list, and toggle the visibility of each bone by selecting the ![](images/visibility_icon.PNG) icon next to it.
+![](images/bone_tree.PNG)<br/>The Bone tab selected.
 
-Select the Sprite tab to see the list of Sprite meshes in the Skinning editor window. The names and order of the Sprites mirror their names, layer and grouping order in the original PSB source file. 
+Select the __Bone__ tab to view the list of bones in the character Prefab. The list reflects the hierarchy of bones you created with the [Bone tools](SkinEdToolsShortcuts.html#bone-tools). You can reparent and reorder bones directly from the bone tab by dragging selected bones up and down the list. Toggle the visibility of each bone by selecting the ![](images/visibility_icon.png) icon next to it.
 
-![](images/AnimWin_PhotoshopWin_match.png)
+| Property                        | Function                                                     |
+| ------------------------------- | ------------------------------------------------------------ |
+| ![](images/visibility_icon.png) | Toggle the visibility of each bone by selecting this icon next to the bone. |
+| __Bone__                        | The name of the Bone.                                        |
+| __Depth__                       | The render order of bones that are influencing the same Sprite Mesh. The parts of the Mesh that is influenced by a bone with higher bone Depth value will overlay the parts influenced by bones with lower Depth value. <br/>A bone’s Depth value is 0 by default. To set a bone’s Depth value, select one of the available [Bone tools](SkinEdToolsShortcuts.html#bone-tools) and then select one of the bones. Find the [Bone panel](SkinEdToolsShortcuts.html#bone-panel) at the bottom right of the window, and enter the desired value to its __Depth__ property box. |
 
-The Sprite tab has two additional columns for the __Category__ and __Label__ of each Sprite in the character prefab. A Category contains a collection of Sprites that are differentiated by their Labels, and these two properties are found in the [Sprite Library Asset](SLAsset.md) that Unity automatically creates when a PSB file is imported with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest). These two properties are part of the [Sprite Swapping](SpriteSwapIntro.md) workflow, and enables several possible [functions and uses](Examples.md), such as creating [frame-by-frame animations](FFanimation.md). 
+## Sprite tab
 
+Select the __Sprite tab__ to see the list of Sprites that make up the character Prefab in the Skinning editor window. The names  and order of the Sprites mirror their names, layer and grouping order in the original source file.
 
+![](images/SpriteTab_order.png)
 
-## Creating a new Category in the Visibility Panel
+The Sprite tab has two additional columns for the __Category__ and __Label__ of each Sprite in the character Prefab. A __Category__ contains a selection of Sprites that are differentiated by their __Labels__, and this information is contained in the [Sprite Library Asset](SLAsset.md) that is a sub-Asset of the character Prefab. Changing the Category and Labels of Sprites allows you to [Sprite Swap](SLASwap.md),  which allows you to create [frame-by-frame animations](FFanimation.md) and [other uses](Examples.md).
+
+## How to create a Category
 
 1. Go to the row of the Sprite, open the drop-down menu on the Category column and select __New__.
 
@@ -38,9 +48,9 @@ The Sprite tab has two additional columns for the __Category__ and __Label__ of 
 
 
 
-## Context Menu options
+## Context menu options
 
-There are context menu options available from the Visibility panel to create Categories and Labels based on the groups and layer names of the Sprites. Open the context menu by right-clicking the row of the Sprite or Group you want to convert to a Category.
+There are context menu options available from the Visibility panel to create Categories and Labels based on the imported groups and layer names of the Sprites. Open the context menu by right-clicking the row of the Sprite or Group you want to convert to a Category.
 
 ![](images/image_6.png)
 

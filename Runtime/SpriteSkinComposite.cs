@@ -9,48 +9,12 @@ using UnityEngine.U2D.Common;
 using UnityEngine.Profiling;
 using Unity.Burst;
 
-
 namespace UnityEngine.U2D.Animation
 {
     internal struct PerSkinJobData
     {
         public int2 bindPosesIndex;
         public int2 verticesIndex;
-    }
-
-    internal struct NativeCustomSlice<T> where T : struct
-    {
-        [NativeDisableUnsafePtrRestriction]
-        public IntPtr data;
-        public int length;
-        public int stride;
-
-        public static NativeCustomSlice<T> Default()
-        {
-            return new NativeCustomSlice<T>
-            {
-                data = IntPtr.Zero,
-                length = 0,
-                stride = 0
-            };
-        }
-
-        public unsafe NativeCustomSlice(NativeSlice<T> nativeSlice)
-        {
-            data = new IntPtr(nativeSlice.GetUnsafeReadOnlyPtr());
-            length = nativeSlice.Length;
-            stride = nativeSlice.Stride;
-        }
-
-        public unsafe T this[int index]
-        {
-            get
-            {
-                return UnsafeUtility.ReadArrayElementWithStride<T>(data.ToPointer(), index, stride);
-            }
-        }
-
-        public int Length { get { return length; } }
     }
 
     internal struct SpriteSkinBatchProcessData
@@ -317,7 +281,6 @@ namespace UnityEngine.U2D.Animation
         internal void RemoveTransformById(int transformId)
         {
             m_LocalToWorldTransformAccessJob.RemoveTransformById(transformId);
-            m_WorldToLocalTransformAccessJob.RemoveTransformById(transformId);
         }
 
         internal void AddSpriteSkinBoneTransform(SpriteSkin spriteSkin)
@@ -363,9 +326,13 @@ namespace UnityEngine.U2D.Animation
 
         internal void AddSpriteSkinForLateUpdate(SpriteSkin spriteSkin)
         {
-            if (spriteSkin == null)
-                Debug.Assert(m_SpriteSkinLateUpdate.Contains(spriteSkin) == false, string.Format("SpriteSkin {0} is already added", spriteSkin.gameObject.name));
-            m_SpriteSkinLateUpdate.Add(spriteSkin);
+            if (spriteSkin != null)
+            {
+                bool added = m_SpriteSkinLateUpdate.Contains(spriteSkin);
+                Debug.Assert( !added, string.Format("SpriteSkin {0} is already added", spriteSkin.gameObject.name));
+                if(!added)
+                    m_SpriteSkinLateUpdate.Add(spriteSkin);
+            }
         }
 
         internal void RemoveSpriteSkinForLateUpdate(SpriteSkin spriteSkin)
@@ -546,6 +513,26 @@ namespace UnityEngine.U2D.Animation
                 }
                 Profiler.EndSample();
             }
+        }
+
+        internal unsafe NativeArray<byte> GetDeformableBufferForSprite(int dataIndex)
+        {
+            if (dataIndex < 0 && m_SpriteSkinData.Length >= dataIndex)
+                throw new ArgumentException("Invalid index for deformable buffer");
+            
+            if (!m_DeformJobHandle.IsCompleted)
+                m_DeformJobHandle.Complete();
+
+            var skinData = m_SpriteSkinData[dataIndex];
+            var vertexBufferLength = skinData.spriteVertexCount * skinData.spriteVertexStreamSize;
+            var deformVertices = m_DeformedVerticesBuffer.GetCurrentBuffer();
+            byte* ptrVertices = (byte*)deformVertices.GetUnsafeReadOnlyPtr();
+            ptrVertices += skinData.deformVerticesStartPos; 
+            var buffer = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptrVertices, vertexBufferLength, Allocator.None);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+            NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref buffer, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(deformVertices));
+#endif
+            return buffer;
         }
 
         // Code for tests
