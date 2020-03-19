@@ -14,7 +14,8 @@ namespace UnityEngine.Experimental.U2D.Animation
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Resolver (Experimental)")]
-    [DefaultExecutionOrder(-1)]
+    [DefaultExecutionOrder(-2)]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.1/manual/SRComponent.html")]
     public class SpriteResolver : MonoBehaviour
     {
         // These are for animation

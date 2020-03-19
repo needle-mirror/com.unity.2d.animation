@@ -477,6 +477,11 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
+        internal void Revert()
+        {
+            m_State.lastVertexSelection.Clear();
+        }
+
         internal void BoneVisibilityChanged(SkeletonCache sc)
         {
             if (applyingChanges)

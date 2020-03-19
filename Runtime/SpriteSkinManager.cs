@@ -3,7 +3,7 @@
     internal class SpriteSkinManager
     {
         // Doing this to hide it from user adding it from Inspector
-        [DefaultExecutionOrder(0)]
+        [DefaultExecutionOrder(-1)]
         [ExecuteInEditMode]
         internal class SpriteSkinManagerInternal : MonoBehaviour
         {

@@ -4,7 +4,7 @@ using UnityEngine.U2D.Animation;
 
 namespace UnityEditor.U2D.Animation
 {
-    public class SpriteSkinCompositeDebugWindow : EditorWindow
+    internal class SpriteSkinCompositeDebugWindow : EditorWindow
     {
         [MenuItem("internal:Window/2D/SpritSkinCompositeDebug")]
         static void Launch()

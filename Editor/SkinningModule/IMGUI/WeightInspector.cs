@@ -94,14 +94,15 @@ namespace UnityEditor.U2D.Animation
 
                 EditorGUI.BeginChangeCheck();
 
+                EditorGUIUtility.fieldWidth = 80f;
+
                 EditorGUI.showMixedValue = GUI.enabled && isBoneIndexMixed;
                 tempBoneIndex = EditorGUILayout.Popup(tempBoneIndex, m_BoneNameContents);
 
                 if (EditorGUI.EndChangeCheck())
                     boneIndex = tempBoneIndex;
 
-                EditorGUIUtility.fieldWidth = 45f;
-
+                EditorGUIUtility.fieldWidth = 32f;
                 EditorGUI.showMixedValue = isWeightMixed;
                 weight = EditorGUILayout.Slider(GUIContent.none, weight, 0f, 1f);
             }
