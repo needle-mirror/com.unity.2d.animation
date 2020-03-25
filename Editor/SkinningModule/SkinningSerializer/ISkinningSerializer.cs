@@ -12,10 +12,17 @@ namespace UnityEditor.U2D.Animation
     }
 
     [Serializable]
+    internal class SpriteBoneCopyData
+    {
+        public UnityEngine.U2D.SpriteBone spriteBone;
+        public int order;
+    }
+
+    [Serializable]
     internal class SkinningCopySpriteData
     {
         public string spriteName;
-        public List<UnityEngine.U2D.SpriteBone> spriteBones;
+        public List<SpriteBoneCopyData> spriteBones;
         public List<Vertex2D> vertices;
         public List<int> indices;
         public List<Edge> edges;

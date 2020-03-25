@@ -26,14 +26,15 @@ namespace UnityEditor.U2D.Animation
         public class CustomUxmlFactory : UxmlFactory<SpriteBoneInfluenceListWidget, CustomUxmlTraits> {}
         public class CustomUxmlTraits : UxmlTraits {}
 
-        private BoneCache[] m_BoneInfluences;
+        private List<BoneCache> m_BoneInfluences;
         private SelectListView m_ListView;
         bool m_IgnoreSelectionChange = false;
         private Button m_AddButton;
         private Button m_RemoveButton;
         public Action onAddBone = () => {};
         public Action onRemoveBone = () => {};
-        public Action<BoneCache[]> onSelectionChanged = (s) => {};
+        public Action<IEnumerable<BoneCache>> onReordered = _ => {};
+        public Action<IEnumerable<BoneCache>> onSelectionChanged = (s) => {};
         public Func<SpriteBoneInflueceToolController> GetController = () => null;
 
         public SpriteBoneInfluenceListWidget()
@@ -83,6 +84,7 @@ namespace UnityEditor.U2D.Animation
             m_AddButton.clickable.clicked += OnAddButtonClick;
             m_RemoveButton = this.Q<Button>("RemoveButton");
             m_RemoveButton.clickable.clicked += OnRemoveButtonClick;
+            this.RegisterCallback<DragPerformEvent>(x => onReordered(m_BoneInfluences) );
         }
 
         private void OnListViewSelectionChanged(IEnumerable<object> o)
@@ -107,7 +109,7 @@ namespace UnityEditor.U2D.Animation
 
         public void Update()
         {
-            m_BoneInfluences = GetController().GetSelectedSpriteBoneInfluence();
+            m_BoneInfluences = GetController().GetSelectedSpriteBoneInfluence().ToList();
             m_ListView.itemsSource = m_BoneInfluences;
             m_ListView.Refresh();
         }
@@ -123,7 +125,7 @@ namespace UnityEditor.U2D.Animation
             }
             m_IgnoreSelectionChange = false;
             m_AddButton.SetEnabled(GetController().ShouldEnableAddButton(m_BoneInfluences));
-            m_RemoveButton.SetEnabled(m_ListView.selectedIndex >= 0);
+            m_RemoveButton.SetEnabled(GetController().InCharacterMode() && m_ListView.selectedIndex >= 0);
         }
     }
 }

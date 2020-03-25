@@ -90,6 +90,7 @@ namespace UnityEditor.U2D.Animation
         public static string visibilityTab = "Visibility Tab";
         public static string addBoneInfluence = "Add Bone Influence";
         public static string removeBoneInfluence = "Remove Bone Influence";
+        public static string reorderBoneInfluence = "Reorder Bone Influence";
         public static string noSpriteSelected = "No sprite selected";
         public static string weightSlider = "Weight Slider";
         public static string weightBrush = "Weight Brush";

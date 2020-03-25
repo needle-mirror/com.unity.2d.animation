@@ -75,6 +75,7 @@ namespace UnityEditor.U2D.Animation
         {
             m_Model.view.onAddBone += AddSelectedBoneInfluencetoSprite;
             m_Model.view.onRemoveBone += RemoveSelectedBoneInfluenceFromSprite;
+            m_Model.view.onReordered += OnReorderBoneInfluenceFromSprite;
             m_Model.view.onSelectionChanged += SelectBones;
             m_Model.view.SetController(this);
             ShowHideView(false);
@@ -132,7 +133,31 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void SelectBones(BoneCache[] selectedBones)
+        private void OnReorderBoneInfluenceFromSprite(IEnumerable<BoneCache> boneCache)
+        {
+            var character = m_Model.characterSkeleton;
+
+            if (character != null)
+            {
+                var characterPart = m_Model.GetSpriteCharacterPart(m_Model.selectedSprite);
+                using (m_Model.UndoScope(TextContent.reorderBoneInfluence))
+                {
+                    characterPart.bones = boneCache.ToArray();
+                    m_Events.characterPartChanged.Invoke(characterPart);
+                    m_Model.view.OnSkeletonChanged();
+                }
+            }
+            else
+            {
+                using (m_Model.UndoScope(TextContent.reorderBoneInfluence))
+                {
+                    m_Model.selectedSprite.GetSkeleton().ReorderBones(boneCache);
+                    m_Events.skeletonTopologyChanged.Invoke(m_Model.selectedSprite.GetSkeleton());
+                }
+            }
+        }
+
+        private void SelectBones(IEnumerable<BoneCache> selectedBones)
         {
             using (m_Model.UndoScope(TextContent.boneSelection))
             {
@@ -143,7 +168,6 @@ namespace UnityEditor.U2D.Animation
 
         private void ShowHideView(bool show)
         {
-            show = m_Model.hasCharacter && show;
             m_Model.view.SetHiddenFromLayout(!show);
             if (show)
             {
@@ -161,17 +185,23 @@ namespace UnityEditor.U2D.Animation
         public BoneCache[] GetSelectedSpriteBoneInfluence()
         {
             var selectedSprite = m_Model.selectedSprite;
-            var character = m_Model.hasCharacter;
 
-            if (selectedSprite != null && character == true)
+            if (selectedSprite != null)
             {
-                var characterPart = m_Model.GetSpriteCharacterPart(selectedSprite);
-                return characterPart.bones.ToArray();
+                if (m_Model.hasCharacter)
+                {
+                    var characterPart = m_Model.GetSpriteCharacterPart(selectedSprite);
+                    return characterPart.bones.ToArray();
+                }
+                else
+                {
+                    return selectedSprite.GetSkeleton().bones;
+                }
             }
             return new BoneCache[0];
         }
 
-        public int[] GetSelectedBoneForList(BoneCache[] bones)
+        public int[] GetSelectedBoneForList(IEnumerable<BoneCache> bones)
         {
             var selectedBones = m_Model.selectedBones;
             var spriteBones = GetSelectedSpriteBoneInfluence();
@@ -185,20 +215,30 @@ namespace UnityEditor.U2D.Animation
             return result.ToArray();
         }
 
-        public bool ShouldEnableAddButton(BoneCache[] bones)
+        public bool ShouldEnableAddButton(IEnumerable<BoneCache> bones)
         {
-            var hasSelectedSprite = m_Model.selectedSprite != null;
-            var selectedBones = m_Model.selectedBones;
-            return hasSelectedSprite && selectedBones.FirstOrDefault(x => !bones.Contains(x)) != null;
+            if (InCharacterMode())
+            {
+                var hasSelectedSprite = m_Model.selectedSprite != null;
+                var selectedBones = m_Model.selectedBones;
+                return hasSelectedSprite && selectedBones.FirstOrDefault(x => !bones.Contains(x)) != null;
+            }
+            return false;
+        }
+
+        public bool InCharacterMode()
+        {
+            return m_Model.hasCharacter && m_Model.skinningMode == SkinningMode.Character;
         }
     }
 
     internal interface ISpriteBoneInfluenceToolModel
     {
         ISpriteBoneInfluenceWindow view { get; }
-        BoneCache[] selectedBones { get; set; }
+        IEnumerable<BoneCache> selectedBones { get; set; }
         SpriteCache selectedSprite { get; }
         bool hasCharacter { get; }
+        SkinningMode skinningMode { get; }
         SkeletonCache characterSkeleton { get; }
         UndoScope UndoScope(string description);
         CharacterPartCache GetSpriteCharacterPart(SpriteCache sprite);
@@ -223,13 +263,14 @@ namespace UnityEditor.U2D.Animation
 
         ISpriteBoneInfluenceWindow ISpriteBoneInfluenceToolModel.view {get { return m_View; } }
 
-        BoneCache[] ISpriteBoneInfluenceToolModel.selectedBones
+        IEnumerable<BoneCache> ISpriteBoneInfluenceToolModel.selectedBones
         {
             get { return skinningCache.skeletonSelection.elements; }
-            set { skinningCache.skeletonSelection.elements = value; }
+            set { skinningCache.skeletonSelection.elements = value.ToArray(); }
         }
         SpriteCache ISpriteBoneInfluenceToolModel.selectedSprite { get { return skinningCache.selectedSprite; } }
         bool ISpriteBoneInfluenceToolModel.hasCharacter { get { return skinningCache.hasCharacter; } }
+        SkinningMode ISpriteBoneInfluenceToolModel.skinningMode { get { return skinningCache.mode; } }
         SkeletonCache ISpriteBoneInfluenceToolModel.characterSkeleton { get { return skinningCache.character != null ? skinningCache.character.skeleton : null; } }
 
         UndoScope ISpriteBoneInfluenceToolModel.UndoScope(string description)

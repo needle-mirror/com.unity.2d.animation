@@ -97,7 +97,18 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// </summary>
         public SpriteLibrary spriteLibrary
         {
-            get { return GetComponentInParent<SpriteLibrary>(); }
+            get
+            {
+                var t = transform;
+                while (t != null)
+                {
+                    var sl = t.GetComponent<SpriteLibrary>();
+                    if (sl != null)
+                        return sl;
+                    t = t.parent;
+                }
+                return null;
+            }
         }
 
         void LateUpdate()

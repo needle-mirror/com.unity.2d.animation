@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -17,7 +18,8 @@ namespace UnityEditor.U2D.Animation
         void OnBoneSelectionChanged();
         event Action onAddBone;
         event Action onRemoveBone;
-        event Action<BoneCache[]> onSelectionChanged;
+        event Action<IEnumerable<BoneCache>> onReordered;
+        event Action<IEnumerable<BoneCache>> onSelectionChanged;
         void SetController(SpriteBoneInflueceToolController controller);
     }
 
@@ -31,7 +33,8 @@ namespace UnityEditor.U2D.Animation
 
         public event Action onAddBone = () => {};
         public event Action onRemoveBone = () => {};
-        public event Action<BoneCache[]> onSelectionChanged = (s) => {};
+        public event Action<IEnumerable<BoneCache>> onReordered = _ => {};
+        public event Action<IEnumerable<BoneCache>> onSelectionChanged = _ => {};
 
         public string headerText
         {
@@ -52,6 +55,7 @@ namespace UnityEditor.U2D.Animation
             m_InfluencesList = this.Q<SpriteBoneInfluenceListWidget>();
             m_InfluencesList.onAddBone = () => onAddBone();
             m_InfluencesList.onRemoveBone = () => onRemoveBone();
+            m_InfluencesList.onReordered = s => onReordered(s);
             m_InfluencesList.onSelectionChanged = (s) => onSelectionChanged(s);
             m_InfluencesList.GetController = InternalGetController;
             m_HeaderLabel = this.Q<PopupWindow>();

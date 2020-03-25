@@ -5,7 +5,7 @@
       <ui:Label name ="HeaderText" text ="Bone Influences"/>
     </ui:Image>
 
-    <aui:SelectListView name="ListView" itemHeight="20"/>
+    <aui:SelectListView name="ListView" itemHeight="20" reorderable="true"/>
 
     <ui:VisualElement name="ButtonsContainer" picking-mode="Ignore">
       <ui:Button name="AddButton" tooltip="Add selected bone to influence Sprite">

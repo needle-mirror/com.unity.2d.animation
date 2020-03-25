@@ -40,7 +40,7 @@ namespace UnityEngine.U2D.Animation
             m_JobHandle = default(JobHandle);
         }
 
-        public void Destory()
+        public void Destroy()
         {
             m_JobHandle.Complete();
             if (m_TransformMatrix.IsCreated)
