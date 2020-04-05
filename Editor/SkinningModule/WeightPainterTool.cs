@@ -249,6 +249,7 @@ namespace UnityEditor.U2D.Animation
                         characterBones.Add(bone);
                         characterPart.bones = characterBones.ToArray();
                         skinningCache.events.characterPartChanged.Invoke(characterPart);
+                        m_WeightPainterPanel.UpdateWeightInspector(meshTool.mesh, GetMeshBoneNames(), skinningCache.vertexSelection, skinningCache);
                     }
                 }
             }

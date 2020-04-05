@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "unity": "2019.3",
   "unityRelease": "0b11",
   "displayName": "2D Animation",
@@ -16,7 +16,7 @@
     "com.unity.2d.sprite": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "3.2.1",
+    "com.unity.2d.animation.tests": "3.2.2",
     "com.unity.2d.common.tests": "2.0.2"
   },
   "samples": [
@@ -27,9 +27,9 @@
     }
   ],
   "repository": {
-    "footprint": "ffbdd659683086d12d90f3392339a1deae885c2b",
+    "footprint": "0d92531a0c81410130fa37f0150e35cd6ca7a7b9",
     "type": "git",
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
-    "revision": "593d41e13b012dcbf3592feaa001448db1ea78a5"
+    "revision": "c9d241119572e3252d67d086d3849d6285af76dd"
   }
 }

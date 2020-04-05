@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.2.2] - 2020-04-06
+### Fixed
+- Fixed bone name field in weight slider does not display bone name (case 1226249)
+- Fixed SpriteResolver's Inspector not updated when GameObject is disabled
+
+### Changed
+- Improved deformation performance when Collection and Burst package is installed
+
+### Added
+- Allow reordering of bone order in Bone Influence window. This is to allow fine tuning of bone order when shown in SpriteSkin's Inspector
+
 ## [3.2.1] - 2020-03-20
 ### Fixed
 - Fixed inconsistent line ending

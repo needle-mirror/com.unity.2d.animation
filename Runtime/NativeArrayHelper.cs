@@ -18,6 +18,21 @@ namespace UnityEngine.U2D.Animation
                 nativeArray = new NativeArray<T>(size, allocator);
         }
 
+        public static void ResizeAndCopyIfNeeded<T>(ref NativeArray<T> nativeArray, int size, Allocator allocator = Allocator.Persistent) where T : struct
+        {
+            bool canDispose = nativeArray.IsCreated;
+            if (canDispose && nativeArray.Length == size)
+                return;
+
+            var newArray = new NativeArray<T>(size, allocator);
+            if (canDispose)
+            {
+                NativeArray<T>.Copy(nativeArray, newArray, size < nativeArray.Length ? size : nativeArray.Length);
+                nativeArray.Dispose();
+            }
+            nativeArray = newArray;
+        }
+
         public static unsafe void DisposeIfCreated<T>(this NativeArray<T> nativeArray) where T : struct
         {
             if (nativeArray.IsCreated)

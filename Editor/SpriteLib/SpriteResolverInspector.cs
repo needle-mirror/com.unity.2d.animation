@@ -58,7 +58,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             m_SpriteLibSelection.Clear();
             int categoryHash = SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue);
             int labelHash = SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue);
-            var spriteLib = spriteResolver.GetComponentInParent<SpriteLibrary>();
+            var spriteLib = spriteResolver.spriteLibrary;
             if (spriteLib != null)
             {
                 foreach (var labels in spriteLib.labels)

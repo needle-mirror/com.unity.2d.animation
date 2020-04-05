@@ -78,7 +78,7 @@ namespace UnityEngine.U2D.Animation
     [RequireComponent(typeof(SpriteRenderer))]
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.1/manual/index.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@3.1/manual/index.html")]
     public sealed partial class SpriteSkin : MonoBehaviour, ISerializationCallbackReceiver
     {
         [SerializeField]
@@ -126,8 +126,14 @@ namespace UnityEngine.U2D.Animation
             return sprite != null ? sprite.GetInstanceID() : 0;
         }
 
+        internal void Awake()
+        {
+            m_SpriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
         void OnEnable()
         {
+            m_SpriteRenderer = GetComponent<SpriteRenderer>();
             m_TransformsHash = 0;
             CacheCurrentSprite();
             OnEnableBatch();
@@ -183,12 +189,12 @@ namespace UnityEngine.U2D.Animation
                 return false;
 
 #if ENABLE_SPRITESKIN_COMPOSITE
-            return m_DataIndex >= 0;
+            return m_DataIndex >= 0 && SpriteSkinComposite.instance.HasDeformableBufferForSprite(m_DataIndex);
 #else
             return m_CurrentDeformVerticesLength > 0 && m_DeformedVertices.GetCurrentBuffer().IsCreated;
 #endif
         }
-        
+
         /// <summary>
         /// Gets a byte array to the currently deformed vertices for this SpriteSkin.
         /// </summary>
@@ -328,26 +334,10 @@ namespace UnityEngine.U2D.Animation
                 m_TransformsHash = 0;
             }
         }
-        
-        internal Sprite sprite
-        {
-            get
-            {
-                if (spriteRenderer == null)
-                    return null;
-                return spriteRenderer.sprite;
-            }
-        }
 
-        internal SpriteRenderer spriteRenderer
-        {
-            get
-            {
-                if (m_SpriteRenderer == null)
-                    m_SpriteRenderer = GetComponent<SpriteRenderer>();
-                return m_SpriteRenderer;
-            }
-        }
+        internal Sprite sprite => spriteRenderer.sprite;
+
+        internal SpriteRenderer spriteRenderer => m_SpriteRenderer;
 
         /// <summary>
         /// Returns the Transform Components that is used for deformation
@@ -408,7 +398,6 @@ namespace UnityEngine.U2D.Animation
         internal void DeactivateSkinning()
         {
             var sprite = spriteRenderer.sprite;
-
             if (sprite != null)
                 InternalEngineBridge.SetLocalAABB(spriteRenderer, sprite.bounds);
 

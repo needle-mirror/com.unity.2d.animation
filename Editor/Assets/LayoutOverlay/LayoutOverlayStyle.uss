@@ -143,8 +143,6 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .slider-field {
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Label {
     flex: 4;
-    margin-right : 4px;
-    margin-left : 4px;
     margin-top : 2px;
     margin-bottom : 2px;
 }

@@ -15,7 +15,7 @@ namespace UnityEngine.Experimental.U2D.Animation
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Resolver (Experimental)")]
     [DefaultExecutionOrder(-2)]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.1/manual/SRComponent.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@3.1/manual/SRComponent.html")]
     public class SpriteResolver : MonoBehaviour
     {
         // These are for animation
@@ -97,7 +97,18 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// </summary>
         public SpriteLibrary spriteLibrary
         {
-            get { return GetComponentInParent<SpriteLibrary>(); }
+            get
+            {
+                var t = transform;
+                while (t != null)
+                {
+                    var sl = t.GetComponent<SpriteLibrary>();
+                    if (sl != null)
+                        return sl;
+                    t = t.parent;
+                }
+                return null;
+            }
         }
 
         void LateUpdate()

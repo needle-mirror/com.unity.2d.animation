@@ -2,9 +2,7 @@
 #define ENABLE_SPRITESKIN_COMPOSITE
 #endif
 
-
 using Unity.Collections;
-using UnityEngine.Profiling;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -28,17 +26,17 @@ namespace UnityEngine.U2D.Animation
 
         void OnEnableBatch()
         {
+            m_TransformId = gameObject.transform.GetInstanceID();
+            UpdateSpriteDeform();
+
             if (m_UseBatching && m_BatchSkinning == false)
             {
+                CacheBoneTransformIds(true);
                 SpriteSkinComposite.instance.AddSpriteSkin(this);
                 m_BatchSkinning = true;
-                CacheBoneTransformIds(true);
             }
             else
                 SpriteSkinComposite.instance.AddSpriteSkinForLateUpdate(this);
-
-            m_TransformId = gameObject.transform.GetInstanceID();
-            UpdateSpriteDeform();
         }
 
         void OnResetBatch()
@@ -46,6 +44,7 @@ namespace UnityEngine.U2D.Animation
             if (m_UseBatching)
             {
                 CacheBoneTransformIds(true);
+                SpriteSkinComposite.instance.CopyToSpriteSkinData(this);
             }
         }
 
@@ -54,7 +53,7 @@ namespace UnityEngine.U2D.Animation
             RemoveTransformFromSpriteSkinComposite();
             SpriteSkinComposite.instance.RemoveSpriteSkin(this);
             SpriteSkinComposite.instance.RemoveSpriteSkinForLateUpdate(this);
-            
+
             m_BatchSkinning = false;
         }
 
@@ -82,7 +81,7 @@ namespace UnityEngine.U2D.Animation
                 m_SpriteVertexCount = sprite.GetVertexCount();
                 m_SpriteTangentVertexOffset = sprite.GetVertexStreamOffset(Rendering.VertexAttribute.Tangent);
             }
-            
+            SpriteSkinComposite.instance.CopyToSpriteSkinData(this);
         }
 
         void CacheBoneTransformIds(bool forceUpdate = false)
@@ -107,7 +106,6 @@ namespace UnityEngine.U2D.Animation
                         if (boneTransforms[i] != null)
                             ++boneCount;
                     }
-
 
                     if (m_BoneTransformId.IsCreated)
                     {
@@ -143,9 +141,10 @@ namespace UnityEngine.U2D.Animation
                 }
                 CacheValidFlag();
                 m_BoneCacheUpdateToDate = true;
+                SpriteSkinComposite.instance.CopyToSpriteSkinData(this);
             }
         }
-        
+
         void UseBatchingBatch()
         {
             if (!this.enabled)
@@ -153,10 +152,10 @@ namespace UnityEngine.U2D.Animation
 
             if (m_UseBatching)
             {
-                SpriteSkinComposite.instance.AddSpriteSkin(this);
-                SpriteSkinComposite.instance.RemoveSpriteSkinForLateUpdate(this);
                 m_BatchSkinning = true;
                 CacheBoneTransformIds();
+                SpriteSkinComposite.instance.AddSpriteSkin(this);
+                SpriteSkinComposite.instance.RemoveSpriteSkinForLateUpdate(this);
             }
             else
             {
@@ -180,49 +179,30 @@ namespace UnityEngine.U2D.Animation
             m_BoneCacheUpdateToDate = false;
         }
 
-        internal bool GetSpriteSkinBatchData(ref NativeArray<SpriteSkinData> data, ref SpriteSkinBatchProcessData batchProcessData, ref PerSkinJobData perskinJobData, ref int vertexBufferSize, int dataIndex, int spriteSkinIndex)
+        internal void CopyToSpriteSkinData(ref SpriteSkinData data, int spriteSkinIndex)
         {
             CacheBoneTransformIds();
             CacheCurrentSprite();
-            if (m_IsValid && (alwaysUpdate || spriteRenderer.isVisible) && spriteRenderer.enabled)
-            {
-                Profiler.BeginSample("SpriteSkinData");
-                m_DataIndex = dataIndex;
-                m_CurrentDeformVerticesLength = m_SpriteVertexCount * m_SpriteVertexStreamSize;
-                data[dataIndex] = new SpriteSkinData()
-                {
-                    vertices = m_SpriteVertices,
-                    boneWeights = m_SpriteBoneWeights,
-                    bindPoses = m_SpriteBindPoses,
-                    tangents = m_SpriteTangents,
-                    hasTangents = m_SpriteHasTangents,
-                    spriteVertexStreamSize = m_SpriteVertexStreamSize,
-                    spriteVertexCount = m_SpriteVertexCount,
-                    tangentVertexOffset = m_SpriteTangentVertexOffset,
-                    spriteSkinIndex = spriteSkinIndex,
-                    deformVerticesStartPos = vertexBufferSize,
-                    rootBoneTransformId = m_RootBoneTransformId,
-                    transformId = m_TransformId,
-                    boneTransformId = m_BoneTransformIdNativeSlice
-                };
-                Profiler.EndSample();
-                Profiler.BeginSample("BatchProcessData");
-                batchProcessData.rootBoneTransformId[dataIndex] = m_RootBoneTransformId;
-                batchProcessData.rootTransformId[dataIndex] = m_TransformId;
-                batchProcessData.spriteBound[dataIndex] = bounds;
-                Profiler.EndSample();
 
-                Profiler.BeginSample("PerskinJobData");
-                perskinJobData.verticesIndex.x = perskinJobData.verticesIndex.y;
-                perskinJobData.verticesIndex.y = perskinJobData.verticesIndex.x + m_SpriteVertexCount;
-                vertexBufferSize += m_CurrentDeformVerticesLength;
-                perskinJobData.bindPosesIndex.x = perskinJobData.bindPosesIndex.y;
-                perskinJobData.bindPosesIndex.y = perskinJobData.bindPosesIndex.x + m_SpriteBindPoses.Length;
-                Profiler.EndSample();
-                return true;
-            }
-            m_DataIndex = -1;
-            return false;
+            data.vertices = m_SpriteVertices;
+            data.boneWeights = m_SpriteBoneWeights;
+            data.bindPoses = m_SpriteBindPoses;
+            data.tangents = m_SpriteTangents;
+            data.hasTangents = m_SpriteHasTangents;
+            data.spriteVertexStreamSize = m_SpriteVertexStreamSize;
+            data.spriteVertexCount = m_SpriteVertexCount;
+            data.tangentVertexOffset = m_SpriteTangentVertexOffset;
+            data.transformId = m_TransformId;
+            data.boneTransformId = m_BoneTransformIdNativeSlice;
+            m_DataIndex = spriteSkinIndex;
+        }
+
+       
+        internal bool BatchValidate()
+        {
+            CacheBoneTransformIds();
+            CacheCurrentSprite();
+            return (m_IsValid && spriteRenderer.enabled && (alwaysUpdate || spriteRenderer.isVisible));
         }
 
         void OnBoneTransformChanged()
@@ -240,7 +220,7 @@ namespace UnityEngine.U2D.Animation
                 CacheBoneTransformIds(true);
             }
         }
-        
+
         void OnBeforeSerializeBatch()
         {}
 
@@ -250,8 +230,6 @@ namespace UnityEngine.U2D.Animation
             m_BoneCacheUpdateToDate = false;
 #endif
         }
-
-
     }
 #else
     {

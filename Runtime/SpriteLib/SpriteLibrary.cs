@@ -9,7 +9,7 @@ namespace UnityEngine.Experimental.U2D.Animation
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Library (Experimental)")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.1/manual/SLComponent.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@3.1/manual/SLComponent.html")]
     public class SpriteLibrary : MonoBehaviour
     {
         internal class StringAndHash

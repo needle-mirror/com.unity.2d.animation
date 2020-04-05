@@ -90,16 +90,6 @@ namespace UnityEditor.U2D.Animation
                 }
                 SetupSpriteEditor(true);
 
-                // Set state for Weight Toolbar
-                if (skinningCache.hasCharacter)
-                {
-                    m_WeightToolbar.EnableBoneInfluenceWidget();
-                }
-                else
-                {
-                    m_WeightToolbar.DisableBoneInfluenceWidget();
-                }
-
                 m_HorizontalToggleTools = new HorizontalToggleTools(skinningCache)
                 {
                     onActivateTool = (b) =>

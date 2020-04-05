@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
@@ -34,6 +35,19 @@ namespace UnityEditor.U2D.Animation
                 bone.SetParent(this, worldPositionStays);
 
             m_Bones.Add(bone);
+        }
+
+        public void ReorderBones(IEnumerable<BoneCache> boneCache)
+        {
+            if (boneCache.Count() == m_Bones.Count)
+            {
+                foreach (var b in m_Bones)
+                {
+                    if (!boneCache.Contains(b))
+                        return;
+                }
+                m_Bones = boneCache.ToList();
+            }
         }
 
         public void DestroyBone(BoneCache bone)

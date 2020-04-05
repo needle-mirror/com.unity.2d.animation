@@ -14,17 +14,21 @@ D. [Weight tools](#weight-tools)
 
 ## Editor toolbar
 
+This is toolbar that contains the options that affect what is overall visible in the __Skinning Editor__ window, as well as the __Copy__ and __Paste__ functions.
+
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
 | ![Reset Pose](images/icon_RestoreBind.png)<br/>__Reset Pose__ | Shift + 1            | Restore a character’s bones and joints to their original positions. |
-| ![Toggle View Mode](images\icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the Character and Sprite Sheet view           |
-| ![Copy](images\icon_Copy.png)<br/>__Copy__                   | Ctrl + C             | Copy the data from the current selection.                    |
-| ![Paste](images\icon_Paste.png)<br/>__Paste__                | Ctrl + V             | Pastes the copied data.                                      |
-| ![Paste](images\icon_Paste.png)<br/>__Paste__                | Shift + B            | Show additional pasting options.                             |
+| ![Toggle View Mode](images\icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the __Character__ and __Sprite Sheet__ view modes. |
+| ![Copy](images\icon_Copy.png)<br/>__Copy__                   | Ctrl + C             | Copies the bone and mesh data from the current selection.    |
+| ![Paste](images\icon_Paste.png)<br/>__Paste__                | Ctrl + V             | Pastes the copied bone and mesh data to the current selection. |
+| ![Paste](images\icon_Paste.png)<br/>__Paste__                | Shift + B            | Use this shortcut to show additional pasting options.        |
 | ![Visibility eyecon](images\icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite Meshes and bones in the editor window. |
 | __Toggle Tool Text__                                         | Shift + `            | Show or hide text on tool buttons.                           |
 
 ## Bone tools
+
+Use the __Bone Tools__ to create and edit the bones of your character and their hierarchy.
 
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
@@ -34,6 +38,8 @@ D. [Weight tools](#weight-tools)
 | ![Split Bone](images/icon_SplitBone.png)<br/>__Split Bone__  | Shift + R            | Splits the selected bone.                                    |
 
 ### Bone panel
+
+The __Bone panel__ appears at the bottom right of the editor window when you have a bone selected.
 
 ![](images/bone_panel.png)
 
@@ -46,6 +52,8 @@ D. [Weight tools](#weight-tools)
 
 ## Geometry tools
 
+Use the __Geometry tools__ to generate and edit the meshes of the different Sprites that make up your character.
+
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
 | ![Auto Geometry](images/icon_GenGeo.png)<br/>__Auto Geometry__ | Shift + A            | Select to auto-generate Meshes for Sprites. When this tool is selected, the [Geometry panel](#geometry-panel) becomes available at the bottom-right of the __Skinning Editor__. |
@@ -55,6 +63,8 @@ D. [Weight tools](#weight-tools)
 | ![Split Edge](images/icon_SplitEdge.png)<br/>__Split Edge__  | Shift + H            | Split an existing edge into two.                             |
 
 ### Geometry panel
+
+The __Geometry panel__ is only visible when __Auto Geometry__ is enabled. It contains the available settings that affect how the geometry of selected Sprites are generated.
 
 ![](images/GeoPanel.png)<br/>Visible only when Auto Geometry is enabled.
 
@@ -127,10 +137,23 @@ The weights panel appears at the lower-right of the Sprite Editor window when __
 | __Hardness__                             | Amount of weight applied by the brush per brushstroke. Higher values increase the weight per brushstroke, up to the maximum of 100 where the full weight is applied at once. |
 | __Step__                                 | Number of increments needed to apply the full weight of brush. |
 
-
-
 ### Bone Influences panel
 
-![](images/BoneInfluence.png)
+The __Bone Influences panel__ displays a list of bones that are currently influencing the selected Sprite Mesh. 
 
-This panel shows a list of bones that are currently influencing the selected Sprite Mesh. To add a bone to the list, first select it in the Sprite editor window and then select __Add (+__). To remove a bone from the list, select the bone in the list and then select __Remove (-)__.
+![](images/BoneInfluencesExample.png)
+
+When the Skinning Editor is set to [Character mode](#editor-toolbar), the Bone Influences panel allows you to add a bone to the list which includes its influence in the deformation of the selected Sprite’s mesh, or remove a bone from the list which removes its influence instead. 
+
+To add a bone to the list, select the bone in the __Skinning Editor__ window and then select __Add (+__) at the bottom-right of the panel. To remove a bone from the list, select the bone in the list or in the editor window and then select __Remove (-)__.
+
+#### Rearranging bone order
+
+You can rearrange the bone order in the Bone Influences panel by selecting and the dragging the respective bone entries up or down the list.
+
+![](images/BoneInfluences_order.png)
+
+The order of the bones in the Bone Influences panel determines the order of the bones on the __Sprite Skin __component. This is especially important when replacing the Sprite for deformation in the __Sprite Renderer__, such as when using [Sprite Swap](SpriteSwapIntro.md), as you can ensure the bone order remains the same between the Sprites and that the correct Transform drives the correct deformation.
+
+![](images/BoneInfluences_orderSpriteSkin.png)
+

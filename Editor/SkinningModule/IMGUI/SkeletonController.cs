@@ -391,7 +391,7 @@ namespace UnityEditor.U2D.Animation
                     m_Skeleton.DestroyBones(selectedBones);
 
                     selection.Clear();
-
+                    skinningCache.events.boneSelectionChanged.Invoke();
                     InvokeTopologyChanged();
                     InvokePoseChanged();
                 }
