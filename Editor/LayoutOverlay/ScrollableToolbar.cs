@@ -17,19 +17,6 @@ namespace UnityEditor.U2D.Layout
                 m_IsHorizontal = new UxmlBoolAttributeDescription { name = "isHorizontal" };
             }
 
-            public override IEnumerable<UxmlAttributeDescription> uxmlAttributesDescription
-            {
-                get
-                {
-                    foreach (var attr in base.uxmlAttributesDescription)
-                    {
-                        yield return attr;
-                    }
-
-                    yield return m_IsHorizontal;
-                }
-            }
-
             public override IEnumerable<UxmlChildElementDescription> uxmlChildElementsDescription
             {
                 get { yield break; }

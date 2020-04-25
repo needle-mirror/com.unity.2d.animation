@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.3] - 2020-04-26
+### Changed
+- Improved performance by batching buffer submission when Collection and Burst package is installed
+
+### Fixed
+- Fix 'ArgumentException' when creating UXML Template Asset with 2D Animation package installed (case 1239680)
+
 ## [4.2.2] - 2020-03-26
 ### Fixed
 - Fixed bone name field in weight slider does not display bone name (case 1226249)

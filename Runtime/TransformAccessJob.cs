@@ -240,8 +240,9 @@ namespace UnityEngine.U2D.Animation
     [BurstCompile]
     internal struct LocalToWorldTransformAccessJob : IJobParallelForTransform
     {
+        [WriteOnly]
         public NativeArray<float4x4> outMatrix;
-        public unsafe void Execute(int index, TransformAccess transform)
+        public void Execute(int index, TransformAccess transform)
         {
             outMatrix[index] = transform.localToWorldMatrix;
         }
@@ -250,8 +251,10 @@ namespace UnityEngine.U2D.Animation
     [BurstCompile]
     internal struct WorldToLocalTransformAccessJob : IJobParallelForTransform
     {
+        [WriteOnly]
         public NativeArray<float4x4> outMatrix;
-        public unsafe void Execute(int index, TransformAccess transform)
+        
+        public void Execute(int index, TransformAccess transform)
         {
             outMatrix[index] = transform.worldToLocalMatrix;
         }
