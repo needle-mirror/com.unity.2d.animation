@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.Scripting;
-using UnityEngine.U2D.Common;
 
 #if ENABLE_ENTITIES
 using Unity.Entities;
@@ -10,6 +9,7 @@ using Unity.Entities;
 namespace UnityEngine.U2D.Animation
 {
 
+    [AddComponentMenu("")]
     [Preserve]
     internal class SpriteSkinEntity
 #if ENABLE_ENTITIES

@@ -1,8 +1,8 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "4.2.4",
-  "unity": "2020.1",
-  "unityRelease": "0b6",
+  "version": "5.0.0",
+  "unity": "2020.2",
+  "unityRelease": "0a14",
   "displayName": "2D Animation",
   "description": "2D Animation provides all the necessary tooling and runtime components for skeletal animation using Sprites.",
   "keywords": [
@@ -11,15 +11,15 @@
   ],
   "category": "2D",
   "dependencies": {
-    "com.unity.2d.common": "3.0.1",
+    "com.unity.2d.common": "4.0.0",
     "com.unity.mathematics": "1.1.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "4.2.4",
-    "com.unity.2d.common.tests": "3.0.1"
+    "com.unity.2d.animation.tests": "5.0.0",
+    "com.unity.2d.common.tests": "4.0.0"
   },
   "samples": [
     {
@@ -29,11 +29,11 @@
     }
   ],
   "upmCi": {
-    "footprint": "b704fa67c9d96bc93d6c9843611bd9022a7b36d6"
+    "footprint": "ffd94a5330d9c15f88a01764675760bde680a293"
   },
   "repository": {
-    "type": "git",
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
-    "revision": "c73fb89a5b37a8e0f18f9e66307b3c2ed74c79e8"
+    "type": "git",
+    "revision": "4651ccecac488987a6b5bbb033282cb61de0e007"
   }
 }

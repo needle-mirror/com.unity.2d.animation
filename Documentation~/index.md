@@ -2,7 +2,9 @@
 
 This documentation contains information on how to quickly rig and animate a 2D character in Unity with the 2D Animation package and tools. The following package versions are only supported for the following Unity versions:
 
-* __2D Animation package version 4.x.x__ - Unity 2020.1 or later
+* __2D Animation package version 5.x.x__ - Unity 2020.2 or later
+
+* __2D Animation package version 4.x.x__ - Unity 2020.1
 
 * __2D Animation package version 3.x.x__ - Unity 2019.3
 

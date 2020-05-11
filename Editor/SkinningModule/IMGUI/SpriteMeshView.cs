@@ -1,10 +1,4 @@
 using UnityEngine;
-using UnityEngine.U2D;
-using UnityEditor;
-using UnityEditorInternal;
-using UnityEditor.U2D.Interface;
-using UnityEngine.U2D.Interface;
-using System.Collections.Generic;
 
 namespace UnityEditor.U2D.Animation
 {

@@ -9,7 +9,7 @@ namespace UnityEditor.U2D.Animation
     internal class WeightPainterPanel : VisualElement
     {
         public class WeightPainterPanelFactory : UxmlFactory<WeightPainterPanel, WeightPainterPanelUxmlTraits> {}
-        public class WeightPainterPanelUxmlTraits : VisualElement.UxmlTraits {}
+        public class WeightPainterPanelUxmlTraits : UxmlTraits {}
         public static readonly string kNone = "None";
 
         private WeightPainterMode m_PaintMode;
@@ -138,7 +138,7 @@ namespace UnityEditor.U2D.Animation
             m_AmountSlider.RegisterValueChangedCallback((evt) =>
             {
                 if (!evt.Equals(m_AmountField.value))
-                    m_AmountField.value = (float)System.Math.Round((double)evt.newValue, 2);
+                    m_AmountField.value = (float)Math.Round((double)evt.newValue, 2);
                 if (m_SliderActive)
                     sliderChanged?.Invoke(m_AmountField.value);
             });

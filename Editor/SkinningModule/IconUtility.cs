@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
@@ -15,9 +14,9 @@ namespace UnityEditor.U2D.Animation
             string iconPath = "";
 
             if (EditorGUIUtility.isProSkin && !string.IsNullOrEmpty(proPath))
-                iconPath = System.IO.Path.Combine(proPath, "d_" + name);
+                iconPath = Path.Combine(proPath, "d_" + name);
             else
-                iconPath = System.IO.Path.Combine(personalPath, name);
+                iconPath = Path.Combine(personalPath, name);
             if (EditorGUIUtility.pixelsPerPoint > 1.0f)
             {
                 var icon2x = ResourceLoader.Load<Texture2D>(iconPath + "@2x.png");

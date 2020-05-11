@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.IMGUI.Controls;
@@ -91,7 +92,7 @@ namespace UnityEditor.U2D.Animation
             {
                 var bones = skeleton.bones;
                 var children = bones.Where(x => x.parentBone == null).ToArray();
-                System.Array.Sort(children, (a, b) => a.siblingIndex.CompareTo(b.siblingIndex));
+                Array.Sort(children, (a, b) => a.siblingIndex.CompareTo(b.siblingIndex));
 
                 foreach (var bone in children)
                     AddTreeViewItem(rows, bone, bones, 0);
@@ -105,7 +106,7 @@ namespace UnityEditor.U2D.Animation
             rows.Add(item);
 
             var children = bones.Where(x => x.parentBone == bone).ToArray();
-            System.Array.Sort(children, (a, b) => a.siblingIndex.CompareTo(b.siblingIndex));
+            Array.Sort(children, (a, b) => a.siblingIndex.CompareTo(b.siblingIndex));
 
             foreach (var childBone in children)
                 AddTreeViewItem(rows, childBone, bones, depth + 1);
@@ -135,7 +136,7 @@ namespace UnityEditor.U2D.Animation
 
         public int[] GetIDsToSelect(BoneCache[] bones)
         {
-            return bones == null ? new int[0] : System.Array.ConvertAll(bones, x => x != null ? x.GetInstanceID() : 0);
+            return bones == null ? new int[0] : Array.ConvertAll(bones, x => x != null ? x.GetInstanceID() : 0);
         }
 
         public void SelectBones(IList<int> selectedIds, IList<TreeViewItem> items)

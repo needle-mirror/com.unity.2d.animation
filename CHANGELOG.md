@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.0.0] - 2020-05-11
+### Changed
+- Version bump for Unity 2020.2
+
+### Added
+- Combined 2D IK package with 2D Animation package
+
+### Fixed
+- Remove unused XR dependency (case 1249390) 
+- Fixed NullReferenceException when creating prefab with SpriteSkin component (case 1245149)
+
 ## [4.2.4] - 2020-05-19
 ### Fixed
 - Fixed compilation error by depending on latest 2D Common package.
@@ -242,3 +253,4 @@
 - Improved Scene View gizmos for better manipulation of bone rotation and position
 - Added notification when Sprites are imported with incorrect weights
 - Fixed bug where textures with max texture size could not generate geometry
+

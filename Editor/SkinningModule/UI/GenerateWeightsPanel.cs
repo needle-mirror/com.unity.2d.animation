@@ -7,7 +7,7 @@ namespace UnityEditor.U2D.Animation
     internal class GenerateWeightsPanel : VisualElement
     {
         public class GenerateWeightsPanelFactory : UxmlFactory<GenerateWeightsPanel, GenerateWeightsPanelUxmlTraits> {}
-        public class GenerateWeightsPanelUxmlTraits : VisualElement.UxmlTraits {}
+        public class GenerateWeightsPanelUxmlTraits : UxmlTraits {}
 
         public event Action onGenerateWeights = () => {};
         public event Action onNormalizeWeights = () => {};

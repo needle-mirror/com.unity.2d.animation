@@ -1,9 +1,7 @@
-using UnityEngine;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using UnityEngine.U2D;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {

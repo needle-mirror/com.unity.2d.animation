@@ -93,7 +93,7 @@ namespace UnityEngine.Experimental.U2D.Animation
     /// Sprites are grouped under a given category as categories. Each category and label needs to have
     /// a name specified so that it can be queried.
     /// </Description>
-    [CreateAssetMenu(order = 350, menuName = "Sprite Library Asset (Experimental)")]
+    [CreateAssetMenu(order = 84, menuName = "2D/Sprite Library Asset")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.1/manual/SLAsset.html")]
     public class SpriteLibraryAsset : ScriptableObject
     {

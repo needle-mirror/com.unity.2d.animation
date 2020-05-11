@@ -6,7 +6,7 @@ namespace UnityEditor.U2D.Layout
 	internal class LayoutOverlay : VisualElement
 	{
 		public class LayoutOverlayFactory : UxmlFactory<LayoutOverlay, LayoutOverlayUxmlTraits> {}
-		public class LayoutOverlayUxmlTraits : VisualElement.UxmlTraits {}
+		public class LayoutOverlayUxmlTraits : UxmlTraits {}
 
 		private ScrollableToolbar m_HorizontalToolbar;
 		private ScrollableToolbar m_VerticalToolbar;

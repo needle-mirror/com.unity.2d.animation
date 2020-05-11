@@ -1,4 +1,4 @@
-# Animating the character
+# Reusing Animations
 
 To begin animating, drag the imported character Prefab into the Scene view. Unity generates a GameObject for each Sprite in the Prefab and [different Assets and components](SLAsset.md). With the new GameObject in the Scene, you can begin animating it with the [Unity animation workflow and tools](https://docs.unity3d.com/Manual/AnimationSection.html).
 

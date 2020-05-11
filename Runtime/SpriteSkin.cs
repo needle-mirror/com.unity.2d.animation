@@ -133,13 +133,18 @@ namespace UnityEngine.U2D.Animation
 
         void OnEnable()
         {
-            m_SpriteRenderer = GetComponent<SpriteRenderer>();
+            OnEditorEnable();
             m_TransformsHash = 0;
             CacheCurrentSprite();
             OnEnableBatch();
             m_DeformedVertices = new DeformVerticesBuffer(DeformVerticesBuffer.k_DefaultBufferSize);
         }
 
+        internal void OnEditorEnable()
+        {
+            m_SpriteRenderer = GetComponent<SpriteRenderer>();
+        }
+        
         void CacheValidFlag()
         {
             m_IsValid = isValid;

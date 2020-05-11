@@ -7,7 +7,7 @@ namespace UnityEditor.U2D.Animation
     internal class BoneToolbar : Toolbar
     {
         public class BoneToolbarFactory : UxmlFactory<BoneToolbar, BoneToolbarUxmlTraits> {}
-        public class BoneToolbarUxmlTraits : VisualElement.UxmlTraits {}
+        public class BoneToolbarUxmlTraits : UxmlTraits {}
 
         public event Action<Tools> SetSkeletonTool = (mode) => {};
         public SkinningCache skinningCache { get; private set; }

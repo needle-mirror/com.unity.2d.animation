@@ -1,7 +1,5 @@
 using System;
-using UnityEditor.U2D.Layout;
 using UnityEngine;
-using UnityEngine.U2D.Common;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
@@ -9,7 +7,7 @@ namespace UnityEditor.U2D.Animation
     internal class MeshToolbar : Toolbar
     {
         public class MeshToolbarFactory : UxmlFactory<MeshToolbar, MeshToolbarUxmlTraits> {}
-        public class MeshToolbarUxmlTraits : VisualElement.UxmlTraits {}
+        public class MeshToolbarUxmlTraits : UxmlTraits {}
 
         public event Action<Tools> SetMeshTool = (mode) => {};
         public SkinningCache skinningCache { get; set; }
