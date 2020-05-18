@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.2.4] - 2020-05-19
+### Fixed
+- Fixed compilation error by depending on latest 2D Common package.
+
 ## [4.2.3] - 2020-04-26
 ### Changed
 - Improved performance by batching buffer submission when Collection and Burst package is installed
