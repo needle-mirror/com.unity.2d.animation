@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.2.3] - 2020-05-27
+### Fixed
+- Fixed exception when creating UXML Template asset with 2D Animation package installed.
+
 ## [3.2.2] - 2020-04-06
 ### Fixed
 - Fixed bone name field in weight slider does not display bone name (case 1226249)
