@@ -7,17 +7,19 @@ namespace Unity.U2D.Animation.Sample.Dependency
     [ExecuteInEditMode]
     internal class AnimationSampleDependency : MonoBehaviour
     {
-        public UnityEngine.UI.Text textField;
-        public GameObject gameCanvas;
+        public UnityEngine.UI.Text textField = null;
+        public GameObject gameCanvas = null;
 
         void Update()
         {
 #if PSDIMPORTER_ENABLED
-            textField.enabled = false;
+            if(textField != null)
+                textField.enabled = false;
             if(gameCanvas != null)
                 gameCanvas.SetActive(true);
 #else
-            textField.enabled = true;
+            if(textField != null)
+                textField.enabled = true;
             if(gameCanvas != null)
                 gameCanvas.SetActive(false);
 #endif

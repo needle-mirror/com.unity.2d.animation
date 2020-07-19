@@ -15,7 +15,7 @@ namespace UnityEngine.Experimental.U2D.Animation
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Resolver (Experimental)")]
     [DefaultExecutionOrder(-2)]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.1/manual/SRComponent.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.2/manual/SLAsset.html#sprite-resolver-component")]
     public class SpriteResolver : MonoBehaviour
     {
         // These are for animation

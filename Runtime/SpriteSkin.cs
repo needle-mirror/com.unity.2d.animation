@@ -78,7 +78,7 @@ namespace UnityEngine.U2D.Animation
     [RequireComponent(typeof(SpriteRenderer))]
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.1/manual/index.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@4.2/manual/index.html#sprite-skin-component")]
     public sealed partial class SpriteSkin : MonoBehaviour, ISerializationCallbackReceiver
     {
         [SerializeField]
@@ -133,13 +133,18 @@ namespace UnityEngine.U2D.Animation
 
         void OnEnable()
         {
-            m_SpriteRenderer = GetComponent<SpriteRenderer>();
+            Awake();
             m_TransformsHash = 0;
             CacheCurrentSprite();
             OnEnableBatch();
             m_DeformedVertices = new DeformVerticesBuffer(DeformVerticesBuffer.k_DefaultBufferSize);
         }
 
+        internal void OnEditorEnable()
+        {
+            Awake();
+        }
+        
         void CacheValidFlag()
         {
             m_IsValid = isValid;
@@ -149,8 +154,12 @@ namespace UnityEngine.U2D.Animation
 
         void Reset()
         {
-            CacheValidFlag();
-            OnResetBatch();
+            Awake();
+            if (isActiveAndEnabled)
+            {
+                CacheValidFlag();
+                OnResetBatch();
+            }
         }
 
         internal void UseBatching(bool value)

@@ -1,4 +1,3 @@
-using UnityEditor.U2D.Layout;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation

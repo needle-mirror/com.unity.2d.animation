@@ -724,8 +724,9 @@ namespace UnityEditor.U2D.Animation
     {
         public Func<SpriteVisibilityToolController> GetController = () => null;
         private static int k_CategorySeletionOffset = 4;
-        GUIContent m_WarningIcon;
-        GUIStyle m_Style;
+        public GUIStyle m_Style;
+        public GUIContent m_WarningIcon;
+        int m_SpriteCategoryRenameID;
         static string[] k_DefaultCategoryList = new string[]
         {
             TextContent.none,
@@ -773,6 +774,7 @@ namespace UnityEditor.U2D.Animation
                 m_Style.focused.scaledBackgrounds = m_Style.normal.scaledBackgrounds;
                 m_Style.focused.textColor = m_Style.normal.textColor;
                 m_WarningIcon = EditorGUIUtility.TrIconContent("console.warnicon.sml", "Duplicate label name found or label hash value clash. Please use a different name");
+                m_SpriteCategoryRenameID = EditorGUIUtility.GetControlID("SpriteCategoryRenameControlId".GetHashCode(), FocusType.Passive);
             }
         }
 
@@ -917,16 +919,24 @@ namespace UnityEditor.U2D.Animation
             }
             else
             {
-                DrawCategoryNameControl(cellRect, item);
+                if (GUIUtility.keyboardControl != m_SpriteCategoryRenameID)
+                    m_CurrentEdittingItem = null;
+                else
+                    DrawCategoryNameControl(cellRect, item);
             }
         }
 
         void DrawCategoryNameControl(Rect cellRect, TreeViewItem item)
         {
             EditorGUI.BeginChangeCheck();
-            GUI.SetNextControlName("SpriteCategoryRename");
-            GUI.FocusControl("SpriteCategoryRename");
-            string categoryName = EditorGUI.DelayedTextField(cellRect, "");
+            if (Event.current.type == EventType.Layout)
+            {
+                GUI.SetNextControlName("SpriteCategoryRename");
+                GUI.FocusControl("SpriteCategoryRename");
+            }
+
+            GUIUtility.keyboardControl = m_SpriteCategoryRenameID;
+            string categoryName = EditorGUI.DelayedTextField(cellRect, GUIContent.none, m_SpriteCategoryRenameID, "");
             if (EditorGUI.EndChangeCheck())
             {
                 if (Array.FindIndex(k_DefaultCategoryList, x => x == categoryName) == -1)

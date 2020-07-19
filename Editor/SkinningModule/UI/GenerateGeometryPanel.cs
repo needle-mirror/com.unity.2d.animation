@@ -8,7 +8,7 @@ namespace UnityEditor.U2D.Animation
     internal class GenerateGeometryPanel : VisualElement
     {
         public class GenerateGeometryPanelFactory : UxmlFactory<GenerateGeometryPanel, GenerateGeometryPanelUxmlTraits> {}
-        public class GenerateGeometryPanelUxmlTraits : VisualElement.UxmlTraits {}
+        public class GenerateGeometryPanelUxmlTraits : UxmlTraits {}
 
         public enum GenerateMode
         {

@@ -1,6 +1,5 @@
-using UnityEngine;
-using System.Collections.Generic;
 using UnityEditor.U2D.Common;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {

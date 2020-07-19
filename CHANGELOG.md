@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.5] - 2020-07-19
+### Fixed
+- Fixed animation has incorrect dependency on UnityEngine.XR.WSA.Input (case 1252505)
+- Fixed NullReferenceException on creating Prefab with SpriteSkin component (case 1249221)
+- Fixed Skinning Module flickers when creating new category in Visibility Window (case 1247226)
+- Fixed NullReferenceException when creating Preset for SpriteSkin component (case 1256475)
+
 ## [4.2.4] - 2020-05-19
 ### Fixed
 - Fixed compilation error by depending on latest 2D Common package.

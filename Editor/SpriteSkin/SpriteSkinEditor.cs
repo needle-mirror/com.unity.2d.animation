@@ -51,12 +51,15 @@ namespace UnityEditor.U2D.Animation
         private void OnEnable()
         {
             m_SpriteSkin = (SpriteSkin)target;
+            m_SpriteSkin.OnEditorEnable();
+
             m_RootBoneProperty = serializedObject.FindProperty("m_RootBone");
 #if ENABLE_ANIMATION_PERFORMANCE
             m_UseBatching = serializedObject.FindProperty("m_UseBatching");
 #endif
             m_BoneTransformsProperty = serializedObject.FindProperty("m_BoneTransforms");
             m_AlwaysUpdateProperty = serializedObject.FindProperty("m_AlwaysUpdate");
+
             m_CurrentSprite = m_SpriteSkin.spriteRenderer.sprite;
             m_BoundsHandle.axes = BoxBoundsHandle.Axes.X | BoxBoundsHandle.Axes.Y;
             m_BoundsHandle.SetColor(s_BoundingBoxHandleColor);
