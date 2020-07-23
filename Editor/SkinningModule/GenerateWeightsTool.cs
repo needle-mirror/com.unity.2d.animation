@@ -1,8 +1,6 @@
 using System;
-using UnityEngine.U2D.Common;
 using UnityEditor.U2D.Layout;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {

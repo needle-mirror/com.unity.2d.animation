@@ -1,14 +1,13 @@
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.U2D.Common;
 
 namespace UnityEditor.U2D.Animation
 {
     internal class CopyToolbar : Toolbar
     {
         public class CopyToolbarFactory : UxmlFactory<CopyToolbar, CopyToolbarUxmlTraits> {}
-        public class CopyToolbarUxmlTraits : VisualElement.UxmlTraits {}
+        public class CopyToolbarUxmlTraits : UxmlTraits {}
 
         public event Action onDoCopy = () => {};
         public event Action onDoPaste = () => {};

@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.Scripting;
-using UnityEngine.U2D.Common;
 
 #if ENABLE_ENTITIES
 using Unity.Entities;

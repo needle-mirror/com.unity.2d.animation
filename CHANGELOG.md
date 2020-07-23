@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.2.4] - 2020-07-23
+- Fixed incorrect dependency on UnityEngine.XR.WSA.Input (case 1253085)
+- Fixed Skinning Module flickers when adding new category (case 1247240)
+
 ## [3.2.3] - 2020-05-27
 ### Fixed
 - Fixed exception when creating UXML Template asset with 2D Animation package installed.

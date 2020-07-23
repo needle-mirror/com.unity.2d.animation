@@ -6,7 +6,7 @@ namespace UnityEditor.U2D.Layout
 	internal class DropdownMenu : VisualElement
 	{
 		public class DropdownMenuFactory : UxmlFactory<DropdownMenu, DropdownMenuUxmlTraits> {}
-		public class DropdownMenuUxmlTraits : VisualElement.UxmlTraits {}
+		public class DropdownMenuUxmlTraits : UxmlTraits {}
 
 		/*
 		private ButtonGroup m_ButtonGroup;

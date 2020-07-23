@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.U2D.Layout;
-using UnityEngine;
 using System.Linq;
-using UnityEditor.U2D;
+using UnityEditor.U2D.Layout;
 using UnityEditor.U2D.Sprites;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {

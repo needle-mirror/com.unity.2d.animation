@@ -8,7 +8,7 @@ namespace UnityEditor.U2D.Layout
     internal class ScrollableToolbar : VisualElement
     {
         public class ScrollableToolbarFactory : UxmlFactory<ScrollableToolbar, ScrollableToolbarUxmlTraits> {}
-        public class ScrollableToolbarUxmlTraits : VisualElement.UxmlTraits
+        public class ScrollableToolbarUxmlTraits : UxmlTraits
         {
             UxmlBoolAttributeDescription m_IsHorizontal;
 

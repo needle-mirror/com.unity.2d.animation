@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEditor;
-using UnityEngine.U2D.Animation;
 
 namespace UnityEditor.U2D.Animation
 {

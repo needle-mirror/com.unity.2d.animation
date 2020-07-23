@@ -8,7 +8,7 @@ namespace UnityEditor.U2D.Animation
     internal class BoneInspectorPanel : VisualElement
     {
         public class BoneInspectorPanelFactory : UxmlFactory<BoneInspectorPanel, BoneInspectorPanelUxmlTraits> {}
-        public class BoneInspectorPanelUxmlTraits : VisualElement.UxmlTraits {}
+        public class BoneInspectorPanelUxmlTraits : UxmlTraits {}
         public event Action<BoneCache, int> onBoneDepthChanged = (bone, depth) => {};
         public event Action<BoneCache, string> onBoneNameChanged = (bone, name) => {};
 

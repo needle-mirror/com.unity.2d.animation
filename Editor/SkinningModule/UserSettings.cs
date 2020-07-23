@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System;
-using UnityEngine.XR.WSA.Input;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -157,7 +154,7 @@ namespace UnityEditor.U2D.Animation
         {
             return new UserSettings()
             {
-                guiHandler = UserSettings.SettingsGUI
+                guiHandler = SettingsGUI
             };
         }
 

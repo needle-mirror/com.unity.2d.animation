@@ -7,7 +7,7 @@ namespace UnityEditor.U2D.Animation
     internal class Toolbar : VisualElement
     {
         public class ToolbarFactory : UxmlFactory<Toolbar, ToolbarUxmlTraits> {}
-        public class ToolbarUxmlTraits : VisualElement.UxmlTraits {}
+        public class ToolbarUxmlTraits : UxmlTraits {}
 
         public Toolbar()
         {
