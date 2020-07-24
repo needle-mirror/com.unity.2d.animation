@@ -2,7 +2,9 @@
 #define ENABLE_SPRITESKIN_COMPOSITE
 #endif
 
+using System;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -197,7 +199,20 @@ namespace UnityEngine.U2D.Animation
             m_DataIndex = spriteSkinIndex;
         }
 
-       
+        internal bool NeedUpdateCompositeCache()
+        {
+            unsafe
+            {
+                var iptr = new IntPtr(sprite.GetVertexAttribute<BoneWeight>(UnityEngine.Rendering.VertexAttribute.BlendWeight).GetUnsafeReadOnlyPtr());
+                var rs = m_SpriteBoneWeights.data == iptr;
+                if (!rs)
+                {
+                    UpdateSpriteDeform();
+                }
+                return rs;
+            }
+        }
+
         internal bool BatchValidate()
         {
             CacheBoneTransformIds();

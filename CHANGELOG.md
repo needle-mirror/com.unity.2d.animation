@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.0.1] - 2020-07-24
+### Fixed
+- Fixed Skinning module flickers when creating in category in Visibility Window (case 1244097)
+- Fixed NullReferenceException when creating Preset for SpriteSkin component (case 1254873)
+- Updated optional dependency support for Collections to 0.9.0-preview.6 and Burst 1.3.3 (case 1255839)
+
 ## [5.0.0] - 2020-05-11
 ### Changed
 - Version bump for Unity 2020.2
