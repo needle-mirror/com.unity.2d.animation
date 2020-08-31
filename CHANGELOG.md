@@ -1,6 +1,13 @@
 # Changelog
 
+## [3.2.5] - 2020-08-31
+### Fixed
+- Fixed NullReferenceException when creating Preset for SpriteSkin component (case 1269921)
+- Updated optional dependency support for Collections to 0.9.0-preview.6 and Burst 1.3.3 (case 1272877)
+- Fixed warning message in console when installing 2D Animation sample
+
 ## [3.2.4] - 2020-07-23
+### Fixed
 - Fixed incorrect dependency on UnityEngine.XR.WSA.Input (case 1253085)
 - Fixed Skinning Module flickers when adding new category (case 1247240)
 

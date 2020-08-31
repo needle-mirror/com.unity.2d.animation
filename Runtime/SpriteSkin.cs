@@ -140,6 +140,11 @@ namespace UnityEngine.U2D.Animation
             m_DeformedVertices = new DeformVerticesBuffer(DeformVerticesBuffer.k_DefaultBufferSize);
         }
 
+        internal void OnEditorEnable()
+        {
+            Awake();
+        }
+        
         void CacheValidFlag()
         {
             m_IsValid = isValid;
@@ -149,8 +154,12 @@ namespace UnityEngine.U2D.Animation
 
         void Reset()
         {
-            CacheValidFlag();
-            OnResetBatch();
+            Awake();
+            if (isActiveAndEnabled)
+            {
+                CacheValidFlag();
+                OnResetBatch();
+            }
         }
 
         internal void UseBatching(bool value)

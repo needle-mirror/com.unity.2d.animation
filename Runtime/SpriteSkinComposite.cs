@@ -518,6 +518,10 @@ namespace UnityEngine.U2D.Animation
             {
                 var spriteSkin = m_SpriteSkins[i];
                 m_IsSpriteSkinActiveForDeform[i] = spriteSkin.BatchValidate();
+                if (m_IsSpriteSkinActiveForDeform[i] && spriteSkin.NeedUpdateCompositeCache())
+                {
+                    CopyToSpriteSkinData(i);
+                }
             }
             Profiler.EndSample();
 

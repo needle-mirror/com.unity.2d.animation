@@ -51,6 +51,7 @@ namespace UnityEditor.U2D.Animation
         private void OnEnable()
         {
             m_SpriteSkin = (SpriteSkin)target;
+            m_SpriteSkin.OnEditorEnable();
             m_RootBoneProperty = serializedObject.FindProperty("m_RootBone");
 #if ENABLE_ANIMATION_PERFORMANCE
             m_UseBatching = serializedObject.FindProperty("m_UseBatching");
