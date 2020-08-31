@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.2.6] - 2020-08-31
+### Fixed
+- Updated optional dependency support for Collections to 0.9.0-preview.6 and Burst 1.3.3 (case 1274393)
+
 ## [4.2.5] - 2020-07-19
 ### Fixed
 - Fixed animation has incorrect dependency on UnityEngine.XR.WSA.Input (case 1252505)

@@ -193,7 +193,7 @@ namespace UnityEngine.U2D.Animation
         internal string GetDebugLog()
         {
             var log = "";
-            log += "TransformData Count: " + m_TransformData.Length + "\n";
+            log += "TransformData Count: " + m_TransformData.Count() + "\n";
             log += "Transform Count: " + m_Transform.Length + "\n";
             foreach (var ss in m_Transform)
             {
