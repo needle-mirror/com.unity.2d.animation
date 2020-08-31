@@ -65,6 +65,13 @@ namespace UnityEditor.U2D.Layout
 			}
 		}
 
+		public void VisibilityWindowOn(bool on)
+		{
+			if(on)
+				rightOverlay.AddToClassList("VisibilityWindowOn");
+			else
+				rightOverlay.RemoveFromClassList("VisibilityWindowOn");
+		}
 		public DropdownMenu dropdownOverlay
 		{
 			get

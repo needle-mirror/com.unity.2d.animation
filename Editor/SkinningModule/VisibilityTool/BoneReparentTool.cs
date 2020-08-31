@@ -159,21 +159,22 @@ namespace UnityEditor.U2D.Animation
             };
             columns[1] = new MultiColumnHeaderState.Column
             {
-                headerContent = EditorGUIUtility.TrTextContent("Bone"),
+                headerContent = EditorGUIUtility.TrTextContent(TextContent.bone),
                 headerTextAlignment = TextAlignment.Center,
-                width = 170,
+                width = 130,
                 minWidth = 130,
                 autoResize = true,
                 allowToggleVisibility = false
             };
+            
             columns[2] = new MultiColumnHeaderState.Column
             {
-                headerContent = EditorGUIUtility.TrTextContent("Depth"),
+                headerContent = EditorGUIUtility.TrTextContent(TextContent.depth),
                 headerTextAlignment = TextAlignment.Center,
-                width = 40,
-                minWidth = 40,
-                maxWidth = 40,
-                autoResize = false,
+                width = 50,
+                minWidth = 50,
+                maxWidth = 50,
+                autoResize = true,
                 allowToggleVisibility = true
             };
             var multiColumnHeaderState = new MultiColumnHeaderState(columns);

@@ -51,6 +51,14 @@ LayoutOverlay > #DropdownOverlay {
     width: 0;
 }
 
+LayoutOverlay > #HorizontalHolder > #RightOverlay.VisibilityWindowOn {
+    min-height : 400px;
+}
+
+LayoutOverlay > #HorizontalHolder > #RightOverlay {
+    min-height : 250px;
+}
+
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow {
     flex:1 0 auto;
     width : 280px;

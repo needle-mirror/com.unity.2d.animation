@@ -336,6 +336,8 @@ namespace UnityEditor.U2D.IK
                 //Prepare transforms that already have an undo modification
                 foreach (var modification in modifications)
                 {
+                    if (modification.currentValue == null)
+                        continue;
                     Transform transform;
                     if (ProcessTransformPropertyModification(modification, out transform))
                         m_IgnoreTransformsOnUndo.Add(transform);
@@ -345,6 +347,8 @@ namespace UnityEditor.U2D.IK
 
                 foreach (var modification in modifications)
                 {
+                    if (modification.currentValue == null)
+                        continue;
                     var target = modification.currentValue.target;
 
                     if(processedObjectList.Contains(target))

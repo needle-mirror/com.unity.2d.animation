@@ -15,7 +15,8 @@ namespace UnityEditor.U2D.Animation
         VisualElement m_Container;
         Slider m_BoneOpacitySlider;
         Slider m_MeshOpacitySlider;
-
+        private LayoutOverlay m_Layout;
+        
         List<Button> m_Tabs;
         int m_CurrentSelectedTab = 0;
 
@@ -57,6 +58,7 @@ namespace UnityEditor.U2D.Animation
 
         public void Initialize(LayoutOverlay layout)
         {
+            m_Layout = layout;
             layout.rightOverlay.Add(this);
             Hide();
         }
@@ -65,12 +67,14 @@ namespace UnityEditor.U2D.Animation
         {
             m_Container.Clear();
             this.SetHiddenFromLayout(false);
+            m_Layout.VisibilityWindowOn(true);
         }
 
         public void Hide()
         {
             m_Container.Clear();
             this.SetHiddenFromLayout(true);
+            m_Layout.VisibilityWindowOn(false);
         }
 
         bool IsOpacityTarget(IEventHandler target, VisualElement opacityTarget)

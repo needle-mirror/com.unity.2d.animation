@@ -99,12 +99,12 @@ namespace UnityEditor.U2D.Animation
                 return false;
 
             bool dataChanged = false;
-
+            var spriteRects = spriteDataProvider.GetSpriteRects();
             foreach (var sprite in sprites)
             {
                 var guid = sprite.GetSpriteID();
                 {
-                    SpriteRect spriteRect = spriteDataProvider.GetSpriteRects().First(s => { return s.spriteID == guid; });
+                    var spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
                     var spriteBone = boneDataProvider.GetBones(guid);
                     if (spriteBone == null)
                         continue;
@@ -136,10 +136,11 @@ namespace UnityEditor.U2D.Animation
                 return false;
 
             bool dataChanged = false;
+            var spriteRects = spriteDataProvider.GetSpriteRects();
             foreach (var sprite in sprites)
             {
                 var guid = sprite.GetSpriteID();
-                var spriteRect = spriteDataProvider.GetSpriteRects().First(s => { return s.spriteID == guid; });
+                var spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
                 var spriteBone = boneDataProvider.GetBones(guid);
 
                 var hasBones = spriteBone != null && spriteBone.Count > 0;

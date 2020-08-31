@@ -14,6 +14,7 @@ namespace UnityEngine.U2D.Animation
         int m_TransformId;
         NativeArray<int> m_BoneTransformId;
         int m_RootBoneTransformId;
+        NativeCustomSlice<Vector2> m_SpriteUVs;
         NativeCustomSlice<Vector3> m_SpriteVertices;
         NativeCustomSlice<Vector4> m_SpriteTangents;
         NativeCustomSlice<BoneWeight> m_SpriteBoneWeights;
@@ -63,6 +64,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (sprite == null)
             {
+                m_SpriteUVs = NativeCustomSlice<Vector2>.Default();
                 m_SpriteVertices = NativeCustomSlice<Vector3>.Default();
                 m_SpriteTangents = NativeCustomSlice<Vector4>.Default();
                 m_SpriteBoneWeights = NativeCustomSlice<BoneWeight>.Default();
@@ -74,6 +76,7 @@ namespace UnityEngine.U2D.Animation
             }
             else
             {
+                m_SpriteUVs = new NativeCustomSlice<Vector2>(sprite.GetVertexAttribute<Vector2>(UnityEngine.Rendering.VertexAttribute.TexCoord0));
                 m_SpriteVertices = new NativeCustomSlice<Vector3>(sprite.GetVertexAttribute<Vector3>(UnityEngine.Rendering.VertexAttribute.Position));
                 m_SpriteTangents = new NativeCustomSlice<Vector4>(sprite.GetVertexAttribute<Vector4>(UnityEngine.Rendering.VertexAttribute.Tangent));
                 m_SpriteBoneWeights = new NativeCustomSlice<BoneWeight>(sprite.GetVertexAttribute<BoneWeight>(UnityEngine.Rendering.VertexAttribute.BlendWeight));
@@ -203,9 +206,9 @@ namespace UnityEngine.U2D.Animation
         {
             unsafe
             {
-                var iptr = new IntPtr(sprite.GetVertexAttribute<BoneWeight>(UnityEngine.Rendering.VertexAttribute.BlendWeight).GetUnsafeReadOnlyPtr());
-                var rs = m_SpriteBoneWeights.data == iptr;
-                if (!rs)
+                var iptr = new IntPtr(sprite.GetVertexAttribute<Vector2>(UnityEngine.Rendering.VertexAttribute.TexCoord0).GetUnsafeReadOnlyPtr());
+                var rs = m_SpriteUVs.data != iptr;
+                if (rs)
                 {
                     UpdateSpriteDeform();
                 }

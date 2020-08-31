@@ -1,4 +1,11 @@
 # Changelog
+## [5.0.2] - 2020-08-31
+### Fixed
+- Fixed Visibility window overlaps with weights and gemotery window when Sprite Editor Window resizes (case 1263353)
+- Fixed 'Depth' column label gets clipped in Visibility Tool Window (case 1257991)
+- Fixed 'Invalid worldAABB' error message when repeatedly pressing Pack Preview button (case 1270150)
+- Fixed Null reference exception when changing values of a material while recording animation with Skinning Module enabled (case 1267300)
+- Improved memory and speed of Animation SpritePostProcess for large sprite count
 
 ## [5.0.1] - 2020-07-24
 ### Fixed
