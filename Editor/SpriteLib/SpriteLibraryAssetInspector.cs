@@ -13,6 +13,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             public static GUIContent duplicateWarningText = EditorGUIUtility.TrTextContent("Duplicate name found or name hash clashes. Please use a different name");
             public static GUIContent duplicateWarning = EditorGUIUtility.TrIconContent("console.warnicon.sml", duplicateWarningText.text);
             public static GUIContent nameLabel = new GUIContent(TextContent.label);
+            public static string categoryListLabel = L10n.Tr("Category List");
             public static int lineSpacing = 3;
         }
 
@@ -75,7 +76,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                 }
             }
 
-            EditorGUI.PropertyField(vaRect, spriteListProp);
+            spriteListProp.isExpanded = EditorGUI.Foldout(vaRect, spriteListProp.isExpanded, Style.categoryListLabel);
             if (spriteListProp.isExpanded)
             {
                 EditorGUI.indentLevel++;

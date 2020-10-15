@@ -1,4 +1,10 @@
 # Changelog
+## [5.0.3] - 2020-10-15
+### Fixed
+- Fixed Sprite with no animation data is being processed during AssetPostProcessor
+- Fixed properties under the Sprite Library Asset overlappig in inspector (case 1280017)
+- Fixed vertical slider handle is not aligned and placed slightly to the right side in the Bone Influence window (case 1260568)
+
 ## [5.0.2] - 2020-08-31
 ### Fixed
 - Fixed Visibility window overlaps with weights and gemotery window when Sprite Editor Window resizes (case 1263353)

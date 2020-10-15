@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "unity": "2020.2",
   "unityRelease": "0a19",
   "displayName": "2D Animation",
@@ -11,15 +11,15 @@
   ],
   "category": "2D",
   "dependencies": {
-    "com.unity.2d.common": "4.0.2",
+    "com.unity.2d.common": "4.0.3",
     "com.unity.mathematics": "1.1.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "5.0.2",
-    "com.unity.2d.common.tests": "4.0.2",
+    "com.unity.2d.animation.tests": "5.0.3",
+    "com.unity.2d.common.tests": "4.0.3",
     "com.unity.2d.psdimporter": "4.0.2"
   },
   "samples": [
@@ -30,11 +30,11 @@
     }
   ],
   "upmCi": {
-    "footprint": "c05337b555f11009dc5aca7c1199ab214c773dae"
+    "footprint": "910eb860bd48c2f6d61b264e148cce2c041da78f"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "4e96f68a7587d87b4fee15d6f88a5d86c2afa9aa"
+    "revision": "c97def465b1932276762fc13f4cfee58da99d5e9"
   }
 }

@@ -104,12 +104,16 @@ namespace UnityEditor.U2D.Animation
             {
                 var guid = sprite.GetSpriteID();
                 {
-                    var spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
                     var spriteBone = boneDataProvider.GetBones(guid);
                     if (spriteBone == null)
                         continue;
 
                     var spriteBoneCount = spriteBone.Count;
+                    if (spriteBoneCount == 0)
+                        continue;
+
+                    var spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
+
                     var bindPose = new NativeArray<Matrix4x4>(spriteBoneCount, Allocator.Temp);
                     var outputSpriteBones = new UnityEngine.U2D.SpriteBone ? [spriteBoneCount];
                     for (int i = 0; i < spriteBoneCount; ++i)
@@ -140,17 +144,18 @@ namespace UnityEditor.U2D.Animation
             foreach (var sprite in sprites)
             {
                 var guid = sprite.GetSpriteID();
-                var spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
-                var spriteBone = boneDataProvider.GetBones(guid);
-
-                var hasBones = spriteBone != null && spriteBone.Count > 0;
-                var hasInvalidWeights = false;
-
                 var vertices = spriteMeshDataProvider.GetVertices(guid);
-                var indices = spriteMeshDataProvider.GetIndices(guid);
+                int[] indices = null;
+                if (vertices.Length > 2)
+                    indices = spriteMeshDataProvider.GetIndices(guid);
 
-                if (vertices.Length > 2 && indices.Length > 2)
+                if (indices != null && indices.Length > 2 && vertices.Length > 2 )
                 {
+                    var spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
+                    var spriteBone = boneDataProvider.GetBones(guid);
+                    var hasBones = spriteBone != null && spriteBone.Count > 0;
+                    var hasInvalidWeights = false;
+
                     var vertexArray = new NativeArray<Vector3>(vertices.Length, Allocator.Temp);
                     var boneWeightArray = new NativeArray<BoneWeight>(vertices.Length, Allocator.Temp);
 
