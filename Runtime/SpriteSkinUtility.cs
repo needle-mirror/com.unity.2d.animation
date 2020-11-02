@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine.U2D;
 using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.Animation
@@ -148,49 +146,6 @@ namespace UnityEngine.U2D.Animation
                     boneTransform.localScale = Vector3.one;
                 }
             }
-        }
-
-        //TODO: Add other ways to find the transforms in case the named path fails
-        internal static void Rebind(this SpriteSkin spriteSkin)
-        {
-            if (spriteSkin.spriteRenderer.sprite == null)
-                throw new ArgumentException("SpriteRenderer has no Sprite set");
-            if (spriteSkin.rootBone == null)
-                throw new ArgumentException("SpriteSkin has no rootBone");
-
-            var spriteBones = spriteSkin.spriteRenderer.sprite.GetBones();
-            var boneTransforms = new List<Transform>();
-
-            for (int i = 0; i < spriteBones.Length; ++i)
-            {
-                var boneTransformPath = CalculateBoneTransformPath(i, spriteBones);
-                var boneTransform = spriteSkin.rootBone.Find(boneTransformPath);
-
-                boneTransforms.Add(boneTransform);
-            }
-
-            spriteSkin.boneTransforms = boneTransforms.ToArray();
-        }
-
-        private static string CalculateBoneTransformPath(int index, SpriteBone[] spriteBones)
-        {
-            var path = "";
-
-            while (index != -1)
-            {
-                var spriteBone = spriteBones[index];
-                var spriteBoneName = spriteBone.name;
-                if (spriteBone.parentId != -1)
-                {
-                    if (string.IsNullOrEmpty(path))
-                        path = spriteBoneName;
-                    else
-                        path = spriteBoneName + "/" + path;
-                }
-                index = spriteBone.parentId;
-            }
-
-            return path;
         }
 
         private static int GetHash(Matrix4x4 matrix)

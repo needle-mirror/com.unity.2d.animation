@@ -1,11 +1,12 @@
-using UnityEditor.U2D.Animation;
 using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.Experimental.U2D.Animation;
+using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.U2D.Animation;
 
-namespace UnityEditor.Experimental.U2D.Animation
+namespace UnityEditor.U2D.Animation
 {
     [CustomEditor(typeof(SpriteLibraryAsset))]
+    [MovedFrom("UnityEditor.Experimental.U2D.Animation")]
     internal class SpriteLibraryAssetInspector : Editor
     {
         static class Style

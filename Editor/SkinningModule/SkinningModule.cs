@@ -25,6 +25,7 @@ namespace UnityEditor.U2D.Animation
         private ModuleToolGroup m_ModuleToolGroup;
         IMeshPreviewBehaviour m_MeshPreviewBehaviourOverride = null;
         bool m_CollapseToolbar;
+        Texture2D m_WorkspaceBackgroundTexture;
 
         internal SkinningCache skinningCache
         {
@@ -45,12 +46,17 @@ namespace UnityEditor.U2D.Animation
         public override void OnModuleActivate()
         {
             m_SkinningCache = Cache.Create<SkinningCache>();
-
+            m_WorkspaceBackgroundTexture = new Texture2D(1, 1, TextureFormat.RGBAHalf, false, true);
+                        
+            m_WorkspaceBackgroundTexture.hideFlags = HideFlags.HideAndDontSave;
+            m_WorkspaceBackgroundTexture.SetPixel(1, 1, new Color(0, 0, 0, 0));
+            m_WorkspaceBackgroundTexture.Apply();
+            
             AddMainUI(spriteEditor.GetMainVisualContainer());
 
             using (skinningCache.DisableUndoScope())
             {
-                skinningCache.Create(spriteEditor, SkinningCachePersistentState.instance);
+                skinningCache.Create(spriteEditor.GetDataProvider<ISpriteEditorDataProvider>(), SkinningCachePersistentState.instance);
                 skinningCache.CreateToolCache(spriteEditor, m_LayoutOverlay);
                 m_CharacterSpriteTool = skinningCache.CreateTool<SpriteBoneInfluenceTool>();
                 m_CharacterSpriteTool.Initialize(m_LayoutOverlay);
@@ -71,8 +77,8 @@ namespace UnityEditor.U2D.Animation
                 skinningCache.events.meshChanged.AddListener(OnMeshChanged);
                 skinningCache.events.boneNameChanged.AddListener(OnBoneNameChanged);
                 skinningCache.events.boneDepthChanged.AddListener(OnBoneDepthChanged);
-                skinningCache.events.spriteLibraryChanged.AddListener(OnSpriteLibraryChanged);
                 skinningCache.events.meshPreviewBehaviourChange.AddListener(OnMeshPreviewBehaviourChange);
+                skinningCache.events.dataModified.AddListener(SetOnDataDirty);
 
                 skinningCache.RestoreFromPersistentState();
                 ActivateTool(skinningCache.selectedTool);
@@ -127,7 +133,6 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.meshChanged.RemoveListener(OnMeshChanged);
             skinningCache.events.boneNameChanged.RemoveListener(OnBoneNameChanged);
             skinningCache.events.boneDepthChanged.RemoveListener(OnBoneDepthChanged);
-            skinningCache.events.spriteLibraryChanged.RemoveListener(OnSpriteLibraryChanged);
             skinningCache.events.meshPreviewBehaviourChange.RemoveListener(OnMeshPreviewBehaviourChange);
 
             RemoveMainUI(spriteEditor.GetMainVisualContainer());
@@ -148,6 +153,11 @@ namespace UnityEditor.U2D.Animation
             m_HorizontalToggleTools.collapseToolbar = m_CollapseToolbar;
         }
 
+        private void SetOnDataDirty()
+        {
+            DataModified();
+        }
+        
         private void OnBoneNameChanged(BoneCache bone)
         {
             var character = skinningCache.character;
@@ -198,11 +208,6 @@ namespace UnityEditor.U2D.Animation
             if (textureProvider == null)
                 return;
 
-            var emptyTexture = new Texture2D(1, 1, TextureFormat.RGBAHalf, false, true);
-            emptyTexture.hideFlags = HideFlags.HideAndDontSave;
-            emptyTexture.SetPixel(1, 1, new Color(0, 0, 0, 0));
-            emptyTexture.Apply();
-
             int width = 0, height = 0;
             if (skinningCache.mode == SkinningMode.SpriteSheet)
             {
@@ -216,7 +221,7 @@ namespace UnityEditor.U2D.Animation
 
             if (m_PreviousSkinningMode != skinningCache.mode || setPreviewTexture)
             {
-                spriteEditor.SetPreviewTexture(emptyTexture, width, height);
+                spriteEditor.SetPreviewTexture(m_WorkspaceBackgroundTexture, width, height);
                 if (m_PreviousSkinningMode != skinningCache.mode)
                 {
                     m_PreviousSkinningMode = skinningCache.mode;
@@ -320,7 +325,8 @@ namespace UnityEditor.U2D.Animation
                 }
                 else if (copyTool != null && evt.commandName == "Paste")
                 {
-                    copyTool.OnPasteActivated(true, true, false, false);
+                    var boneReadOnly = skinningCache.hasCharacter && skinningCache.character.boneReadOnly;
+                    copyTool.OnPasteActivated(!boneReadOnly, true, false, false);
                     evt.Use();
                 }
             }
@@ -441,12 +447,7 @@ namespace UnityEditor.U2D.Animation
             if (apply)
             {
                 m_Analytics.FlushEvent();
-                skinningCache.applyingChanges = true;
-                skinningCache.RestoreBindPose();
-                ApplyBone();
-                ApplyMesh();
-                ApplyCharacter();
-                skinningCache.applyingChanges = false;
+                ApplyChanges(skinningCache, spriteEditor.GetDataProvider<ISpriteEditorDataProvider>());
                 DoApplyAnalytics();
             }
             else
@@ -454,6 +455,16 @@ namespace UnityEditor.U2D.Animation
             return true;
         }
 
+        static internal void ApplyChanges(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
+        {
+            skinningCache.applyingChanges = true;
+            skinningCache.RestoreBindPose();
+            ApplyBone(skinningCache, dataProvider);
+            ApplyMesh(skinningCache, dataProvider);
+            ApplyCharacter(skinningCache, dataProvider);
+            skinningCache.applyingChanges = false;
+        }
+        
         private void DoApplyAnalytics()
         {
             var sprites = skinningCache.GetSprites();
@@ -468,9 +479,9 @@ namespace UnityEditor.U2D.Animation
             m_Analytics.SendApplyEvent(sprites.Length, spriteBoneCount, bones);
         }
 
-        private void ApplyBone()
+        static void ApplyBone(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
         {
-            var boneDataProvider = spriteEditor.GetDataProvider<ISpriteBoneDataProvider>();
+            var boneDataProvider = dataProvider.GetDataProvider<ISpriteBoneDataProvider>();
             if (boneDataProvider != null)
             {
                 var sprites = skinningCache.GetSprites();
@@ -482,9 +493,9 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void ApplyMesh()
+        static void ApplyMesh(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
         {
-            var meshDataProvider = spriteEditor.GetDataProvider<ISpriteMeshDataProvider>();
+            var meshDataProvider = dataProvider.GetDataProvider<ISpriteMeshDataProvider>();
             if (meshDataProvider != null)
             {
                 var sprites = skinningCache.GetSprites();
@@ -505,9 +516,9 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void ApplyCharacter()
+        static void ApplyCharacter(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
         {
-            var characterDataProvider = spriteEditor.GetDataProvider<ICharacterDataProvider>();
+            var characterDataProvider = dataProvider.GetDataProvider<ICharacterDataProvider>();
             var character = skinningCache.character;
             if (characterDataProvider != null && character != null)
             {
@@ -526,21 +537,10 @@ namespace UnityEditor.U2D.Animation
                     ).ToArray();
 
                 characterDataProvider.SetCharacterData(data);
-            }
-
-            var spriteLibDataProvider = spriteEditor.GetDataProvider<ISpriteLibDataProvider>();
-            if (spriteLibDataProvider != null)
-            {
-                spriteLibDataProvider.SetSpriteCategoryList(skinningCache.spriteCategoryList.ToSpriteLibrary());
+                
             }
         }
-
-        void OnSpriteLibraryChanged()
-        {
-            DataModified();
-        }
-
-
+        
         void OnMeshPreviewBehaviourChange(IMeshPreviewBehaviour meshPreviewBehaviour)
         {
             m_MeshPreviewBehaviourOverride = meshPreviewBehaviour;

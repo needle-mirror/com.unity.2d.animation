@@ -63,8 +63,6 @@ namespace UnityEditor.U2D.Animation
         private SpriteCache m_SelectedSprite;
         [SerializeField]
         private SkeletonSelection m_SkeletonSelection = new SkeletonSelection();
-        [SerializeField]
-        private SpriteCategoryListCacheObject m_SpriteCategoryList;
         [SerializeField] 
         private ISkinningCachePersistentState m_State;
 
@@ -180,7 +178,7 @@ namespace UnityEditor.U2D.Animation
             return mode;
         }
 
-        public void Create(ISpriteEditor spriteEditor, ISkinningCachePersistentState state)
+        public void Create(ISpriteEditorDataProvider spriteEditor, ISkinningCachePersistentState state)
         {
             Clear();
 
@@ -203,7 +201,6 @@ namespace UnityEditor.U2D.Animation
             }
 
             CreateCharacter(spriteEditor);
-            CreateSpriteLibrary(spriteEditor);
         }
 
         public void CreateToolCache(ISpriteEditor spriteEditor, LayoutOverlay layoutOverlay)
@@ -825,7 +822,7 @@ namespace UnityEditor.U2D.Animation
             m_MeshPreviewMap.Add(sprite, meshPreview);
         }
 
-        private void CreateCharacter(ISpriteEditor spriteEditor)
+        private void CreateCharacter(ISpriteEditorDataProvider spriteEditor)
         {
             var characterProvider = spriteEditor.GetDataProvider<ICharacterDataProvider>();
 
@@ -884,6 +881,7 @@ namespace UnityEditor.U2D.Animation
                 m_Character.skeleton = skeleton;
                 m_Character.dimension = characterData.dimension;
                 CreateSpriteSheetSkeletons();
+                m_Character.boneReadOnly = characterData.boneReadOnly;
             }
         }
 
@@ -996,11 +994,15 @@ namespace UnityEditor.U2D.Animation
                     bone.SetParent(bones[spriteBone.parentId]);
 
                 bone.name = spriteBone.name;
+                bone.guid = spriteBone.guid?.Length == 0 ? GUID.Generate().ToString() : spriteBone.guid;
                 bone.localLength = spriteBone.length * scale;
                 bone.depth = spriteBone.position.z;
                 bone.localPosition = (Vector2)spriteBone.position * scale;
                 bone.localRotation = spriteBone.rotation;
-                bone.bindPoseColor = ModuleUtility.CalculateNiceColor(i, 6);
+                if (spriteBone.color.a == 0)
+                    bone.bindPoseColor = ModuleUtility.CalculateNiceColor(i, 6);
+                else
+                    bone.bindPoseColor = spriteBone.color;
             }
 
             foreach (var bone in bones)
@@ -1029,22 +1031,7 @@ namespace UnityEditor.U2D.Animation
 
             return false;
         }
-
-        void CreateSpriteLibrary(ISpriteEditor spriteEditor)
-        {
-            var dataProvider = spriteEditor.GetDataProvider<ISpriteLibDataProvider>();
-            if (dataProvider != null)
-            {
-                m_SpriteCategoryList = CreateCache<SpriteCategoryListCacheObject>();
-                m_SpriteCategoryList.CopyFrom(dataProvider.GetSpriteCategoryList());
-            }
-        }
-
-        public SpriteCategoryListCacheObject spriteCategoryList
-        {
-            get { return m_SpriteCategoryList; }
-        }
-
+        
         private void ToolChanged(ITool tool)
         {
             var visibilityTool = GetTool(Tools.Visibility);

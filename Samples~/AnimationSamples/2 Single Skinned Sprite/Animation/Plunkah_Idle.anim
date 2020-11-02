@@ -567,7 +567,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01
+    path: Spine_00/Spine_01
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -1123,7 +1123,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00
+    path: Spine_00/Spine_01/Neck_00
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -1679,7 +1679,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -2235,7 +2235,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -2791,7 +2791,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -3347,7 +3347,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -3903,7 +3903,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00
+    path: Spine_00/Spine_01/Neck_00/Head_00
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -4459,7 +4459,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -5015,7 +5015,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -5571,7 +5571,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -6127,7 +6127,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -6683,7 +6683,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -7239,7 +7239,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
   m_CompressedRotationCurves: []
   m_EulerCurves: []
   m_PositionCurves: []
@@ -7922,7 +7922,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01
+    path: Spine_00/Spine_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -8481,7 +8481,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01
+    path: Spine_00/Spine_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -9040,7 +9040,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01
+    path: Spine_00/Spine_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -9599,7 +9599,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01
+    path: Spine_00/Spine_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -10158,7 +10158,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00
+    path: Spine_00/Spine_01/Neck_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -10717,7 +10717,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00
+    path: Spine_00/Spine_01/Neck_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -11276,7 +11276,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00
+    path: Spine_00/Spine_01/Neck_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -11835,7 +11835,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00
+    path: Spine_00/Spine_01/Neck_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -12394,7 +12394,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -12953,7 +12953,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -13512,7 +13512,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -14071,7 +14071,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -14630,7 +14630,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -15189,7 +15189,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -15748,7 +15748,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -16307,7 +16307,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -16866,7 +16866,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -17425,7 +17425,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -17984,7 +17984,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -18543,7 +18543,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -19102,7 +19102,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -19661,7 +19661,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -20220,7 +20220,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -20779,7 +20779,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -21338,7 +21338,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00
+    path: Spine_00/Spine_01/Neck_00/Head_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -21897,7 +21897,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00
+    path: Spine_00/Spine_01/Neck_00/Head_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -22456,7 +22456,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00
+    path: Spine_00/Spine_01/Neck_00/Head_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -23015,7 +23015,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00
+    path: Spine_00/Spine_01/Neck_00/Head_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -23574,7 +23574,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -24133,7 +24133,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -24692,7 +24692,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -25251,7 +25251,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -25810,7 +25810,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -26369,7 +26369,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -26928,7 +26928,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -27487,7 +27487,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -28046,7 +28046,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -28605,7 +28605,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -29164,7 +29164,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -29723,7 +29723,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -30282,7 +30282,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -30841,7 +30841,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -31400,7 +31400,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -31959,7 +31959,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -32518,7 +32518,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -33077,7 +33077,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -33636,7 +33636,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -34195,7 +34195,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -34754,7 +34754,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -35313,7 +35313,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -35872,7 +35872,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36431,7 +36431,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
     classID: 4
     script: {fileID: 0}
   m_EulerEditorCurves:
@@ -36469,7 +36469,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36506,7 +36506,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36543,7 +36543,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36580,7 +36580,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36617,7 +36617,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36654,7 +36654,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
+    path: Spine_00/Spine_01/Neck_00/Arm_L_00/Arm_L_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36700,7 +36700,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00
+    path: Spine_00/Spine_01/Neck_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36737,7 +36737,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00
+    path: Spine_00/Spine_01/Neck_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36774,7 +36774,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00
+    path: Spine_00/Spine_01/Neck_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36820,7 +36820,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01
+    path: Spine_00/Spine_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36857,7 +36857,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01
+    path: Spine_00/Spine_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36894,7 +36894,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01
+    path: Spine_00/Spine_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36931,7 +36931,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -36968,7 +36968,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37005,7 +37005,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37042,7 +37042,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37079,7 +37079,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37116,7 +37116,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
+    path: Spine_00/Spine_01/Neck_00/Arm_R_00/Arm_R_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37162,7 +37162,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00
+    path: Spine_00/Spine_01/Neck_00/Head_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37208,7 +37208,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00
+    path: Spine_00/Spine_01/Neck_00/Head_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37254,7 +37254,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00
+    path: Spine_00/Spine_01/Neck_00/Head_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37300,7 +37300,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37346,7 +37346,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37392,7 +37392,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37438,7 +37438,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37484,7 +37484,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37530,7 +37530,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_00
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37576,7 +37576,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37622,7 +37622,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37668,7 +37668,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_01
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37714,7 +37714,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37760,7 +37760,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37806,7 +37806,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_02
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37861,7 +37861,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37916,7 +37916,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -37971,7 +37971,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_03
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -38017,7 +38017,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.x
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -38063,7 +38063,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.y
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -38109,7 +38109,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesBaked.z
-    path: Root/Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
+    path: Spine_00/Spine_01/Neck_00/Head_00/Head_01/Nodule_04
     classID: 4
     script: {fileID: 0}
   m_HasGenericRootTransform: 0

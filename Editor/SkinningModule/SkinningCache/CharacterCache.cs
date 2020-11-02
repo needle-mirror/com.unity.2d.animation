@@ -16,6 +16,8 @@ namespace UnityEditor.U2D.Animation
         [SerializeField]
         private List<CharacterGroupCache> m_Groups = new List<CharacterGroupCache>();
 
+        [SerializeField] private bool m_ReadOnlyBones;
+
         public SkeletonCache skeleton
         {
             get { return m_Skeleton; }
@@ -48,6 +50,12 @@ namespace UnityEditor.U2D.Animation
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable<CharacterPartCache>)m_Parts).GetEnumerator();
+        }
+        
+        public bool boneReadOnly
+        {
+            get { return m_ReadOnlyBones; }
+            set { m_ReadOnlyBones = value; }
         }
     }
 }

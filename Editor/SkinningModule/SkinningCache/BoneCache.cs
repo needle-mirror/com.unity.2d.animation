@@ -85,7 +85,7 @@ namespace UnityEditor.U2D.Animation
     internal class BoneCache : TransformCache
     {
         [SerializeField]
-        Color m_BindPoseColor;
+        Color32 m_BindPoseColor;
         [SerializeField]
         private Pose m_BindPose;
         [SerializeField]
@@ -98,7 +98,8 @@ namespace UnityEditor.U2D.Animation
         private float m_LocalLength = 1f;
         [SerializeField]
         private bool m_IsVisible = true;
-
+        [SerializeField] 
+        private string m_Guid;
         public bool NotInDefaultPose()
         {
             return localPosition != m_DefaultPose.pose.position
@@ -209,6 +210,12 @@ namespace UnityEditor.U2D.Animation
             set { m_BindPose = value; }
         }
 
+        public string guid
+        {
+            get { return m_Guid; }
+            set { m_Guid = value; }
+        }        
+        
         public float depth
         {
             get { return m_Depth; }

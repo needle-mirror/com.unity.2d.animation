@@ -628,7 +628,7 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.skeletonTopologyChanged.Invoke(skeleton);
         }
 
-        private void InvokePoseChanged()
+        internal void InvokePoseChanged()
         {
             skeleton.SetPosePreview();
 

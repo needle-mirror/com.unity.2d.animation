@@ -6,22 +6,38 @@ using UnityEngine;
 using Unity.Collections;
 using System.Linq;
 using UnityEditor.U2D.Sprites;
-
+using UnityEngine.U2D.Animation;
 using UnityEngine.Rendering;
 using UnityEngine.U2D;
-using UnityEngine.U2D.Animation;
 
 namespace UnityEditor.U2D.Animation
 {
     internal class SpritePostProcess : AssetPostprocessor
     {
         private static List<object> m_AssetList;
+        
+        void OnPreprocessAsset()
+        {
+            ISpriteEditorDataProvider ai = GetSpriteEditorDataProvider(assetPath);
+            if (ai != null)
+            {
+                var characterDataProvider = ai.GetDataProvider<ICharacterDataProvider>();
+                var boneDataProvider = ai.GetDataProvider<ISpriteBoneDataProvider>();
+                var characterData = characterDataProvider?.GetCharacterData();
+
+                if (characterData.HasValue && characterData.Value.boneReadOnly && boneDataProvider != null)
+                {
+                    var skinningCache = Cache.Create<SkinningCache>();
+                    skinningCache.Create(ai, new SkinningCachePersistentStateTemp());
+                    SkinningModule.ApplyChanges(skinningCache, ai);
+                    ai.Apply();
+                }
+            }
+        }
 
         void OnPostprocessSprites(Texture2D texture, Sprite[] sprites)
         {
-            var dataProviderFactories = new SpriteDataProviderFactories();
-            dataProviderFactories.Init();
-            ISpriteEditorDataProvider ai = dataProviderFactories.GetSpriteEditorDataProviderFromObject(AssetImporter.GetAtPath(assetPath));
+            ISpriteEditorDataProvider ai = GetSpriteEditorDataProvider(assetPath);
             if (ai != null)
             {
                 float definitionScale = CalculateDefinitionScale(texture, ai.GetDataProvider<ITextureDataProvider>());
@@ -227,6 +243,101 @@ namespace UnityEditor.U2D.Animation
                 definitionScale = Mathf.Min(definitionScaleW, definitionScaleH);
             }
             return definitionScale;
+        }
+
+        static ISpriteEditorDataProvider GetSpriteEditorDataProvider(string assetPath)
+        {
+            var dataProviderFactories = new SpriteDataProviderFactories();
+            dataProviderFactories.Init();
+            return dataProviderFactories.GetSpriteEditorDataProviderFromObject(AssetImporter.GetAtPath(assetPath));
+        }
+        
+        class SkinningCachePersistentStateTemp : ISkinningCachePersistentState
+        {
+            private string _lastSpriteId;
+            private Tools _lastUsedTool;
+            private List<int> _lastBoneSelectionIds = null;
+            private Texture2D _lastTexture = null;
+            private SerializableDictionary<int, BonePose> _lastPreviewPose = null;
+            private SerializableDictionary<int, bool> _lastBoneVisibility = null;
+            private SerializableDictionary<int, bool> _lastBoneExpansion = null;
+            private SerializableDictionary<string, bool> _lastSpriteVisibility = null;
+            private SerializableDictionary<int, bool> _lastGroupVisibility = null;
+            private SkinningMode _lastMode;
+            private bool _lastVisibilityToolActive;
+            private int _lastVisibilityToolIndex;
+            private IndexedSelection _lastVertexSelection = null;
+            private float _lastBrushSize;
+            private float _lastBrushHardness;
+            private float _lastBrushStep;
+
+            string ISkinningCachePersistentState.lastSpriteId
+            {
+                get => _lastSpriteId;
+                set => _lastSpriteId = value;
+            }
+
+            Tools ISkinningCachePersistentState.lastUsedTool
+            {
+                get => _lastUsedTool;
+                set => _lastUsedTool = value;
+            }
+
+            List<int> ISkinningCachePersistentState.lastBoneSelectionIds => _lastBoneSelectionIds;
+
+            Texture2D ISkinningCachePersistentState.lastTexture
+            {
+                get => _lastTexture;
+                set => _lastTexture = value;
+            }
+
+            SerializableDictionary<int, BonePose> ISkinningCachePersistentState.lastPreviewPose => _lastPreviewPose;
+
+            SerializableDictionary<int, bool> ISkinningCachePersistentState.lastBoneVisibility => _lastBoneVisibility;
+
+            SerializableDictionary<int, bool> ISkinningCachePersistentState.lastBoneExpansion => _lastBoneExpansion;
+
+            SerializableDictionary<string, bool> ISkinningCachePersistentState.lastSpriteVisibility => _lastSpriteVisibility;
+
+            SerializableDictionary<int, bool> ISkinningCachePersistentState.lastGroupVisibility => _lastGroupVisibility;
+
+            SkinningMode ISkinningCachePersistentState.lastMode
+            {
+                get => _lastMode;
+                set => _lastMode = value;
+            }
+
+            bool ISkinningCachePersistentState.lastVisibilityToolActive
+            {
+                get => _lastVisibilityToolActive;
+                set => _lastVisibilityToolActive = value;
+            }
+
+            int ISkinningCachePersistentState.lastVisibilityToolIndex
+            {
+                get => _lastVisibilityToolIndex;
+                set => _lastVisibilityToolIndex = value;
+            }
+
+            IndexedSelection ISkinningCachePersistentState.lastVertexSelection => _lastVertexSelection;
+
+            float ISkinningCachePersistentState.lastBrushSize
+            {
+                get => _lastBrushSize;
+                set => _lastBrushSize = value;
+            }
+
+            float ISkinningCachePersistentState.lastBrushHardness
+            {
+                get => _lastBrushHardness;
+                set => _lastBrushHardness = value;
+            }
+
+            float ISkinningCachePersistentState.lastBrushStep
+            {
+                get => _lastBrushStep;
+                set => _lastBrushStep = value;
+            }
         }
     }
 }

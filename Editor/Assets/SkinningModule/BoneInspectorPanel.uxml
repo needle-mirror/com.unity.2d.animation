@@ -6,6 +6,12 @@
         <ui:Label name="BoneNameLabel" text="Name" tooltip ="Name of the bone"/>
         <ui:TextField name="BoneNameField" class="form-editor" />
       </ui:VisualElement>
+      <ui:VisualElement name="BonePosition" class="form-row">
+        <ui:Label name="BonePositionLabel" text="Position" tooltip ="Position of the bone"/>
+        <eui:Vector2Field name="BonePositionField" class="form-editor"/>
+      </ui:VisualElement>
+      <eui:FloatField name="BoneRotationField" label = "Rotation" tooltip ="Rotation of the bone"/>
+      <eui:ColorField name="BoneColorField" label = "Bone Color" show-alpha = "false" tooltip ="Color of the bone"/>
       <ui:VisualElement name="BoneDepth" class="form-row">
         <ui:Label name="BoneDepthLabel" text="Depth" tooltip ="Depth value of the bone"/>
         <eui:IntegerField name="BoneDepthField" class="form-editor" />

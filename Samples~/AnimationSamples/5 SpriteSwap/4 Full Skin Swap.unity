@@ -43,7 +43,7 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 11
+  serializedVersion: 12
   m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_LightingSettings: {fileID: 1459459250}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -118,6 +118,8 @@ NavMeshSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
+    maxJobWorkers: 0
+    preserveTilesOutsideBounds: 0
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
@@ -173,6 +175,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -280,6 +284,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -398,6 +403,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -474,6 +481,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -533,6 +541,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -621,6 +631,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -725,6 +737,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -804,6 +818,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -853,6 +868,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1015,6 +1032,7 @@ SpriteRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1068,8 +1086,11 @@ MonoBehaviour:
   - {fileID: 1622880316}
   - {fileID: 736503466}
   m_Bounds:
-    m_Center: {x: 1.9765089, y: 0.14807516, z: 0}
-    m_Extent: {x: 2.9428282, y: 1.0888814, z: 0}
+    m_Center: {x: -0.37839496, y: -1.6739378, z: 0}
+    m_Extent: {x: 1.0752622, y: 2.2952437, z: 0}
+  m_UseBatching: 1
+  m_AlwaysUpdate: 1
+  m_AutoRebind: 0
 --- !u!114 &705508311
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1096,6 +1117,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: -5.104705e-20
   m_labelHash: -5.104705e-20
+  m_SpriteKey: -5.3324156e+17
 --- !u!1 &736503465
 GameObject:
   m_ObjectHideFlags: 0
@@ -1273,6 +1295,7 @@ SpriteRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1327,8 +1350,11 @@ MonoBehaviour:
   - {fileID: 412166767}
   - {fileID: 1269573001}
   m_Bounds:
-    m_Center: {x: 1.7385312, y: 0.098234534, z: 0}
-    m_Extent: {x: 2.5685189, y: 1.3233736, z: 0}
+    m_Center: {x: -0.033041477, y: -1.3872688, z: 0}
+    m_Extent: {x: 1.1519313, y: 1.9830647, z: 0}
+  m_UseBatching: 1
+  m_AlwaysUpdate: 1
+  m_AutoRebind: 0
 --- !u!114 &1030226866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1355,6 +1381,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: -7.42464e+27
   m_labelHash: -0.010776566
+  m_SpriteKey: -1.9005339e+25
 --- !u!1 &1054372414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1471,6 +1498,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1542,6 +1571,7 @@ SpriteRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1593,8 +1623,11 @@ MonoBehaviour:
   m_BoneTransforms:
   - {fileID: 675638135}
   m_Bounds:
-    m_Center: {x: 1.7293851, y: 0.2594607, z: 0}
-    m_Extent: {x: 4.3526473, y: 3.2687113, z: 0}
+    m_Center: {x: -0.36991882, y: 1.6835355, z: 0}
+    m_Extent: {x: 2.6207998, y: 3.4599993, z: 0}
+  m_UseBatching: 1
+  m_AlwaysUpdate: 1
+  m_AutoRebind: 0
 --- !u!114 &1233807741
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1621,6 +1654,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 2.9092094e-34
   m_labelHash: 2.9092094e-34
+  m_SpriteKey: 0.0001628989
 --- !u!1 &1269573000
 GameObject:
   m_ObjectHideFlags: 0
@@ -1716,8 +1750,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c29cff538c195c249b69c6f2236de67b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SpriteLibraryAsset: {fileID: 11400000, guid: 136060ac7d2978e4fbcf52e0699c99fb,
-    type: 2}
+  m_Library: []
+  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: d8459eddc2e68485d85536d108cfdda5,
+    type: 3}
 --- !u!114 &1351643223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1731,9 +1766,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteLibraries:
-  - {fileID: 11400000, guid: 136060ac7d2978e4fbcf52e0699c99fb, type: 2}
-  - {fileID: 11400000, guid: 9be58c2b20b56a542b4583ade9026db9, type: 2}
-  - {fileID: 11400000, guid: 781d493586743394ca892e005906a27d, type: 2}
+  - {fileID: 7108339969198208228, guid: d8459eddc2e68485d85536d108cfdda5, type: 3}
+  - {fileID: 7108339969198208228, guid: ad374211589f04817906e31ea5348fff, type: 3}
+  - {fileID: 7108339969198208228, guid: 9ae8142ca4abb4790b429041e2c796a8, type: 3}
   spriteLibraryTarget: {fileID: 1351643222}
   dropDownSelection: {fileID: 333456104}
 --- !u!1 &1353557381
@@ -1850,6 +1885,67 @@ Transform:
   m_Father: {fileID: 1030226863}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!850595691 &1459459250
+LightingSettings:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Settings.lighting
+  serializedVersion: 3
+  m_GIWorkflowMode: 1
+  m_EnableBakedLightmaps: 0
+  m_EnableRealtimeLightmaps: 0
+  m_RealtimeEnvironmentLighting: 1
+  m_BounceScale: 1
+  m_AlbedoBoost: 1
+  m_IndirectOutputScale: 1
+  m_UsingShadowmask: 1
+  m_BakeBackend: 1
+  m_LightmapMaxSize: 1024
+  m_BakeResolution: 40
+  m_Padding: 2
+  m_TextureCompression: 1
+  m_AO: 0
+  m_AOMaxDistance: 1
+  m_CompAOExponent: 1
+  m_CompAOExponentDirect: 0
+  m_ExtractAO: 0
+  m_MixedBakeMode: 2
+  m_LightmapsBakeMode: 1
+  m_FilterMode: 1
+  m_LightmapParameters: {fileID: 15204, guid: 0000000000000000f000000000000000, type: 0}
+  m_ExportTrainingData: 0
+  m_TrainingDataDestination: TrainingData
+  m_RealtimeResolution: 2
+  m_ForceWhiteAlbedo: 0
+  m_ForceUpdates: 0
+  m_FinalGather: 0
+  m_FinalGatherRayCount: 256
+  m_FinalGatherFiltering: 1
+  m_PVRCulling: 1
+  m_PVRSampling: 1
+  m_PVRDirectSampleCount: 32
+  m_PVRSampleCount: 500
+  m_PVREnvironmentSampleCount: 500
+  m_PVREnvironmentReferencePointCount: 2048
+  m_LightProbeSampleCountMultiplier: 4
+  m_PVRBounces: 2
+  m_PVRMinBounces: 2
+  m_PVREnvironmentMIS: 0
+  m_PVRFilteringMode: 2
+  m_PVRDenoiserTypeDirect: 0
+  m_PVRDenoiserTypeIndirect: 0
+  m_PVRDenoiserTypeAO: 0
+  m_PVRFilterTypeDirect: 0
+  m_PVRFilterTypeIndirect: 0
+  m_PVRFilterTypeAO: 0
+  m_PVRFilteringGaussRadiusDirect: 1
+  m_PVRFilteringGaussRadiusIndirect: 5
+  m_PVRFilteringGaussRadiusAO: 2
+  m_PVRFilteringAtrousPositionSigmaDirect: 0.5
+  m_PVRFilteringAtrousPositionSigmaIndirect: 2
+  m_PVRFilteringAtrousPositionSigmaAO: 1
 --- !u!1 &1488193666
 GameObject:
   m_ObjectHideFlags: 0
@@ -1900,6 +1996,7 @@ SpriteRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1954,8 +2051,11 @@ MonoBehaviour:
   - {fileID: 635223999}
   - {fileID: 679950122}
   m_Bounds:
-    m_Center: {x: 1.4548863, y: 0.06589377, z: 0}
-    m_Extent: {x: 2.615943, y: 1.6118205, z: 0}
+    m_Center: {x: 0.001172185, y: -1.440727, z: 0}
+    m_Extent: {x: 1.4766302, y: 1.9721103, z: 0}
+  m_UseBatching: 1
+  m_AlwaysUpdate: 1
+  m_AutoRebind: 0
 --- !u!114 &1488193670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1982,6 +2082,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: -0.010776566
   m_labelHash: -0.010776566
+  m_SpriteKey: 0.00000062340024
 --- !u!1 &1493027428
 GameObject:
   m_ObjectHideFlags: 0
@@ -2096,6 +2197,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2240,6 +2343,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2348,6 +2453,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2488,6 +2595,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2559,6 +2668,7 @@ SpriteRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -2611,8 +2721,11 @@ MonoBehaviour:
   - {fileID: 1054372415}
   - {fileID: 193414728}
   m_Bounds:
-    m_Center: {x: 1.9796464, y: 0.31936646, z: 0}
-    m_Extent: {x: 3.2412143, y: 3.3509564, z: 0}
+    m_Center: {x: -0.2975855, y: 1.6747978, z: 0}
+    m_Extent: {x: 2.680169, y: 2.5910065, z: 0}
+  m_UseBatching: 1
+  m_AlwaysUpdate: 1
+  m_AutoRebind: 0
 --- !u!114 &1954681256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2639,6 +2752,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 1.6059022e+36
   m_labelHash: 1.6059022e+36
+  m_SpriteKey: -6.8099194e-12
 --- !u!1 &1990969887
 GameObject:
   m_ObjectHideFlags: 0
@@ -2689,6 +2803,7 @@ SpriteRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -2742,8 +2857,11 @@ MonoBehaviour:
   - {fileID: 1493027429}
   - {fileID: 2136883841}
   m_Bounds:
-    m_Center: {x: 1.8013017, y: -0.010190189, z: 0}
-    m_Extent: {x: 2.6857746, y: 0.95301723, z: 0}
+    m_Center: {x: 0.675389, y: -1.5361698, z: 0}
+    m_Extent: {x: 1.0704944, y: 2.0508428, z: 0}
+  m_UseBatching: 1
+  m_AlwaysUpdate: 1
+  m_AutoRebind: 0
 --- !u!114 &1990969891
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2770,6 +2888,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 2.744108e+32
   m_labelHash: 2.744108e+32
+  m_SpriteKey: 9.476185e+12
 --- !u!1 &2015068777
 GameObject:
   m_ObjectHideFlags: 0
@@ -2828,6 +2947,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &2015068780
 Canvas:
   m_ObjectHideFlags: 0

@@ -187,7 +187,7 @@ namespace UnityEngine.U2D.Animation
         internal void CopyToSpriteSkinData(ref SpriteSkinData data, int spriteSkinIndex)
         {
             CacheBoneTransformIds();
-            CacheCurrentSprite();
+            CacheCurrentSprite(m_AutoRebind);
 
             data.vertices = m_SpriteVertices;
             data.boneWeights = m_SpriteBoneWeights;
@@ -219,7 +219,7 @@ namespace UnityEngine.U2D.Animation
         internal bool BatchValidate()
         {
             CacheBoneTransformIds();
-            CacheCurrentSprite();
+            CacheCurrentSprite(m_AutoRebind);
             return (m_IsValid && spriteRenderer.enabled && (alwaysUpdate || spriteRenderer.isVisible));
         }
 

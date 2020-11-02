@@ -3,8 +3,9 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine.Assertions;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace UnityEngine.Experimental.U2D.Animation
+namespace UnityEngine.U2D.Animation
 {
     internal interface INameHash
     {
@@ -13,7 +14,8 @@ namespace UnityEngine.Experimental.U2D.Animation
     }
 
     [Serializable]
-    internal class Categorylabel : INameHash
+    [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
+    internal class SpriteCategoryEntry : INameHash
     {
         [SerializeField]
         string m_Name;
@@ -41,6 +43,7 @@ namespace UnityEngine.Experimental.U2D.Animation
     }
 
     [Serializable]
+    [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     internal class SpriteLibCategory : INameHash
     {
         [SerializeField]
@@ -48,7 +51,7 @@ namespace UnityEngine.Experimental.U2D.Animation
         [SerializeField]
         int m_Hash;
         [SerializeField]
-        List<Categorylabel> m_CategoryList;
+        List<SpriteCategoryEntry> m_CategoryList;
 
         public string name
         {
@@ -62,7 +65,7 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         public int hash { get { return m_Hash; } }
 
-        public List<Categorylabel> categoryList
+        public List<SpriteCategoryEntry> categoryList
         {
             get { return m_CategoryList; }
             set { m_CategoryList = value; }
@@ -93,8 +96,8 @@ namespace UnityEngine.Experimental.U2D.Animation
     /// Sprites are grouped under a given category as categories. Each category and label needs to have
     /// a name specified so that it can be queried.
     /// </Description>
-    [CreateAssetMenu(order = 9, menuName = "2D/Sprite Library Asset")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html")]
+    [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     public class SpriteLibraryAsset : ScriptableObject
     {
         [SerializeField]
@@ -142,7 +145,7 @@ namespace UnityEngine.Experimental.U2D.Animation
             
             if (category != null)
             {
-                Categorylabel spritelabel = null;
+                SpriteCategoryEntry spritelabel = null;
                 for (int i = 0; i < category.categoryList.Count; ++i)
                 {
                     if (category.categoryList[i].hash == labelHash)
@@ -205,33 +208,28 @@ namespace UnityEngine.Experimental.U2D.Animation
             return label == null ? new string[0] : label.categoryList.Select(x => x.name);
         }
 
-        internal string GetCategoryNameFromHash(int hash)
-        {
-            var label = m_Labels.FirstOrDefault(x => x.hash == hash);
-            return label == null ? "" : label.name;
-        }
-
         /// <summary>
         /// Add or replace and existing Sprite into the given Category and Label
         /// </summary>
         /// <param name="sprite">Sprite to add</param>
         /// <param name="category">Category to add the Sprite to</param>
-        /// <param name="label">Label of the Category to add the Sprite to</param>
+        /// <param name="label">Label of the Category to add the Sprite to. If this parameter is null or an empty string, it will attempt to add a empty category</param>
         public void AddCategoryLabel(Sprite sprite, string category, string label)
         {
             category = category.Trim();
-            label = label.Trim();
-            if (string.IsNullOrEmpty(category) || string.IsNullOrEmpty(label))
-            {
-                Debug.LogError("Cannot add label with empty or null Category or label string");
-            }
+            label = label?.Trim();
+            if (string.IsNullOrEmpty(category))
+                throw new ArgumentException("Cannot add empty or null Category string");
+            
             var catHash = SpriteLibraryAsset.GetStringHash(category);
-            Categorylabel categorylabel = null;
+            SpriteCategoryEntry categorylabel = null;
             SpriteLibCategory libCategory = null;
             libCategory = m_Labels.FirstOrDefault(x => x.hash == catHash);
 
             if (libCategory != null)
             {
+                if(string.IsNullOrEmpty(label))
+                    throw new ArgumentException("Cannot add empty or null Label string");
                 Assert.AreEqual(libCategory.name, category, "Category string  hash clashes with another existing Category. Please use another string");
 
                 var labelHash = SpriteLibraryAsset.GetStringHash(label);
@@ -243,7 +241,7 @@ namespace UnityEngine.Experimental.U2D.Animation
                 }
                 else
                 {
-                    categorylabel = new Categorylabel()
+                    categorylabel = new SpriteCategoryEntry()
                     {
                         name = label,
                         sprite = sprite
@@ -255,16 +253,17 @@ namespace UnityEngine.Experimental.U2D.Animation
             {
                 var slc = new SpriteLibCategory()
                 {
-                    categoryList = new List<Categorylabel>()
-                    {
-                        new Categorylabel()
-                        {
-                            name = label,
-                            sprite = sprite
-                        }
-                    },
+                    categoryList = new List<SpriteCategoryEntry>(),
                     name = category
                 };
+                if (!string.IsNullOrEmpty(label))
+                {
+                    slc.categoryList.Add(new SpriteCategoryEntry()
+                    {
+                        name = label,
+                        sprite = sprite
+                    });
+                }
                 m_Labels.Add(slc);
             }
 #if UNITY_EDITOR
@@ -294,17 +293,6 @@ namespace UnityEngine.Experimental.U2D.Animation
                 EditorUtility.SetDirty(this);
 #endif
             }
-        }
-
-        internal string GetLabelNameFromHash(int categoryHas, int labelHash)
-        {
-            var labels = m_Labels.FirstOrDefault(x => x.hash == categoryHas);
-            if (labels != null)
-            {
-                var label = labels.categoryList.FirstOrDefault(x => x.hash == labelHash);
-                return label == null ? "" : label.name;
-            }
-            return "";
         }
 
         internal void UpdateHashes()

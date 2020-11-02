@@ -132,7 +132,7 @@ namespace UnityEditor.U2D.Animation
             bone.bindPoseColor = ModuleUtility.CalculateNiceColor(skeleton.BoneCount, 6);
             bone.position = position;
             bone.endPosition = endPosition;
-
+            bone.guid = GUID.Generate().ToString();
             if (isChained && parentBone != null)
                 parentBone.chainedChild = bone;
 

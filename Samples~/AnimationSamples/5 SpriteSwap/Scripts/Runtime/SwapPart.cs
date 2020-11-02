@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Experimental.U2D.Animation;
+using UnityEngine.U2D.Animation;
 using UnityEngine.UI;
 
 namespace Unity.U2D.Animation.Sample
@@ -18,7 +17,7 @@ namespace Unity.U2D.Animation.Sample
 
     public class SwapPart : MonoBehaviour
     {
-        public SpriteLibraryAsset spriteLibraryAsset;
+        public SpriteLibrary spriteLibrary;
         public SwapOptionData[] swapOptionData;
 
         // Start is called before the first frame update
@@ -27,7 +26,8 @@ namespace Unity.U2D.Animation.Sample
             foreach (var swapOption in swapOptionData)
             {
                 swapOption.dropdown.ClearOptions();
-                var labels = spriteLibraryAsset.GetCategoryLabelNames(swapOption.category);
+                var libraryAsset = spriteLibrary.spriteLibraryAsset;
+                var labels = libraryAsset.GetCategoryLabelNames(swapOption.category);
                 var dropDownOption = new List<Dropdown.OptionData>(labels.Count());
                 foreach (var label in labels)
                 {

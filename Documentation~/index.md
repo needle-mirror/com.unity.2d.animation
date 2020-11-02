@@ -1,5 +1,8 @@
 # Introduction to 2D Animation
 
+**Note: Documentation for version 6.0.0 is currently being updated.**
+
+
 This documentation contains information on how to quickly rig and animate a 2D character in Unity with the 2D Animation package and tools. The following package versions are only supported for the following Unity versions:
 
 * __2D Animation package version 5.x.x__ - Unity 2020.2 or later

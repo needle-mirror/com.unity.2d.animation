@@ -18,7 +18,7 @@ namespace UnityEditor.U2D.Animation
 
         public bool bones
         {
-            get { return m_BonesToggle.value; }
+            get { return m_BonesToggle.value && m_BonesToggle.enabledSelf; }
             set { m_BonesToggle.value = value; }
         }
 
@@ -66,6 +66,11 @@ namespace UnityEditor.U2D.Animation
             onPasteActivated(bones, mesh, flipX, flipY);
         }
 
+        public void BonePasteEnable(bool value)
+        {
+            m_BonesToggle.SetEnabled(value);
+        }
+        
         public static PastePanel GenerateFromUXML()
         {
             var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/PastePanel.uxml");

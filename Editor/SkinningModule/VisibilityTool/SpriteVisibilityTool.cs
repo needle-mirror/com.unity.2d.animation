@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 using System;
 using System.Linq;
-using UnityEngine.Experimental.U2D.Animation;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
@@ -18,7 +17,6 @@ namespace UnityEditor.U2D.Animation
         bool hasCharacter { get; }
         UndoScope UndoScope(string description);
         SpriteCache selectedSprite { get; }
-        SpriteCategoryListCacheObject spriteCategoryList { get; }
     }
 
     internal interface ISpriteVisibilityToolView
@@ -318,246 +316,6 @@ namespace UnityEditor.U2D.Animation
                 return sprite.GetInstanceID();
             return 0;
         }
-
-        public SpriteCategory GetCategoryForSprite(TreeViewItem treeViewItem)
-        {
-            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-            var customData = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
-            var characterPart = customData != null ? customData.sprite : null;
-            if (characterPart != null)
-            {
-                var spriteLib = m_Model.spriteCategoryList;
-                foreach (var category in spriteLib.categories)
-                {
-                    if (category.labels.FindIndex(x => x.spriteId == characterPart.sprite.id) != -1)
-                        return category;
-                }
-            }
-
-            return new SpriteCategory()
-            {
-                name = "",
-                labels = new List<SpriteCategoryLabel>()
-            };
-        }
-
-        public string[] GetCategoryStrings()
-        {
-            return m_Model.spriteCategoryList.categories.Select(x => x.name).ToArray();
-        }
-
-        public string GetSpriteLabelName(SpriteCategory category, TreeViewItem treeViewItem)
-        {
-            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-            var customData = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
-            var characterPart = customData != null ? customData.sprite : null;
-            var index = -1;
-            if (characterPart != null)
-            {
-                index = category.labels.FindIndex(x => x.spriteId == characterPart.sprite.id);
-            }
-            if (index >= 0)
-                return category.labels[index].name;
-            return "";
-        }
-
-        int GetCategoryIndexForSprite(SpriteCategory category, TreeViewItem treeViewItem)
-        {
-            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-            var customData = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
-            var characterPart = customData != null ? customData.sprite : null;
-            var index = -1;
-            if (characterPart != null)
-            {
-                index = category.labels.FindIndex(x => x.spriteId == characterPart.sprite.id);
-            }
-            return index;
-        }
-
-        public void RemoveSpriteFromCategory(TreeViewItem treeViewItem)
-        {
-            var spriteLibCategory = GetCategoryForSprite(treeViewItem);
-            var index = GetCategoryIndexForSprite(spriteLibCategory, treeViewItem);
-            if (index >= 0)
-            {
-                var labels = spriteLibCategory.labels.ToList();
-                labels.RemoveAt(index);
-                spriteLibCategory.labels = labels;
-                m_Events.spriteLibraryChanged.Invoke();
-            }
-        }
-
-        public void SetCategoryForSprite(string categoryName, TreeViewItem treeViewItem)
-        {
-            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-            var spriteData = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
-            if (spriteData != null)
-            {
-                var category = GetCategoryForSprite(treeViewItem);
-                var labelName = GetSpriteLabelName(category, treeViewItem);
-                if (string.IsNullOrEmpty(labelName))
-                    labelName = spriteData.sprite.sprite.name;
-                SetCategoryForSprite(categoryName, labelName, spriteTreeViewItem.customData);
-            }
-        }
-
-        public void SetCategoryForSprite(string categoryName, string labelName, TreeViewItem treeViewItem)
-        {
-            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-            SetCategoryForSprite(categoryName, labelName, spriteTreeViewItem.customData);
-        }
-
-        void SetCategoryForSprite(string categoryName, string labelName, ISpriteVisibilityItem spriteVisibilityItem)
-        {
-            categoryName = categoryName.Trim();
-            labelName = labelName.Trim();
-            var customData = spriteVisibilityItem as SpriteVisibilitySpriteItem;
-            var characterPart = customData != null ? customData.sprite : null;
-            if (characterPart != null && characterPart.sprite != null)
-            {
-                var spriteLib = m_Model.spriteCategoryList;
-                using (m_Model.UndoScope(TextContent.spriteCategoryChanged))
-                {
-                    spriteLib.AddSpriteToCategory(categoryName, new SpriteCategoryLabel()
-                    {
-                        name = labelName,
-                        spriteId = characterPart.sprite.id
-                    }
-                    );
-                    m_Events.spriteLibraryChanged.Invoke();
-                }
-            }
-        }
-
-        public bool IsLabelDuplicate(SpriteCategory category, string labelName)
-        {
-            var hash = SpriteLibraryAsset.GetStringHash(labelName);
-            return category.labels.Count(x => x.name == labelName || hash == SpriteLibraryAsset.GetStringHash(x.name)) > 1;
-        }
-
-        public void SetCategoryLabelName(string labelname, TreeViewItem treeViewItem)
-        {
-            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-            var customData = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
-            var characterPart = customData != null ? customData.sprite : null;
-            if (characterPart != null && characterPart.sprite != null)
-            {
-                var spriteLib = m_Model.spriteCategoryList;
-                using (m_Model.UndoScope(TextContent.spriteCategoryIndexChanged))
-                {
-                    spriteLib.ChangeSpriteLabelName(labelname, characterPart.sprite.id);
-                    m_Events.spriteLibraryChanged.Invoke();
-                }
-            }
-        }
-
-        public bool SupportCateogry(TreeViewItem treeViewItem)
-        {
-            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-            var customData = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
-            return customData != null;
-        }
-
-        public bool SupportConvertToCatgory(TreeViewItem treeViewItem)
-        {
-            var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-            var customData = spriteTreeViewItem.customData as SpriteVisibilityGroupItem;
-            return customData != null;
-        }
-
-        private bool SupportConvertToCatgory(ISpriteVisibilityItem treeViewItem)
-        {
-            return treeViewItem is SpriteVisibilityGroupItem;
-        }
-
-        private void ConvertLayerToCategory(ISpriteVisibilityItem treeViewItem)
-        {
-            if (SupportConvertToCatgory(treeViewItem))
-            {
-                var groupItem = treeViewItem as SpriteVisibilityGroupItem;
-                foreach (var item in groupItem.childItems)
-                    ConvertLayerToCategory(item);
-            }
-            else
-            {
-                var groupItem = treeViewItem as SpriteVisibilitySpriteItem;
-                var name = groupItem.sprite.sprite.name;
-                SetCategoryForSprite(name, name, groupItem);
-            }
-        }
-
-        public void ClearCategory(TreeViewItem treeViewItem)
-        {
-            if (SupportConvertToCatgory(treeViewItem))
-            {
-                var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-                var customData = spriteTreeViewItem.customData as SpriteVisibilityGroupItem;
-                AddGroupToCategory("", customData);
-            }
-            else
-            {
-                var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-                var item = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
-                SetCategoryForSprite("", "", item);
-            }
-        }
-
-        public void ConvertLayerToCategory(TreeViewItem treeViewItem)
-        {
-            if (SupportConvertToCatgory(treeViewItem))
-            {
-                var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-                ConvertLayerToCategory(spriteTreeViewItem.customData);
-            }
-            else
-            {
-                var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-                var groupItem = spriteTreeViewItem.customData as SpriteVisibilitySpriteItem;
-                var name = groupItem.sprite.sprite.name;
-                SetCategoryForSprite(name, name, groupItem);
-            }
-        }
-
-        public void ConvertToCategory(TreeViewItem treeViewItem)
-        {
-            if (SupportConvertToCatgory(treeViewItem))
-            {
-                var spriteTreeViewItem = treeViewItem as TreeViewItemBase<ISpriteVisibilityItem>;
-                var groupItem = spriteTreeViewItem.customData as SpriteVisibilityGroupItem;
-                AddGroupToCategory(groupItem.group.name, groupItem);
-            }
-        }
-
-        void AddGroupToCategory(string categoryName, SpriteVisibilityGroupItem groupItem)
-        {
-            foreach (var item in groupItem.childItems)
-            {
-                if (item is SpriteVisibilityGroupItem)
-                    AddGroupToCategory(categoryName, item as SpriteVisibilityGroupItem);
-                else if (item is SpriteVisibilitySpriteItem)
-                {
-                    var spriteItem = (SpriteVisibilitySpriteItem)item;
-                    SetCategoryForSprite(categoryName, spriteItem.sprite.sprite.name, item);
-                }
-            }
-        }
-
-        public void RemoveUnusedCategory()
-        {
-            var spriteLib = m_Model.spriteCategoryList;
-            var changed = false;
-            for (int i = 0; i < spriteLib.categories.Count; ++i)
-            {
-                if (spriteLib.categories[i].labels.Count == 0)
-                {
-                    spriteLib.categories.RemoveAt(i);
-                    --i;
-                    changed = true;
-                }
-            }
-            if (changed)
-                m_Events.spriteLibraryChanged.Invoke();
-        }
     }
 
     internal class SpriteVisibilityTool : IVisibilityTool, ISpriteVisibilityToolModel
@@ -620,7 +378,6 @@ namespace UnityEditor.U2D.Animation
         bool ISpriteVisibilityToolModel.previousVisibility { get { return m_Data.previousVisibility; } set { m_Data.previousVisibility = value; } }
         bool ISpriteVisibilityToolModel.allVisibility { get { return m_Data.allVisibility; } set { m_Data.allVisibility = value; } }
         SkinningMode ISpriteVisibilityToolModel.mode { get { return skinningCache.mode; } }
-        SpriteCategoryListCacheObject ISpriteVisibilityToolModel.spriteCategoryList { get { return skinningCache.spriteCategoryList; }}
 
         UndoScope ISpriteVisibilityToolModel.UndoScope(string description)
         {
@@ -634,7 +391,7 @@ namespace UnityEditor.U2D.Animation
 
         public SpriteVisibilityToolView()
         {
-            var columns = new MultiColumnHeaderState.Column[4];
+            var columns = new MultiColumnHeaderState.Column[2];
             columns[0] = new MultiColumnHeaderState.Column
             {
                 headerContent = VisibilityTreeViewBase.VisibilityIconStyle.visibilityOnIcon,
@@ -649,26 +406,8 @@ namespace UnityEditor.U2D.Animation
             {
                 headerContent = EditorGUIUtility.TrTextContent(TextContent.name),
                 headerTextAlignment = TextAlignment.Center,
-                width = 130,
+                width = 230,
                 minWidth = 100,
-                autoResize = true,
-                allowToggleVisibility = false
-            };
-            columns[2] = new MultiColumnHeaderState.Column
-            {
-                headerContent = EditorGUIUtility.TrTextContent(TextContent.category),
-                headerTextAlignment = TextAlignment.Center,
-                width = 70,
-                minWidth = 50,
-                autoResize = true,
-                allowToggleVisibility = false
-            };
-            columns[3] = new MultiColumnHeaderState.Column
-            {
-                headerContent = EditorGUIUtility.TrTextContent(TextContent.label),
-                headerTextAlignment = TextAlignment.Center,
-                width = 50,
-                minWidth = 30,
                 autoResize = true,
                 allowToggleVisibility = false
             };
@@ -723,17 +462,7 @@ namespace UnityEditor.U2D.Animation
     class SpriteTreeView : VisibilityTreeViewBase
     {
         public Func<SpriteVisibilityToolController> GetController = () => null;
-        private static int k_CategorySeletionOffset = 4;
         public GUIStyle m_Style;
-        public GUIContent m_WarningIcon;
-        int m_SpriteCategoryRenameID;
-        static string[] k_DefaultCategoryList = new string[]
-        {
-            TextContent.none,
-            TextContent.newTrailingDots,
-            TextContent.removeEmptyCategory,
-            ""
-        };
         private TreeViewItem m_CurrentEdittingItem;
 
         public SpriteTreeView(TreeViewState treeViewState, MultiColumnHeader multiColumnHeader)
@@ -773,8 +502,6 @@ namespace UnityEditor.U2D.Animation
                 m_Style.focused.background = m_Style.normal.background;
                 m_Style.focused.scaledBackgrounds = m_Style.normal.scaledBackgrounds;
                 m_Style.focused.textColor = m_Style.normal.textColor;
-                m_WarningIcon = EditorGUIUtility.TrIconContent("console.warnicon.sml", "Duplicate label name found or label hash value clash. Please use a different name");
-                m_SpriteCategoryRenameID = EditorGUIUtility.GetControlID("SpriteCategoryRenameControlId".GetHashCode(), FocusType.Passive);
             }
         }
 
@@ -788,59 +515,9 @@ namespace UnityEditor.U2D.Animation
             if (Event.current.type == EventType.Repaint)
                 SkinInit();
 
-            if (Event.current.type == EventType.MouseUp && Event.current.button == 1)
-            {
-                var canCovert = false;
-                foreach (var item in GetRows())
-                {
-                    if (IsSelected(item.id) && GetController().SupportConvertToCatgory(item))
-                    {
-                        canCovert = true;
-                        break;
-                    }
-                }
-                var genericMenu = new GenericMenu();
-                if (canCovert)
-                {
-                    genericMenu.AddItem(new GUIContent(TextContent.convertGroupToCategory), false, ConvertGroupToCategory);
-                }
-                genericMenu.AddItem(new GUIContent(TextContent.convertLayerToCategory), false, ConvertLayerToCategory);
-                genericMenu.AddItem(new GUIContent(TextContent.clearAllCategory), false, ClearAllCategory);
-                genericMenu.ShowAsContext();
-            }
             base.OnGUI(rect);
         }
-
-        void ConvertGroupToCategory()
-        {
-            foreach (var item in GetRows())
-            {
-                if (IsSelected(item.id) && GetController().SupportConvertToCatgory(item))
-                {
-                    GetController().ConvertToCategory(item);
-                }
-            }
-        }
-
-        void ClearAllCategory()
-        {
-            foreach (var item in GetRows())
-            {
-                GetController().ClearCategory(item);
-            }
-        }
-
-        void ConvertLayerToCategory()
-        {
-            foreach (var item in GetRows())
-            {
-                if (IsSelected(item.id))
-                {
-                    GetController().ConvertLayerToCategory(item);
-                }
-            }
-        }
-
+        
         void CellGUI(Rect cellRect, TreeViewItem item, int column, ref RowGUIArgs args)
         {
             CenterRectUsingSingleLineHeight(ref cellRect);
@@ -851,12 +528,6 @@ namespace UnityEditor.U2D.Animation
                     break;
                 case 1:
                     DrawNameCell(cellRect, item, ref args);
-                    break;
-                case 2:
-                    DrawCategoryCell(cellRect, item, ref args);
-                    break;
-                case 3:
-                    DrawIndexCell(cellRect, item, ref args);
                     break;
             }
         }
@@ -882,93 +553,7 @@ namespace UnityEditor.U2D.Animation
             base.RowGUI(args);
         }
 
-        void DrawCategoryCell(Rect cellRect, TreeViewItem item, ref RowGUIArgs args)
-        {
-            if (!GetController().SupportCateogry(item))
-                return;
-            if (m_CurrentEdittingItem != item)
-            {
-                List<string> displayedOptions = new List<string>(k_DefaultCategoryList);
-                var allCategoryStrings = GetController().GetCategoryStrings();
-                foreach (var s in allCategoryStrings)
-                    displayedOptions.Add(s);
-                var category = GetController().GetCategoryForSprite(item);
-                var currentSelection = Array.FindIndex(allCategoryStrings, x => x == category.name);
-
-                currentSelection = currentSelection < 0 ? 0 : currentSelection + k_CategorySeletionOffset;
-                EditorGUI.BeginChangeCheck();
-                currentSelection = EditorGUI.Popup(cellRect, currentSelection, displayedOptions.ToArray(), m_Style);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    if (currentSelection == 1)
-                    {
-                        m_CurrentEdittingItem = item;
-                        DrawCategoryNameControl(cellRect, item);
-                    }
-                    else if (currentSelection == 2)
-                    {
-                        GetController().RemoveUnusedCategory();
-                    }
-                    else
-                    {
-                        var realSelectionIndex = currentSelection - k_CategorySeletionOffset;
-                        var categoryName = realSelectionIndex >= 0 ? displayedOptions[currentSelection] : "";
-                        GetController().SetCategoryForSprite(categoryName, item);
-                    }
-                }
-            }
-            else
-            {
-                if (GUIUtility.keyboardControl != m_SpriteCategoryRenameID)
-                    m_CurrentEdittingItem = null;
-                else
-                    DrawCategoryNameControl(cellRect, item);
-            }
-        }
-
-        void DrawCategoryNameControl(Rect cellRect, TreeViewItem item)
-        {
-            EditorGUI.BeginChangeCheck();
-            if (Event.current.type == EventType.Layout)
-            {
-                GUI.SetNextControlName("SpriteCategoryRename");
-                GUI.FocusControl("SpriteCategoryRename");
-            }
-
-            GUIUtility.keyboardControl = m_SpriteCategoryRenameID;
-            string categoryName = EditorGUI.DelayedTextField(cellRect, GUIContent.none, m_SpriteCategoryRenameID, "");
-            if (EditorGUI.EndChangeCheck())
-            {
-                if (Array.FindIndex(k_DefaultCategoryList, x => x == categoryName) == -1)
-                    GetController().SetCategoryForSprite(categoryName, item);
-                m_CurrentEdittingItem = null;
-            }
-        }
-
-        void DrawIndexCell(Rect cellRect, TreeViewItem item, ref RowGUIArgs args)
-        {
-            if (!GetController().SupportCateogry(item))
-                return;
-            var category = GetController().GetCategoryForSprite(item);
-            if (!string.IsNullOrEmpty(category.name))
-            {
-                var labelName = GetController().GetSpriteLabelName(category, item);
-                var isDuplicate = GetController().IsLabelDuplicate(category, labelName);
-                if (isDuplicate)
-                {
-                    GUI.Label(new Rect(cellRect.x, cellRect.y, 20, cellRect.height), m_WarningIcon);
-                    cellRect.x += 20;
-                    cellRect.width -= 20;
-                }
-                EditorGUI.BeginChangeCheck();
-                string newlabelname = EditorGUI.DelayedTextField(cellRect, labelName);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    GetController().SetCategoryLabelName(newlabelname, item);
-                }
-            }
-        }
-
+        
         protected override void RowGUI(RowGUIArgs args)
         {
             var item = args.item;

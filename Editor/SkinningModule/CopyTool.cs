@@ -75,7 +75,8 @@ namespace UnityEditor.U2D.Animation
         protected override void OnActivate()
         {
             base.OnActivate();
-            m_CopyToolView.Show();
+            var boneReadOnly = skinningCache.hasCharacter && skinningCache.character.boneReadOnly;
+            m_CopyToolView.Show(boneReadOnly);
         }
 
         protected override void OnDeactivate()
@@ -241,6 +242,8 @@ namespace UnityEditor.U2D.Animation
                 spriteBone = new SpriteBone()
                 {
                     name = bone.name,
+                    guid = bone.guid,
+                    color = bone.bindPoseColor,
                     parentId = parentIndex
                 },
                 order = boneCache.FindIndex(x => x == bone)
@@ -630,9 +633,10 @@ namespace UnityEditor.U2D.Animation
 
         public event Action<bool, bool, bool, bool> onPasteActivated = (bone, mesh, flipX, flipY) => {};
 
-        public void Show()
+        public void Show(bool readonlyBone)
         {
             m_PastePanel.SetHiddenFromLayout(false);
+            m_PastePanel.BonePasteEnable(!readonlyBone);
         }
 
         public void Hide()

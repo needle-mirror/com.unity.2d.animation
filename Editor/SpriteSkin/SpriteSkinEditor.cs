@@ -7,7 +7,6 @@ using UnityEditorInternal;
 using UnityEngine.U2D.Animation;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine.U2D;
-using UnityEngine.U2D.Common;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -17,19 +16,20 @@ namespace UnityEditor.U2D.Animation
     {
         private static class Contents
         {
-            public static readonly string listHeaderLabel = "Bones";
-            public static readonly GUIContent spriteNotFound = new GUIContent("Sprite not found in SpriteRenderer");
-            public static readonly GUIContent spriteHasNoSkinningInformation = new GUIContent("Sprite has no Bind Poses");
-            public static readonly GUIContent spriteHasNoWeights = new GUIContent("Sprite has no weights");
-            public static readonly GUIContent rootTransformNotFound = new GUIContent("Root Bone not set");
-            public static readonly GUIContent rootTransformNotFoundInArray = new GUIContent("Bone list doesn't contain a reference to the Root Bone");
-            public static readonly GUIContent InvalidTransformArray = new GUIContent("Bone list is invalid");
-            public static readonly GUIContent transformArrayContainsNull = new GUIContent("Bone list contains unassigned references");
-            public static readonly GUIContent InvalidTransformArrayLength = new GUIContent("The number of Sprite's Bind Poses and the number of Transforms should match");
-            public static readonly GUIContent useManager = new GUIContent("Enable batching");
-            public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update"
-                , "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
-            public static readonly GUIContent experimental = new GUIContent("Experimental");
+            public static readonly GUIContent listHeaderLabel = new GUIContent("Bones", "GameObject Transform to represent the Bones defined by the Sprite that is currently used for deformation.");
+            public static readonly GUIContent rootBoneLabel = new GUIContent("Root Bone", "GameObject Transform to represent the Root Bone.");
+            public static readonly string spriteNotFound = L10n.Tr("Sprite not found in SpriteRenderer");
+            public static readonly string spriteHasNoSkinningInformation = L10n.Tr("Sprite has no Bind Poses");
+            public static readonly string spriteHasNoWeights = L10n.Tr("Sprite has no weights");
+            public static readonly string rootTransformNotFound = L10n.Tr("Root Bone not set");
+            public static readonly string rootTransformNotFoundInArray = L10n.Tr("Bone list doesn't contain a reference to the Root Bone");
+            public static readonly string invalidTransformArray = L10n.Tr("Bone list is invalid");
+            public static readonly string transformArrayContainsNull = L10n.Tr("Bone list contains unassigned references");
+            public static readonly string invalidTransformArrayLength = L10n.Tr("The number of Sprite's Bind Poses and the number of Transforms should match");
+            public static readonly GUIContent useManager = new GUIContent("Enable batching", "When enabled, SpriteSkin deformation will be done in batch to improve performance.");
+            public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update", "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
+            public static readonly GUIContent autoRebind = new GUIContent("Auto Rebind", "When the Sprite in SpriteRenderer is changed, SpriteSkin will try to look for the Transforms that is needed for the Sprite using the Root Bone Tranform as parent.");    
+            public static readonly string enableBatchingHelp = L10n.Tr("Install Burst and Collection package to enable deformation batching.");
         }
 
         private static Color s_BoundingBoxHandleColor = new Color(255, 255, 255, 150) / 255;
@@ -37,15 +37,13 @@ namespace UnityEditor.U2D.Animation
         private SerializedProperty m_RootBoneProperty;
         private SerializedProperty m_BoneTransformsProperty;
         private SerializedProperty m_AlwaysUpdateProperty;
+        private SerializedProperty m_AutoRebindProperty;
         private SpriteSkin m_SpriteSkin;
         private ReorderableList m_ReorderableList;
         private Sprite m_CurrentSprite;
         private BoxBoundsHandle m_BoundsHandle = new BoxBoundsHandle();
         private bool m_NeedsRebind = false;
-#if ENABLE_ANIMATION_PERFORMANCE
         private SerializedProperty m_UseBatching;
-        private bool m_ExperimentalFold;
-#endif
         private bool m_BoneFold = true;
 
         private void OnEnable()
@@ -54,12 +52,12 @@ namespace UnityEditor.U2D.Animation
             m_SpriteSkin.OnEditorEnable();
 
             m_RootBoneProperty = serializedObject.FindProperty("m_RootBone");
-#if ENABLE_ANIMATION_PERFORMANCE
             m_UseBatching = serializedObject.FindProperty("m_UseBatching");
-#endif
+            
             m_BoneTransformsProperty = serializedObject.FindProperty("m_BoneTransforms");
             m_AlwaysUpdateProperty = serializedObject.FindProperty("m_AlwaysUpdate");
-
+            m_AutoRebindProperty = serializedObject.FindProperty("m_AutoRebind");
+            
             m_CurrentSprite = m_SpriteSkin.spriteRenderer.sprite;
             m_BoundsHandle.axes = BoxBoundsHandle.Axes.X | BoxBoundsHandle.Axes.Y;
             m_BoundsHandle.SetColor(s_BoundingBoxHandleColor);
@@ -110,11 +108,11 @@ namespace UnityEditor.U2D.Animation
             if (m_CurrentSprite)
             {
                 var elementCount = m_BoneTransformsProperty.arraySize;
-                var bindPoses = m_CurrentSprite.GetBindPoses();
+                var bones = m_CurrentSprite.GetBones();
 
-                if (elementCount != bindPoses.Length)
+                if (elementCount != bones.Length)
                 {
-                    m_BoneTransformsProperty.arraySize = bindPoses.Length;
+                    m_BoneTransformsProperty.arraySize = bones.Length;
 
                     for (int i = elementCount; i < m_BoneTransformsProperty.arraySize; ++i)
                         m_BoneTransformsProperty.GetArrayElementAtIndex(i).objectReferenceValue = null;
@@ -128,7 +126,13 @@ namespace UnityEditor.U2D.Animation
         {
             serializedObject.Update();
             EditorGUILayout.PropertyField(m_AlwaysUpdateProperty, Contents.alwaysUpdate);
-
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(m_AutoRebindProperty, Contents.autoRebind);
+            if (EditorGUI.EndChangeCheck() && m_AutoRebindProperty.boolValue)
+            {
+                m_NeedsRebind = true;
+            }
+            
             var sprite = m_SpriteSkin.spriteRenderer.sprite;
             var spriteChanged = m_CurrentSprite != sprite;
 
@@ -140,7 +144,7 @@ namespace UnityEditor.U2D.Animation
             }
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(m_RootBoneProperty);
+            EditorGUILayout.PropertyField(m_RootBoneProperty, Contents.rootBoneLabel);
             if (EditorGUI.EndChangeCheck())
             {
                 m_NeedsRebind = true;
@@ -172,11 +176,11 @@ namespace UnityEditor.U2D.Animation
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
 
-#if ENABLE_ANIMATION_PERFORMANCE
-            m_ExperimentalFold = EditorGUILayout.Foldout(m_ExperimentalFold, Contents.experimental, true);
-            if (m_ExperimentalFold)
+#if !ENABLE_ANIMATION_PERFORMANCE
+            EditorGUILayout.HelpBox(Contents.enableBatchingHelp, MessageType.Info);
+            using (new EditorGUI.DisabledScope(true))
+#endif
             {
-                EditorGUI.indentLevel++;
                 EditorGUI.BeginChangeCheck();
                 EditorGUILayout.PropertyField(m_UseBatching, Contents.useManager);
                 if (EditorGUI.EndChangeCheck())
@@ -185,10 +189,8 @@ namespace UnityEditor.U2D.Animation
                     {
                         ((SpriteSkin)obj).UseBatching(m_UseBatching.boolValue);
                     }
-                }
-                EditorGUI.indentLevel--;
+                }   
             }
-#endif
 
             serializedObject.ApplyModifiedProperties();
 
@@ -212,14 +214,18 @@ namespace UnityEditor.U2D.Animation
 
                 if(spriteSkin.spriteRenderer.sprite == null || spriteSkin.rootBone == null)
                     continue;
-
-                spriteSkin.Rebind();
+                var spriteBones = spriteSkin.spriteRenderer.sprite.GetBones();
+                var transforms = new Transform[spriteBones.Length];
+                if (SpriteSkin.GetSpriteBonesTransforms(spriteBones, spriteSkin.rootBone, transforms))
+                    spriteSkin.boneTransforms = transforms;
+                
                 ResetBoundsIfNeeded(spriteSkin);
             }
 
+            serializedObject.Update();
             m_NeedsRebind = false;
         }
-
+        
         private void ResetBounds(string undoName = "Reset Bounds")
         {
             foreach (var t in targets)
@@ -331,40 +337,38 @@ namespace UnityEditor.U2D.Animation
                 if (validationResult == SpriteSkinValidationResult.Ready)
                     continue;
 
-                var content = GUIContent.none;
+                var text = "";
 
                 switch (validationResult)
                 {
                     case SpriteSkinValidationResult.SpriteNotFound:
-                        content = Contents.spriteNotFound;
+                        text = Contents.spriteNotFound;
                         break;
                     case SpriteSkinValidationResult.SpriteHasNoSkinningInformation:
-                        content = Contents.spriteHasNoSkinningInformation;
+                        text = Contents.spriteHasNoSkinningInformation;
                         break;
                     case SpriteSkinValidationResult.SpriteHasNoWeights:
-                        content = Contents.spriteHasNoWeights;
+                        text = Contents.spriteHasNoWeights;
                         break;
                     case SpriteSkinValidationResult.RootTransformNotFound:
-                        content = Contents.rootTransformNotFound;
+                        text = Contents.rootTransformNotFound;
                         break;
                     case SpriteSkinValidationResult.RootNotFoundInTransformArray:
-                        content = Contents.rootTransformNotFoundInArray;
+                        text = Contents.rootTransformNotFoundInArray;
                         break;
                     case SpriteSkinValidationResult.InvalidTransformArray:
-                        content = Contents.InvalidTransformArray;
+                        text = Contents.invalidTransformArray;
                         break;
                     case SpriteSkinValidationResult.InvalidTransformArrayLength:
-                        content = Contents.InvalidTransformArrayLength;
+                        text = Contents.invalidTransformArrayLength;
                         break;
                     case SpriteSkinValidationResult.TransformArrayContainsNull:
-                        content = Contents.transformArrayContainsNull;
+                        text = Contents.transformArrayContainsNull;
                         break;
                 }
 
-                string text = content.text;
-
                 if (preAppendObjectName)
-                    text = spriteSkin.name + ": " + text;
+                    text = string.Format("{0}:{1}",spriteSkin.name,text);
 
                 EditorGUILayout.HelpBox(text, MessageType.Warning);
             }

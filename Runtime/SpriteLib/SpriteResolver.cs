@@ -1,6 +1,7 @@
 using System;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace UnityEngine.Experimental.U2D.Animation
+namespace UnityEngine.U2D.Animation
 {
     /// <summary>
     /// Updates a SpriteRenderer's Sprite reference on the Category and Label value it is set
@@ -13,27 +14,37 @@ namespace UnityEngine.Experimental.U2D.Animation
     /// </Description>
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
-    [AddComponentMenu("2D Animation/Sprite Resolver (Experimental)")]
+    [AddComponentMenu("2D Animation/Sprite Resolver")]
     [DefaultExecutionOrder(-2)]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html%23sprite-resolver-component")]
-    public class SpriteResolver : MonoBehaviour
+    [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
+    public class SpriteResolver : MonoBehaviour, ISerializationCallbackReceiver
     {
+        // SpriteKey is the new animation key.
+        // We are keeping the old ones so that the animation clip doesn't braek
+        
         // These are for animation
         [SerializeField]
-        private float m_CategoryHash;
+        private float m_CategoryHash = 0;
         [SerializeField]
-        private float m_labelHash;
+        private float m_labelHash = 0;
 
+        [SerializeField]
+        private float m_SpriteKey = 0;
+        
         // For comparing hash values
         private int m_CategoryHashInt;
         private int m_LabelHashInt;
+        private int m_SpriteKeyInt;
 
         // For OnUpdate during animation playback
         private int m_PreviousCategoryHash;
         private int m_PreviouslabelHash;
+        private int m_PreviousSpriteKeyInt;
 
 #if UNITY_EDITOR
         bool m_SpriteLibChanged;
+        public event Action onDeserializedCallback = () => { };
 #endif
 
         void OnEnable()
@@ -42,6 +53,14 @@ namespace UnityEngine.Experimental.U2D.Animation
             m_PreviousCategoryHash = m_CategoryHashInt;
             m_LabelHashInt = ConvertFloatToInt(m_labelHash);
             m_PreviouslabelHash = m_LabelHashInt;
+            
+            m_SpriteKeyInt = ConvertFloatToInt(m_SpriteKey);
+            if (m_SpriteKeyInt == 0)
+            {
+                m_SpriteKey = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, m_CategoryHashInt, m_LabelHashInt);
+                m_SpriteKeyInt = ConvertFloatToInt(m_SpriteKey);
+            }
+            m_PreviousSpriteKeyInt = m_SpriteKeyInt;
             ResolveSpriteToSpriteRenderer();
         }
 
@@ -57,10 +76,8 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <param name="label">Label to use</param>
         public void SetCategoryAndLabel(string category, string label)
         {
-            categoryHashInt = SpriteLibraryAsset.GetStringHash(category);
-            m_PreviousCategoryHash = categoryHashInt;
-            labelHashInt = SpriteLibraryAsset.GetStringHash(label);
-            m_PreviouslabelHash = categoryHashInt;
+            spriteKeyInt = SpriteLibrary.GetHashForCategoryAndEntry(category, label);
+            m_PreviousSpriteKeyInt = spriteKeyInt;
             ResolveSpriteToSpriteRenderer();
         }
 
@@ -73,7 +90,10 @@ namespace UnityEngine.Experimental.U2D.Animation
             var returnString = "";
             var sl = spriteLibrary;
             if (sl)
-                returnString = sl.GetCategoryNameFromHash(categoryHashInt);
+            {
+                sl.GetCategoryAndEntryNameFromHash(spriteKeyInt, out returnString, out _);
+            }
+                
 
             return returnString;
         }
@@ -87,7 +107,7 @@ namespace UnityEngine.Experimental.U2D.Animation
             var returnString = "";
             var sl = spriteLibrary;
             if (sl)
-                returnString = sl.GetLabelNameFromHash(categoryHashInt, labelHashInt);
+                sl.GetCategoryAndEntryNameFromHash(spriteKeyInt, out _, out returnString);
 
             return returnString;
         }
@@ -113,22 +133,64 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         void LateUpdate()
         {
-            m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
-            m_LabelHashInt = ConvertFloatToInt(m_labelHash);
-            if (m_LabelHashInt != m_PreviouslabelHash || m_CategoryHashInt != m_PreviousCategoryHash)
+            m_SpriteKeyInt = ConvertFloatToInt(m_SpriteKey);
+            if (m_SpriteKeyInt != m_PreviousSpriteKeyInt)
             {
-                m_PreviousCategoryHash = m_CategoryHashInt;
-                m_PreviouslabelHash = m_LabelHashInt;
+                m_PreviousSpriteKeyInt = m_SpriteKeyInt;
                 ResolveSpriteToSpriteRenderer();
+            }
+            else
+            {
+                m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
+                m_LabelHashInt = ConvertFloatToInt(m_labelHash);
+                if (m_LabelHashInt != m_PreviouslabelHash || m_CategoryHashInt != m_PreviousCategoryHash)
+                {
+                    if (spriteLibrary != null)
+                    {
+                        m_PreviousCategoryHash = m_CategoryHashInt;
+                        m_PreviouslabelHash = m_LabelHashInt;
+                        m_SpriteKey = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, m_CategoryHashInt, m_LabelHashInt);
+                        m_SpriteKeyInt = ConvertFloatToInt(m_SpriteKey);
+                        m_PreviousSpriteKeyInt = m_SpriteKeyInt;
+                        ResolveSpriteToSpriteRenderer();
+                    }
+                }
             }
         }
 
+        internal static float ConvertCategoryLabelHashToSpriteKey(SpriteLibrary library, int categoryHash, int labelHash)
+        {
+            if (library != null)
+            {
+                foreach(var category in library.categoryNames)
+                {
+                    if (categoryHash == SpriteLibraryAsset.GetStringHash(category))
+                    {
+                        var entries = library.GetEntryNames(category);
+                        if (entries != null)
+                        {
+                            foreach (var entry in entries)
+                            {
+                                if (labelHash == SpriteLibraryAsset.GetStringHash(entry))
+                                {
+                                    var spriteKey = SpriteLibrary.GetHashForCategoryAndEntry(category, entry); 
+                                    return ConvertIntToFloat(spriteKey);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return 0;
+        }
+        
         internal Sprite GetSprite(out bool validEntry)
         {
             var lib = spriteLibrary;
             if (lib != null)
             {
-                return lib.GetSprite(m_CategoryHashInt, m_LabelHashInt, out validEntry);
+                return lib.GetSpriteFromCategoryAndEntryHash(m_SpriteKeyInt, out validEntry);
             }
             validEntry = false;
             return null;
@@ -139,15 +201,14 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// </summary>
         public void ResolveSpriteToSpriteRenderer()
         {
-            m_PreviousCategoryHash = m_CategoryHashInt;
-            m_PreviouslabelHash = m_LabelHashInt;
+            m_PreviousSpriteKeyInt = m_SpriteKeyInt;
             bool validEntry;
             var sprite = GetSprite(out validEntry);
             var sr = spriteRenderer;
             if (sr != null && (sprite != null || validEntry))
                 sr.sprite = sprite;
         }
-
+        
         void OnTransformParentChanged()
         {
             ResolveSpriteToSpriteRenderer();
@@ -156,23 +217,13 @@ namespace UnityEngine.Experimental.U2D.Animation
 #endif
         }
 
-        int categoryHashInt
+        int spriteKeyInt
         {
-            get { return m_CategoryHashInt; }
+            get { return m_SpriteKeyInt; }
             set
             {
-                m_CategoryHashInt = value;
-                m_CategoryHash = ConvertIntToFloat(m_CategoryHashInt);
-            }
-        }
-
-        int labelHashInt
-        {
-            get { return m_LabelHashInt; }
-            set
-            {
-                m_LabelHashInt = value;
-                m_labelHash = ConvertIntToFloat(m_LabelHashInt);
+                m_SpriteKeyInt = value;
+                m_SpriteKey = ConvertIntToFloat(m_SpriteKeyInt);
             }
         }
 
@@ -197,5 +248,15 @@ namespace UnityEngine.Experimental.U2D.Animation
             set { m_SpriteLibChanged = value; }
         }
 #endif
+        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        {
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize()
+        {
+#if UNITY_EDITOR
+            onDeserializedCallback();
+#endif            
+        }
     }
 }

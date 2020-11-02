@@ -20,6 +20,7 @@ namespace UnityEditor.U2D.Animation
         public static string boneDepth = "Bone Depth";
         public static string rotateBone = "Rotate Bone";
         public static string moveBone = "Move Bone";
+        public static string colorBoneChanged = "Bone Color";
         public static string freeMoveBone = "Free Move Bone";
         public static string moveJoint = "Move Joint";
         public static string moveEndPoint = "Move End Point";

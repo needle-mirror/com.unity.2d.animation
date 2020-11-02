@@ -1,13 +1,30 @@
 # Changelog
+
+## [6.0.0-pre.1] - 2020-11-02
+### Changed
+- Sprite Swap related features moved out of experimental namespace
+- Removed editing of Sprite Swap feature in Skinning Module
+- Updated Sprite Swap workflow focusing on Project Window and Inspector
+- Sprite Library Asset is created via AssetImporter
+
+### Added
+- Sprite Library Asset supports variant
+- Sprite Library supports override during editing
+- Supports sharing of bone structures in Skinning Module
+- Added position, rotation and bone color editing in Skinning Module
+
+### Fixed
+- Added missing tooltips in the Sprite Skin inspector (case 1285255)
+
 ## [5.0.3] - 2020-10-15
 ### Fixed
 - Fixed Sprite with no animation data is being processed during AssetPostProcessor
-- Fixed properties under the Sprite Library Asset overlappig in inspector (case 1280017)
+- Fixed properties under the Sprite Library Asset overlapping in inspector (case 1280017)
 - Fixed vertical slider handle is not aligned and placed slightly to the right side in the Bone Influence window (case 1260568)
 
 ## [5.0.2] - 2020-08-31
 ### Fixed
-- Fixed Visibility window overlaps with weights and gemotery window when Sprite Editor Window resizes (case 1263353)
+- Fixed Visibility window overlaps with weights and geometry window when Sprite Editor Window resizes (case 1263353)
 - Fixed 'Depth' column label gets clipped in Visibility Tool Window (case 1257991)
 - Fixed 'Invalid worldAABB' error message when repeatedly pressing Pack Preview button (case 1270150)
 - Fixed Null reference exception when changing values of a material while recording animation with Skinning Module enabled (case 1267300)

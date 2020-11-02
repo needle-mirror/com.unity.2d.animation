@@ -103,10 +103,12 @@ namespace UnityEditor.U2D.Animation
             return new UnityEngine.U2D.SpriteBone()
             {
                 name = bone.name,
+                guid = bone.guid,
                 position = new Vector3(position.x, position.y, bone.depth),
                 rotation = rotation,
                 length = bone.localLength,
-                parentId = parentId
+                parentId = parentId,
+                color = bone.bindPoseColor
             };
         }
 

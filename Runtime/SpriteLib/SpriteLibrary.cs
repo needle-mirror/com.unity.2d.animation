@@ -1,86 +1,36 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace UnityEngine.Experimental.U2D.Animation
+namespace UnityEngine.U2D.Animation
 {
     /// <summary>
     /// Component that holds a Sprite Library Asset. The component is used by SpriteResolver Component to query for Sprite based on Category and Index
     /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu("2D Animation/Sprite Library (Experimental)")]
+    [AddComponentMenu("2D Animation/Sprite Library")]
+    [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html%23sprite-library-component")]
     public class SpriteLibrary : MonoBehaviour
     {
-        internal class StringAndHash
+        struct CategoryEntrySprite
         {
-            public string name;
-            public int hash;
-
-            public StringAndHash(string name)
-            {
-                this.name = name;
-                hash = SpriteLibraryAsset.GetStringHash(name);
-            }
-
-            public StringAndHash(int hash)
-            {
-                name = "";
-                this.hash = hash;
-            }
-
-            public static bool operator==(StringAndHash l, StringAndHash r)
-            {
-                if (Object.ReferenceEquals(l, null) && Object.ReferenceEquals(r, null))
-                    return true;
-                if (!Object.ReferenceEquals(l, null))
-                    return l.Equals(r);
-
-                return false;
-            }
-
-            public static bool operator!=(StringAndHash l, StringAndHash r)
-            {
-                return !(l == r);
-            }
-
-            public override bool Equals(object obj)
-            {
-                return this.Equals(obj as StringAndHash);
-            }
-
-            private bool Equals(StringAndHash p)
-            {
-                if (Object.ReferenceEquals(p, null))
-                {
-                    return false;
-                }
-
-                // Optimization for a common success case.
-                if (Object.ReferenceEquals(this, p))
-                {
-                    return true;
-                }
-
-                // If run-time types are not exactly the same, return false.
-                if (this.GetType() != p.GetType())
-                {
-                    return false;
-                }
-                return (hash == p.hash) || (name == p.name);
-            }
-
-            public override int GetHashCode()
-            {
-                return hash;
-            }
+            public string category;
+            public string entry;
+            public Sprite sprite;
         }
 
         [SerializeField]
+        private List<SpriteLibCategory> m_Library = new List<SpriteLibCategory>();
+
+        [SerializeField]
         private SpriteLibraryAsset m_SpriteLibraryAsset;
-
-        Dictionary<StringAndHash, Dictionary<StringAndHash, Sprite>> m_Overrides = new Dictionary<StringAndHash, Dictionary<StringAndHash, Sprite>>();
-
+        
+        // Cache for combining data in sprite library asset and main library
+        Dictionary<int, CategoryEntrySprite> m_CategoryEntryHashCache = null;
+        Dictionary<string, HashSet<string>> m_CategoryEntryCache = null;
+        private int m_PreviousSpriteLibraryAsset;
+        
         /// <summary>Get or Set the current SpriteLibraryAsset to use </summary>
         public SpriteLibraryAsset spriteLibraryAsset
         {
@@ -89,10 +39,16 @@ namespace UnityEngine.Experimental.U2D.Animation
                 if (m_SpriteLibraryAsset != value)
                 {
                     m_SpriteLibraryAsset = value;
+                    CacheOverrides();
                     RefreshSpriteResolvers();
                 }
             }
             get { return m_SpriteLibraryAsset; }
+        }
+
+        void OnEnable()
+        {
+            CacheOverrides();
         }
 
         /// <summary>
@@ -101,81 +57,91 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <param name="category">Category name</param>
         /// <param name="label">Label name</param>
         /// <returns>Sprite associated to the name and index</returns>
-        public Sprite GetSprite(string category, string label)
+        public Sprite GetSprite(string category, string label) 
         {
-            var categoryHash = SpriteLibraryAsset.GetStringHash(category);
-            var labelHash = SpriteLibraryAsset.GetStringHash(label);
-            return GetSprite(categoryHash, labelHash);
+            return GetSprite(GetHashForCategoryAndEntry(category, label));
         }
 
-        internal Sprite GetSprite(int categoryHash, int labelHash)
+        internal Sprite GetSprite(int hash)
         {
-            return GetSprite(categoryHash, labelHash, out _);
+            if (m_CategoryEntryHashCache.ContainsKey(hash))
+                return m_CategoryEntryHashCache[hash].sprite;
+            return null;
         }
 
-        internal Sprite GetSprite(int categoryHash, int labelHash, out bool validEntry)
+        void UpdateCacheOverridesIfNeeded()
         {
-            validEntry = false;
-            var cat = new StringAndHash(categoryHash);
-            var label = new StringAndHash(labelHash);
-            if (m_Overrides.ContainsKey(cat) && m_Overrides[cat].ContainsKey(label))
+            if(m_CategoryEntryCache == null || m_PreviousSpriteLibraryAsset != m_SpriteLibraryAsset?.GetInstanceID())
+                CacheOverrides();
+        }
+
+        internal bool GetCategoryAndEntryNameFromHash(int hash, out string category, out string entry)
+        {
+            UpdateCacheOverridesIfNeeded();
+            if (m_CategoryEntryHashCache.ContainsKey(hash))
+            {
+                category = m_CategoryEntryHashCache[hash].category;
+                entry = m_CategoryEntryHashCache[hash].entry;
+                return true;
+            }
+
+            category = null;
+            entry = null;
+            return false;
+        }
+
+        static internal int GetHashForCategoryAndEntry(string category, string entry)
+        {
+            return SpriteLibraryAsset.GetStringHash(string.Format("{0}_{1}", category, entry));
+        }
+
+        internal Sprite GetSpriteFromCategoryAndEntryHash(int hash, out bool validEntry)
+        {
+            UpdateCacheOverridesIfNeeded();
+            if (m_CategoryEntryHashCache.ContainsKey(hash))
             {
                 validEntry = true;
-                return m_Overrides[cat][label];
+                return m_CategoryEntryHashCache[hash].sprite;
             }
-            return m_SpriteLibraryAsset == null ? null : m_SpriteLibraryAsset.GetSprite(categoryHash, labelHash, out validEntry);
+            validEntry = false;
+            return null;
         }
 
-        internal string GetCategoryNameFromHash(int categoryHash)
+        List<SpriteCategoryEntry> GetEntries(string category, bool addIfNotExist)
         {
-            var key = m_Overrides.Keys.FirstOrDefault(x => x.hash == categoryHash);
-            if (key != null)
-                return key.name;
-            return m_SpriteLibraryAsset == null ? "" : m_SpriteLibraryAsset.GetCategoryNameFromHash(categoryHash);
-        }
-
-        internal string GetLabelNameFromHash(int categoryHash, int labelHash)
-        {
-            var overrides = GetCategoryOverride(new StringAndHash(categoryHash), false);
-            var label = overrides.Keys.FirstOrDefault(x => x.hash == labelHash);
-            if (label != null)
-                return label.name;
-            return m_SpriteLibraryAsset == null ? "" : m_SpriteLibraryAsset.GetLabelNameFromHash(categoryHash, labelHash);
-        }
-
-        private Dictionary<StringAndHash, Sprite> GetCategoryOverride(string category, bool addToList)
-        {
-            return GetCategoryOverride(new StringAndHash(category), addToList);
-        }
-
-        private Dictionary<StringAndHash, Sprite> GetCategoryOverride(StringAndHash category, bool addToList)
-        {
-            Dictionary<StringAndHash, Sprite> label;
-            if (m_Overrides.ContainsKey(category))
-                label = m_Overrides[category];
-            else
-                label = new Dictionary<StringAndHash, Sprite>();
-
-
-            if (addToList && !m_Overrides.ContainsKey(category))
+            var index = m_Library.FindIndex(x => x.name == category);
+            if (index < 0)
             {
-                if (string.IsNullOrEmpty(category.name))
-                    Debug.LogWarning("Adding override category with no name");
-                m_Overrides.Add(category, label);
+                if (!addIfNotExist)
+                    return null;
+                m_Library.Add(new SpriteLibCategory()
+                {
+                    name = category,
+                    categoryList = new List<SpriteCategoryEntry>()
+                });
+                index = m_Library.Count - 1;
             }
 
-            return label;
+            return m_Library[index].categoryList;
         }
 
-        private void AddSpriteToOverride(Dictionary<StringAndHash, Sprite> overrides, StringAndHash label, Sprite sprite)
+        SpriteCategoryEntry GetEntry(List<SpriteCategoryEntry> entries, string entry, bool addIfNotExist)
         {
-            if (overrides.ContainsKey(label))
-                overrides[label] = sprite;
-            else
-                overrides.Add(label, sprite);
-            RefreshSpriteResolvers();
-        }
+            var index = entries.FindIndex(x => x.name == entry);
+            if (index < 0)
+            {
+                if (!addIfNotExist)
+                    return null;
+                entries.Add(new SpriteCategoryEntry()
+                {
+                    name = entry,
+                });
+                index = entries.Count - 1;
+            }
 
+            return entries[index];
+        }
+        
         /// <summary>
         /// Add or replace an override when querying for the given Category and Label from a SpriteLibraryAsset
         /// </summary>
@@ -185,8 +151,10 @@ namespace UnityEngine.Experimental.U2D.Animation
         public void AddOverride(SpriteLibraryAsset spriteLib, string category, string label)
         {
             var sprite = spriteLib.GetSprite(category, label);
-            var overridelabel = GetCategoryOverride(category, true);
-            AddSpriteToOverride(overridelabel, new StringAndHash(label), sprite);
+            var entries = GetEntries(category, true);
+            var entry = GetEntry(entries, label, true);
+            entry.sprite = sprite;
+            CacheOverrides();
         }
 
         /// <summary>
@@ -200,11 +168,13 @@ namespace UnityEngine.Experimental.U2D.Animation
             var cat = spriteLib.categories.FirstOrDefault(x => x.hash == categoryHash);
             if (cat != null)
             {
-                var label = GetCategoryOverride(category, true);
+                var entries = GetEntries(category, true);
                 for (int i = 0; i < cat.categoryList.Count; ++i)
                 {
-                    AddSpriteToOverride(label, new StringAndHash(cat.categoryList[i].name), cat.categoryList[i].sprite);
+                    var ent = cat.categoryList[i];
+                    GetEntry(entries, ent.name, true).sprite = ent.sprite;
                 }
+                CacheOverrides();
             }
         }
 
@@ -216,8 +186,9 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <param name="label">Label name to override</param>
         public void AddOverride(Sprite sprite, string category, string label)
         {
-            var overridelabel = GetCategoryOverride(category, true);
-            AddSpriteToOverride(overridelabel, new StringAndHash(label), sprite);
+            GetEntry(GetEntries(category, true), label, true).sprite = sprite;
+            CacheOverrides();
+            RefreshSpriteResolvers();
         }
 
         /// <summary>
@@ -226,9 +197,13 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <param name="category">Category overrides to remove</param>
         public void RemoveOverride(string category)
         {
-            var hash = new StringAndHash(SpriteLibraryAsset.GetStringHash(category));
-            m_Overrides.Remove(hash);
-            RefreshSpriteResolvers();
+            var index = m_Library.FindIndex(x => x.name == category);
+            if (index >= 0)
+            {
+                m_Library.RemoveAt(index);
+                CacheOverrides();
+                RefreshSpriteResolvers();
+            }
         }
 
         /// <summary>
@@ -238,11 +213,16 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <param name="label">Label to remove</param>
         public void RemoveOverride(string category, string label)
         {
-            var catlabel = GetCategoryOverride(category, false);
-            if (catlabel != null)
+            var entries = GetEntries(category, false);
+            if (entries != null)
             {
-                catlabel.Remove(new StringAndHash(SpriteLibraryAsset.GetStringHash(label)));
-                RefreshSpriteResolvers();
+                var index = entries.FindIndex(x => x.name == label);
+                if (index >= 0)
+                {
+                    entries.RemoveAt(index);
+                    CacheOverrides();
+                    RefreshSpriteResolvers();
+                }
             }
         }
 
@@ -254,15 +234,10 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <returns>True if override exist, false otherwise</returns>
         public bool HasOverride(string category, string label)
         {
-            var catOverride = GetCategoryOverride(category, false);
+            var catOverride = GetEntries(category, false);
             if (catOverride != null)
-                return catOverride.ContainsKey(new StringAndHash(label));
+                return GetEntry(catOverride, label, false) != null;
             return false;
-        }
-
-        internal List<SpriteLibCategory> labels
-        {
-            get { return m_SpriteLibraryAsset != null ? m_SpriteLibraryAsset.categories : new List<SpriteLibCategory>(); }
         }
 
         /// <summary>
@@ -277,6 +252,81 @@ namespace UnityEngine.Experimental.U2D.Animation
 #if UNITY_EDITOR
                 sr.spriteLibChanged = true;
 #endif
+            }
+        }
+
+        internal IEnumerable<string> categoryNames
+        {
+            get
+            {
+                UpdateCacheOverridesIfNeeded();
+                return m_CategoryEntryCache.Keys;
+            }
+        }
+
+        internal IEnumerable<string> GetEntryNames(string category)
+        {
+            UpdateCacheOverridesIfNeeded();
+            if (m_CategoryEntryCache.ContainsKey(category))
+                return m_CategoryEntryCache[category];
+            return null;
+        }
+
+        internal void CacheOverrides()
+        {
+            m_PreviousSpriteLibraryAsset = 0;
+            m_CategoryEntryHashCache = new Dictionary<int, CategoryEntrySprite>();
+            m_CategoryEntryCache = new Dictionary<string, HashSet<string>>();
+            if (m_SpriteLibraryAsset)
+            {
+                m_PreviousSpriteLibraryAsset = m_SpriteLibraryAsset.GetInstanceID();
+                foreach (var category in m_SpriteLibraryAsset.categories)
+                {
+                    var catName = category.name;
+                    m_CategoryEntryCache.Add(catName, new HashSet<string>());
+                    var cacheEntryName = m_CategoryEntryCache[catName];
+                    foreach (var entry in category.categoryList)
+                    {
+                        m_CategoryEntryHashCache.Add(GetHashForCategoryAndEntry(catName, entry.name), new CategoryEntrySprite()
+                        {
+                            category = catName,
+                            entry = entry.name,
+                            sprite = entry.sprite
+                        });
+                        cacheEntryName.Add(entry.name);
+                    }
+                }
+            }
+            
+            foreach (var category in m_Library)
+            {
+                var catName = category.name;
+                if(!m_CategoryEntryCache.ContainsKey(catName))
+                    m_CategoryEntryCache.Add(catName, new HashSet<string>());
+                var cacheEntryName = m_CategoryEntryCache[catName];
+                
+                foreach (var ent in category.categoryList)
+                {
+                    if (!cacheEntryName.Contains(ent.name))
+                        cacheEntryName.Add(ent.name);
+
+                    var hash = GetHashForCategoryAndEntry(catName, ent.name);
+                    if (!m_CategoryEntryHashCache.ContainsKey(hash))
+                    {
+                        m_CategoryEntryHashCache.Add(hash, new CategoryEntrySprite()
+                        {
+                            category = catName,
+                            entry = ent.name,
+                            sprite = ent.sprite
+                        });
+                    }
+                    else
+                    {
+                        var e = m_CategoryEntryHashCache[hash];
+                        e.sprite = ent.sprite;
+                        m_CategoryEntryHashCache[hash] = e;
+                    }
+                }
             }
         }
     }

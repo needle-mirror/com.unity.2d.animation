@@ -45,6 +45,11 @@ namespace UnityEditor.U2D.Animation
         /// Character grouping information
         /// </summary>
         public CharacterGroup[] characterGroups;
+
+        /// <summary>
+        /// Bones are readonly
+        /// </summary>
+        public bool boneReadOnly;
     }
 
     internal interface ICharacterOrder

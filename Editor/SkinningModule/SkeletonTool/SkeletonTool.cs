@@ -58,6 +58,9 @@ namespace UnityEditor.U2D.Animation
             m_SkeletonToolView = new SkeletonToolView();
             m_SkeletonToolView.onBoneNameChanged += BoneNameChanged;
             m_SkeletonToolView.onBoneDepthChanged += BoneDepthChanged;
+            m_SkeletonToolView.onBonePositionChanged += BonePositionChanged;
+            m_SkeletonToolView.onBoneRotationChanged += BoneRotationChanged;
+            m_SkeletonToolView.onBoneColorChanged += BoneColorChanged;
             m_RectBoneSelector.selection = skinningCache.skeletonSelection;
             m_RectSelectionTool.rectSelector = m_RectBoneSelector;
             m_RectSelectionTool.cacheUndo = skinningCache;
@@ -105,7 +108,7 @@ namespace UnityEditor.U2D.Animation
         void BoneDataChanged(BoneCache bone)
         {
             if(m_SkeletonToolView.target == bone)
-                m_SkeletonToolView.Update(bone.name, Mathf.RoundToInt(bone.depth));
+                m_SkeletonToolView.Update(bone.name, Mathf.RoundToInt(bone.depth), bone.position, bone.rotation.eulerAngles.z, bone.bindPoseColor);
         }
 
         private void SelectedSpriteChanged(SpriteCache sprite)
@@ -127,8 +130,9 @@ namespace UnityEditor.U2D.Animation
 
             if (enableBoneInspector && selectedBone != null && selectionCount == 1)
             {
-                m_SkeletonToolView.Update(selectedBone.name, Mathf.RoundToInt(selectedBone.depth));
-                m_SkeletonToolView.Show(selectedBone);
+                m_SkeletonToolView.Update(selectedBone.name, Mathf.RoundToInt(selectedBone.depth),  selectedBone.position, selectedBone.rotation.eulerAngles.z, selectedBone.bindPoseColor);
+                bool isReadOnly = skinningCache.character != null && skinningCache.character.boneReadOnly;
+                m_SkeletonToolView.Show(selectedBone, isReadOnly);
             }
         }
 
@@ -160,6 +164,40 @@ namespace UnityEditor.U2D.Animation
             m_UnselectTool.OnGUI();
         }
 
+        private void BoneColorChanged(BoneCache selectedBone, Color32 color)
+        {
+            if (selectedBone != null)
+            {
+                skinningCache.BeginUndoOperation(TextContent.colorBoneChanged);
+                selectedBone.bindPoseColor = color;
+                skinningCache.events.dataModified.Invoke();
+            }
+        }
+        
+        private void BonePositionChanged(BoneCache selectedBone, Vector2 position)
+        {
+            if (selectedBone != null)
+            {
+                skinningCache.BeginUndoOperation(TextContent.moveBone);
+                selectedBone.position = position;
+                HandleUtility.Repaint();
+                m_SkeletonController.InvokePoseChanged();
+            }
+        }
+        
+        private void BoneRotationChanged(BoneCache selectedBone, float rotation)
+        {
+            if (selectedBone != null)
+            {
+                var euler = selectedBone.rotation.eulerAngles;
+                euler.z = rotation;
+                skinningCache.BeginUndoOperation(TextContent.rotateBone);
+                selectedBone.rotation = Quaternion.Euler(euler);
+                HandleUtility.Repaint();
+                m_SkeletonController.InvokePoseChanged();
+            }
+        }
+
         private void BoneNameChanged(BoneCache selectedBone, string name)
         {
             if (selectedBone != null)
@@ -168,7 +206,7 @@ namespace UnityEditor.U2D.Animation
                     return;
 
                 if(string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
-                    m_SkeletonToolView.Update(selectedBone.name, Mathf.RoundToInt(selectedBone.depth));
+                    m_SkeletonToolView.Update(selectedBone.name, Mathf.RoundToInt(selectedBone.depth), selectedBone.position, selectedBone.rotation.eulerAngles.z, selectedBone.bindPoseColor);
                 else
                 {
                     using (skinningCache.UndoScope(TextContent.boneName))

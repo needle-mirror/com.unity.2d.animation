@@ -28,6 +28,7 @@ namespace UnityEditor.U2D.Animation
                     characterPart.worldToLocalMatrix.MultiplyPoint3x4(characterBone.position));
                 spriteBone.rotation = characterBone.rotation;
                 spriteBone.length = characterBone.length;
+                spriteBone.guid = characterBone.guid;
                 spriteBone.name = characterBone.name;
                 spriteBone.depth = characterBone.depth;
                 spriteBone.bindPoseColor = characterBone.bindPoseColor;
