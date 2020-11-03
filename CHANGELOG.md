@@ -1,4 +1,8 @@
 # Changelog
+## [5.0.4] - 2020-11-03
+### Fixed
+- Added missing tooltips in the Sprite Skin inspector (case 1285255)
+
 ## [5.0.3] - 2020-10-15
 ### Fixed
 - Fixed Sprite with no animation data is being processed during AssetPostProcessor

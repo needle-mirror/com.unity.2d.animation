@@ -7,6 +7,8 @@ License Type: MIT License
 
 Copyright (c) 2012 Christian Woltering
 
+https://github.com/Geri-Borbas/Triangle.NET
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -29,6 +31,10 @@ SOFTWARE.
 Component Name: Clipper
 
 License Type: Boost Software License - Version 1.0 - August 17th, 2003
+
+Copyright (c) 2010-2014 Angus Johnson
+
+http://www.angusj.com/delphi/clipper.php
 
 Permission is hereby granted, free of charge, to any person or organization
 obtaining a copy of the software and accompanying documentation covered by
@@ -57,11 +63,19 @@ Component Name: Eigen
 
 License Type: Mozilla Public License Version 2.0
 
+Copyright owner unknown
+
+http://eigen.tuxfamily.org/
+
 https://www.mozilla.org/en-US/MPL/2.0/
 
 ---------
 Component Name: libigl
 
 License Type: Mozilla Public License Version 2.0
+
+Copyright (c) 2019 Alec Jacobson, Daniele Panozzo, Christian Schüller, Olga Diamanti, Qingnan Zhou, Sebastian Koch, Jeremie Dumas, Amir Vaxman, Nico Pietroni, Stefan Brugger, Kenshi Takayama, Wenzel Jakob, Nikolas De Giorgis, Luigi Rocca, Leonardo Sacht, Kevin Walliman, Olga Sorkine-Hornung, Teseo Schneider, and others.
+
+https://libigl.github.io/
 
 https://www.mozilla.org/en-US/MPL/2.0/

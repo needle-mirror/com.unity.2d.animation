@@ -76,7 +76,7 @@ namespace UnityEditor.Experimental.U2D.Animation
                 }
             }
 
-            spriteListProp.isExpanded = EditorGUI.Foldout(vaRect, spriteListProp.isExpanded, Style.categoryListLabel);
+            spriteListProp.isExpanded = EditorGUI.Foldout(vaRect, spriteListProp.isExpanded, Style.categoryListLabel, true);
             if (spriteListProp.isExpanded)
             {
                 EditorGUI.indentLevel++;
