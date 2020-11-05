@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.2.6] - 2020-11-05
+### Fixed
+- Added missing Animation and UIElements dependency
+- Fixed slider offset in BoneInfluence window
+- Added missing tooltips in the Sprite Skin inspector (case 1285255)
+
 ## [3.2.5] - 2020-08-31
 ### Fixed
 - Fixed NullReferenceException when creating Preset for SpriteSkin component (case 1269921)

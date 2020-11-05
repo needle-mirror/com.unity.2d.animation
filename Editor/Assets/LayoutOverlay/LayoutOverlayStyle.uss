@@ -147,11 +147,6 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Label {
     margin-bottom : 2px;
 }
 
-
-LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .unity-slider__input{
-    margin-left :1px;
-}
-
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Slider {
     flex: 7;
     margin-left : 4px;
