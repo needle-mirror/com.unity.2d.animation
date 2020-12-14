@@ -17,19 +17,19 @@ namespace UnityEditor.U2D.Animation
     {
         private static class Contents
         {
-            public static readonly string listHeaderLabel = "Bones";
-            public static readonly GUIContent spriteNotFound = new GUIContent("Sprite not found in SpriteRenderer");
-            public static readonly GUIContent spriteHasNoSkinningInformation = new GUIContent("Sprite has no Bind Poses");
-            public static readonly GUIContent spriteHasNoWeights = new GUIContent("Sprite has no weights");
-            public static readonly GUIContent rootTransformNotFound = new GUIContent("Root Bone not set");
-            public static readonly GUIContent rootTransformNotFoundInArray = new GUIContent("Bone list doesn't contain a reference to the Root Bone");
-            public static readonly GUIContent InvalidTransformArray = new GUIContent("Bone list is invalid");
-            public static readonly GUIContent transformArrayContainsNull = new GUIContent("Bone list contains unassigned references");
-            public static readonly GUIContent InvalidTransformArrayLength = new GUIContent("The number of Sprite's Bind Poses and the number of Transforms should match");
-            public static readonly GUIContent useManager = new GUIContent("Enable batching");
-            public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update"
-                , "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
-            public static readonly GUIContent experimental = new GUIContent("Experimental");
+            public static readonly GUIContent listHeaderLabel = new GUIContent("Bones", "GameObject Transform to represent the Bones defined by the Sprite that is currently used for deformation.");
+            public static readonly GUIContent rootBoneLabel = new GUIContent("Root Bone", "GameObject Transform to represent the Root Bone.");
+            public static readonly string spriteNotFound = L10n.Tr("Sprite not found in SpriteRenderer");
+            public static readonly string spriteHasNoSkinningInformation = L10n.Tr("Sprite has no Bind Poses");
+            public static readonly string spriteHasNoWeights = L10n.Tr("Sprite has no weights");
+            public static readonly string rootTransformNotFound = L10n.Tr("Root Bone not set");
+            public static readonly string rootTransformNotFoundInArray = L10n.Tr("Bone list doesn't contain a reference to the Root Bone");
+            public static readonly string invalidTransformArray = L10n.Tr("Bone list is invalid");
+            public static readonly string transformArrayContainsNull = L10n.Tr("Bone list contains unassigned references");
+            public static readonly string invalidTransformArrayLength = L10n.Tr("The number of Sprite's Bind Poses and the number of Transforms should match");
+            public static readonly GUIContent useManager = new GUIContent("Enable batching", "When enabled, SpriteSkin deformation will be done in batch to improve performance.");
+            public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update", "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
+            public static readonly string experimental = L10n.Tr("Experimental");
         }
 
         private static Color s_BoundingBoxHandleColor = new Color(255, 255, 255, 150) / 255;
@@ -140,7 +140,7 @@ namespace UnityEditor.U2D.Animation
             }
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(m_RootBoneProperty);
+            EditorGUILayout.PropertyField(m_RootBoneProperty, Contents.rootBoneLabel);
             if (EditorGUI.EndChangeCheck())
             {
                 m_NeedsRebind = true;
@@ -331,37 +331,35 @@ namespace UnityEditor.U2D.Animation
                 if (validationResult == SpriteSkinValidationResult.Ready)
                     continue;
 
-                var content = GUIContent.none;
+                var text = "";
 
                 switch (validationResult)
                 {
                     case SpriteSkinValidationResult.SpriteNotFound:
-                        content = Contents.spriteNotFound;
+                        text = Contents.spriteNotFound;
                         break;
                     case SpriteSkinValidationResult.SpriteHasNoSkinningInformation:
-                        content = Contents.spriteHasNoSkinningInformation;
+                        text = Contents.spriteHasNoSkinningInformation;
                         break;
                     case SpriteSkinValidationResult.SpriteHasNoWeights:
-                        content = Contents.spriteHasNoWeights;
+                        text = Contents.spriteHasNoWeights;
                         break;
                     case SpriteSkinValidationResult.RootTransformNotFound:
-                        content = Contents.rootTransformNotFound;
+                        text = Contents.rootTransformNotFound;
                         break;
                     case SpriteSkinValidationResult.RootNotFoundInTransformArray:
-                        content = Contents.rootTransformNotFoundInArray;
+                        text = Contents.rootTransformNotFoundInArray;
                         break;
                     case SpriteSkinValidationResult.InvalidTransformArray:
-                        content = Contents.InvalidTransformArray;
+                        text = Contents.invalidTransformArray;
                         break;
                     case SpriteSkinValidationResult.InvalidTransformArrayLength:
-                        content = Contents.InvalidTransformArrayLength;
+                        text = Contents.invalidTransformArrayLength;
                         break;
                     case SpriteSkinValidationResult.TransformArrayContainsNull:
-                        content = Contents.transformArrayContainsNull;
+                        text = Contents.transformArrayContainsNull;
                         break;
                 }
-
-                string text = content.text;
 
                 if (preAppendObjectName)
                     text = spriteSkin.name + ": " + text;

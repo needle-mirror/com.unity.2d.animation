@@ -1,4 +1,11 @@
 # Changelog
+## [4.2.8] - 2020-12-14
+### Fixed
+- Update IK dependency on tests
+
+## [4.2.7] - 2020-11-05
+### Fixed
+- Added missing tooltips in the Sprite Skin inspector (case 1285255)
 
 ## [4.2.6] - 2020-08-31
 ### Fixed
