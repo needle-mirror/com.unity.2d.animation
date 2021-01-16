@@ -1,5 +1,7 @@
 # Character skinning and weighting workflow
 
+**Note:** The following workflow may be obsolete with Animation v6.0 onwards, please refer to the [Character Sample documentation](Examples.html#character) for the most up-to-date workflow.
+
 The following steps are the general workflow you can use to prepare your character for animation with the Skinning Editor. The steps detail how to create the bones, generate the meshes, and adjust the weights for your character.
 
 1. Use the [Create Bone](SkinEdToolsShortcuts.html#bone-tools) tool to build the bones of the character skeleton:

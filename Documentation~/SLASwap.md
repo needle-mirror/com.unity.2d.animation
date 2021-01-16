@@ -1,5 +1,7 @@
 # Swapping Sprite Library Assets
 
+**Note:** The following workflow may be obsolete with Animation v6.0 onwards, please refer to the [Character Sample documentation](Examples.html#character) for the most up-to-date workflow.
+
 If swapping each Sprite individually takes too much effort, you can instead swap the entire __Sprite Library Asset__ to another one containing alternate Sprites.
 
 The following example shows how to switch from a Sprite Library Asset of color Sprites to another one containing identical Sprites but in grayscale:

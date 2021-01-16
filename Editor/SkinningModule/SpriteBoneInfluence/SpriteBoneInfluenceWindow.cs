@@ -20,7 +20,7 @@ namespace UnityEditor.U2D.Animation
         event Action onRemoveBone;
         event Action<IEnumerable<BoneCache>> onReordered;
         event Action<IEnumerable<BoneCache>> onSelectionChanged;
-        void SetController(SpriteBoneInflueceToolController controller);
+        void SetController(SpriteBoneInfluenceToolController controller);
     }
 
     internal class SpriteBoneInfluenceWindow : VisualElement, ISpriteBoneInfluenceWindow
@@ -29,7 +29,7 @@ namespace UnityEditor.U2D.Animation
 
         private SpriteBoneInfluenceListWidget m_InfluencesList;
         private PopupWindow m_HeaderLabel;
-        SpriteBoneInflueceToolController m_Controller;
+        SpriteBoneInfluenceToolController m_Controller;
 
         public event Action onAddBone = () => {};
         public event Action onRemoveBone = () => {};
@@ -62,7 +62,7 @@ namespace UnityEditor.U2D.Animation
             this.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/SpriteBoneInfluenceWindowStyle.uss"));
         }
 
-        SpriteBoneInflueceToolController InternalGetController()
+        SpriteBoneInfluenceToolController InternalGetController()
         {
             return m_Controller;
         }
@@ -93,7 +93,7 @@ namespace UnityEditor.U2D.Animation
             m_InfluencesList.OnBoneSelectionChanged();
         }
 
-        void ISpriteBoneInfluenceWindow.SetController(SpriteBoneInflueceToolController controller)
+        void ISpriteBoneInfluenceWindow.SetController(SpriteBoneInfluenceToolController controller)
         {
             m_Controller = controller;
         }

@@ -1,4 +1,5 @@
 using System;
+using UnityEngine.Animations;
 using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.U2D.Animation
@@ -47,6 +48,35 @@ namespace UnityEngine.U2D.Animation
         public event Action onDeserializedCallback = () => { };
 #endif
 
+        void Reset()
+        {
+            // If the Sprite referred to by the SpriteRenderer exist in the library,
+            // we select the Sprite
+            if(spriteRenderer)
+                SetSprite(spriteRenderer.sprite);
+            
+        }
+
+        void SetSprite(Sprite sprite)
+        {
+            var sl = spriteLibrary;
+            if (sl != null && sprite != null)
+            {
+                foreach (var cat in sl.categoryNames)
+                {
+                    var entries = sl.GetEntryNames(cat);
+                    foreach (var ent in entries)
+                    {
+                        if (sl.GetSprite(cat, ent) == sprite)
+                        {
+                            spriteKeyInt = SpriteLibrary.GetHashForCategoryAndEntry(cat, ent);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        
         void OnEnable()
         {
             m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);

@@ -5,13 +5,10 @@
   * [Editor tools and shortcuts](SkinEdToolsShortcuts.md)
   * [Sprite Visiblity panel](SpriteVis.md)
 * [Character skinning and weighting workflow](CharacterRig.md)
-* [Animating your character](CopyPasteSkele.md)
+* [Reusing Animations](CopyPasteSkele.md)
   * [2D Inverse Kinematics](2DIK.md)
-
-* [Sprite Swap workflow - Experimental Feature](SpriteSwapIntro.md)
+* [Sprite Swap workflow](SpriteSwapIntro.md)
   * [Sprite Library Asset and other components](SLAsset.md)
   * [Sprite Swap manual setup](SSManual.md)
-* [Usage examples](Examples.md)
-  * [Frame-by-frame animation](FFanimation.md)
-  * [Changing parts of a character](CharacterParts.md)
-  * [Swapping Sprite Library Assets](SLASwap.md)
+* [Samples](Examples.md)
+  * 

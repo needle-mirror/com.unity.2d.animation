@@ -5,11 +5,11 @@ using UnityEditor.U2D.Layout;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class SpriteBoneInflueceToolController
+    internal class SpriteBoneInfluenceToolController
     {
         SkinningEvents m_Events;
         ISpriteBoneInfluenceToolModel m_Model;
-        public SpriteBoneInflueceToolController(ISpriteBoneInfluenceToolModel model, SkinningEvents events)
+        public SpriteBoneInfluenceToolController(ISpriteBoneInfluenceToolModel model, SkinningEvents events)
         {
             m_Events = events;
             m_Model = model;
@@ -246,7 +246,7 @@ namespace UnityEditor.U2D.Animation
 
     internal class SpriteBoneInfluenceTool : BaseTool, ISpriteBoneInfluenceToolModel
     {
-        SpriteBoneInflueceToolController m_Controller;
+        SpriteBoneInfluenceToolController m_Controller;
         private MeshPreviewBehaviour m_MeshPreviewBehaviour = new MeshPreviewBehaviour();
         private SpriteBoneInfluenceWindow m_View;
 
@@ -258,7 +258,7 @@ namespace UnityEditor.U2D.Animation
 
         internal override void OnCreate()
         {
-            m_Controller = new SpriteBoneInflueceToolController(this, skinningCache.events);
+            m_Controller = new SpriteBoneInfluenceToolController(this, skinningCache.events);
         }
 
         ISpriteBoneInfluenceWindow ISpriteBoneInfluenceToolModel.view {get { return m_View; } }

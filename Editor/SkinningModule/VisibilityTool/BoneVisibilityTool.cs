@@ -113,9 +113,9 @@ namespace UnityEditor.U2D.Animation
             GetController().SetAllVisibility(visibility);
         }
 
-        protected  bool GetAllVisibility()
+        protected bool GetAllVisibility()
         {
-            return GetModel().GetAllVisibility();
+            return GetModel() != null && GetModel().GetAllVisibility();
         }
 
         public void OnSelectionChange(SkeletonCache skeleton)

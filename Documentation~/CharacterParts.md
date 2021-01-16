@@ -1,5 +1,7 @@
 # Changing Parts of a Character
 
+**Note:** The following workflow may be obsolete with Animation v6.0 onwards, please refer to the [Character Sample documentation](Examples.html#character) for the most up-to-date workflow.
+
 You can use __Sprite Swap__ to quickly change only one Sprite on the character Prefab without affecting the other Sprites. This means you can alter part of a character’s appearance (for example, change a scarf to a different color) while the rest of the character remains the same. 
 
 In the following example, we have two Sprites that are variations of the character’s scarf - one green and one blue. This workflow demonstrates how to switch from one to the other in the same Prefab.

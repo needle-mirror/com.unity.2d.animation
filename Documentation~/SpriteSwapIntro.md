@@ -1,4 +1,8 @@
-# Sprite Swap overview (Experimental Feature)
+# Sprite Swap overview
+
+**Note:** The following workflow may be obsolete with Animation v6.0 onwards, please refer to the [Character Sample documentation](Examples.html#character) for the most up-to-date workflow.
+
+
 
 __Sprite Swap__ is an experimental feature that enables you to change a GameObject’s rendered Sprite within the same character Prefab. This enables you to quickly and easily create  multiple characters that look different while [reusing existing bone and Mesh data](CopyPasteSkele.md). You can also use Sprite Swap to switch the displayed Sprite on each frame at run time to create [frame-by-frame animation](FFanimation.md).
 

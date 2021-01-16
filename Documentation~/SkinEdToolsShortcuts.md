@@ -39,16 +39,25 @@ Use the __Bone Tools__ to create and edit the bones of your character and their 
 
 ### Bone panel
 
-The __Bone panel__ appears at the bottom right of the editor window when you have a bone selected.
+The __Bone panel__ appears at the bottom right of the editor window when you select a bone with one of the **Bone Tools** active.
 
-![](images/bone_panel.png)
+![](images/2D-animation-v6-bone-panel.png)
 
-| Property  | Function                                                     |
-| --------- | ------------------------------------------------------------ |
-| __Name__  | Displays the name of the selected bone. Enter a new name here to rename the selected bone. |
-| __Depth__ | Displays the Depth value of the selected bone that determines its render order, or enter a new value (which can be negative) to change the render order. See the [bone tab and hierarchy tree](SpriteVis.html#bone-tab-and-hierarchy-tree) page for more information about how the Depth value affect the way the Sprite Mesh is rendered and deformed. |
+| Property       | Function                                                     |
+| -------------- | ------------------------------------------------------------ |
+| __Name__       | Displays the name of the selected bone. Enter a new name here to rename the selected bone. |
+| **Position**   | The world position of the bone.                              |
+| **Rotation**   | The world rotation value of the bone.                        |
+| **Bone Color** | The color of the bone.                                       |
+| __Depth__      | Displays the Z-value of the selected bone that determines the render order of the vertices under its influence. Enter a new value (which can be negative) to change the render order of the affected vertices. See [bone tab and hierarchy tree](SpriteVis.html#bone-tab-and-hierarchy-tree) for more information about how the **Depth** value affects the way the Sprite Mesh is rendered and deformed. |
 
+Example of how **Depth** value affects the render order of vertices:
 
+![](images/2D-animation-bone-depth1.png)
+When the selected bone (orange) has its **Depth** set to 1, the vertices that are influenced by it appear in front of the other vertices.
+
+![](images/2D-animation-bone-depth2.png)
+When the selected bone’s **Depth** is set to -1 instead, the vertices that are influenced by it appears behind of the other vertices.
 
 ## Geometry tools
 

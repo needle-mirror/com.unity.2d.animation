@@ -25,11 +25,15 @@ For character animation with the __2D Animation package__, the __PSD Importer__ 
 
 You can improve the performance of the animated Sprite’s deformation at runtime by installing the [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) package from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite mesh deformation.
 
-![](images/SpriteSkin_inspect_exp.png)
+![](images/2D-optional-perf-boost-enabled.png)
 
-With both packages installed, the Experimental __Enable batching__ setting becomes available in the [Sprite Skin component](#sprite-skin-component). As the implementation of the performance boost might contain bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.
+With both packages installed, the __Enable batching__ setting becomes available in the [Sprite Skin component](#sprite-skin-component). As the implementation of the performance boost might contain bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.
 
 The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.3.3 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6.
+
+Note that if you do not have the required packages installed, the option will be disabled, with a notification to installed the required packages.
+
+![](images/2D-optional-perf-boost-disabled.png)
 
 ## Sprite Skin component
 

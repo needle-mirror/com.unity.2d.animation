@@ -1,5 +1,15 @@
 # Changelog
 
+## [6.0.0-pre.2] - 2021-01-16
+### Changed
+- Update license file
+
+### Added
+- Initial documentation update for new features for 6.0.0
+
+### Fixed
+- SpriteResolver resets to the current Sprite from SpriteRenderer if exist in Sprite Library
+
 ## [6.0.0-pre.1] - 2020-11-02
 ### Changed
 - Sprite Swap related features moved out of experimental namespace

@@ -35,7 +35,7 @@ namespace UnityEditor.U2D.Animation
         public Action onRemoveBone = () => {};
         public Action<IEnumerable<BoneCache>> onReordered = _ => {};
         public Action<IEnumerable<BoneCache>> onSelectionChanged = (s) => {};
-        public Func<SpriteBoneInflueceToolController> GetController = () => null;
+        public Func<SpriteBoneInfluenceToolController> GetController = () => null;
 
         public SpriteBoneInfluenceListWidget()
         {

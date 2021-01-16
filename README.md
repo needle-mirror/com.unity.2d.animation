@@ -1,3 +1,5 @@
+**Note:** This package is available as a prerelease, so it is not ready for production use. The features and documentation in this package might change before it is verified for release.
+
 2D Character Animation
 
 Editor tools and runtime scripts to support the authoring of 2D Animated Characters.  
