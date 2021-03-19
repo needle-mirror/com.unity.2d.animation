@@ -1,5 +1,4 @@
 # Reusing Animations
-
 To begin animating, drag the imported character Prefab into the Scene view. Unity generates a GameObject for each Sprite in the Prefab and [different Assets and components](SLAsset.md). With the new GameObject in the Scene, you can begin animating it with the [Unity animation workflow and tools](https://docs.unity3d.com/Manual/AnimationSection.html).
 
 After you have [setup the animation skeleton and bone weights](CharacterRig.md) for your character, you can reuse the same rigged skeleton with other character Prefabs by using the [Copy](SkinEdToolsShortcuts.html#editor-toolbar) and [Paste](SkinEdToolsShortcuts.html#editor-toolbar) options on the [editor toolbar](SkinEdToolsShortcuts.html#editor-toolbar). This is useful if you need to quickly create characters that share the same build and animations.

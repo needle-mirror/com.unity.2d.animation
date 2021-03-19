@@ -325,7 +325,7 @@ namespace UnityEditor.U2D.Animation
                 }
                 else if (copyTool != null && evt.commandName == "Paste")
                 {
-                    var boneReadOnly = skinningCache.hasCharacter && skinningCache.character.boneReadOnly;
+                    var boneReadOnly = skinningCache.bonesReadOnly;
                     copyTool.OnPasteActivated(!boneReadOnly, true, false, false);
                     evt.Use();
                 }

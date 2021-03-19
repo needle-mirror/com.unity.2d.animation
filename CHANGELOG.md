@@ -1,5 +1,24 @@
 # Changelog
 
+## [6.0.1] - 2021-03-19
+### Changed
+- Removed redundant ForceReserializeAssets from SpritePostProcess.OnPreprocessAsset()
+
+## [6.0.0] - 2021-03-17
+### Changed
+- Update version for release
+
+## [6.0.0-pre.3] - 2021-03-08
+### Changed
+- Update manual documentaiton
+
+## [6.0.0-pre.3] - 2021-03-15
+### Changed
+- Updated manual
+
+### Fixed
+- Deleting bones from a skeleton referenced by another character sometimes throws IndexOutOfRangeException (case 1304768)
+
 ## [6.0.0-pre.2] - 2021-01-16
 ### Changed
 - Update license file

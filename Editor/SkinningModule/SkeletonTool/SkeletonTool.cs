@@ -131,7 +131,7 @@ namespace UnityEditor.U2D.Animation
             if (enableBoneInspector && selectedBone != null && selectionCount == 1)
             {
                 m_SkeletonToolView.Update(selectedBone.name, Mathf.RoundToInt(selectedBone.depth),  selectedBone.position, selectedBone.rotation.eulerAngles.z, selectedBone.bindPoseColor);
-                bool isReadOnly = skinningCache.character != null && skinningCache.character.boneReadOnly;
+                bool isReadOnly = skinningCache.bonesReadOnly;
                 m_SkeletonToolView.Show(selectedBone, isReadOnly);
             }
         }

@@ -1,40 +1,14 @@
 # Introduction to 2D Animation
+The 2D Animation package includes features and tools that allow you to quickly rig and animate 2D characters in Unity in a variety of ways. The different versions of the 2D Animation package are supported by the following versions of Unity respectively:
 
-**Note: Documentation for version 6.0.0 is currently being updated.**
+Package version  | Unity Editor version
+--|--
+6.x.x  |  2021.1 or later
+5.x.x  |  2020.2 or later
+4.x.x  |  2020.1
+3.x.x  |  2019.3
 
+## 2D Animation and PSD Importer package integration
+Use the 2D Animation package with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) package to easily import character artwork created in Photoshop into Unity, and prepare it for animation with the 2D Animation package. The PSD Importer is an [Asset importer](https://docs.unity3d.com/Manual/ImportingAssets.html) that supports Adobe Photoshop .psb files, and generates a Prefab made of Sprites based on the source file and its [layers]([https://helpx.adobe.com/photoshop/using/layer-basics.html). The generated Prefab of a character or prop to be animated with the 2D Animation package is called an 'actor'.
 
-This documentation contains information on how to quickly rig and animate a 2D character in Unity with the 2D Animation package and tools. The following package versions are only supported for the following Unity versions:
-
-* __2D Animation package version 5.x.x__ - Unity 2020.2 or later
-
-* __2D Animation package version 4.x.x__ - Unity 2020.1
-
-* __2D Animation package version 3.x.x__ - Unity 2019.3
-
-## 2D Animation and PSD Importer integration
-
-You can use the __2D Animation package__ with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) package to easily import your character artwork from Photoshop into Unity for animation. The __PSD Importer__ is an Asset importer that supports the import of Adobe Photoshop .psb files into Unity and generating a Prefab made of Sprites based on the source file and its layers (see Adobe’s documentation on [Layer basics](https://helpx.adobe.com/photoshop/using/layer-basics.html)). 
-
-The [.psb](https://helpx.adobe.com/photoshop/using/file-formats.html#large_document_format_psb)[ file format](https://helpx.adobe.com/photoshop/using/file-formats.html#large_document_format_psb) has identical functions as the more common Adobe .psd format, with additional support for much larger image sizes. See the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest/index.html) package documentation for more information about the importer’s features.
-
-## Adobe Photoshop PSB format
-
-For character animation with the __2D Animation package__, the __PSD Importer__ package is required. The PSD Importer package currently only imports the __Adobe Photoshop .psb format__, and does not import the Adobe .psd format. The .psb format has identical functions as .psd, and is able to support larger image sizes.
-
-## Optional Performance Boost
-
-You can improve the performance of the animated Sprite’s deformation at runtime by installing the [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) package from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite mesh deformation.
-
-![](images/2D-optional-perf-boost-enabled.png)
-
-With both packages installed, the __Enable batching__ setting becomes available in the [Sprite Skin component](#sprite-skin-component). As the implementation of the performance boost might contain bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.
-
-The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.3.3 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6.
-
-Note that if you do not have the required packages installed, the option will be disabled, with a notification to installed the required packages.
-
-![](images/2D-optional-perf-boost-disabled.png)
-
-## Sprite Skin component
-
-When the character Prefab is brought into the Scene view, Unity automatically adds the __Sprite Skin__ component to any Sprite that have any [bone influences](SkinEdToolsShortcuts.md#bone-influences). This component is required for the bones deform the Sprite Meshes in the Scene view.
+The [.psb](https://helpx.adobe.com/photoshop/using/file-formats.html#large_document_format_psb)[ file format](https://helpx.adobe.com/photoshop/using/file-formats.html#large_document_format_psb) has identical functions as the more common Adobe .psd format, with additional support for much larger image sizes. Refer to the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest/index.html) package documentation for more information about the importer’s features.

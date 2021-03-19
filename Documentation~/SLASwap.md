@@ -16,7 +16,7 @@ The following example shows how to switch from a Sprite Library Asset of color S
 
    ![](images/image_15.png)<br/>The Category and Label names for the color Prefab.
 
-4. Select the grayscale Prefab, and give its corresponding Sprites the same __Category__ and __Label__ names as the color Prefab. 
+4. Select the grayscale Prefab, and give its corresponding Sprites the same __Category__ and __Label__ names as the color Prefab.
 
    ![](images/image_16.png)<br/>Give the same Category and Label names to the grayscale Prefab.
 

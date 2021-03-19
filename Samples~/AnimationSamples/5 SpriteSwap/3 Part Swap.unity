@@ -3311,7 +3311,6 @@ GameObject:
   - component: {fileID: 705508308}
   - component: {fileID: 705508309}
   - component: {fileID: 705508310}
-  - component: {fileID: 705508311}
   - component: {fileID: 705508312}
   m_Layer: 0
   m_Name: Rikr_Arm_R
@@ -3346,6 +3345,7 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -3409,18 +3409,6 @@ MonoBehaviour:
   m_UseBatching: 1
   m_AlwaysUpdate: 1
   m_AutoRebind: 0
---- !u!114 &705508311
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 705508307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afb6404781555c04b94d057ffb3676d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &705508312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4301,7 +4289,6 @@ GameObject:
   - component: {fileID: 1030226863}
   - component: {fileID: 1030226864}
   - component: {fileID: 1030226865}
-  - component: {fileID: 1030226866}
   - component: {fileID: 1030226867}
   m_Layer: 0
   m_Name: Rikr_Leg_L
@@ -4336,6 +4323,7 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -4400,18 +4388,6 @@ MonoBehaviour:
   m_UseBatching: 1
   m_AlwaysUpdate: 1
   m_AutoRebind: 0
---- !u!114 &1030226866
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1030226862}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afb6404781555c04b94d057ffb3676d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1030226867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5587,7 +5563,6 @@ GameObject:
   - component: {fileID: 1233807738}
   - component: {fileID: 1233807739}
   - component: {fileID: 1233807740}
-  - component: {fileID: 1233807741}
   - component: {fileID: 1233807742}
   m_Layer: 0
   m_Name: Rikr_Head
@@ -5622,6 +5597,7 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -5683,18 +5659,6 @@ MonoBehaviour:
   m_UseBatching: 1
   m_AlwaysUpdate: 1
   m_AutoRebind: 0
---- !u!114 &1233807741
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1233807737}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afb6404781555c04b94d057ffb3676d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1233807742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6652,7 +6616,6 @@ GameObject:
   - component: {fileID: 1488193667}
   - component: {fileID: 1488193668}
   - component: {fileID: 1488193669}
-  - component: {fileID: 1488193670}
   - component: {fileID: 1488193671}
   m_Layer: 0
   m_Name: Rikr_Leg_R
@@ -6687,6 +6650,7 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -6751,18 +6715,6 @@ MonoBehaviour:
   m_UseBatching: 1
   m_AlwaysUpdate: 1
   m_AutoRebind: 0
---- !u!114 &1488193670
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1488193666}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afb6404781555c04b94d057ffb3676d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1488193671
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8395,7 +8347,6 @@ GameObject:
   - component: {fileID: 1954681253}
   - component: {fileID: 1954681254}
   - component: {fileID: 1954681255}
-  - component: {fileID: 1954681256}
   - component: {fileID: 1954681257}
   m_Layer: 0
   m_Name: Rikr_Body
@@ -8430,6 +8381,7 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -8492,18 +8444,6 @@ MonoBehaviour:
   m_UseBatching: 1
   m_AlwaysUpdate: 1
   m_AutoRebind: 0
---- !u!114 &1954681256
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1954681252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afb6404781555c04b94d057ffb3676d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1954681257
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8530,7 +8470,6 @@ GameObject:
   - component: {fileID: 1990969888}
   - component: {fileID: 1990969889}
   - component: {fileID: 1990969890}
-  - component: {fileID: 1990969891}
   - component: {fileID: 1990969892}
   m_Layer: 0
   m_Name: Rikr_Arm_L
@@ -8565,6 +8504,7 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -8628,18 +8568,6 @@ MonoBehaviour:
   m_UseBatching: 1
   m_AlwaysUpdate: 1
   m_AutoRebind: 0
---- !u!114 &1990969891
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1990969887}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afb6404781555c04b94d057ffb3676d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1990969892
 MonoBehaviour:
   m_ObjectHideFlags: 0

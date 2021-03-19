@@ -1,6 +1,7 @@
 #if ENABLE_ANIMATION_COLLECTION && ENABLE_ANIMATION_BURST
 #define ENABLE_ANIMATION_PERFORMANCE
 #endif
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
@@ -14,33 +15,33 @@ namespace UnityEditor.U2D.Animation
 {
     internal class SpritePostProcess : AssetPostprocessor
     {
-        private static List<object> m_AssetList;
-        
         void OnPreprocessAsset()
         {
-            ISpriteEditorDataProvider ai = GetSpriteEditorDataProvider(assetPath);
-            if (ai != null)
-            {
-                var characterDataProvider = ai.GetDataProvider<ICharacterDataProvider>();
-                var boneDataProvider = ai.GetDataProvider<ISpriteBoneDataProvider>();
-                var characterData = characterDataProvider?.GetCharacterData();
+            var ai = GetSpriteEditorDataProvider(assetPath);
+            var characterDataProvider = ai?.GetDataProvider<ICharacterDataProvider>();
 
-                if (characterData.HasValue && characterData.Value.boneReadOnly && boneDataProvider != null)
+            if (characterDataProvider != null)
+            {
+                var mainSkeletonBonesDataProvider = ai?.GetDataProvider<IMainSkeletonDataProvider>();
+                if (mainSkeletonBonesDataProvider != null)
                 {
                     var skinningCache = Cache.Create<SkinningCache>();
                     skinningCache.Create(ai, new SkinningCachePersistentStateTemp());
+
+                    var skeletonBones = mainSkeletonBonesDataProvider.GetMainSkeletonData().bones ?? new SpriteBone[0];
+                    RemapCharacterPartsToNewBones(skinningCache, skeletonBones);
+
                     SkinningModule.ApplyChanges(skinningCache, ai);
-                    ai.Apply();
                 }
             }
         }
 
         void OnPostprocessSprites(Texture2D texture, Sprite[] sprites)
         {
-            ISpriteEditorDataProvider ai = GetSpriteEditorDataProvider(assetPath);
+            var ai = GetSpriteEditorDataProvider(assetPath);
             if (ai != null)
             {
-                float definitionScale = CalculateDefinitionScale(texture, ai.GetDataProvider<ITextureDataProvider>());
+                var definitionScale = CalculateDefinitionScale(texture, ai.GetDataProvider<ITextureDataProvider>());
                 ai.InitSpriteEditorDataProvider();
                 PostProcessBoneData(ai, definitionScale, sprites);
                 PostProcessSpriteMeshData(ai, definitionScale, sprites);
@@ -49,6 +50,29 @@ namespace UnityEditor.U2D.Animation
 
             // Get all SpriteSkin in scene and inform them to refresh their cache
             RefreshSpriteSkinCache();
+        }
+
+        static void RemapCharacterPartsToNewBones(SkinningCache skinningCache, SpriteBone[] newBones)
+        {
+            var skeleton = skinningCache.character.skeleton;
+            var previousStateBones = skeleton.bones;
+            var skeletonBones = skinningCache.CreateBoneCacheFromSpriteBones(newBones, 1.0f);
+            skeleton.SetBones(skeletonBones);
+
+            for (var i = 0; i < skinningCache.character.parts.Length; i++)
+            {
+                var characterPart = skinningCache.character.parts[i];
+                var useGuids = !skeletonBones.All(newBone => previousStateBones.All(oldBone => newBone.guid != oldBone.guid));
+                characterPart.bones = useGuids ?
+                    characterPart.bones.Select(partBone => Array.Find(skeletonBones, skeletonBone => partBone.guid == skeletonBone.guid)).ToArray() : 
+                    characterPart.bones.Select(partBone => skeletonBones.ElementAtOrDefault(Array.FindIndex(previousStateBones, oldBone => partBone.guid == oldBone.guid))).ToArray();
+
+                var mesh = skinningCache.GetMesh(characterPart.sprite);
+                 if (mesh != null)
+                     mesh.SetCompatibleBoneSet(characterPart.bones);
+
+                skinningCache.character.parts[i] = characterPart;
+            }
         }
 
         static void RefreshSpriteSkinCache()
@@ -114,7 +138,7 @@ namespace UnityEditor.U2D.Animation
             if (sprites == null || sprites.Length == 0 || boneDataProvider == null || textureDataProvider == null)
                 return false;
 
-            bool dataChanged = false;
+            var dataChanged = false;
             var spriteRects = spriteDataProvider.GetSpriteRects();
             foreach (var sprite in sprites)
             {
@@ -155,7 +179,7 @@ namespace UnityEditor.U2D.Animation
             if (sprites == null || sprites.Length == 0 || spriteMeshDataProvider == null || textureDataProvider == null)
                 return false;
 
-            bool dataChanged = false;
+            var dataChanged = false;
             var spriteRects = spriteDataProvider.GetSpriteRects();
             foreach (var sprite in sprites)
             {
@@ -252,7 +276,7 @@ namespace UnityEditor.U2D.Animation
             return dataProviderFactories.GetSpriteEditorDataProviderFromObject(AssetImporter.GetAtPath(assetPath));
         }
         
-        class SkinningCachePersistentStateTemp : ISkinningCachePersistentState
+        internal class SkinningCachePersistentStateTemp : ISkinningCachePersistentState
         {
             private string _lastSpriteId;
             private Tools _lastUsedTool;

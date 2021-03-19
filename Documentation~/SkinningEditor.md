@@ -12,8 +12,6 @@ To open your imported character in the Skinning Editor:
 
    ![](images/SelectSknEditor.png)
 
-
-
 See the [Editor tools and shortcuts](SkinEdToolsShortcuts.md) page for more information about the different features and tools available in the Skinning Editor.
 
 ## How to select a Sprite in the editor

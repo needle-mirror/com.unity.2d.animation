@@ -1,6 +1,6 @@
 # Editor tools and shortcuts
 
-![](images/LabelledEditorTools.png)<br/>Labelled 2D Animation Skinning editor tools
+![](images/LabelledEditorTools.png)<br/>Labelled 2D Animation Skinning Editor tools
 
 The Skinning Editor tools are split-up into the following groups:
 
@@ -19,12 +19,44 @@ This is toolbar that contains the options that affect what is overall visible in
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
 | ![Reset Pose](images/icon_RestoreBind.png)<br/>__Reset Pose__ | Shift + 1            | Restore a character’s bones and joints to their original positions. |
-| ![Toggle View Mode](images\icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the __Character__ and __Sprite Sheet__ view modes. |
-| ![Copy](images\icon_Copy.png)<br/>__Copy__                   | Ctrl + C             | Copies the bone and mesh data from the current selection.    |
-| ![Paste](images\icon_Paste.png)<br/>__Paste__                | Ctrl + V             | Pastes the copied bone and mesh data to the current selection. |
-| ![Paste](images\icon_Paste.png)<br/>__Paste__                | Shift + B            | Use this shortcut to show additional pasting options.        |
-| ![Visibility eyecon](images\icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite Meshes and bones in the editor window. |
+| ![Toggle View Mode](images/icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the __Character__ and __Sprite Sheet__ view modes. |
+| ![Copy](images/icon_Copy.png)<br/>__Copy__                   | Ctrl + C             | Copies the bone and mesh data from the current selection.    |
+| ![Paste](images/icon_Paste.png)<br/>__Paste__                | Ctrl + V             | Pastes the copied bone and mesh data to the current selection. |
+| ![Paste](images/icon_Paste.png)<br/>__Paste__                | Shift + B            | Use this shortcut to show additional pasting options.        |
+| ![Visibility eyecon](images/icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite Meshes and bones in the editor window. |
 | __Toggle Tool Text__                                         | Shift + `            | Show or hide text on tool buttons.                           |
+
+### Copy and Paste behavior
+Once you [rigged the skeleton and bone weights](CharacterRig.md) of your actor, you can reuse the same rigged skeleton with other Model Prefabs by using the **Copy** and **Paste** options on the [editor toolbar](SkinEdToolsShortcuts.md#editor-toolbar). This is useful if you need to quickly create characters that share the same build and animations.
+
+Copy and Paste can only be done if the source and destination Model Prefabs have the same number of Sprites and Sprite names. When you Copy and Paste the bone and mesh data, the following occurs:
+
+1. Copied bone data is pasted to the destination.
+2. Mesh, weights, and bone association of source Sprite(s) are pasted to destination Sprite(s) with the same names.
+
+### Copy behavior
+To copy a Sprite's data, select a Sprite and then select the __Copy__ button to copy the Mesh and bone data associated with that Sprite. If no Sprite is selected, the data of all the Sprites' currently in the [Skinning Editor](SkinningEditor.md) window is copied.
+
+### Paste behavior
+To paste Sprite data to another Sprite, select the Sprite that should receive the paste data and then select __Paste__. This will bring up the Paste panel at the bottom right of the editor window:
+
+![](images/PasteDialog.png)<br/>Paste dialog box.
+
+| __Option__ | Function                                      |
+| ---------- | --------------------------------------------- |
+| __Bones__  | Paste bone data.                              |
+| __Mesh__   | Paste Mesh data.                              |
+| __Flip X__ | Paste the data but mirrored along the X-axis. |
+| __Flip Y__ | Paste the data but mirrored along the Y-axis. |
+
+
+The __Copy__ and __Paste__ tools behave in the following ways depending on these factors:
+
+|                                   | Copy from a selected Sprite                                  | Copy with no Sprite selected                                 |
+| --------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| __Paste with a Sprite selected__  | Data from the source Sprite will be copied to the selected destination Sprite. | Data is pasted to all Sprites at the destination with the same name(s) as the respective source Sprites. |
+| __Paste with no Sprite selected__ | No data is pasted.                                           | Data is pasted to all Sprites at the destination with the same name(s) as the respective source Sprites. |
+
 
 ## Bone tools
 
@@ -49,12 +81,15 @@ The __Bone panel__ appears at the bottom right of the editor window when you sel
 | **Position**   | The world position of the bone.                              |
 | **Rotation**   | The world rotation value of the bone.                        |
 | **Bone Color** | The color of the bone.                                       |
-| __Depth__      | Displays the Z-value of the selected bone that determines the render order of the vertices under its influence. Enter a new value (which can be negative) to change the render order of the affected vertices. See [bone tab and hierarchy tree](SpriteVis.html#bone-tab-and-hierarchy-tree) for more information about how the **Depth** value affects the way the Sprite Mesh is rendered and deformed. |
+| __Depth__      | Displays the Z-value of the selected bone that determines the render order of the vertices under its influence (refer to the examples below). Enter a new value (which can be negative) to change the render order of the affected vertices. Refer to the [bone tab and hierarchy tree](SpriteVis.html#bone-tab-and-hierarchy-tree) documentation for more information on how the **Depth** value affects the way the Sprite Mesh is rendered and deformed. |
 
-Example of how **Depth** value affects the render order of vertices:
+### Setting the Depth value
+The following examples show how the **Depth** value of a selected bone affects the render order of the mesh vertices it influences. In this example, the selected bone (orange) and has an intitial **Depth** value of 1.
 
 ![](images/2D-animation-bone-depth1.png)
-When the selected bone (orange) has its **Depth** set to 1, the vertices that are influenced by it appear in front of the other vertices.
+Example 1: With the **Depth** value of 1, the vertices that are influenced by it (the blue are of the Sprite and mesh) appear in front of the other vertices, which have a lower **Depth** value.
+
+However, by setting the bone's **Depth** to -1 instead,
 
 ![](images/2D-animation-bone-depth2.png)
 When the selected bone’s **Depth** is set to -1 instead, the vertices that are influenced by it appears behind of the other vertices.
@@ -66,7 +101,7 @@ Use the __Geometry tools__ to generate and edit the meshes of the different Spri
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
 | ![Auto Geometry](images/icon_GenGeo.png)<br/>__Auto Geometry__ | Shift + A            | Select to auto-generate Meshes for Sprites. When this tool is selected, the [Geometry panel](#geometry-panel) becomes available at the bottom-right of the __Skinning Editor__. |
-| ![Edit Geometry](images\icon_EditGeo.png)<br/>__Edit Geometry__ | Shift + S            | Edit generated Meshes by repositioning vertices.             |
+| ![Edit Geometry](images/icon_EditGeo.png)<br/>__Edit Geometry__ | Shift + S            | Edit generated Meshes by repositioning vertices.             |
 | ![Create Vertex](images/icon_CreateVertex.png)<br/>__Create Vertex__ | Shift + D            | Create new vertices to create geometry.                      |
 | ![Create Edge](images/icon_CreateEdge.png)<br/>__Create Edge__ | Shift + G            | Create new edges to create geometry.                         |
 | ![Split Edge](images/icon_SplitEdge.png)<br/>__Split Edge__  | Shift + H            | Split an existing edge into two.                             |
@@ -148,11 +183,11 @@ The weights panel appears at the lower-right of the Sprite Editor window when __
 
 ### Bone Influences panel
 
-The __Bone Influences panel__ displays a list of bones that are currently influencing the selected Sprite Mesh. 
+The __Bone Influences panel__ displays a list of bones that are currently influencing the selected Sprite Mesh.
 
 ![](images/BoneInfluencesExample.png)
 
-When the Skinning Editor is set to [Character mode](#editor-toolbar), the Bone Influences panel allows you to add a bone to the list which includes its influence in the deformation of the selected Sprite’s mesh, or remove a bone from the list which removes its influence instead. 
+When the Skinning Editor is set to [Character mode](#editor-toolbar), the Bone Influences panel allows you to add a bone to the list which includes its influence in the deformation of the selected Sprite’s mesh, or remove a bone from the list which removes its influence instead.
 
 To add a bone to the list, select the bone in the __Skinning Editor__ window and then select __Add (+__) at the bottom-right of the panel. To remove a bone from the list, select the bone in the list or in the editor window and then select __Remove (-)__.
 
@@ -165,4 +200,3 @@ You can rearrange the bone order in the Bone Influences panel by selecting and t
 The order of the bones in the Bone Influences panel determines the order of the bones on the __Sprite Skin __component. This is especially important when replacing the Sprite for deformation in the __Sprite Renderer__, such as when using [Sprite Swap](SpriteSwapIntro.md), as you can ensure the bone order remains the same between the Sprites and that the correct Transform drives the correct deformation.
 
 ![](images/BoneInfluences_orderSpriteSkin.png)
-

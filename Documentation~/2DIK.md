@@ -2,13 +2,13 @@
 
 ## Overview
 
-The 2D [Inverse Kinematics](https://docs.unity3d.com/Manual/InverseKinematics.html) (IK) package allows you to apply __2D IK__ to the bones and Transforms of your characters’ animation skeletons. __2D IK__ automatically calculates for the positions and rotations of the a chain of bones moving towards a target position. This makes it easier to pose and animate character limbs for animation, or to manipulate a skeleton in real-time, as manually keyframing the chain of bones is not required.  
+The 2D [Inverse Kinematics](https://docs.unity3d.com/Manual/InverseKinematics.md) (IK) package allows you to apply __2D IK__ to the bones and Transforms of your characters’ animation skeletons. __2D IK__ automatically calculates for the positions and rotations of the a chain of bones moving towards a target position. This makes it easier to pose and animate character limbs for animation, or to manipulate a skeleton in real-time, as manually keyframing the chain of bones is not required.  
 
 ## Workflow
 
 The following workflow continues from the __2D Animation__ package animation workflow, and demonstrates how to apply __2D IK__ to your character skeletons.
 
-1. Refer to the hierarchy of bones created with the __2D Animation__ package's [Bone tools](SkinEdToolsShortcuts.html#bone-tools) of the [Skinning Editor](SkinningEditor).
+1. Refer to the hierarchy of bones created with the __2D Animation__ package's [Bone tools](SkinEdToolsShortcuts.md#bone-tools) of the [Skinning Editor](SkinningEditor).
 
 
 2. Add the [IK Manager 2D](#IKManager) component to the GameObject at the top of the hierarchy. This is usually the main root bone of the entire character skeleton.
@@ -75,7 +75,7 @@ The __IK Manager 2D__ component controls the __IK Solvers__ in the hierarchy.  A
 3. A drop-down menu then appears with three options - __Chain (CCD)__, __Chain (FABRIK)__, and __Limb__. Each type of [IK Solver](#IKSolvers) uses a different algorithm to solve for the position of Effectors.
    ![](images/2D_IK_Image3.png)
 
-__IK Solvers__ are iterated in descending order, with Solvers lower in the list referring to the positions set by the Solvers higher in the list. The order of Solvers usually reflects the order of bones/Transforms in the skeleton hierarchy. 
+__IK Solvers__ are iterated in descending order, with Solvers lower in the list referring to the positions set by the Solvers higher in the list. The order of Solvers usually reflects the order of bones/Transforms in the skeleton hierarchy.
 
 For example, if the arm bone is the child of the torso bone,   then the torso's IK Solver should be set above the arm’s Solver in the list. Rearrange the Solvers by dragging the leftmost edge of a row up or down.
 
@@ -115,7 +115,7 @@ If the __Create Target__ button appears inactive, ensure that the [Chain Length]
 
 6. The Target is created as a child of the IK Solver. It appears as a circle gizmo in the Scene view. Move the __Target__ to manipulate the connected chain of bones.
 
-   
+
 
    ![](images/2D_IK_Image8.png)
 
@@ -178,7 +178,7 @@ This function returns the transform whose localspace XY plane is used to perform
 This is the class which stores the transforms involved in an IK chain. When a chain is set up with a target and a transform count, initializing the Solver will populate the chain with the right transforms if valid.
 
 - __Target__ - The transform which is used as the desired position for the target.
-- __Effector__ - The transform to perform IK on to reach a desired position. 
+- __Effector__ - The transform to perform IK on to reach a desired position.
 - __TransformCount__ - The number of transforms involved in the IK solution starting from the target. This is generally equivalent to ChainLength in solvers.
 - __Transforms__ - All transforms involved in the chain. In general, the last transform in this is the target transform and the first transform is considered the root transform for the chain.
 - __Lengths__ - The lengths between each transform in the chain.

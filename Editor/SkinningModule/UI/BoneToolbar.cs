@@ -42,7 +42,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (skinningCache.hasCharacter)
             {
-                if (mode == SkinningMode.SpriteSheet || skinningCache.character.boneReadOnly)
+                if (mode == SkinningMode.SpriteSheet || skinningCache.bonesReadOnly)
                 {
                     this.Q<Button>("EditJoints").SetEnabled(false);
                     this.Q<Button>("CreateBone").SetEnabled(false);

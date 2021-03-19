@@ -5,7 +5,6 @@ using System.Text;
 using UnityEngine;
 using UnityEditor.U2D.Layout;
 using UnityEditor.U2D.Sprites;
-
 using UnityEngine.U2D.Common;
 using Debug = UnityEngine.Debug;
 using UnityEngine.UIElements;
@@ -56,6 +55,8 @@ namespace UnityEditor.U2D.Animation
         [SerializeField]
         private CharacterCache m_Character;
         [SerializeField]
+        private bool m_BonesReadOnly;
+        [SerializeField]
         private SkinningMode m_Mode = SkinningMode.SpriteSheet;
         [SerializeField]
         private BaseTool m_SelectedTool;
@@ -67,7 +68,7 @@ namespace UnityEditor.U2D.Animation
         private ISkinningCachePersistentState m_State;
 
         private StringBuilder m_StringBuilder = new StringBuilder();
-
+        
         public BaseTool selectedTool
         {
             get { return m_SelectedTool; }
@@ -163,6 +164,8 @@ namespace UnityEditor.U2D.Animation
         {
             get { return character != null; }
         }
+
+        public bool bonesReadOnly => m_BonesReadOnly;
 
         public bool applyingChanges
         {
@@ -698,10 +701,7 @@ namespace UnityEditor.U2D.Animation
             var sprite = characterPart.sprite;
             var characterPartBones = characterPart.bones;
             var newBones = new List<BoneCache>(characterPartBones);
-            newBones.RemoveAll(b =>
-            {
-                return b == null || IsRemoved(b) || b.skeleton != character.skeleton;
-            });
+            newBones.RemoveAll(b => b == null || IsRemoved(b) || b.skeleton != character.skeleton);
             var removedBonesCount = characterPartBones.Length - newBones.Count;
 
             characterPartBones = newBones.ToArray();
@@ -832,18 +832,20 @@ namespace UnityEditor.U2D.Animation
                 var characterParts = new List<CharacterPartCache>();
 
                 m_Character = CreateCache<CharacterCache>();
+                m_BonesReadOnly = spriteEditor.GetDataProvider<IMainSkeletonDataProvider>() != null;
 
                 var skeleton = CreateCache<SkeletonCache>();
 
-                skeleton.SetBones(CreateBoneCacheFromSpriteBones(characterData.bones, 1.0f));
+                var characterBones = characterData.bones;
+                
+                skeleton.SetBones(CreateBoneCacheFromSpriteBones(characterBones, 1.0f));
                 skeleton.position = Vector3.zero;
 
                 var bones = skeleton.bones;
-
                 foreach (var p in characterData.parts)
                 {
                     var spriteBones = p.bones != null ? p.bones.ToList() : new List<int>();
-                    var characterPartBones = spriteBones.ConvertAll(i => bones[i]).ToArray();
+                    var characterPartBones = spriteBones.ConvertAll(i => bones.ElementAtOrDefault(i)).ToArray();
                     var characterPart = CreateCache<CharacterPartCache>();
 
                     var positionInt = p.spritePosition.position;
@@ -852,7 +854,7 @@ namespace UnityEditor.U2D.Animation
                     characterPart.bones = characterPartBones;
                     characterPart.parentGroup = p.parentGroup;
                     characterPart.order = p.order;
-                    
+
                     var mesh = characterPart.sprite.GetMesh();
                     if (mesh != null)
                         mesh.SetCompatibleBoneSet(characterPartBones);
@@ -881,7 +883,6 @@ namespace UnityEditor.U2D.Animation
                 m_Character.skeleton = skeleton;
                 m_Character.dimension = characterData.dimension;
                 CreateSpriteSheetSkeletons();
-                m_Character.boneReadOnly = characterData.boneReadOnly;
             }
         }
 

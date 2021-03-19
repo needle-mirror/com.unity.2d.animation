@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.U2D;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -32,7 +33,8 @@ namespace UnityEditor.U2D.Animation
         /// <summary>
         /// SpriteBones influencing the Character
         /// </summary>
-        public UnityEngine.U2D.SpriteBone[] bones;
+        public SpriteBone[] bones;
+        
         /// <summary>
         /// Parts of the character
         /// </summary>
@@ -49,7 +51,8 @@ namespace UnityEditor.U2D.Animation
         /// <summary>
         /// Bones are readonly
         /// </summary>
-        public bool boneReadOnly;
+        [Obsolete("boneReadOnly is no longer part of CharacterData. To check if character has Main Skeleton assigned to it, please use IMainSkeletonDataProvider instead.")]
+        public bool boneReadOnly; 
     }
 
     internal interface ICharacterOrder
@@ -121,5 +124,26 @@ namespace UnityEditor.U2D.Animation
             get => m_Order;
             set => m_Order = value;
         }
+    }
+
+    /// <summary>An interface that provides data from the Main Skeleton.</summary>
+    /// <remarks>Available only when the Main Skeleton has been assigned.</remarks>
+    public interface IMainSkeletonDataProvider
+    {
+        /// <summary>
+        /// Returns Main Skeleton data.
+        /// </summary>
+        MainSkeletonData GetMainSkeletonData();
+    }
+
+    /// <summary>
+    /// Data structure providing the Main Skeleton data.
+    /// </summary>
+    public struct MainSkeletonData
+    {
+        /// <summary>
+        /// Returns skeleton bones from the Main Skeleton asset.
+        /// </summary>
+        public SpriteBone[] bones;
     }
 }

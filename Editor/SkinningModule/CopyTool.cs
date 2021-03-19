@@ -75,8 +75,7 @@ namespace UnityEditor.U2D.Animation
         protected override void OnActivate()
         {
             base.OnActivate();
-            var boneReadOnly = skinningCache.hasCharacter && skinningCache.character.boneReadOnly;
-            m_CopyToolView.Show(boneReadOnly);
+            m_CopyToolView.Show(skinningCache.bonesReadOnly);
         }
 
         protected override void OnDeactivate()
