@@ -1,4 +1,9 @@
 # Changelog
+
+## [5.0.5] - 2021-04-19
+### Fixed
+- Fixed crash when disabling Sprite Skin when multithreaded rendering is enabled. (case 1296355)
+
 ## [5.0.4] - 2020-11-03
 ### Fixed
 - Added missing tooltips in the Sprite Skin inspector (case 1285255)
