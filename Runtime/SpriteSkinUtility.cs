@@ -20,6 +20,23 @@ namespace UnityEngine.U2D.Animation
         Ready
     }
 
+    internal class NativeByteArray
+    {
+        public int Length => array.Length;
+        public bool IsCreated => array.IsCreated;
+        public byte this[int index] => array[index];
+
+        public NativeArray<byte> array
+        { get; }
+
+        public NativeByteArray(NativeArray<byte> array)
+        {
+            this.array = array;
+        }
+
+        public void Dispose() => array.Dispose();
+    }
+
     internal static class SpriteSkinUtility
     {
         internal static SpriteSkinValidationResult Validate(this SpriteSkin spriteSkin)
@@ -275,7 +292,7 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        internal unsafe static void Deform(Sprite sprite, Matrix4x4 invRoot, Transform[] boneTransformsArray, ref NativeArray<byte> deformVertexData)
+        internal unsafe static void Deform(Sprite sprite, Matrix4x4 invRoot, Transform[] boneTransformsArray, NativeArray<byte> deformVertexData)
         {
             Debug.Assert(sprite != null);
             Debug.Assert(sprite.GetVertexCount() == (deformVertexData.Length / sprite.GetVertexStreamSize()));
@@ -323,15 +340,14 @@ namespace UnityEngine.U2D.Animation
         }
 #endif
 
-        internal static void Bake(this SpriteSkin spriteSkin, ref NativeArray<byte> deformVertexData)
+        internal static void Bake(this SpriteSkin spriteSkin, NativeArray<byte> deformVertexData)
         {
             if (!spriteSkin.isValid)
                 throw new Exception("Bake error: invalid SpriteSkin");
 
             var sprite = spriteSkin.spriteRenderer.sprite;
             var boneTransformsArray = spriteSkin.boneTransforms;
-            Deform(sprite, Matrix4x4.identity, boneTransformsArray, ref deformVertexData);
-           
+            Deform(sprite, Matrix4x4.identity, boneTransformsArray, deformVertexData);
         }
 
         internal unsafe static void CalculateBounds(this SpriteSkin spriteSkin)
@@ -347,7 +363,7 @@ namespace UnityEngine.U2D.Animation
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformedPosSlice, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(deformVertexData));
 #endif
             
-            spriteSkin.Bake(ref deformVertexData);
+            spriteSkin.Bake(deformVertexData);
             UpdateBounds(spriteSkin, deformVertexData);
             deformVertexData.Dispose();
         }

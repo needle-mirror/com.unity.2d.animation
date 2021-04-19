@@ -36,7 +36,14 @@ By setting the Sprite Skin’s **Root Bone** property to the correct GameObject 
 ## Optional performance boost
 When animating your characters, you can improve the performance of the animated Sprite’s deformation at runtime by installing both the [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) package from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite Mesh deformation.
 
-![](images/2D-optional-perf-boost-enabled.png)<br/>The [Sprite Skin component](SpriteSkin.md).
+The **Burst** package is visible by default in the **Package Manager**, however the **Collections** package is not publicly visible. To install the **Collections** package, follow these steps:
+1. Open the **Package Manager**.
+2. Press **+** at the upper-left corner of the **Package Manager** window to open a drop-down menu, then select **Add package by name…** from the list of options.<br/> ![](images/Collections_0.png)<br/><br/>
+3. In the **Name** box, enter “com.unity.collections”, then select **Add**. <br/>![](images/Collections_1.png)<br/>
+
+After completing these steps, the **Collections** package is added to the Project.
+
+![](images/2D-optional-perf-boost-enabled.png)<br/>The **Sprite Skin** component settings.
 
 With both packages installed, __Enable batching__ becomes available in the [Sprite Skin component](SpriteSkin.md) properties. Note that if you do not have the required packages installed, the option will be disabled, with a notification to installed the required packages.
 

@@ -24,50 +24,6 @@ namespace UnityEngine.U2D.Animation
         public Vector4 tangent;
     }
 
-    struct DeformVerticesBuffer
-    {
-        public const int k_DefaultBufferSize = 2;
-        int m_BufferCount;
-        int m_CurrentBuffer;
-        NativeArray<byte>[] m_DeformedVertices;
-
-        public DeformVerticesBuffer(int bufferCount)
-        {
-            m_BufferCount = bufferCount;
-            m_DeformedVertices = new NativeArray<byte>[m_BufferCount];
-            for (int i = 0; i < m_BufferCount; ++i)
-            {
-                m_DeformedVertices[i] = new NativeArray<byte>(1, Allocator.Persistent);
-            }
-            m_CurrentBuffer = 0;
-        }
-
-        public void Dispose()
-        {
-            for (int i = 0; i < m_BufferCount; ++i)
-            {
-                if (m_DeformedVertices[i].IsCreated)
-                    m_DeformedVertices[i].Dispose();
-            }
-        }
-
-        public ref NativeArray<byte> GetBuffer(int expectedSize)
-        {
-            m_CurrentBuffer = (m_CurrentBuffer + 1) % m_BufferCount;
-            if (m_DeformedVertices[m_CurrentBuffer].IsCreated && m_DeformedVertices[m_CurrentBuffer].Length != expectedSize)
-            {
-                m_DeformedVertices[m_CurrentBuffer].Dispose();
-                m_DeformedVertices[m_CurrentBuffer] = new NativeArray<byte>(expectedSize, Allocator.Persistent);
-            }
-            return ref m_DeformedVertices[m_CurrentBuffer];
-        }
-
-        internal ref NativeArray<byte> GetCurrentBuffer()
-        {
-            return ref m_DeformedVertices[m_CurrentBuffer];
-        }
-    }
-
     /// <summary>
     /// Deforms the Sprite that is currently assigned to the SpriteRenderer in the same GameObject
     /// </summary>
@@ -94,9 +50,9 @@ namespace UnityEngine.U2D.Animation
         [SerializeField] 
         private bool m_AutoRebind = false;
 
-        // The deformed m_SpriteVertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite  Asset data.
+        // The deformed m_SpriteVertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite Asset data.
         // The order of storage if present is POSITION, NORMALS, TANGENTS.
-        private DeformVerticesBuffer m_DeformedVertices;
+        private NativeByteArray m_DeformedVertices;
         private int m_CurrentDeformVerticesLength = 0;
         private SpriteRenderer m_SpriteRenderer;
         private int m_CurrentDeformSprite = 0;
@@ -150,7 +106,6 @@ namespace UnityEngine.U2D.Animation
             m_TransformsHash = 0;
             CacheCurrentSprite(false);
             OnEnableBatch();
-            m_DeformedVertices = new DeformVerticesBuffer(DeformVerticesBuffer.k_DefaultBufferSize);
         }
 
         internal void OnEditorEnable()
@@ -184,7 +139,7 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        internal ref NativeArray<byte> GetDeformedVertices(int spriteVertexCount)
+        internal NativeByteArray GetDeformedVertices(int spriteVertexCount)
         {
             if (sprite != null)
             {
@@ -198,7 +153,9 @@ namespace UnityEngine.U2D.Animation
             {
                 m_CurrentDeformVerticesLength = 0;
             }
-            return ref m_DeformedVertices.GetBuffer(m_CurrentDeformVerticesLength);
+            
+            m_DeformedVertices = BufferManager.instance.GetBuffer(GetInstanceID(), m_CurrentDeformVerticesLength);
+            return m_DeformedVertices;
         }
 
         /// <summary>
@@ -213,7 +170,7 @@ namespace UnityEngine.U2D.Animation
 #if ENABLE_SPRITESKIN_COMPOSITE
             return m_DataIndex >= 0 && SpriteSkinComposite.instance.HasDeformableBufferForSprite(m_DataIndex);
 #else
-            return m_CurrentDeformVerticesLength > 0 && m_DeformedVertices.GetCurrentBuffer().IsCreated;
+            return m_CurrentDeformVerticesLength > 0 && m_DeformedVertices.IsCreated;
 #endif
         }
 
@@ -236,10 +193,9 @@ namespace UnityEngine.U2D.Animation
 #else
             if (m_CurrentDeformVerticesLength <= 0)
                 throw new InvalidOperationException("There are no currently deformed vertices.");
-            var buffer = m_DeformedVertices.GetCurrentBuffer();
-            if (!buffer.IsCreated)
+            if (!m_DeformedVertices.IsCreated)
                 throw new InvalidOperationException("There are no currently deformed vertices.");
-            return buffer;
+            return m_DeformedVertices.array;
 #endif
         }
 
@@ -318,7 +274,7 @@ namespace UnityEngine.U2D.Animation
         void OnDisable()
         {
             DeactivateSkinning();
-            m_DeformedVertices.Dispose();
+            BufferManager.instance.ReturnBuffer(GetInstanceID());
             OnDisableBatch();
         }
 
@@ -336,9 +292,9 @@ namespace UnityEngine.U2D.Animation
                 if (spriteVertexCount > 0 && m_TransformsHash != transformHash)
                 {
                     var inputVertices = GetDeformedVertices(spriteVertexCount);
-                    SpriteSkinUtility.Deform(sprite, gameObject.transform.worldToLocalMatrix, boneTransforms, ref inputVertices);
-                    SpriteSkinUtility.UpdateBounds(this, inputVertices);
-                    InternalEngineBridge.SetDeformableBuffer(spriteRenderer, inputVertices);
+                    SpriteSkinUtility.Deform(sprite, gameObject.transform.worldToLocalMatrix, boneTransforms, inputVertices.array);
+                    SpriteSkinUtility.UpdateBounds(this, inputVertices.array);
+                    InternalEngineBridge.SetDeformableBuffer(spriteRenderer, inputVertices.array);
                     m_TransformsHash = transformHash;
                     m_CurrentDeformSprite = GetSpriteInstanceID();
                 }

@@ -1,28 +1,24 @@
 # Runtime Swap
-
-This example shows how to use the Sprite Library API to override an entry. The example requires the PSD Importer package to be installed. Open the `6 Runtime Swap` Scene to see it in action.
+This sample demonstrates how you can use the Sprite Library API to override a specific Entry. Note that the sample requires the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) installed. Open the `6 Runtime Swap` Scene to see the sample in action.
 
 ![](images/2D-animation-samples-runtimeswap.png)
+The graphic Assets are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`:
 
-The graphic assets are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`:
+- `Primary.psb`
+- `Skeleton.psb`
 
-1. `Primary.psb`
-
-2. `Skeleton.psb`
-
-`Skeleton.psb` uses the Skeleton Asset from `Primary.psb` for rigging. It also uses the `Primary.spriteLib` Sprite Library Asset located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`.
+The `Skeleton.psb` uses the [.skeleton Asset](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@5.0/manual/PSD-importer-properties.html#main-skeleton) from the `Primary.psb` for its rigging. It also references the `Primary.spriteLib` Sprite Library Asset located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`.
 
 ## Runtime Swap script
+A custom MonoBehaviour script called the `RuntimeSwap` is attached to the `KnigtboyRig` GameObject. The script is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Scripts/Runtime/RuntimeSwap.cs`
 
-A custom MonoBehaviour script called the `Runtime Swap` is attached to the KnigtboyRig GameObject. The script is located at `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Scripts/Runtime/RuntimeSwap.cs`
-
-When a button that represents the Sprite from the Skeleton.psb is pressed, the script will use the override API from Sprite Library to override the Sprite entry.
+Pressing a button (in the sample Scene) with a Sprite from the `Skeleton.psb` causes the script to use the override API from the Sprite Library to override that Sprite Entry.
 
 ```c++
 m_SpriteLibraryTarget.AddOverride(entry.sprite, entry.category, entry.entry);
 ```
 
-When one of the buttons that represents the Sprite from the Primary.psb is pressed, the script will use the override rest API from the Sprite Library to remove the Sprite entry override.
+Pressing a button with a Sprite from the `Primary.psb` causes the script to use the override rest API from the Sprite Library to remove the Sprite Entry override.
 
 ```c++
 m_SpriteLibraryTarget.RemoveOverride(entry.category, entry.entry);

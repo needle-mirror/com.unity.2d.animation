@@ -1,31 +1,22 @@
 # Swapping Sprite Library Assets
-
-**Note:** The following workflow may be obsolete with Animation v6.0 onwards, please refer to the [Character Sample documentation](Examples.html#character) for the most up-to-date workflow.
-
-If swapping each Sprite individually takes too much effort, you can instead swap the entire __Sprite Library Asset__ to another one containing alternate Sprites.
+If [swapping each Sprite of an actor individually](CharacterParts.md) takes too much effort, you can instead swap the entire __Sprite Library Asset__ to another one containing alternate Sprites.
 
 The following example shows how to switch from a Sprite Library Asset of color Sprites to another one containing identical Sprites but in grayscale:
 
-![](images/bothsprites.PNG)<br/>__Left:__ Prefab with the colored Sprite Library Asset. __Right:__ Prefab with the grayscale Sprite Library Asset.
+![](images/bothsprites.PNG)<br/>__Left:__ An actor with the color Sprite Library Asset. __Right:__ The same actor with the grayscale Sprite Library Asset.
 
-1. Create variants of your character artwork. In this example, a grayscale variant of the original artwork was created in Photoshop (or any other compatible image editor).
-
-2. [Import](PreparingArtwork.md) both .psb files into the Unity Editor. Both become separate Prefabs in the Asset window.
-
-3. Select the color Prefab and open it in the [Skinning Editor](SkinningEditor.md). Assign each Sprite of the character to a unique [Category](SpriteVis.html#how-to-create-a-category). It is suggested to name each __Category__ and __Label__ after the respective body part of the character. Apply the changes once you are ready, and exit the __Sprite Editor__.
-
-   ![](images/image_15.png)<br/>The Category and Label names for the color Prefab.
-
-4. Select the grayscale Prefab, and give its corresponding Sprites the same __Category__ and __Label__ names as the color Prefab.
-
-   ![](images/image_16.png)<br/>Give the same Category and Label names to the grayscale Prefab.
-
-5. Drag the color Prefab into the Scene view, and go to the root GameObject. The [Sprite Library component](SLAsset.html#sprite-library-component) is attached to the root GameObject and refers to the default __Sprite Library Asset__ that [Unity automatically generated](SpriteSwapIntro.html#how-unity-generates-sprite-swap-assets-and-components).  
-
-   ![](images/image_17.png)<br/>The color Sprite Library Asset.
-
-6. With the Inspector window the color Prefab remaining open, go to the Asset window and expand the grayscale Prefab. Find the grayscale Prefab __Sprite Library Asset__ and drag it to the color Prefab‘s __Sprite Library Asset__ box, which replaces the color Prefab’s original Sprite Library Asset.
-
-7. The Sprites of the color Prefab should have switched to their grayscale counterparts of the grayscale Sprite Library Asset.
-
-   ![](images/image_18.png)<br/>The grayscale version of the color Sprite Library Asset.
+1. First create visual variants of your actor's artwork. In this example, the original artwork is in color and a grayscale variant of it is created as an alternate Sprite set. Both should be saved to separate .psb files.
+   <br/>
+2. [Import](PreparingArtwork.md) both .psb files into the Unity Editor. Both become separate Model Prefabs in the Asset window.
+   <br/>
+3. [Create a Sprite Library Asset](SpriteSwapSetup.md) and assign each Sprite of the actor to a unique [Category](SLAsset.md#Category). It is suggested to name each Category and Label after the respective body part of the actor for convenience. Apply the changes once complete.<br/>![](images/2d-anim-slasset-swap-category-color.png)<br/>The Category and Label names for the parts of the color actor.
+   <br/>
+4. Repeat step 3 for the grayscale actor. Use the same Category and Label names for the corresponding gray Sprites.<br/>![](images/2d-anim-slasset-swap-category-gray.png)<br/>The grayscale Sprites with the same corresponding Category and Label names.
+   <br/>
+5. Drag the color Model Prefab into the Scene view, and go to the root GameObject. Add a [Sprite Library component](SLAsset.md#sprite-library-component) to the root GameObject and assign the color Sprite Library Asset created in step 3 to the **Sprite Library Asset** property.<br/>![](images/2d-anim-slasset-swap-step-5.png)
+   <br/>
+6. For every Sprite Renderer in the Instantiated Prefab, add a [Sprite Resolver component](SLAsset.md#sprite-resolver-component) and ensure that the Sprite Resolver component has the same Sprite selected as the Sprite Renderer.
+   <br/>
+7. With the Inspector window of the color Prefab root GameObject remaining open, go to the Asset window and assign the Sprite Library Asset created in step 4 to the **Sprite Library Asset** property of the Sprite Library component.
+   <br/>
+8. The Sprites of the color Prefab should have switched to their grayscale counterparts of the grayscale Sprite Library Asset.<br/>![](images/2d-anim-slasset-swap-step-8.png)<br/>The Sprite Library Asset property is set to the grayscale version of the original Sprite Library Asset and the actor's Sprites have switched accordingly.

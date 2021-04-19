@@ -3,8 +3,8 @@ The 2D Animation package includes features and tools that allow you to quickly r
 
 Package version  | Unity Editor version
 --|--
-6.x.x  |  2021.1 or later
-5.x.x  |  2020.2 or later
+6.x.x  |  2021.1 or newer
+5.x.x  |  2020.2 or newer
 4.x.x  |  2020.1
 3.x.x  |  2019.3
 

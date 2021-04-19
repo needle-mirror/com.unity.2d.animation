@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.0.3] - 2021-04-19
+### Fixed
+- Fixed package description
+- Fixed manual documentation
+- Fixed crash when disabling Sprite Skin when multithreaded rendering is enabled. (case 1296355)
+
 ## [6.0.1] - 2021-03-19
 ### Changed
 - Removed redundant ForceReserializeAssets from SpritePostProcess.OnPreprocessAsset()

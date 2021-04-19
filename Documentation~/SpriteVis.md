@@ -1,5 +1,5 @@
 # Sprite Visibility panel
-Toggle the __Sprite Visibility__ panel by selecting the __Visibility tool__ button along the top right of the editor window:
+Toggle the __Sprite Visibility__ panel by selecting the __Visibility tool__ button along the upper right of the editor window:
 
 ![](images/Highlighted_Visibility_icon.png)
 

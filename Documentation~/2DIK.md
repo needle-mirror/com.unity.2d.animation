@@ -2,19 +2,19 @@
 
 ## Overview
 
-The 2D [Inverse Kinematics](https://docs.unity3d.com/Manual/InverseKinematics.md) (IK) package allows you to apply __2D IK__ to the bones and Transforms of your characters’ animation skeletons. __2D IK__ automatically calculates for the positions and rotations of the a chain of bones moving towards a target position. This makes it easier to pose and animate character limbs for animation, or to manipulate a skeleton in real-time, as manually keyframing the chain of bones is not required.  
+The 2D [Inverse Kinematics](https://docs.unity3d.com/Manual/InverseKinematics.html) (IK) package allows you to apply __2D IK__ to the bones and Transforms of your characters’ animation skeletons. __2D IK__ automatically calculates for the positions and rotations of the a chain of bones moving towards a target position. This makes it easier to pose and animate character limbs for animation, or to manipulate a skeleton in real-time, as manually keyframing the chain of bones is not required.  
 
 ## Workflow
 
 The following workflow continues from the __2D Animation__ package animation workflow, and demonstrates how to apply __2D IK__ to your character skeletons.
 
-1. Refer to the hierarchy of bones created with the __2D Animation__ package's [Bone tools](SkinEdToolsShortcuts.md#bone-tools) of the [Skinning Editor](SkinningEditor).
+1. Refer to the hierarchy of bones created with the __2D Animation__ package's [Bone tools](SkinEdToolsShortcuts.md#bone-tools) of the [Skinning Editor](SkinningEditor.md).
 
 
-2. Add the [IK Manager 2D](#IKManager) component to the GameObject at the top of the hierarchy. This is usually the main root bone of the entire character skeleton.
+2. Add the [IK Manager 2D](#ik-manager-2d) component to the GameObject at the top of the hierarchy. This is usually the main root bone of the entire character skeleton.
 
 
-3. Add to the [IK Solvers](#IKSolvers) list by selecting which type of __IK Solver__ to use. The IK Solvers are also added as additional GameObjects in the hierarchy.
+3. Add to the [IK Solvers](#ik-solvers) list by selecting which type of __IK Solver__ to use. The IK Solvers are also added as additional GameObjects in the hierarchy.
 
 
 4. With an __IK Solver__ selected, create and set the __Effector__ and [Target](#target) for the IK Solver.
@@ -22,7 +22,7 @@ The following workflow continues from the __2D Animation__ package animation wor
 
 5. Position bones by moving the __Target's__ position to move the chain of bones with IK applied.
 
-## IK Solvers<a id="IKSolvers"></a>
+## IK Solvers
 
 The __IK Solver__ calculates the position and rotation the Effector and its connected bones should take to achieve their Target position. Each type of __IK Solver__ has its own algorithm that makes them better suited to different kinds of conditions.
 
@@ -60,7 +60,7 @@ This __IK Solver__ uses the *Forward And Backward Reaching Inverse Kinematics* (
 
 The __Chain (FABRIK)__ Solver generally takes less iterations to reach the __Target's__ destination compared to __Chain (CCD)__,  but is slower per iteration if rotation limits are applied to the chain. This Solver is able to adapt quickly to if the bones are manipulated in real-time to different positions.
 
-## IK Manager 2D<a id="IKManager"></a>
+## IK Manager 2D
 
 The __IK Manager 2D__ component controls the __IK Solvers__ in the hierarchy.  Add the Manager component to the highest bone in the hierarchy, commonly referred to as the *Root* bone.
 
@@ -72,7 +72,7 @@ The __IK Manager 2D__ component controls the __IK Solvers__ in the hierarchy.  A
    ![](images/2D_IK_Image2.png)
 
 
-3. A drop-down menu then appears with three options - __Chain (CCD)__, __Chain (FABRIK)__, and __Limb__. Each type of [IK Solver](#IKSolvers) uses a different algorithm to solve for the position of Effectors.
+3. A drop-down menu then appears with three options - __Chain (CCD)__, __Chain (FABRIK)__, and __Limb__. Each type of [IK Solver](#ik-solvers) uses a different algorithm to solve for the position of Effectors.
    ![](images/2D_IK_Image3.png)
 
 __IK Solvers__ are iterated in descending order, with Solvers lower in the list referring to the positions set by the Solvers higher in the list. The order of Solvers usually reflects the order of bones/Transforms in the skeleton hierarchy.

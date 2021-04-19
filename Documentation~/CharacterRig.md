@@ -39,4 +39,4 @@ The following steps are the general workflow for preparing your actor for animat
    - To restore a rigged actor to its original pose, select __Reset Pose__ from the [Editor toolbar](SkinEdToolsShortcuts.md#editor-toolbar).
    - Edit the default pose by moving the actor bones and joints with the [Edit Bone](SkinEdToolsShortcuts.md#editor-toolbar) tool.
 
-After you have completed rigging your actor, you are now prepared to animate.
+After you have completed rigging your actor, you are now prepared to [animate](Animating-actor.md) the actor.

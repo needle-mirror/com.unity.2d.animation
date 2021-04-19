@@ -120,8 +120,6 @@ The __Geometry panel__ is only visible when __Auto Geometry__ is enabled. It con
 | __Weights__                                        | Enable to automatically assign weights between the generated geometry Mesh and nearby bones. |
 | __Generate For Selected/Generate For All Visible__ | Select this button to generate a geometry Mesh for selected Sprites based on the property settings above. To generate geometry for all Sprites in the Skinning Editor, do not have any Sprite selected when you select this button. |
 
-
-
 ## Weight tools
 
 Vertices in the generated geometry meshes are influenced by different bones which affect how the meshes deform during animation. The percentage of influences from different bones for each vertex is contained in the weight information assigned to that vertex, which you can control with the following weight tools.
