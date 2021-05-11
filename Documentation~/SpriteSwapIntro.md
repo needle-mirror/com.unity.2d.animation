@@ -38,3 +38,11 @@ __Sprite Swap__ is integrated with the 2D Animation workflow. You must install t
 ## Skeletal animation limitations
 
 To ensure Sprite Swap works correctly with skeletal animation, the skeleton must be identical between the Sprites being swapped. Use the [Copy and Paste](CopyPasteSkele.md) tools to duplicate the skeleton rig from one Sprite to the other Sprite(s) to ensure they can be swapped smoothly.
+
+## Animator limitations
+
+Note that in a single [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html), you cannot have one [Animation Clip](https://docs.unity3d.com/Manual/AnimationClips.html) animating the [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) Sprite field while another [Animation Clip](https://docs.unity3d.com/Manual/AnimationClips.html) animates the [Sprite Resolver’s](SLAsset.html#sprite-resolver-component) Category or Label field. If these two clips are in the same [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html), they will conflict with each other causing unwanted playback results.
+
+To resolve this issue, we advise the following solutions. The first solution is to separate the [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) into separate [Animator Controllers](https://docs.unity3d.com/Manual/AnimatorControllers.html) that contain only clips that animate either a [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) Sprite or the [Sprite Resolver’s](SLAsset.html#sprite-resolver-component) Category or Label field; but not both types in the same [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html).
+
+The second solution is to update all [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) to the same type so that they can all remain in a single [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html), by converting all clips animating a [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) Sprite to animating a [Sprite Resolver’s](SLAsset.html#sprite-resolver-component) Category or Label field, or vice versa.

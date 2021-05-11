@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.2.9] - 2021-05-11
+###Changed
+- Update package related dependency
+
+## [3.2.8] - 2021-04-19
+### Changed
+- Updated the documentation with notes on Animator limitations (case 1315299)
+
+### Fixed
+- Fixed crash when disabling Sprite Skin when multithreaded rendering is enabled. (case 1296355)
+
+## [3.2.7] - 2021-03-01
+### Changed
+- Updated LICENSE.md with the updated Unity Companion License format
+
 ## [3.2.6] - 2020-11-05
 ### Fixed
 - Added missing Animation and UIElements dependency

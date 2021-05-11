@@ -263,7 +263,7 @@ namespace UnityEngine.U2D.Animation
 
         List<SpriteSkin> m_SpriteSkins = new List<SpriteSkin>();
         List<SpriteSkin> m_SpriteSkinLateUpdate = new List<SpriteSkin>();
-        DeformVerticesBuffer m_DeformedVerticesBuffer;
+        NativeByteArray m_DeformedVerticesBuffer;
         NativeArray<float4x4> m_FinalBoneTransforms;
 
         NativeArray<bool> m_IsSpriteSkinActiveForDeform;
@@ -442,8 +442,7 @@ namespace UnityEngine.U2D.Animation
                 GameObject.DontDestroyOnLoad(m_Helper);
 #endif
             }
-
-            m_DeformedVerticesBuffer = new DeformVerticesBuffer(DeformVerticesBuffer.k_DefaultBufferSize);
+            
             m_FinalBoneTransforms = new NativeArray<float4x4>(1, Allocator.Persistent);
             m_BoneLookupData = new NativeArray<int2>(1, Allocator.Persistent);
             m_VertexLookupData = new NativeArray<int2>(1, Allocator.Persistent);
@@ -482,7 +481,7 @@ namespace UnityEngine.U2D.Animation
             foreach (var spriteSkin in m_SpriteSkins)
                 spriteSkin.batchSkinning = false;
             m_SpriteSkins.Clear();
-            m_DeformedVerticesBuffer.Dispose();
+            BufferManager.instance.ReturnBuffer(GetInstanceID());
             m_IsSpriteSkinActiveForDeform.DisposeIfCreated();
             m_PerSkinJobData.DisposeIfCreated();
             m_SpriteSkinData.DisposeIfCreated();
@@ -550,7 +549,7 @@ namespace UnityEngine.U2D.Animation
             Profiler.EndSample();
 
             Profiler.BeginSample("SpriteSkinComposite.ResizeBuffers");
-            var deformVertices = m_DeformedVerticesBuffer.GetBuffer(vertexBufferSize);
+            m_DeformedVerticesBuffer = BufferManager.instance.GetBuffer(GetInstanceID(), vertexBufferSize);
             NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, skinBatch.bindPosesIndex.y);
             NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, skinBatch.bindPosesIndex.y);
             NativeArrayHelpers.ResizeIfNeeded(ref m_VertexLookupData, skinBatch.verticesIndex.y);
@@ -583,7 +582,7 @@ namespace UnityEngine.U2D.Animation
 
             SkinDeformBatchedJob skinJobBatched = new SkinDeformBatchedJob()
             {
-                vertices = deformVertices,
+                vertices = m_DeformedVerticesBuffer.array,
                 vertexLookupData = m_VertexLookupData,
                 spriteSkinData = m_SpriteSkinData,
                 perSkinJobData = m_PerSkinJobData,
@@ -593,7 +592,7 @@ namespace UnityEngine.U2D.Animation
             
             CalculateSpriteSkinAABBJob updateBoundJob = new CalculateSpriteSkinAABBJob
             {
-                vertices = deformVertices,
+                vertices = m_DeformedVerticesBuffer.array,
                 isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
                 spriteSkinData = m_SpriteSkinData,
                 bounds = m_BoundsData,
@@ -603,7 +602,7 @@ namespace UnityEngine.U2D.Animation
             m_BoundJobHandle.Complete();
 
             Profiler.BeginSample("SpriteSkinComposite.WriteBack");
-            byte* ptrVertices = (byte*)deformVertices.GetUnsafeReadOnlyPtr();
+            byte* ptrVertices = (byte*)m_DeformedVerticesBuffer.array.GetUnsafeReadOnlyPtr();
             for (int i = 0; i < batchCount; ++i)
             {
                 var isValid = m_IsSpriteSkinActiveForDeform[i];
@@ -615,7 +614,7 @@ namespace UnityEngine.U2D.Animation
                     var copyFrom = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptrVertices, vertexBufferLength, Allocator.None);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-                    NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref copyFrom, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(deformVertices));
+                    NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref copyFrom, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(m_DeformedVerticesBuffer.array));
 #endif
                     SetDeformableBuffer(spriteSkin.spriteRenderer, copyFrom);
                     spriteSkin.bounds = m_BoundsData[i];
@@ -646,12 +645,11 @@ namespace UnityEngine.U2D.Animation
                 throw new InvalidOperationException("There are no currently deformed vertices.");
 
             var vertexBufferLength = skinData.spriteVertexCount * skinData.spriteVertexStreamSize;
-            var deformVertices = m_DeformedVerticesBuffer.GetCurrentBuffer();
-            byte* ptrVertices = (byte*)deformVertices.GetUnsafeReadOnlyPtr();
+            byte* ptrVertices = (byte*)m_DeformedVerticesBuffer.array.GetUnsafeReadOnlyPtr();
             ptrVertices += skinData.deformVerticesStartPos; 
             var buffer = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptrVertices, vertexBufferLength, Allocator.None);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref buffer, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(deformVertices));
+            NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref buffer, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(m_DeformedVerticesBuffer.array));
 #endif
             return buffer;
         }
