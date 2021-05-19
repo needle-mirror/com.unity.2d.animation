@@ -40,7 +40,7 @@ namespace UnityEditor.U2D.Animation
             m_GenerateGeometryPanel.onAutoGenerateGeometry += (float d, byte a, float s) =>
             {
                 var selectedSprite = skinningCache.selectedSprite;
-
+                
                 if (selectedSprite != null)
                 {
                     EditorUtility.DisplayProgressBar(TextContent.generatingGeometry, selectedSprite.name, 0f);
@@ -76,7 +76,7 @@ namespace UnityEditor.U2D.Animation
                         if (!sprite.IsVisible())
                             continue;
 
-                        EditorUtility.DisplayProgressBar(TextContent.generateGeometry, sprite.name, i * 2f / (sprites.Length * 2f));
+                        EditorUtility.DisplayProgressBar(TextContent.generatingGeometry, sprite.name, i * 2f / (sprites.Length * 2f));
 
                         GenerateGeometry(sprite, d / 100f, a, s);
 
@@ -146,11 +146,11 @@ namespace UnityEditor.U2D.Animation
             m_SpriteMeshDataController.spriteMeshData = mesh;
             m_SpriteMeshDataController.OutlineFromAlpha(m_OutlineGenerator, mesh.textureDataProvider, outlineDetail, alphaTolerance);
             m_SpriteMeshDataController.Triangulate(m_Triangulator);
-
+            
             if (subdivide > 0f)
             {
-                var largestAreaFactor = Mathf.Lerp(0.5f, 0.05f, Math.Min(subdivide, 100f) / 100f);
-                m_SpriteMeshDataController.Subdivide(m_Triangulator, largestAreaFactor);
+                var largestAreaFactor = subdivide != 0 ? Mathf.Lerp(0.5f, 0.05f, Math.Min(subdivide, 100f) / 100f) : subdivide;
+                m_SpriteMeshDataController.Subdivide(m_Triangulator, largestAreaFactor, 0f);
             }
 
             foreach (var vertex in mesh.vertices)

@@ -126,8 +126,8 @@ namespace UnityEditor.U2D.Animation
                 {
                     library.InsertArrayElementAtIndex(newCatgoryIndex);
                     existingCategory = library.GetArrayElementAtIndex(newCatgoryIndex);
-                    SetPropertyName(existingCategory, newCategory);
                     existingCategory.FindPropertyRelative(SpriteLibraryPropertyString.fromMain).boolValue = true;
+                    existingCategory.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = newCategory;
                     existingCategory.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntryCount).intValue = 0;
                     existingCategory.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries).arraySize = 0;
                 }
@@ -159,7 +159,7 @@ namespace UnityEditor.U2D.Animation
                     {
                         entries.InsertArrayElementAtIndex(newEntryIndex);
                         cacheEntry = entries.GetArrayElementAtIndex(newEntryIndex);
-                        SetPropertyName(cacheEntry, newEntry);
+                        cacheEntry.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = newEntry;
                         cacheEntry.FindPropertyRelative(SpriteLibraryPropertyString.spriteOverride)
                             .objectReferenceValue = mainSprite;
                     }
@@ -318,23 +318,6 @@ namespace UnityEditor.U2D.Animation
         
         void DrawElement(Rect rect, int index, bool selected, bool focused)
         {
-            if (rect.width < 0)
-                return;
-            if (!IsGUIRectVisible(rect))
-                return;
-
-            DrawCategory(rect, index);
-        }
-        
-        static bool IsGUIRectVisible(Rect guiRect)
-        {
-            var screenRect = GUIUtility.GUIToScreenRect(guiRect);
-            var halfHeight = screenRect.height / 2f;
-            return screenRect.y > -halfHeight && screenRect.y < ((Screen.height / EditorGUIUtility.pixelsPerPoint) + halfHeight);
-        }
-
-        void DrawCategory(Rect rect, int index)
-        {
             var categorySerializedProperty = m_Library.GetArrayElementAtIndex(index);
 
             var catRect = new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight);
@@ -356,7 +339,7 @@ namespace UnityEditor.U2D.Animation
                     {
                         // Check if this nameLabel is already taken
                         if (IsCategoryNameInUsed(newCatName) == null)
-                            SetPropertyName(categorySerializedProperty, newCatName);
+                            categorySerializedProperty.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = newCatName;
                         else
                             Debug.LogWarning(m_Style.duplicateWarningText.text);
                     }
@@ -371,7 +354,7 @@ namespace UnityEditor.U2D.Animation
             vaRect.height = m_Style.gridHeight;
             DrawCategorySpriteList(vaRect, index, categorySerializedProperty);
 
-            HandleSpriteDragAndDropToCategory(vaRect, categorySerializedProperty);            
+            HandleSpriteDragAndDropToCategory(vaRect, categorySerializedProperty);
         }
 
         void OnAddCallback(ReorderableList list)
@@ -399,7 +382,7 @@ namespace UnityEditor.U2D.Animation
             var oldSize = m_Library.arraySize;
             m_Library.arraySize += 1;
             var sp = m_Library.GetArrayElementAtIndex(oldSize);
-            SetPropertyName(sp, categoryName);
+            sp.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = categoryName;
             sp.FindPropertyRelative(SpriteLibraryPropertyString.fromMain).boolValue = false;
             sp.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries).arraySize = 0;
             return sp;
@@ -451,7 +434,7 @@ namespace UnityEditor.U2D.Animation
                 row = (int)Mathf.Ceil((contentCount + column-1) / column);
         }
 
-        void DrawCategorySpriteList(Rect rect, int index, SerializedProperty category)
+        public void DrawCategorySpriteList(Rect rect, int index, SerializedProperty category)
         {
             var spriteListProp = category.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries);
             var footerRect = rect;
@@ -483,14 +466,18 @@ namespace UnityEditor.U2D.Animation
                 if (rowCount >= 2)
                     gridState.scrollPos = GUI.BeginScrollView(new Rect(rect.x, rect.y, rect.width, rect.height),gridState.scrollPos, scrollViewRect, GUI.skin.horizontalScrollbar, GUI.skin.verticalScrollbar);
 
-                var viewPortMinY = rect.y + gridState.scrollPos.y;
-                var viewPortMaxY = rect.y + rect.height + gridState.scrollPos.y;
-                
                 var spriteObjectFieldRect = new Rect(rect.x, rect.y, m_Style.spriteGridSize, m_Style.spriteGridSize);
                 var labelTextfieldRect =  new Rect(rect.x, rect.y + m_Style.spriteGridSize + m_Style.lineSpacing, m_Style.spriteGridSize, EditorGUIUtility.singleLineHeight);
                 var backgroundSelectedRect = new Rect(rect.x, rect.y, m_Style.gridSize.x, m_Style.gridSize.y);
                 for (int i = 0, row = 0, column = 0; i < spriteListProp.arraySize; ++i, ++column)
                 {
+                    var element = spriteListProp.GetArrayElementAtIndex(i);
+
+                    var spriteProperty = element.FindPropertyRelative(SpriteLibraryPropertyString.sprite);
+                    var spriteOverrideProperty = element.FindPropertyRelative(SpriteLibraryPropertyString.spriteOverride);
+                    var spriteOverride = spriteProperty.objectReferenceValue != spriteOverrideProperty.objectReferenceValue;
+                    var entryFromMain = element.FindPropertyRelative(SpriteLibraryPropertyString.fromMain).boolValue;
+                    
                     if (column >= columnCount)
                     {
                         column = 0;
@@ -503,33 +490,66 @@ namespace UnityEditor.U2D.Animation
                     spriteObjectFieldRect.y = row * m_Style.gridSize.y + rect.y + m_Style.gridPadding;
                     labelTextfieldRect.x = column * m_Style.gridSize.x +rect.x + m_Style.gridPadding;
                     labelTextfieldRect.y = row * m_Style.gridSize.y + m_Style.spriteGridSize +rect.y + m_Style.gridPadding;
-                    
-                    var element = spriteListProp.GetArrayElementAtIndex(i);
+                    if (gridState.selectedIndex == i)
+                    {
+                        canRemoveSelectedEntry = entryFromMain && spriteOverride || !entryFromMain;
+                        selectedEntryIsOverwrite = entryFromMain && spriteOverride;
+                        if(Event.current.type == EventType.Repaint)
+                            m_Style.gridList.Draw(backgroundSelectedRect, true, true, true, false);
+                    }
+                    spriteOverrideProperty.objectReferenceValue = EditorGUI.ObjectField(spriteObjectFieldRect, spriteOverrideProperty.objectReferenceValue, typeof(Sprite), false) as Sprite;
+                    if (Event.current.type == EventType.MouseUp &&
+                        backgroundSelectedRect.Contains(Event.current.mousePosition))
+                    {
+                        gridState.selectedIndex = i;
+                    }
 
-                    var spriteProperty = element.FindPropertyRelative(SpriteLibraryPropertyString.sprite);
-                    var spriteOverrideProperty = element.FindPropertyRelative(SpriteLibraryPropertyString.spriteOverride);
-                    var spriteOverride = spriteProperty.objectReferenceValue != spriteOverrideProperty.objectReferenceValue;
-                    var entryFromMain = element.FindPropertyRelative(SpriteLibraryPropertyString.fromMain).boolValue;
-                    
                     if (!entryFromMain || spriteOverride)
+                    {
+                        var overrideIconRect = spriteObjectFieldRect;
+                        overrideIconRect.x -= 12;
+                        overrideIconRect.y -= 12;
+                        overrideIconRect.width = 20;
+                        overrideIconRect.height = 20;
+                        GUI.Label(overrideIconRect, m_Style.overrideIcon);
                         ++spriteOverwrite;
-                    
-                    if(!IsLabelVisible(viewPortMinY, viewPortMaxY, backgroundSelectedRect))
-                        continue;
+                    }
 
-                    DrawLabel(i, 
-                        spriteListProp, 
-                        spriteOverrideProperty,
-                        gridState, 
-                        spriteOverride,
-                        entryFromMain,
-                        backgroundSelectedRect,
-                        spriteObjectFieldRect,
-                        labelTextfieldRect,
-                        ref canRemoveSelectedEntry,
-                        ref selectedEntryIsOverwrite);
-                } 
-                
+                    //disable m_Name editing if the entry is from main
+                    using (new EditorGUI.DisabledScope(entryFromMain))
+                    {
+                        EditorGUI.BeginChangeCheck();
+                        var oldName = element.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
+                        if (string.IsNullOrEmpty(oldName) && spriteOverrideProperty.objectReferenceValue != null && entryFromMain)
+                        {
+                            oldName = spriteOverrideProperty.name;
+                            element.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = oldName;
+                        }
+                        var nameRect = labelTextfieldRect;
+                        bool nameDuplicate = IsEntryNameUsed(oldName, spriteListProp, 1);
+                        if (nameDuplicate)
+                        {
+                            nameRect.width -= 20;
+                        }
+                    
+                        var newName = EditorGUI.DelayedTextField(
+                            nameRect,
+                            GUIContent.none, 
+                            oldName);
+
+                        if (nameDuplicate)
+                        {
+                            nameRect.x += nameRect.width;
+                            nameRect.width = 20;
+                            GUI.Label(nameRect, m_Style.duplicateWarning);
+                        }
+                        if (EditorGUI.EndChangeCheck() && !string.IsNullOrEmpty(newName))
+                        {
+                            newName = newName.Trim();
+                            element.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = newName;
+                        }   
+                    }
+                }
                 if (overrideCountProperty.intValue != spriteOverwrite)
                 {
                     overrideCountProperty.intValue = spriteOverwrite;
@@ -546,85 +566,6 @@ namespace UnityEditor.U2D.Animation
             if (selectedEntryIsOverwrite)
                 removeCallback = DeleteSpriteEntryOverride;
             DrawCategorySpriteListFooter(footerRect, category, gridState,canRemoveSelectedEntry, removeCallback);
-        }
-
-        static bool IsLabelVisible(float viewPortMinY, float viewPortMaxY, Rect labelRect)
-        {
-            return (labelRect.y + labelRect.height) >= viewPortMinY && labelRect.y <= viewPortMaxY;
-        }
-
-        void DrawLabel(int index, 
-            SerializedProperty spriteListProp, 
-            SerializedProperty spriteOverrideProperty,
-            SpriteCategoryGridState gridState,
-            bool spriteOverride,
-            bool entryFromMain,
-            Rect backgroundSelectedRect,
-            Rect spriteObjectFieldRect,
-            Rect labelTextfieldRect,
-            ref bool canRemoveSelectedEntry,
-            ref bool selectedEntryIsOverwrite)
-        {
-            var element = spriteListProp.GetArrayElementAtIndex(index);
-
-            if (gridState.selectedIndex == index)
-            {
-                canRemoveSelectedEntry = entryFromMain && spriteOverride || !entryFromMain;
-                selectedEntryIsOverwrite = entryFromMain && spriteOverride;
-                if(Event.current.type == EventType.Repaint)
-                    m_Style.gridList.Draw(backgroundSelectedRect, true, true, true, false);
-            }
-            spriteOverrideProperty.objectReferenceValue = EditorGUI.ObjectField(spriteObjectFieldRect, spriteOverrideProperty.objectReferenceValue, typeof(Sprite), false) as Sprite;
-            if (Event.current.type == EventType.MouseUp &&
-                backgroundSelectedRect.Contains(Event.current.mousePosition))
-            {
-                gridState.selectedIndex = index;
-            }
-
-            if (!entryFromMain || spriteOverride)
-            {
-                var overrideIconRect = spriteObjectFieldRect;
-                overrideIconRect.x -= 12;
-                overrideIconRect.y -= 12;
-                overrideIconRect.width = 20;
-                overrideIconRect.height = 20;
-                GUI.Label(overrideIconRect, m_Style.overrideIcon);
-            }
-
-            //disable m_Name editing if the entry is from main
-            using (new EditorGUI.DisabledScope(entryFromMain))
-            {
-                EditorGUI.BeginChangeCheck();
-                var oldName = element.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
-                if (string.IsNullOrEmpty(oldName) && spriteOverrideProperty.objectReferenceValue != null && entryFromMain)
-                {
-                    oldName = spriteOverrideProperty.name;
-                    SetPropertyName(element, oldName);
-                }
-                var nameRect = labelTextfieldRect;
-                bool nameDuplicate = IsEntryNameUsed(oldName, spriteListProp, 1);
-                if (nameDuplicate)
-                {
-                    nameRect.width -= 20;
-                }
-            
-                var newName = EditorGUI.DelayedTextField(
-                    nameRect,
-                    GUIContent.none, 
-                    oldName);
-
-                if (nameDuplicate)
-                {
-                    nameRect.x += nameRect.width;
-                    nameRect.width = 20;
-                    GUI.Label(nameRect, m_Style.duplicateWarning);
-                }
-                if (EditorGUI.EndChangeCheck() && !string.IsNullOrEmpty(newName))
-                {
-                    newName = newName.Trim();
-                    SetPropertyName(element, newName);
-                }   
-            }            
         }
 
         bool IsEntryNameUsed(string name, SerializedProperty spriteList, int duplicateAllow)
@@ -714,16 +655,10 @@ namespace UnityEditor.U2D.Animation
             name = GetUniqueEntryName(spriteList, name);
             spriteList.arraySize += 1;
             var sp = spriteList.GetArrayElementAtIndex(spriteList.arraySize - 1);
-            SetPropertyName(sp, name);
+            sp.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = name;
             sp.FindPropertyRelative(SpriteLibraryPropertyString.sprite).objectReferenceValue = sprite;
             sp.FindPropertyRelative(SpriteLibraryPropertyString.spriteOverride).objectReferenceValue = sprite;
             sp.FindPropertyRelative(SpriteLibraryPropertyString.fromMain).boolValue = false;
-        }
-
-        static void SetPropertyName(SerializedProperty sp, string newName)
-        {
-            sp.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = newName;
-            sp.FindPropertyRelative(SpriteLibraryPropertyString.hash).intValue = SpriteLibraryAsset.GetStringHash(newName);
         }
         
         bool OnCanRemoveCallback(ReorderableList list)

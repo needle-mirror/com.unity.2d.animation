@@ -106,6 +106,7 @@ namespace UnityEditor.U2D.Animation
         {
             var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/BoneInspectorPanel.uxml");
             var clone = visualTree.CloneTree().Q<BoneInspectorPanel>("BoneInspectorPanel");
+            clone.LocalizeTextInChildren();
             clone.BindElements();
             return clone;
         }

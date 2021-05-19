@@ -21,16 +21,16 @@ namespace UnityEngine.U2D.Animation
         }
 
         [SerializeField]
-        private List<SpriteLibCategory> m_Library = new List<SpriteLibCategory>();
+        List<SpriteLibCategory> m_Library = new List<SpriteLibCategory>();
 
         [SerializeField]
-        private SpriteLibraryAsset m_SpriteLibraryAsset;
+        SpriteLibraryAsset m_SpriteLibraryAsset;
         
         // Cache for combining data in sprite library asset and main library
         Dictionary<int, CategoryEntrySprite> m_CategoryEntryHashCache = null;
         Dictionary<string, HashSet<string>> m_CategoryEntryCache = null;
-        private int m_PreviousSpriteLibraryAsset;
-        private long m_PreviousModificationHash;
+        int m_PreviousSpriteLibraryAsset;
+        long m_PreviousModificationHash;
         
         /// <summary>Get or Set the current SpriteLibraryAsset to use </summary>
         public SpriteLibraryAsset spriteLibraryAsset
@@ -63,7 +63,7 @@ namespace UnityEngine.U2D.Animation
             return GetSprite(GetHashForCategoryAndEntry(category, label));
         }
 
-        internal Sprite GetSprite(int hash)
+        Sprite GetSprite(int hash)
         {
             if (m_CategoryEntryHashCache.ContainsKey(hash))
                 return m_CategoryEntryHashCache[hash].sprite;
@@ -93,9 +93,9 @@ namespace UnityEngine.U2D.Animation
             return false;
         }
 
-        static internal int GetHashForCategoryAndEntry(string category, string entry)
+        internal static int GetHashForCategoryAndEntry(string category, string entry)
         {
-            return SpriteLibraryAsset.GetStringHash(string.Format("{0}_{1}", category, entry));
+            return SpriteLibraryAsset.GetStringHash($"{category}_{entry}");
         }
 
         internal Sprite GetSpriteFromCategoryAndEntryHash(int hash, out bool validEntry)
@@ -172,7 +172,7 @@ namespace UnityEngine.U2D.Animation
             if (cat != null)
             {
                 var entries = GetEntries(category, true);
-                for (int i = 0; i < cat.categoryList.Count; ++i)
+                for (var i = 0; i < cat.categoryList.Count; ++i)
                 {
                     var ent = cat.categoryList[i];
                     GetEntry(entries, ent.name, true).sprite = ent.sprite;

@@ -187,7 +187,7 @@ The __Bone Influences panel__ displays a list of bones that are currently influe
 
 When the Skinning Editor is set to [Character mode](#editor-toolbar), the Bone Influences panel allows you to add a bone to the list which includes its influence in the deformation of the selected Sprite’s mesh, or remove a bone from the list which removes its influence instead.
 
-To add a bone to the list, select the bone in the __Skinning Editor__ window and then select __Add (+__) at the bottom-right of the panel. To remove a bone from the list, select the bone in the list or in the editor window and then select __Remove (-)__.
+To add a bone to the list, select the bone in the __Skinning Editor__ window and then select __Add (+)__ at the bottom-right of the panel. To remove a bone from the list, select the bone in the list or in the editor window and then select __Remove (-)__.
 
 #### Rearranging bone order
 
@@ -195,6 +195,6 @@ You can rearrange the bone order in the Bone Influences panel by selecting and t
 
 ![](images/BoneInfluences_order.png)
 
-The order of the bones in the Bone Influences panel determines the order of the bones on the __Sprite Skin __component. This is especially important when replacing the Sprite for deformation in the __Sprite Renderer__, such as when using [Sprite Swap](SpriteSwapIntro.md), as you can ensure the bone order remains the same between the Sprites and that the correct Transform drives the correct deformation.
+The order of the bones in the Bone Influences panel determines the order of the bones on the __Sprite Skin__ component. This is especially important when replacing the Sprite for deformation in the __Sprite Renderer__, such as when using [Sprite Swap](SpriteSwapIntro.md), as you can ensure the bone order remains the same between the Sprites and that the correct Transform drives the correct deformation.
 
 ![](images/BoneInfluences_orderSpriteSkin.png)

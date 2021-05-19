@@ -22,8 +22,9 @@ namespace UnityEditor.U2D.Animation
             m_Events.boneNameChanged.AddListener(OnBoneNameChanged);
             m_Events.skeletonTopologyChanged.AddListener(OnSkeletonTopologyChanged);
             m_Events.meshChanged.AddListener(OnMeshChanged);
+            m_Events.skinningModeChanged.AddListener(OnSkinningModeChanged);
+            
             ShowHideView(true);
-            OnBoneSelectionChanged();
         }
 
         public void Deactivate()
@@ -33,55 +34,84 @@ namespace UnityEditor.U2D.Animation
             m_Events.boneNameChanged.RemoveListener(OnBoneNameChanged);
             m_Events.skeletonTopologyChanged.RemoveListener(OnSkeletonTopologyChanged);
             m_Events.meshChanged.RemoveListener(OnMeshChanged);
+            m_Events.skinningModeChanged.RemoveListener(OnSkinningModeChanged);
+            
             ShowHideView(false);
         }
 
-        private void OnMeshChanged(MeshCache mesh)
-        {
-            if (m_Model.view.visible)
-                m_Model.view.OnMeshChanged();
-        }
-
-        private void OnSpriteSelectionChanged(SpriteCache sprite)
+        void OnMeshChanged(MeshCache mesh)
         {
             if (m_Model.view.visible)
             {
-                m_Model.view.OnSpriteSelectionChanged();
+                m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
+                m_Model.view.UpdateSelection(m_Model.selectedBones);
+                UpdateAddRemoveButtons();
+            }
+        }
+
+        void OnSpriteSelectionChanged(SpriteCache sprite)
+        {
+            if (m_Model.view.visible)
+            {
+                UpdateSelectedSpriteBoneInfluence();
+                m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
+                m_Model.view.UpdateSelection(m_Model.selectedBones);
+                UpdateAddRemoveButtons();
                 SetViewHeaderText();
             }
         }
 
-        private void OnBoneSelectionChanged()
-        {
-            if (m_Model.view.visible)
-                m_Model.view.OnBoneSelectionChanged();
-        }
-
-        private void OnBoneNameChanged(BoneCache bone)
+        void OnBoneSelectionChanged()
         {
             if (m_Model.view.visible)
             {
-                m_Model.view.OnSkeletonChanged();
+                m_Model.view.UpdateSelection(m_Model.selectedBones);
+                UpdateAddRemoveButtons();
             }
         }
 
-        private void OnSkeletonTopologyChanged(SkeletonCache skeleton)
+        void OnBoneNameChanged(BoneCache bone)
         {
             if (m_Model.view.visible)
-                m_Model.view.OnSkeletonChanged();
+            {
+                m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
+                m_Model.view.UpdateSelection(m_Model.selectedBones);
+            }
+        }
+
+        void OnSkeletonTopologyChanged(SkeletonCache skeleton)
+        {
+            if (m_Model.view.visible)
+            {
+                UpdateSelectedSpriteBoneInfluence();
+                 
+                m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
+                m_Model.view.UpdateSelection(m_Model.selectedBones);
+            }
+        }
+
+        void UpdateAddRemoveButtons()
+        {
+            m_Model.view.ToggleAddButton(ShouldEnableAddButton());
+            m_Model.view.ToggleRemoveButton(InCharacterMode());
         }
 
         public void OnViewCreated()
         {
-            m_Model.view.onAddBone += AddSelectedBoneInfluencetoSprite;
-            m_Model.view.onRemoveBone += RemoveSelectedBoneInfluenceFromSprite;
+            m_Model.view.onAddElement += AddSelectedBoneInfluenceToSprite;
+            m_Model.view.onRemoveElement += RemoveSelectedBoneInfluenceFromSprite;
             m_Model.view.onReordered += OnReorderBoneInfluenceFromSprite;
-            m_Model.view.onSelectionChanged += SelectBones;
-            m_Model.view.SetController(this);
+            m_Model.view.onSelectionChanged += SelectedBonesFromList;
+            
             ShowHideView(false);
         }
+        
+        void OnSkinningModeChanged(SkinningMode skinningMode)
+        {
+            UpdateAddRemoveButtons();
+        }
 
-        private void AddSelectedBoneInfluencetoSprite()
+        void AddSelectedBoneInfluenceToSprite()
         {
             var character = m_Model.characterSkeleton;
 
@@ -95,19 +125,22 @@ namespace UnityEditor.U2D.Animation
             foreach (var bone in selectedBones)
             {
                 if (!characterBones.Contains(bone))
-                    characterBones.Add(bone);
+                    characterBones.Add(bone as BoneCache);
             }
 
             using (m_Model.UndoScope(TextContent.addBoneInfluence))
             {
                 characterPart.bones = characterBones.ToArray();
                 m_Events.characterPartChanged.Invoke(characterPart);
-                m_Model.view.OnSkeletonChanged();
-                m_Model.view.OnBoneSelectionChanged();
+                
+                UpdateSelectedSpriteBoneInfluence();
+                m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
+                m_Model.view.UpdateSelection(m_Model.selectedBones);
+                UpdateAddRemoveButtons();
             }
         }
 
-        private void RemoveSelectedBoneInfluenceFromSprite()
+        void RemoveSelectedBoneInfluenceFromSprite()
         {
             var character = m_Model.characterSkeleton;
 
@@ -128,13 +161,17 @@ namespace UnityEditor.U2D.Animation
                 characterPart.sprite.SmoothFill();
                 m_Events.meshChanged.Invoke(characterPart.sprite.GetMesh());
 
-                m_Model.view.OnSkeletonChanged();
-                m_Model.view.OnBoneSelectionChanged();
+                UpdateSelectedSpriteBoneInfluence();
+                m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
+                m_Model.view.UpdateSelection(m_Model.selectedBones);
+                UpdateAddRemoveButtons();
             }
         }
 
-        private void OnReorderBoneInfluenceFromSprite(IEnumerable<BoneCache> boneCache)
+        void OnReorderBoneInfluenceFromSprite(IEnumerable<TransformCache> transformCache)
         {
+            var boneCache = transformCache.Cast<BoneCache>();
+
             var character = m_Model.characterSkeleton;
 
             if (character != null)
@@ -144,7 +181,9 @@ namespace UnityEditor.U2D.Animation
                 {
                     characterPart.bones = boneCache.ToArray();
                     m_Events.characterPartChanged.Invoke(characterPart);
-                    m_Model.view.OnSkeletonChanged();
+                    
+                    UpdateSelectedSpriteBoneInfluence();
+                    m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
                 }
             }
             else
@@ -157,11 +196,11 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void SelectBones(IEnumerable<BoneCache> selectedBones)
+        void SelectedBonesFromList(IEnumerable<object> selectedBones)
         {
             using (m_Model.UndoScope(TextContent.boneSelection))
             {
-                m_Model.selectedBones = selectedBones;
+                m_Model.selectedBones = selectedBones.Cast<BoneCache>();
                 m_Events.boneSelectionChanged.Invoke();
             }
         }
@@ -171,19 +210,25 @@ namespace UnityEditor.U2D.Animation
             m_Model.view.SetHiddenFromLayout(!show);
             if (show)
             {
-                m_Model.view.OnSpriteSelectionChanged();
+                UpdateSelectedSpriteBoneInfluence();
+                m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
+                m_Model.view.UpdateSelection(m_Model.selectedBones);
+                m_Model.view.listLabelText = TextContent.boneInfluences;
+                m_Model.view.SetTooltips(TextContent.addBoneInfluenceTooltip, TextContent.removeBoneInfluenceTooltip);
+                UpdateAddRemoveButtons();
                 SetViewHeaderText();
             }
         }
 
-        private void SetViewHeaderText()
+        void SetViewHeaderText()
         {
             var headerText = m_Model.selectedSprite != null ? m_Model.selectedSprite.name : TextContent.noSpriteSelected;
             m_Model.view.headerText = headerText;
         }
 
-        public BoneCache[] GetSelectedSpriteBoneInfluence()
+        void UpdateSelectedSpriteBoneInfluence()
         {
+            var selectedSpriteInfluences = new List<TransformCache>();
             var selectedSprite = m_Model.selectedSprite;
 
             if (selectedSprite != null)
@@ -191,42 +236,29 @@ namespace UnityEditor.U2D.Animation
                 if (m_Model.hasCharacter)
                 {
                     var characterPart = m_Model.GetSpriteCharacterPart(selectedSprite);
-                    return characterPart.bones.ToArray();
+                    selectedSpriteInfluences = characterPart.bones.Cast<TransformCache>().ToList();
                 }
                 else
                 {
-                    return selectedSprite.GetSkeleton().bones;
+                    selectedSpriteInfluences = selectedSprite.GetSkeleton().bones.Cast<TransformCache>().ToList();
                 }
             }
-            return new BoneCache[0];
+
+            m_Model.selectionInfluencedBones = selectedSpriteInfluences;
         }
 
-        public int[] GetSelectedBoneForList(IEnumerable<BoneCache> bones)
-        {
-            var selectedBones = m_Model.selectedBones;
-            var spriteBones = GetSelectedSpriteBoneInfluence();
-            var result = new List<int>();
-            foreach (var bone in selectedBones)
-            {
-                var index = Array.IndexOf(spriteBones, bone);
-                if (index >= 0)
-                    result.Add(index);
-            }
-            return result.ToArray();
-        }
-
-        public bool ShouldEnableAddButton(IEnumerable<BoneCache> bones)
+        public bool ShouldEnableAddButton()
         {
             if (InCharacterMode())
             {
                 var hasSelectedSprite = m_Model.selectedSprite != null;
                 var selectedBones = m_Model.selectedBones;
-                return hasSelectedSprite && selectedBones.FirstOrDefault(x => !bones.Contains(x)) != null;
+                return hasSelectedSprite && selectedBones.FirstOrDefault(x => !m_Model.selectionInfluencedBones.Contains(x)) != null;
             }
             return false;
         }
 
-        public bool InCharacterMode()
+        private bool InCharacterMode()
         {
             return m_Model.hasCharacter && m_Model.skinningMode == SkinningMode.Character;
         }
@@ -234,8 +266,9 @@ namespace UnityEditor.U2D.Animation
 
     internal interface ISpriteBoneInfluenceToolModel
     {
-        ISpriteBoneInfluenceWindow view { get; }
+        IInfluenceWindow view { get; }
         IEnumerable<BoneCache> selectedBones { get; set; }
+        List<TransformCache> selectionInfluencedBones { get; set; }
         SpriteCache selectedSprite { get; }
         bool hasCharacter { get; }
         SkinningMode skinningMode { get; }
@@ -246,37 +279,34 @@ namespace UnityEditor.U2D.Animation
 
     internal class SpriteBoneInfluenceTool : BaseTool, ISpriteBoneInfluenceToolModel
     {
-        SpriteBoneInfluenceToolController m_Controller;
+        private SpriteBoneInfluenceToolController m_Controller;
         private MeshPreviewBehaviour m_MeshPreviewBehaviour = new MeshPreviewBehaviour();
-        private SpriteBoneInfluenceWindow m_View;
+        private InfluenceWindow m_View;
 
         public SkeletonTool skeletonTool { set; private get; }
-        public override IMeshPreviewBehaviour previewBehaviour
-        {
-            get { return m_MeshPreviewBehaviour; }
-        }
+        public override IMeshPreviewBehaviour previewBehaviour => m_MeshPreviewBehaviour;
 
         internal override void OnCreate()
         {
             m_Controller = new SpriteBoneInfluenceToolController(this, skinningCache.events);
         }
 
-        ISpriteBoneInfluenceWindow ISpriteBoneInfluenceToolModel.view {get { return m_View; } }
+        IInfluenceWindow ISpriteBoneInfluenceToolModel.view => m_View;
 
         IEnumerable<BoneCache> ISpriteBoneInfluenceToolModel.selectedBones
         {
-            get { return skinningCache.skeletonSelection.elements; }
-            set { skinningCache.skeletonSelection.elements = value.ToArray(); }
+            get => skinningCache.skeletonSelection.elements;
+            set => skinningCache.skeletonSelection.elements = value.ToArray();
         }
-        SpriteCache ISpriteBoneInfluenceToolModel.selectedSprite { get { return skinningCache.selectedSprite; } }
-        bool ISpriteBoneInfluenceToolModel.hasCharacter { get { return skinningCache.hasCharacter; } }
-        SkinningMode ISpriteBoneInfluenceToolModel.skinningMode { get { return skinningCache.mode; } }
-        SkeletonCache ISpriteBoneInfluenceToolModel.characterSkeleton { get { return skinningCache.character != null ? skinningCache.character.skeleton : null; } }
 
-        UndoScope ISpriteBoneInfluenceToolModel.UndoScope(string description)
-        {
-            return skinningCache.UndoScope(description);
-        }
+        List<TransformCache> ISpriteBoneInfluenceToolModel.selectionInfluencedBones { get; set; }
+        
+        SpriteCache ISpriteBoneInfluenceToolModel.selectedSprite => skinningCache.selectedSprite;
+        bool ISpriteBoneInfluenceToolModel.hasCharacter => skinningCache.hasCharacter;
+        SkinningMode ISpriteBoneInfluenceToolModel.skinningMode => skinningCache.mode;
+        SkeletonCache ISpriteBoneInfluenceToolModel.characterSkeleton => skinningCache.character != null ? skinningCache.character.skeleton : null;
+
+        UndoScope ISpriteBoneInfluenceToolModel.UndoScope(string description) { return skinningCache.UndoScope(description); }
 
         protected override void OnActivate()
         {
@@ -296,7 +326,10 @@ namespace UnityEditor.U2D.Animation
         {
             if (m_View == null)
             {
-                m_View = SpriteBoneInfluenceWindow.CreateFromUXML();
+                m_View = InfluenceWindow.CreateFromUxml();
+                m_View.SetListReorderable(true);
+                m_View.SetAllowMultiselect(true);
+                m_View.LocalizeTextInChildren();
                 m_Controller.OnViewCreated();
             }
 

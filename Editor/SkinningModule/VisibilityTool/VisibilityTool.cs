@@ -36,6 +36,7 @@ namespace UnityEditor.U2D.Animation
             ve.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/VisibilityTool.uss"));
             if (EditorGUIUtility.isProSkin)
                 ve.AddToClassList("Dark");
+            ve.LocalizeTextInChildren();
             ve.BindElements();
             return ve;
         }

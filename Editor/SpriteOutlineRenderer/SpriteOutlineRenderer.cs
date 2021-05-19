@@ -21,9 +21,9 @@ namespace UnityEditor.U2D.Animation
 
         public SpriteOutlineRenderer(ISpriteEditor spriteEditor, SkinningEvents eventSystem)
         {
-            m_BitMaskMaterial = new Material(Shader.Find("com.unity3d.animation/SpriteBitmask"));
+            m_BitMaskMaterial = new Material(Shader.Find("Hidden/2D-Animation-SpriteBitmask"));
             m_BitMaskMaterial.hideFlags = HideFlags.HideAndDontSave;
-            m_OutlineMaterial = new Material(Shader.Find("com.unity3d.animation/SpriteOutline"));
+            m_OutlineMaterial = new Material(Shader.Find("Hidden/2D-Animation-SpriteOutline"));
             m_OutlineMaterial.hideFlags = HideFlags.HideAndDontSave;
             m_SpriteEditor = spriteEditor;
             m_EventSystem = eventSystem;

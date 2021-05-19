@@ -909,6 +909,13 @@ namespace UnityEditor.U2D.Animation
                 tool.skeletonTool = skeletonTool;
                 m_ToolMap.Add(Tools.BoneInfluence, tool);
             }
+            
+            {
+                var tool = CreateTool<BoneSpriteInfluenceTool>();
+                tool.Initialize(layoutOverlay);
+                tool.skeletonTool = skeletonTool;
+                m_ToolMap.Add(Tools.SpriteInfluence, tool);
+            }
 
             {
                 var tool = CreateTool<WeightPainterToolWrapper>();

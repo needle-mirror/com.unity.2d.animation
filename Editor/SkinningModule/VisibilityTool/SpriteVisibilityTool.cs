@@ -346,8 +346,8 @@ namespace UnityEditor.U2D.Animation
             m_Controller.Dispose();
         }
 
-        public VisualElement view { get { return m_View; } }
-        public string name { get { return L10n.Tr(TextContent.sprite); } }
+        public VisualElement view => m_View;
+        public string name => TextContent.sprite;
 
         public void Activate()
         {
@@ -404,7 +404,7 @@ namespace UnityEditor.U2D.Animation
             };
             columns[1] = new MultiColumnHeaderState.Column
             {
-                headerContent = EditorGUIUtility.TrTextContent(TextContent.name),
+                headerContent = new GUIContent(TextContent.name),
                 headerTextAlignment = TextAlignment.Center,
                 width = 230,
                 minWidth = 100,

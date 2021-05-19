@@ -24,6 +24,10 @@ namespace UnityEngine.U2D.IK
         [SerializeField]
         private Quaternion[] m_StoredLocalRotations;
 
+        /// <summary>
+        /// Lengths of IK Chain.
+        /// </summary>
+        /// <returns>Array of lengths in the IK Chain.</returns>
         protected float[] m_Lengths;
 
         /// <summary>

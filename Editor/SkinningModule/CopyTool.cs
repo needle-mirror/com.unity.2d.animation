@@ -47,11 +47,27 @@ namespace UnityEditor.U2D.Animation
         
         private ICopyToolStringStore m_CopyToolStringStore;
         private CopyToolView m_CopyToolView;
+        private bool m_HasValidCopyData = false;
+        private int m_LastCopyDataHash;
 
         public float pixelsPerUnit
         {
             private get;
             set;
+        }
+
+        public bool HasValidCopiedData
+        {
+            get
+            {
+                var hashCode = m_CopyToolStringStore.stringStore.GetHashCode();
+                if (hashCode != m_LastCopyDataHash)
+                {
+                    m_HasValidCopyData = IsValidCopyData(m_CopyToolStringStore.stringStore);
+                    m_LastCopyDataHash = hashCode;
+                }
+                return m_HasValidCopyData;
+            }
         }
 
         public ICopyToolStringStore copyToolStringStore
@@ -278,7 +294,7 @@ namespace UnityEditor.U2D.Animation
         public void OnPasteActivated(bool bone, bool mesh, bool flipX, bool flipY)
         {
             var copyBuffer = m_CopyToolStringStore.stringStore;
-            if (!SkinningCopyUtility.CanDeserializeStringToSkinningCopyData(copyBuffer))
+            if (!IsValidCopyData(copyBuffer))
             {
                 Debug.LogError(TextContent.copyError1);
                 return;
@@ -377,6 +393,11 @@ namespace UnityEditor.U2D.Animation
             }
             skinningCache.events.paste.Invoke(bone, mesh, flipX, flipY);
         }
+        
+        private static bool IsValidCopyData(string copyBuffer)
+        {
+            return SkinningCopyUtility.CanDeserializeStringToSkinningCopyData(copyBuffer);
+        }        
 
         private Vector3 GetFlippedBonePosition(BoneCache bone, Vector2 startPosition, Rect spriteRect
             , bool flipX, bool flipY)

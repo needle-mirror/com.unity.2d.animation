@@ -19,5 +19,11 @@ namespace UnityEditor.U2D.Animation
                 element.style.position = Position.Relative;
             }
         }
+        
+        public static void LocalizeTextInChildren(this VisualElement element)
+        {
+            element.Query<TextElement>().ForEach((e) => e.text = L10n.Tr(e.text));
+            element.Query<Button>().ForEach((e) => e.tooltip = L10n.Tr(e.tooltip));
+        }        
     }
 }

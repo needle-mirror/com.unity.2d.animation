@@ -1,5 +1,5 @@
 # 2D Animation Samples
-This repository contains samples for 2D Animation features to be used with Unity 2021.1
+This repository contains samples for 2D Animation features to be used with Unity 2021.2
 
 ## In this version
 * A unified Skinning Editor module in the Sprite Editor window, giving you a much tighter sprite rigging iteration loop.

@@ -14,7 +14,7 @@ namespace UnityEditor.U2D.Animation
             public static GUIContent duplicateWarningText = EditorGUIUtility.TrTextContent("Duplicate name found or name hash clashes. Please use a different name");
             public static GUIContent duplicateWarning = EditorGUIUtility.TrIconContent("console.warnicon.sml", duplicateWarningText.text);
             public static GUIContent nameLabel = new GUIContent(TextContent.label);
-            public static string categoryListLabel = L10n.Tr("Category List");
+            public static string categoryListLabel = TextContent.categoryList;
             public static int lineSpacing = 3;
         }
 

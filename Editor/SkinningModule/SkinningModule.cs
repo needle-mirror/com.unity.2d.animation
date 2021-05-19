@@ -38,6 +38,12 @@ namespace UnityEditor.U2D.Animation
             set { skinningCache.selectedTool = value; }
         }
 
+        private BaseTool previousTool
+        {
+            get;
+            set;
+        }
+
         public override string moduleName
         {
             get { return Styles.moduleName; }
@@ -77,8 +83,8 @@ namespace UnityEditor.U2D.Animation
                 skinningCache.events.meshChanged.AddListener(OnMeshChanged);
                 skinningCache.events.boneNameChanged.AddListener(OnBoneNameChanged);
                 skinningCache.events.boneDepthChanged.AddListener(OnBoneDepthChanged);
+                skinningCache.events.boneColorChanged.AddListener(OnBoneColorChanged);
                 skinningCache.events.meshPreviewBehaviourChange.AddListener(OnMeshPreviewBehaviourChange);
-                skinningCache.events.dataModified.AddListener(SetOnDataDirty);
 
                 skinningCache.RestoreFromPersistentState();
                 ActivateTool(skinningCache.selectedTool);
@@ -133,6 +139,7 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.meshChanged.RemoveListener(OnMeshChanged);
             skinningCache.events.boneNameChanged.RemoveListener(OnBoneNameChanged);
             skinningCache.events.boneDepthChanged.RemoveListener(OnBoneDepthChanged);
+            skinningCache.events.boneColorChanged.RemoveListener(OnBoneColorChanged);
             skinningCache.events.meshPreviewBehaviourChange.RemoveListener(OnMeshPreviewBehaviourChange);
 
             RemoveMainUI(spriteEditor.GetMainVisualContainer());
@@ -146,18 +153,15 @@ namespace UnityEditor.U2D.Animation
         private void UpdateCollapseToolbar()
         {
             m_CollapseToolbar = SkinningModuleSettings.compactToolBar;
+            m_PoseToolbar.CollapseToolBar(m_CollapseToolbar);
             m_WeightToolbar.CollapseToolBar(m_CollapseToolbar);
             m_MeshToolbar.CollapseToolBar(m_CollapseToolbar);
             m_BoneToolbar.CollapseToolBar(m_CollapseToolbar);
+            m_RigToolbar.CollapseToolBar(m_CollapseToolbar);
             m_LayoutOverlay.verticalToolbar.Collapse(m_CollapseToolbar);
             m_HorizontalToggleTools.collapseToolbar = m_CollapseToolbar;
         }
 
-        private void SetOnDataDirty()
-        {
-            DataModified();
-        }
-        
         private void OnBoneNameChanged(BoneCache bone)
         {
             var character = skinningCache.character;
@@ -187,6 +191,11 @@ namespace UnityEditor.U2D.Animation
             DataModified();
         }
 
+        private void OnBoneColorChanged(BoneCache bone)
+        {
+            DataModified();            
+        }
+        
         private void OnMeshChanged(MeshCache mesh)
         {
             DataModified();
@@ -563,6 +572,7 @@ namespace UnityEditor.U2D.Animation
             m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.WeightBrush), () => currentTool = skinningCache.GetTool(Tools.WeightBrush));
             m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.GenerateWeights), () => currentTool = skinningCache.GetTool(Tools.GenerateWeights));
             m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.BoneInfluence), () => currentTool = skinningCache.GetTool(Tools.BoneInfluence));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.SpriteInfluence), () => currentTool = skinningCache.GetTool(Tools.SpriteInfluence));
             m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.CopyPaste), () => currentTool = skinningCache.GetTool(Tools.CopyPaste));
         }
     }

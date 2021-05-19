@@ -49,6 +49,7 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.skeletonPreviewPoseChanged.AddListener(SkeletonChanged);
             skinningCache.events.skeletonBindPoseChanged.AddListener(SkeletonChanged);
             skinningCache.events.skinningModeChanged.AddListener(SkinningModuleModeChanged);
+            skinningCache.events.boneColorChanged.AddListener(BoneColorChanged);
         }
 
         protected override void OnDeactivate()
@@ -57,6 +58,7 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.skeletonPreviewPoseChanged.RemoveListener(SkeletonChanged);
             skinningCache.events.skeletonBindPoseChanged.RemoveListener(SkeletonChanged);
             skinningCache.events.skinningModeChanged.RemoveListener(SkinningModuleModeChanged);
+            skinningCache.events.boneColorChanged.RemoveListener(BoneColorChanged);
         }
 
         protected override void OnGUI()
@@ -64,10 +66,7 @@ namespace UnityEditor.U2D.Animation
             Prepare();
 
             if (Event.current.type == EventType.Repaint)
-            {
-                //DrawDefaultSpriteMeshes();
                 DrawSpriteMeshes();
-            }
         }
 
         public void DrawOverlay()
@@ -130,6 +129,22 @@ namespace UnityEditor.U2D.Animation
         {
             DirtyMeshesAll();
         }
+
+        private void BoneColorChanged(BoneCache bone)
+        {
+            DirtyColorsAll();
+        }
+        
+        private void DirtyColorsAll()
+        {
+            foreach (var sprite in m_Sprites)
+            {
+                var meshPreview = sprite.GetMeshPreview();
+
+                if (meshPreview != null)
+                    meshPreview.SetColorsDirty();
+            }
+        }        
 
         private void DirtyMeshesAll()
         {
@@ -304,6 +319,7 @@ namespace UnityEditor.U2D.Animation
             if (currentTool == skinningCache.GetTool(Tools.WeightSlider) ||
                 currentTool == skinningCache.GetTool(Tools.WeightBrush) ||
                 currentTool == skinningCache.GetTool(Tools.BoneInfluence) ||
+                currentTool == skinningCache.GetTool(Tools.SpriteInfluence) ||
                 currentTool == skinningCache.GetTool(Tools.GenerateWeights))
                 return true;
 

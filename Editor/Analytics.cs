@@ -26,7 +26,8 @@ namespace UnityEditor.U2D.Animation
         WeightSlider = 17,
         WeightBrush = 18,
         BoneInfluence = 19,
-        GenerateWeights = 20
+        GenerateWeights = 20,
+        SpriteInfluence = 21
     }
 
     [Serializable]
@@ -349,6 +350,8 @@ namespace UnityEditor.U2D.Animation
                 StartNewEvent(AnimationToolType.Visibilility, m_Model.applicationElapseTime);
             else if (tool == m_Model.GetTool(Tools.BoneInfluence))
                 StartNewEvent(AnimationToolType.BoneInfluence, m_Model.applicationElapseTime);
+            else if (tool == m_Model.GetTool(Tools.SpriteInfluence))
+                StartNewEvent(AnimationToolType.SpriteInfluence, m_Model.applicationElapseTime);
             else if (tool == m_Model.GetTool(Tools.GenerateWeights))
                 StartNewEvent(AnimationToolType.GenerateWeights, m_Model.applicationElapseTime);
             else if (tool == m_Model.GetTool(Tools.WeightBrush))

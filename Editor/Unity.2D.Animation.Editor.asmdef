@@ -7,8 +7,8 @@
         "Unity.2D.Common.Editor",
         "Unity.2D.Common.Runtime",
         "Unity.2D.Animation.Runtime",
-        "Unity.2D.Animation.Triangle.Runtime",
         "Unity.2D.Sprite.Editor",
+        "Unity.Mathematics",
         "Unity.Burst",
         "Unity.Collections"
     ],
@@ -16,7 +16,7 @@
         "Editor"
     ],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

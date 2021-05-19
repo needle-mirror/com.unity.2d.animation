@@ -13,14 +13,30 @@ using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.U2D.Animation
 {
+    /// <summary>
+    /// Represents vertex position.
+    /// </summary>
     public struct PositionVertex
     {
+        /// <summary>
+        /// Vertex position.
+        /// </summary>
         public Vector3 position;
     }
 
+    /// <summary>
+    /// Represents vertex position and tangent.
+    /// </summary>
     public struct PositionTangentVertex
     {
+        /// <summary>
+        /// Vertex position.
+        /// </summary>
         public Vector3 position;
+        
+        /// <summary>
+        /// Vertex tangent.
+        /// </summary>
         public Vector4 tangent;
     }
 
@@ -464,11 +480,17 @@ namespace UnityEngine.U2D.Animation
             CacheValidFlag();
         }
 
+        /// <summary>
+        /// Called before object is serialized.
+        /// </summary>
         public void OnBeforeSerialize()
         {
             OnBeforeSerializeBatch();
         }
 
+        /// <summary>
+        /// Called after object is deserialized.
+        /// </summary>
         public void OnAfterDeserialize()
         {
             OnAfterSerializeBatch();

@@ -58,6 +58,15 @@ namespace UnityEditor.U2D.Animation
 
                 ClipPaths(ref paths);
             }
+
+            // Merge the Polygons to one (doesn't always succeeds).
+            var clipper = new Clipper(Clipper.ioPreserveCollinear);
+            var subj = ToClipper(paths);
+            var solution = new Paths();
+            clipper.AddPaths(subj, PolyType.ptSubject, true);
+            clipper.Execute(ClipType.ctUnion, solution, PolyFillType.pftNonZero, PolyFillType.pftNonZero);
+            paths = ToVector2(solution);
+            m_CurrentAlphaTolerance = alphaTolerance;            
         }
 
         private void ClipPaths(ref Vector2[][] paths)

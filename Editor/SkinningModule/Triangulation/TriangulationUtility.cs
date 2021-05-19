@@ -1,133 +1,397 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
-using UnityEngine.U2D.Animation.TriangleNet.Geometry;
-using UnityEngine.U2D.Animation.TriangleNet.Meshing;
-using UnityEngine.U2D.Animation.TriangleNet.Smoothing;
-using UnityEngine.U2D.Animation.TriangleNet.Tools;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Mathematics;
+using UnityEngine;
+using ModuleHandle = UnityEngine.U2D.Common.UTess.ModuleHandle;
+#if ENABLE_ANIMATION_BURST
+using Unity.Burst;
+#endif
 
 namespace UnityEditor.U2D.Animation
 {
+    [BurstCompile]
     internal class TriangulationUtility
     {
-        public static void Triangulate(IList<Vector2> vertices, IList<Edge> edges, IList<int> indices)
+        
+#if ENABLE_ANIMATION_BURST
+        [BurstCompile(FloatPrecision = FloatPrecision.Standard, FloatMode = FloatMode.Fast)]
+#endif
+        private static unsafe void TessellateBurst(Allocator allocator, float2* points, int pointCount, int2* edges, int edgeCount, float2* outVertices, int* outIndices, int2* outEdges, int arrayCount, int3* result)
         {
-            indices.Clear();
+            NativeArray<int2> _edges = new NativeArray<int2>(edgeCount, allocator);
+            for (int i = 0; i < _edges.Length; ++i)
+                _edges[i] = edges[i];
+            
+            NativeArray<float2> _points = new NativeArray<float2>(pointCount, allocator);
+            for (int i = 0; i < _points.Length; ++i)
+                _points[i] = points[i];
+            
+            NativeArray<int> _outIndices = new NativeArray<int>(arrayCount, allocator);
+            NativeArray<int2> _outEdges = new NativeArray<int2>(arrayCount, allocator);
+            NativeArray<float2> _outVertices = new NativeArray<float2>(arrayCount, allocator);
+            
+            int outEdgeCount = 0;
+            int outIndexCount = 0;
+            int outVertexCount = 0;
+            
+            ModuleHandle.Tessellate(allocator, _points, _edges, ref _outVertices, ref outVertexCount, ref _outIndices, ref outIndexCount, ref _outEdges, ref outEdgeCount);
+            
+            for (int i = 0; i < outEdgeCount; ++i)
+                outEdges[i] = _outEdges[i];
+            for (int i = 0; i < outIndexCount; ++i)
+                outIndices[i] = _outIndices[i];
+            for (int i = 0; i < outVertexCount; ++i)
+                outVertices[i] = _outVertices[i];
+            
+            result->x = outVertexCount;
+            result->y = outIndexCount;
+            result->z = outEdgeCount;
 
+            _outVertices.Dispose();
+            _outEdges.Dispose();
+            _outIndices.Dispose();
+            _points.Dispose();
+            _edges.Dispose();
+
+        }
+#if ENABLE_ANIMATION_BURST
+        [BurstCompile(FloatPrecision = FloatPrecision.Standard, FloatMode = FloatMode.Fast)]
+#endif
+        private static unsafe void SubdivideBurst(Allocator allocator, float2* points, int pointCount, int2* edges, int edgeCount, float2* outVertices, int* outIndices, int2* outEdges, int arrayCount, float areaFactor, float areaThreshold, int refineIterations, int smoothenIterations, int3* result)
+        {
+            NativeArray<int2> _edges = new NativeArray<int2>(edgeCount, allocator);
+            for (int i = 0; i < _edges.Length; ++i)
+                _edges[i] = edges[i];
+            
+            NativeArray<float2> _points = new NativeArray<float2>(pointCount, allocator);
+            for (int i = 0; i < _points.Length; ++i)
+                _points[i] = points[i];
+            
+            NativeArray<int> _outIndices = new NativeArray<int>(arrayCount, allocator);
+            NativeArray<int2> _outEdges = new NativeArray<int2>(arrayCount, allocator);
+            NativeArray<float2> _outVertices = new NativeArray<float2>(arrayCount, allocator);
+            int outEdgeCount = 0;
+            int outIndexCount = 0;
+            int outVertexCount = 0;            
+            
+            ModuleHandle.Subdivide(allocator, _points, _edges, ref _outVertices, ref outVertexCount, ref _outIndices, ref outIndexCount, ref _outEdges, ref outEdgeCount, areaFactor, areaThreshold, refineIterations, smoothenIterations);
+            
+            for (int i = 0; i < outEdgeCount; ++i)
+                outEdges[i] = _outEdges[i];
+            for (int i = 0; i < outIndexCount; ++i)
+                outIndices[i] = _outIndices[i];
+            for (int i = 0; i < outVertexCount; ++i)
+                outVertices[i] = _outVertices[i];   
+            
+            result->x = outVertexCount;
+            result->y = outIndexCount;
+            result->z = outEdgeCount;
+            
+            _outVertices.Dispose();
+            _outEdges.Dispose();
+            _outIndices.Dispose();
+            _points.Dispose();
+            _edges.Dispose();            
+        }
+
+        private static bool TessellateSafe(NativeArray<float2> points, NativeArray<int2> edges, ref NativeArray<float2> outVertices, ref int outVertexCount, ref NativeArray<int> outIndices, ref int outIndexCount, ref NativeArray<int2> outEdges, ref int outEdgeCount)
+        {
+            try
+            {
+                ModuleHandle.Tessellate(Allocator.Persistent, points, edges, ref outVertices, ref outVertexCount, ref outIndices, ref outIndexCount, ref outEdges, ref outEdgeCount);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;            
+        }
+        private static bool SubdivideSafe(NativeArray<float2> points, NativeArray<int2> edges, ref NativeArray<float2> outVertices, ref int outVertexCount, ref NativeArray<int> outIndices, ref int outIndexCount, ref NativeArray<int2> outEdges, ref int outEdgeCount, float areaFactor, float areaThreshold, int refineIterations, int smoothenIterations)
+        {
+            try
+            {
+                ModuleHandle.Subdivide(Allocator.Persistent, points, edges, ref outVertices, ref outVertexCount, ref outIndices, ref outIndexCount, ref outEdges, ref outEdgeCount, areaFactor, areaThreshold, refineIterations, smoothenIterations);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        internal static void Triangulate(IList<Vector2> vertices, IList<Edge> edges, IList<int> indices, Allocator allocator)
+        {
             if (vertices.Count < 3)
                 return;
 
-            var polygon = new Polygon(vertices.Count);
-
+            NativeArray<float2> points = new NativeArray<float2>(vertices.Count, allocator);
             for (int i = 0; i < vertices.Count; ++i)
-            {
-                Vector2 position = vertices[i];
-                polygon.Add(new Vertex(position.x, position.y, 1));
-            }
-
+                points[i] = vertices[i];
+            NativeArray<int2> inputEdges = new NativeArray<int2>(edges.Count, allocator);
             for (int i = 0; i < edges.Count; ++i)
+                inputEdges[i] = new int2(edges[i].index1, edges[i].index2);
+            
+            int arrayCount = vertices.Count * vertices.Count * 4;
+            int vertexCount = 0, indexCount = 0, edgeCount = 0;
+            NativeArray<int> outputIndices = new NativeArray<int>(arrayCount, allocator);
+            NativeArray<int2> outputEdges = new NativeArray<int2>(arrayCount, allocator);
+            NativeArray<int3> outputResult = new NativeArray<int3>(1, allocator);
+            NativeArray<float2> outputVertices = new NativeArray<float2>(arrayCount, allocator);
+            
+            unsafe
             {
-                Edge edge = edges[i];
-                polygon.Add(new Segment(polygon.Points[edge.index1], polygon.Points[edge.index2]));
+                TessellateBurst(allocator, (float2*)points.GetUnsafePtr(), points.Length, (int2*)inputEdges.GetUnsafePtr(), inputEdges.Length, (float2*)outputVertices.GetUnsafePtr(), (int*)outputIndices.GetUnsafePtr(), (int2*)outputEdges.GetUnsafePtr(), arrayCount, (int3*)outputResult.GetUnsafePtr());
+                vertexCount = outputResult[0].x;
+                indexCount = outputResult[0].y;
+                edgeCount = outputResult[0].z;
             }
+            // Fallback on numerical precision errors.
+            if (vertexCount <= 8)
+                TessellateSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount);
 
-            var mesh = polygon.Triangulate();
+            vertices.Clear();
+            for (int i = 0; i < vertexCount; ++i)
+                vertices.Add(outputVertices[i]);
+            indices.Clear();
+            for (int i = 0; i < indexCount; ++i)
+                indices.Add(outputIndices[i]);
+            edges.Clear();
+            for (int i = 0; i < edgeCount; ++i)
+                edges.Add(new Edge(){index1 = outputEdges[i].x, index2 = outputEdges[i].y});
 
-            foreach (ITriangle triangle in mesh.Triangles)
-            {
-                int id0 = triangle.GetVertexID(0);
-                int id1 = triangle.GetVertexID(1);
-                int id2 = triangle.GetVertexID(2);
-
-                if (id0 < 0 || id1 < 0 || id2 < 0 ||  id0 >= vertices.Count || id1 >= vertices.Count || id2 >= vertices.Count)
-                    continue;
-
-                indices.Add(id0);
-                indices.Add(id2);
-                indices.Add(id1);
-            }
+            outputEdges.Dispose();
+            outputResult.Dispose();
+            outputIndices.Dispose();
+            outputVertices.Dispose();
+            inputEdges.Dispose();
+            points.Dispose();
         }
+        
+        internal static bool TriangulateSafe(IList<Vector2> vertices, IList<Edge> edges, IList<int> indices)
+        {
+            if (vertices.Count < 3)
+                return false;
 
-        public static void Tessellate(float minAngle, float maxAngle, float meshAreaFactor, float largestTriangleAreaFactor, int smoothIterations, IList<Vector2> vertices, IList<Edge> edges, IList<int> indices)
+            NativeArray<float2> points = new NativeArray<float2>(vertices.Count, Allocator.Persistent);
+            for (int i = 0; i < vertices.Count; ++i)
+                points[i] = vertices[i];
+            NativeArray<int2> inputEdges = new NativeArray<int2>(edges.Count, Allocator.Persistent);
+            for (int i = 0; i < edges.Count; ++i)
+                inputEdges[i] = new int2(edges[i].index1, edges[i].index2);
+            
+            int arrayCount = vertices.Count * vertices.Count * 4;
+            int vertexCount = 0, indexCount = 0, edgeCount = 0;
+            NativeArray<int> outputIndices = new NativeArray<int>(arrayCount, Allocator.Persistent);
+            NativeArray<int2> outputEdges = new NativeArray<int2>(arrayCount, Allocator.Persistent);
+            NativeArray<float2> outputVertices = new NativeArray<float2>(arrayCount, Allocator.Persistent);
+            bool ok = TessellateSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount);
+
+            if (ok)
+            {
+                vertices.Clear();
+                for (int i = 0; i < vertexCount; ++i)
+                    vertices.Add(outputVertices[i]);
+                indices.Clear();
+                for (int i = 0; i < indexCount; ++i)
+                    indices.Add(outputIndices[i]);
+                edges.Clear();
+                for (int i = 0; i < edgeCount; ++i)
+                    edges.Add(new Edge() {index1 = outputEdges[i].x, index2 = outputEdges[i].y});
+            }
+
+            outputEdges.Dispose();
+            outputIndices.Dispose();
+            outputVertices.Dispose();
+            inputEdges.Dispose();
+            points.Dispose();
+            return ok;
+        }        
+
+        public static void Tessellate(float minAngle, float maxAngle, float meshAreaFactor, float largestTriangleAreaFactor, float targetArea, int refineIterations, int smoothenIterations, IList<Vector2> vertices, IList<Edge> edges, IList<int> indices, Allocator allocator)
         {
             if (vertices.Count < 3)
                 return;
 
             largestTriangleAreaFactor = Mathf.Clamp01(largestTriangleAreaFactor);
 
-            var polygon = new Polygon(vertices.Count);
-
+            NativeArray<float2> points = new NativeArray<float2>(vertices.Count, allocator);
             for (int i = 0; i < vertices.Count; ++i)
-            {
-                Vector2 position = vertices[i];
-                polygon.Add(new Vertex(position.x, position.y, 1));
-            }
-
+                points[i] = vertices[i];
+            NativeArray<int2> inputEdges = new NativeArray<int2>(edges.Count, allocator);
             for (int i = 0; i < edges.Count; ++i)
+                inputEdges[i] = new int2(edges[i].index1, edges[i].index2);
+            
+            int maxDataCount = 65536;
+            int vertexCount = 0, indexCount = 0, edgeCount = 0;
+            NativeArray<int> outputIndices = new NativeArray<int>(maxDataCount, allocator);
+            NativeArray<int2> outputEdges = new NativeArray<int2>(maxDataCount, allocator);
+            NativeArray<int3> outputResult = new NativeArray<int3>(1, allocator);
+            NativeArray<float2> outputVertices = new NativeArray<float2>(maxDataCount, allocator);
+            
+            unsafe
             {
-                Edge edge = edges[i];
-                polygon.Add(new Segment(polygon.Points[edge.index1], polygon.Points[edge.index2]));
+                SubdivideBurst(allocator, (float2*)points.GetUnsafePtr(), points.Length, (int2*)inputEdges.GetUnsafePtr(), inputEdges.Length, (float2*)outputVertices.GetUnsafePtr(), (int*)outputIndices.GetUnsafePtr(), (int2*)outputEdges.GetUnsafePtr(), maxDataCount, largestTriangleAreaFactor, targetArea, refineIterations, smoothenIterations, (int3*)outputResult.GetUnsafePtr());
+                vertexCount = outputResult[0].x;
+                indexCount = outputResult[0].y;
+                edgeCount = outputResult[0].z;                
             }
-
-            var mesh = polygon.Triangulate();
-            var statistic = new Statistic();
-
-            statistic.Update((UnityEngine.U2D.Animation.TriangleNet.Mesh)mesh, 1);
-
-            if (statistic.LargestArea < 0.01f)
-                throw new System.Exception("Invalid Mesh: Largest triangle area too small");
-
-            var maxAreaToApply = (double)Mathf.Max((float)statistic.LargestArea * largestTriangleAreaFactor, (float)(statistic.MeshArea * meshAreaFactor));
-            var qualityOptions = new QualityOptions() { SteinerPoints = 0 };
-
-            if (maxAreaToApply > 0f)
-                qualityOptions.MaximumArea = maxAreaToApply;
-
-            qualityOptions.MinimumAngle = minAngle;
-            qualityOptions.MaximumAngle = maxAngle;
-
-            mesh.Refine(qualityOptions, false);
-            mesh.Renumber();
-
-            if (smoothIterations > 0)
-            {
-                try
-                {
-                    var smoother = new SimpleSmoother();
-                    smoother.Smooth(mesh, smoothIterations);
-                }
-                catch (System.Exception)
-                {
-                    Debug.Log(TextContent.smoothMeshError);
-                }
-            }
+            // Fallback on numerical precision errors.
+            if (vertexCount <= 8)
+                SubdivideSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount, largestTriangleAreaFactor, targetArea, refineIterations, smoothenIterations);
 
             vertices.Clear();
-            edges.Clear();
+            for (int i = 0; i < vertexCount; ++i)
+                vertices.Add(outputVertices[i]);
             indices.Clear();
+            for (int i = 0; i < indexCount; ++i)
+                indices.Add(outputIndices[i]);
+            edges.Clear();
+            for (int i = 0; i < edgeCount; ++i)
+                edges.Add(new Edge(){index1 = outputEdges[i].x, index2 = outputEdges[i].y});
 
-            foreach (Vertex vertex in mesh.Vertices)
+            outputEdges.Dispose();
+            outputResult.Dispose();
+            outputIndices.Dispose();
+            outputVertices.Dispose();
+            inputEdges.Dispose();
+            points.Dispose();
+        }
+
+        public static void TessellateSafe(float minAngle, float maxAngle, float meshAreaFactor, float largestTriangleAreaFactor, float targetArea, int refineIterations, int smoothenIterations, IList<Vector2> vertices, IList<Edge> edges, IList<int> indices)
+        {
+            if (vertices.Count < 3)
+                return;
+
+            largestTriangleAreaFactor = Mathf.Clamp01(largestTriangleAreaFactor);
+
+            NativeArray<float2> points = new NativeArray<float2>(vertices.Count, Allocator.Persistent);
+            for (int i = 0; i < vertices.Count; ++i)
+                points[i] = vertices[i];
+            NativeArray<int2> inputEdges = new NativeArray<int2>(edges.Count, Allocator.Persistent);
+            for (int i = 0; i < edges.Count; ++i)
+                inputEdges[i] = new int2(edges[i].index1, edges[i].index2);
+            
+            int vertexCount = 0, indexCount = 0, edgeCount = 0, maxDataCount = 65536;
+            NativeArray<float2> outputVertices = new NativeArray<float2>(maxDataCount, Allocator.Persistent);
+            NativeArray<int> outputIndices = new NativeArray<int>(maxDataCount, Allocator.Persistent);
+            NativeArray<int2> outputEdges = new NativeArray<int2>(maxDataCount, Allocator.Persistent);
+            bool ok = SubdivideSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount, largestTriangleAreaFactor, targetArea, refineIterations, smoothenIterations) ;
+
+            if (ok)
             {
-                vertices.Add(new Vector2((float)vertex.X, (float)vertex.Y));
+                vertices.Clear();
+                for (int i = 0; i < vertexCount; ++i)
+                    vertices.Add(outputVertices[i]);
+                indices.Clear();
+                for (int i = 0; i < indexCount; ++i)
+                    indices.Add(outputIndices[i]);
+                edges.Clear();
+                for (int i = 0; i < edgeCount; ++i)
+                    edges.Add(new Edge() {index1 = outputEdges[i].x, index2 = outputEdges[i].y});
             }
 
-            foreach (ISegment segment in mesh.Segments)
+            outputEdges.Dispose();
+            outputIndices.Dispose();
+            outputVertices.Dispose();
+            inputEdges.Dispose();
+            points.Dispose();
+        }        
+        
+        // Find Target Area to Subdivide for BBW. todo: Burst it.
+        internal static float FindTargetAreaForWeightMesh(List<Vector2> triVertices, List<int> triIndices, float meshAreaFactor, float largestTriangleFactor)
+        {
+            float totalArea = 0, largestArea = 0, targetArea = 0;
+            
+            for (int i = 0; i < triIndices.Count / 3; ++i)
             {
-                edges.Add(new Edge(segment.P0, segment.P1));
+                int i1 = triIndices[0 + (i * 3)];
+                int i2 = triIndices[1 + (i * 3)];
+                int i3 = triIndices[2 + (i * 3)];
+                float2 v1 = triVertices[i1];
+                float2 v2 = triVertices[i2];
+                float2 v3 = triVertices[i3];
+                float area = ModuleHandle.TriangleArea(v1, v2, v3);
+                totalArea = totalArea + area;
+                largestArea = largestArea > area ? largestArea : area;
             }
 
-            foreach (ITriangle triangle in mesh.Triangles)
+            targetArea = Mathf.Max(meshAreaFactor * totalArea, largestTriangleFactor * largestArea);
+            return targetArea;
+        }        
+        
+        // Triangulate Bone Samplers.  todo: Burst it.
+        internal static void TriangulateSamplers(Vector2[] samplers, List<Vector2> triVertices, List<int> triIndices)
+        {
+            foreach(var v in samplers)
             {
-                int id0 = triangle.GetVertexID(0);
-                int id1 = triangle.GetVertexID(1);
-                int id2 = triangle.GetVertexID(2);
-
-                if (id0 < 0 || id1 < 0 || id2 < 0 ||  id0 >= vertices.Count || id1 >= vertices.Count || id2 >= vertices.Count)
-                    continue;
-
-                indices.Add(id0);
-                indices.Add(id2);
-                indices.Add(id1);
+                var vertexCount = triVertices.Count;
+                
+                for (int i = 0; i < triIndices.Count / 3; ++i)
+                {
+                    int i1 = triIndices[0 + (i * 3)];
+                    int i2 = triIndices[1 + (i * 3)];
+                    int i3 = triIndices[2 + (i * 3)];
+                    float2 v1 = triVertices[i1];
+                    float2 v2 = triVertices[i2];
+                    float2 v3 = triVertices[i3];
+                    var inside = ModuleHandle.IsInsideTriangle(v, v1, v2, v3);
+                    if (inside)
+                    {
+                        triVertices.Add(v);
+                        triIndices.Add(i1); triIndices.Add(i2); triIndices.Add(vertexCount);
+                        triIndices.Add(i2); triIndices.Add(i3); triIndices.Add(vertexCount);
+                        triIndices.Add(i3); triIndices.Add(i1); triIndices.Add(vertexCount);
+                        break;
+                    }
+                }
             }
         }
+        
+        
+        // Triangulate Skipped Original Points. These points are discarded during PlanarGrapg cleanup. But bbw only cares if these are part of any geometry. So just insert them. todo: Burst it. 
+        internal static void TriangulateInternal(int[] internalIndices, List<Vector2> triVertices, List<int> triIndices)
+        {
+            foreach(var index in internalIndices)
+            {
+                var v = triVertices[index];
+                var triangleCount = triIndices.Count / 3;
+                for (int i = 0; i < triangleCount; ++i)
+                {
+                    int i1 = triIndices[0 + (i * 3)];
+                    int i2 = triIndices[1 + (i * 3)];
+                    int i3 = triIndices[2 + (i * 3)];
+                    float2 v1 = triVertices[i1];
+                    float2 v2 = triVertices[i2];
+                    float2 v3 = triVertices[i3];
+                    var c1 = (float)Math.Round(ModuleHandle.OrientFast(v1, v2, v), 2);
+                    if (c1 == 0)
+                    {
+                        triIndices[0 + (i * 3)] = i1; triIndices[1 + (i * 3)] = index; triIndices[2 + (i * 3)] = i3;
+                        triIndices.Add(index); triIndices.Add(i2); triIndices.Add(i3);
+                    }
+                    else
+                    {
+                        var c2 = (float)Math.Round(ModuleHandle.OrientFast(v2, v3, v), 2);
+                        if (c2 == 0)
+                        {
+                            triIndices[0 + (i * 3)] = i2; triIndices[1 + (i * 3)] = index; triIndices[2 + (i * 3)] = i1;
+                            triIndices.Add(index); triIndices.Add(i3); triIndices.Add(i1);
+                        }
+                        else
+                        {
+                            var c3 = (float)Math.Round(ModuleHandle.OrientFast(v3, v1, v), 2);
+                            if (c3 == 0)
+                            {
+                                triIndices[0 + (i * 3)] = i3; triIndices[1 + (i * 3)] = index; triIndices[2 + (i * 3)] = i2;
+                                triIndices.Add(index); triIndices.Add(i1); triIndices.Add(i2);
+                            }
+                        }
+                    }                    
+                }
+            }
+        }
+        
     }
 }

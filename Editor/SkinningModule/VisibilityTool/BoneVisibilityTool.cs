@@ -12,7 +12,7 @@ namespace UnityEditor.U2D.Animation
         private BoneTreeWidgetController m_Controller;
 
         VisualElement IVisibilityTool.view { get { return (VisualElement)m_View; } }
-        public string name { get { return "Bone"; } }
+        public string name => TextContent.bone;
         public bool isAvailable
         {
             get { return true; }
@@ -85,7 +85,7 @@ namespace UnityEditor.U2D.Animation
             };
             columns[1] = new MultiColumnHeaderState.Column
             {
-                headerContent = EditorGUIUtility.TrTextContent(TextContent.bone),
+                headerContent = new GUIContent(TextContent.bone),
                 headerTextAlignment = TextAlignment.Center,
                 width = 200,
                 minWidth = 130,
@@ -222,21 +222,44 @@ namespace UnityEditor.U2D.Animation
                 case 2:
                     DrawDepthCell(cellRect, item);
                     break;
+                case 3:
+                    DrawColorCell(cellRect, item);
+                    break;
             }
         }
 
         void DrawDepthCell(Rect cellRect, TreeViewItem item)
         {
-            var boneItemView = item as TreeViewItemBase<BoneCache>;
-            int depth = GetController().GetTreeItemDepthValue(boneItemView);
-            const int width = 30;
-            cellRect.height = EditorGUIUtility.singleLineHeight;
-            cellRect.x += (cellRect.width - width) * 0.5f;
-            cellRect.width = width;
+            var boneItemView = DrawCell(cellRect, item);
+            
             EditorGUI.BeginChangeCheck();
+            var depth = GetController().GetTreeItemDepthValue(boneItemView);
             depth = EditorGUI.IntField(cellRect, depth);
             if (EditorGUI.EndChangeCheck())
                 GetController().SetTreeItemDepthValue(boneItemView, depth);
+        }
+        
+        void DrawColorCell(Rect cellRect, TreeViewItem item)
+        {
+            var boneItemView = DrawCell(cellRect, item);
+            
+            EditorGUI.BeginChangeCheck();
+            var color = GetController().GetTreeItemColorValue(boneItemView);
+            color = EditorGUI.ColorField(cellRect, color);
+            if (EditorGUI.EndChangeCheck())
+                GetController().SetTreeItemColorValue(boneItemView, color);
+        }
+
+        static TreeViewItemBase<BoneCache> DrawCell(Rect cellRect, TreeViewItem item)
+        {
+            const int width = 30;
+            
+            var boneItemView = item as TreeViewItemBase<BoneCache>;
+            cellRect.height = EditorGUIUtility.singleLineHeight;
+            cellRect.x += (cellRect.width - width) * 0.5f;
+            cellRect.width = width;
+
+            return boneItemView;
         }
 
         void DrawVisibilityCell(Rect cellRect, TreeViewItem item)

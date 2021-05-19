@@ -133,6 +133,7 @@ namespace UnityEditor.U2D.Animation
         /// <summary>
         /// Returns Main Skeleton data.
         /// </summary>
+        /// <returns>MainSkeletonData data.</returns>
         MainSkeletonData GetMainSkeletonData();
     }
 

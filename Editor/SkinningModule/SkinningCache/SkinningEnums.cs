@@ -25,6 +25,7 @@ namespace UnityEditor.U2D.Animation
         WeightBrush,
         GenerateWeights,
         BoneInfluence,
+        SpriteInfluence,
         CopyPaste,
         Visibility,
         SwitchMode

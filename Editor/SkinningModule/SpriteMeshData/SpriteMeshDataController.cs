@@ -159,7 +159,7 @@ namespace UnityEditor.U2D.Animation
             triangulator.Triangulate(m_VerticesTemp, spriteMeshData.edges, spriteMeshData.indices);
         }
 
-        public void Subdivide(ITriangulator triangulator, float largestAreaFactor)
+        public void Subdivide(ITriangulator triangulator, float largestAreaFactor, float areaThreshold)
         {
             Debug.Assert(spriteMeshData != null);
             Debug.Assert(triangulator != null);
@@ -175,7 +175,7 @@ namespace UnityEditor.U2D.Animation
             {
                 var indices = new List<int>();
 
-                triangulator.Tessellate(0f, 0f, 0f, largestAreaFactor, 100, m_VerticesTemp, m_EdgesTemp, indices);
+                triangulator.Tessellate(0f, 0f, 0f, largestAreaFactor, areaThreshold, 100, m_VerticesTemp, m_EdgesTemp, indices);
 
                 spriteMeshData.Clear();
 
@@ -264,7 +264,7 @@ namespace UnityEditor.U2D.Animation
             for (int i = 0; i < spriteMeshData.vertexCount; ++i)
                 vertices[i] = spriteMeshData.GetPosition(i);
 
-            BoneWeight[] boneWeights = weightsGenerator.Calculate(vertices, spriteMeshData.edges.ToArray(), controlPoints, bones, pins);
+            BoneWeight[] boneWeights = weightsGenerator.Calculate(spriteMeshData.spriteName, vertices, spriteMeshData.indices.ToArray(), spriteMeshData.edges.ToArray(), controlPoints, bones, pins);
 
             Debug.Assert(boneWeights.Length == spriteMeshData.vertexCount);
 

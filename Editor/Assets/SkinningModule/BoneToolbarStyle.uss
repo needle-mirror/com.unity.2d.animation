@@ -2,10 +2,6 @@
 /* BoneToolbar                                                                                                         */
 /**********************************************************************************************************************/
 
-#EditPoseImage {
-    background-image: url("Icons/Light/Edit_Pose.png");
-}
-
 #EditJointsImage {
     background-image: url("Icons/Light/Edit_Joints.png");
 }
@@ -22,10 +18,6 @@
     background-image: url("Icons/Light/Parent_Bone.png");
 }
 
-.Dark #EditPoseImage {
-    background-image: url("Icons/Dark/d_Edit_Pose.png");
-}
-
 .Dark #EditJointsImage {
     background-image: url("Icons/Dark/d_Edit_Joints.png");
 }
@@ -40,10 +32,6 @@
 
 .Dark #BoneReparentImage {
     background-image: url("Icons/Dark/d_Parent_Bone.png");
-}
-
-.Checked #EditPoseImage{
-    background-image: url("Icons/Selected/Edit_Pose.png");
 }
 
 .Checked #EditJointsImage {

@@ -10,22 +10,30 @@ namespace UnityEditor.U2D.Animation
     [MovedFrom("UnityEditor.Experimental.U2D.Animation")]
     internal class SpriteLibraryInspector : Editor
     {
+        class SpriteLibCombineCache : ScriptableObject
+        {
+            [SerializeField]
+            List<SpriteLibCategoryOverride> m_Library = new List<SpriteLibCategoryOverride>();
+
+            public List<SpriteLibCategoryOverride> library => m_Library;
+        }
+
         static class Style
         {
             public static string libraryDifferentValue = L10n.Tr("Sprite Library has different values.");
         }
         
-        private SpriteLibCombineCache m_OverrideLibraryObject;
-        private SerializedObject m_OverrideLibraryCache;
-        private SerializedProperty m_MasterLibraryProperty;
-        private SpriteLibraryAsset m_MasterLibraryObject;
-        private SerializedProperty m_MasterLibraryCategories;
-        private SerializedProperty m_OverrideLibraryCategories;
-        private SpriteLibraryDataInspector m_SpriteLibraryDataInspector;
-        private long m_PreviousModificationHash;
+        SpriteLibCombineCache m_OverrideLibraryObject;
+        SerializedObject m_OverrideLibraryCache;
+        SerializedProperty m_MasterLibraryProperty;
+        SpriteLibraryAsset m_MasterLibraryObject;
+        SerializedProperty m_MasterLibraryCategories;
+        SerializedProperty m_OverrideLibraryCategories;
+        SpriteLibraryDataInspector m_SpriteLibraryDataInspector;
+        long m_PreviousModificationHash;
 
-        private List<SpriteLibrary> m_CachedLibraryTargets = new List<SpriteLibrary>();
-        private List<SpriteResolver> m_CachedResolvers = new List<SpriteResolver>();
+        List<SpriteLibrary> m_CachedLibraryTargets = new List<SpriteLibrary>();
+        List<SpriteResolver> m_CachedResolvers = new List<SpriteResolver>();
 
         public void OnEnable()
         {
@@ -41,12 +49,12 @@ namespace UnityEditor.U2D.Animation
             UpdateSpriteLibraryDataCache();
         }
 
-        private void UpdateMasterLibraryObject()
+        void UpdateMasterLibraryObject()
         {
             m_MasterLibraryObject = (SpriteLibraryAsset)m_MasterLibraryProperty.objectReferenceValue;
         }
 
-        private void CacheTargets()
+        void CacheTargets()
         {
             m_CachedLibraryTargets.Clear();
             foreach(var t in targets)
@@ -112,7 +120,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void RefreshMasterLibraryAssetData()
+        void RefreshMasterLibraryAssetData()
         {
             var modificationHash = m_MasterLibraryObject ? m_MasterLibraryObject.modificationHash : 0;
             if (m_PreviousModificationHash != modificationHash)
@@ -123,7 +131,7 @@ namespace UnityEditor.U2D.Animation
             }            
         }
 
-        private void UpdateSpriteResolvers()
+        void UpdateSpriteResolvers()
         {
             foreach (var resolver in m_CachedResolvers)
             {

@@ -1,8 +1,8 @@
 VisibilityToolWindow {
     flex:1 0;
-    width : 250px;
     flex-direction: row-reverse;
     padding-bottom : 10px;
+    width: 300px;
 }
 
 VisibilityToolWindow > PopupWindow{

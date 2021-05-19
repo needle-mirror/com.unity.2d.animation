@@ -1,4 +1,4 @@
-﻿Shader "com.unity3d.animation/SpriteBitmask"
+﻿Shader "Hidden/2D-Animation-SpriteBitmask"
 {
     Properties
     {

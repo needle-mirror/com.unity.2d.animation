@@ -24,6 +24,7 @@ namespace UnityEditor.U2D.Animation
         List<Edge> edges { get; set; }
         int vertexCount { get; }
         int boneCount { get; }
+        string spriteName { get; }
         Vector2 GetPosition(int index);
         void SetPosition(int index, Vector2 position);
         EditableBoneWeight GetWeight(int index);
@@ -81,6 +82,7 @@ namespace UnityEditor.U2D.Animation
             set { m_Bones = value; }
         }
 
+        public string spriteName { get { return ""; } }
         public int vertexCount { get { return m_Vertices.Count; } }
         public int boneCount { get { return m_Bones.Count; } }
 

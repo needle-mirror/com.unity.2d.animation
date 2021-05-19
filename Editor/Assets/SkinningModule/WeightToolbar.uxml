@@ -18,6 +18,10 @@
                 <ui:Image name="BoneInfluenceWidgetImage" />
                 <ui:Label text ="Bone Influence"/>
             </ui:Button>
+                <ui:Button name="SpriteInfluenceWidget" tooltip="Edit Sprites influenced by a bone">
+                    <ui:Image name="SpriteInfluenceWidgetImage" />
+                    <ui:Label text ="Sprite Influence"/>
+                </ui:Button>
             </ui:PopupWindow>
         </aui:WeightToolbar>
 </UXML>

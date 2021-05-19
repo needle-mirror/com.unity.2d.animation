@@ -1,6 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 
 namespace UnityEditor.U2D.Animation
@@ -204,10 +205,27 @@ namespace UnityEditor.U2D.Animation
                 using (m_Model.UndoScope(TextContent.boneDepth))
                 {
                     m_Model.SetDepth(bone.customData, value);
-                    m_SkinningEvents.boneNameChanged.Invoke(bone.customData);
+                    m_SkinningEvents.boneDepthChanged.Invoke(bone.customData);
                 }
             }
         }
+        
+        public Color GetTreeItemColorValue(TreeViewItemBase<BoneCache> bone)
+        {
+            return m_Model.GetBoneColor(bone.customData);
+        }
+
+        public void SetTreeItemColorValue(TreeViewItemBase<BoneCache> bone, Color color)
+        {
+            if (bone != null && bone.customData != null)
+            {
+                using (m_Model.UndoScope(TextContent.boneColor))
+                {
+                    m_Model.SetBoneColor(bone.customData, color);
+                    m_SkinningEvents.boneColorChanged.Invoke(bone.customData);
+                }
+            }
+        }        
 
         public void SetTreeViewBoneName(IList<TreeViewItem> items, BoneCache bone)
         {

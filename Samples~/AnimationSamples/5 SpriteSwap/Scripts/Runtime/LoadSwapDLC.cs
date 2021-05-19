@@ -12,17 +12,25 @@ namespace Unity.U2D.Animation.Sample
     {
         const string k_AssetBundleName = "2DAnimationSampleAssetBundles";
         public SwapFullSkin[] swapFullSkin;
+
+#if ASSETBUNDLE_ENABLED
+        AssetBundle m_Bundle;
+#endif
         
         public void LoadAssetBundle()
         {
+#if ASSETBUNDLE_ENABLED
+            if (m_Bundle)
+                return;
+            
             var assetBundlePath = Path.Combine(Application.streamingAssetsPath, k_AssetBundleName);
-            var bundle = AssetBundle.LoadFromFile(Path.Combine(assetBundlePath, k_AssetBundleName));
-            if (bundle == null)
+            m_Bundle = AssetBundle.LoadFromFile(Path.Combine(assetBundlePath, k_AssetBundleName));
+            if (m_Bundle == null)
             {
                 Debug.LogWarning("AssetBundle not found");
                 return;
             }
-            var manifest = bundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+            var manifest = m_Bundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
             if (manifest == null)
             {
                 Debug.LogWarning("Unable to load manifest");
@@ -51,6 +59,7 @@ namespace Unity.U2D.Animation.Sample
             {
                 sfs.UpdateSelectionChoice();
             }
+#endif 
         }
 
 #if UNITY_EDITOR
@@ -62,13 +71,15 @@ namespace Unity.U2D.Animation.Sample
 
         public static void BuildAssetBundles()
         {
+#if ASSETBUNDLE_ENABLED            
             string assetBundleDirectory = Path.Combine(Application.streamingAssetsPath, "2DAnimationSampleAssetBundles");
             if (!Directory.Exists(assetBundleDirectory))
             {
                 Directory.CreateDirectory(assetBundleDirectory);
             }
             BuildPipeline.BuildAssetBundles(assetBundleDirectory, BuildAssetBundleOptions.None, EditorUserBuildSettings.activeBuildTarget);
+#endif  // ASSETBUNDLE_ENABLED
         }
-#endif
+#endif // UNITY_EDITOR
     }
 }

@@ -47,6 +47,16 @@ namespace UnityEditor.U2D.Layout
             }
         }
 
+        public ScrollerVisibility verticalScrollerVisibility
+        {
+            set => m_ScrollView.verticalScrollerVisibility = value;
+        }
+        
+        public ScrollerVisibility horizontalScrollerVisibility
+        {
+            set => m_ScrollView.horizontalScrollerVisibility = value;
+        }        
+
         public ScrollableToolbar() : this(false)
         {
         }

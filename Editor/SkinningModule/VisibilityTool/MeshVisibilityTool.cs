@@ -160,7 +160,7 @@ namespace UnityEditor.U2D.Animation
             var columns = new MultiColumnHeaderState.Column[2];
             columns[0] = new MultiColumnHeaderState.Column
             {
-                headerContent = EditorGUIUtility.TrTextContent(TextContent.name),
+                headerContent = new GUIContent(TextContent.name),
                 headerTextAlignment = TextAlignment.Center,
                 width = 200,
                 minWidth = 130,

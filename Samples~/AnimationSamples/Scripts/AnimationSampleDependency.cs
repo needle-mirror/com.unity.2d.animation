@@ -1,28 +1,46 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Unity.U2D.Animation.Sample.Dependency
 {
     [ExecuteInEditMode]
     internal class AnimationSampleDependency : MonoBehaviour
     {
-        public UnityEngine.UI.Text textField = null;
-        public GameObject gameCanvas = null;
+        enum Dependency
+        {
+            None,
+            PsdImporter,
+            AssetBundle
+        }
+        
+        [SerializeField] GameObject errorUI = null;
+        [SerializeField] Dependency dependency = Dependency.None;
 
         void Update()
         {
+            var hasDependencyInstalled = HasDependencyInstalled();
+            if(errorUI != null)
+                errorUI.SetActive(!hasDependencyInstalled);
+        }
+
+        bool HasDependencyInstalled()
+        {
+            switch (dependency)
+            {
+                case Dependency.PsdImporter:
 #if PSDIMPORTER_ENABLED
-            if(textField != null)
-                textField.enabled = false;
-            if(gameCanvas != null)
-                gameCanvas.SetActive(true);
+                    return true;
 #else
-            if(textField != null)
-                textField.enabled = true;
-            if(gameCanvas != null)
-                gameCanvas.SetActive(false);
+                    return false;
 #endif
+                case Dependency.AssetBundle:
+#if ASSETBUNDLE_ENABLED
+                    return true;
+#else
+                    return false;
+#endif
+            }
+
+            return true;
         }
     }
 }

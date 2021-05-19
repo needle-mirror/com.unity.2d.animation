@@ -43,7 +43,7 @@ namespace UnityEditor.U2D.Animation
     {
         public const int kDefaultOutlineDetail = 10;
         public const int kDefaultAlphaTolerance = 10;
-        public const int kDefaultSubdivide = 20;
+        public const int kDefaultSubdivide = 0;
         public const string kOutlineDetailKey = UserSettings.kSettingsUniqueKey + "GenerateGeomertySetting.outlineDetail";
         public const string kAlphaToleranceKey = UserSettings.kSettingsUniqueKey + "GenerateGeomertySetting.alphaTolerance";
         public const string kSubdivideKey = UserSettings.kSettingsUniqueKey + "GenerateGeomertySetting.subdivide";
@@ -65,7 +65,7 @@ namespace UnityEditor.U2D.Animation
         {
             get { return EditorPrefs.GetInt(kSubdivideKey, kDefaultSubdivide); }
             set { EditorPrefs.SetInt(kSubdivideKey, value); }
-        }
+        }        
 
         public static bool generateWeights
         {
@@ -82,9 +82,9 @@ namespace UnityEditor.U2D.Animation
         public const string kSelectedOutlineAlphaKey = UserSettings.kSettingsUniqueKey + "OutlineColorAlpha";
         public const string kSelectedSpriteOutlineSize = UserSettings.kSettingsUniqueKey + "OutlineSize";
         public const string kSelectedBoneOutlineSize = UserSettings.kSettingsUniqueKey + "BoneOutlineSize";
-        public static readonly GUIContent kSelectedOutlineColorLabel = EditorGUIUtility.TrTextContent(TextContent.selectedOutlineColor);
-        public static readonly GUIContent kSelectedOutlineSizeLabel = EditorGUIUtility.TrTextContent(TextContent.spriteOutlineSize);
-        public static readonly GUIContent kSelectedBoneOutlineSizeLabel = EditorGUIUtility.TrTextContent(TextContent.boneOutlineSize);
+        public static readonly GUIContent kSelectedOutlineColorLabel = new GUIContent(TextContent.selectedOutlineColor);
+        public static readonly GUIContent kSelectedOutlineSizeLabel = new GUIContent(TextContent.spriteOutlineSize);
+        public static readonly GUIContent kSelectedBoneOutlineSizeLabel = new GUIContent(TextContent.boneOutlineSize);
 
         public static Color outlineColor
         {

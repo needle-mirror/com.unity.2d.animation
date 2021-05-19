@@ -101,6 +101,8 @@ namespace UnityEditor.U2D.Animation
         {
             m_Vertices.RemoveAt(index);
         }
+        
+        public string spriteName { get { return sprite.name; } }
 
         SpriteBoneData ISpriteMeshData.GetBoneData(int index)
         {

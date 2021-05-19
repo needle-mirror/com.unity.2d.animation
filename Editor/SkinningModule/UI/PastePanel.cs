@@ -75,6 +75,7 @@ namespace UnityEditor.U2D.Animation
         {
             var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/PastePanel.uxml");
             var clone = visualTree.CloneTree().Q<PastePanel>("PastePanel");
+            clone.LocalizeTextInChildren();
             clone.BindElements();
             return clone;
         }

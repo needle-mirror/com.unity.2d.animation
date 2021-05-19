@@ -2,10 +2,6 @@
 <UXML xmlns:ui="UnityEngine.UIElements" xmlns:aui="UnityEditor.U2D.Animation">
   <aui:BoneToolbar name="BoneToolbar">
       <ui:PopupWindow name="PopupWindow" text="Bones">
-          <ui:Button name="EditPose" tooltip="Pose character to view setup">
-              <ui:Image name="EditPoseImage" />
-              <ui:Label text ="Preview Pose"/>
-          </ui:Button>
           <ui:Button name="EditJoints" tooltip="Edit bones position and rotation">
               <ui:Image name="EditJointsImage" />
               <ui:Label text ="Edit Bone"/>

@@ -86,6 +86,7 @@ namespace UnityEditor.U2D.Animation
         {
             var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/GenerateWeightsPanel.uxml");
             var clone = visualTree.CloneTree().Q<GenerateWeightsPanel>("GenerateWeightsPanel");
+            clone.LocalizeTextInChildren();
             clone.BindElements();
             return clone;
         }

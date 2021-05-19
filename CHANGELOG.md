@@ -1,29 +1,27 @@
 # Changelog
 
-## [6.0.4] - 2021-06-09
+## [7.0.0-pre.2] - 2021-05-19
 ### Fixed
-- Sprite Resolver component not updated when new categories/labels are added into Sprite Library asset. (case 1321069)
-- Thumbnails in Sprite Library Asset flicker when the Library Asset contains many Categories and Labels. (case 1333228)
-- SpriteLibraryAsset Category & Label does not generate hash in Inspector (case 1340587)
-- SpriteResolver inspector selects first element when failing to resolve. (case 1340070)
+- Fixed Sprite Resolver component not updated when new categories/labels are added into Sprite Library asset. (case 1321069)
 
-## [6.0.3] - 2021-04-19
-### Fixed
-- Fixed package description
-- Fixed manual documentation
-- Fixed crash when disabling Sprite Skin when multithreaded rendering is enabled. (case 1296355)
-
-## [6.0.1] - 2021-03-19
+## [7.0.0-pre.1] - 2021-05-05
 ### Changed
-- Removed redundant ForceReserializeAssets from SpritePostProcess.OnPreprocessAsset()
+- Version bump for Unity 2021.2.
+- Moved Copy & Paste Rig buttons in the Skinning Editor into their own Rig category.
+- Moved Preview & Restore Pose button in the Skinning Editor into their own Pose category.
+- Replaced Triangle.Net with our own tessellation solution.
+
+### Added
+- Added shortcuts at the back of the Skinning Editor buttons tooltips for better discoverability.
+- Added a color picker for each bone in the Skinning Editor's Visiblity tab.
+- Added the Sprite Influence panel that allows to change a bone influence on the selected Sprite.
+
+### Fixed
+- Fixed crash when disabling Sprite Skin when multithreaded rendering is enabled. (case 1296355)
 
 ## [6.0.0] - 2021-03-17
 ### Changed
 - Update version for release
-
-## [6.0.0-pre.3] - 2021-03-08
-### Changed
-- Update manual documentaiton
 
 ## [6.0.0-pre.3] - 2021-03-15
 ### Changed

@@ -32,6 +32,7 @@ namespace UnityEditor.U2D.Animation
         private BoneSelectionEvent m_BoneSelectionChangedEvent = new BoneSelectionEvent();
         private BoneEvent m_BoneNameChangedEvent = new BoneEvent();
         private BoneEvent m_BoneDepthChangedEvent = new BoneEvent();
+        private BoneEvent m_BoneColorChangedEvent = new BoneEvent();
         private CharacterPartEvent m_CharacterPartChanged = new CharacterPartEvent();
         private ToolChangeEvent m_ToolChanged = new ToolChangeEvent();
         private RestoreBindPoseEvent m_RestoreBindPose = new RestoreBindPoseEvent();
@@ -40,8 +41,7 @@ namespace UnityEditor.U2D.Animation
         private ShortcutEvent m_ShortcutEvent = new ShortcutEvent();
         private BoneVisibilityEvent m_BoneVisibilityEvent = new BoneVisibilityEvent();
         private MeshPreviewBehaviourChangeEvent m_MeshPreviewBehaviourChange = new MeshPreviewBehaviourChangeEvent();
-        private UnityEvent m_DataModified = new UnityEvent();
-        
+
         //Setting them as virtual so that we can create mock them
         public virtual SpriteEvent selectedSpriteChanged { get { return m_SelectedSpriteChanged; } }
         public virtual SkeletonEvent skeletonPreviewPoseChanged { get { return m_SkeletonPreviewPoseChanged; } }
@@ -53,6 +53,7 @@ namespace UnityEditor.U2D.Animation
         public virtual BoneSelectionEvent boneSelectionChanged { get { return m_BoneSelectionChangedEvent; } }
         public virtual BoneEvent boneNameChanged { get { return m_BoneNameChangedEvent; } }
         public virtual BoneEvent boneDepthChanged { get { return m_BoneDepthChangedEvent; } }
+        public virtual BoneEvent boneColorChanged { get { return m_BoneColorChangedEvent; } }
         public virtual CharacterPartEvent characterPartChanged { get { return m_CharacterPartChanged; } }
         public virtual ToolChangeEvent toolChanged { get { return m_ToolChanged; } }
         public virtual RestoreBindPoseEvent restoreBindPose { get { return m_RestoreBindPose; } }
@@ -61,9 +62,5 @@ namespace UnityEditor.U2D.Animation
         public virtual ShortcutEvent shortcut { get { return m_ShortcutEvent; } }
         public virtual BoneVisibilityEvent boneVisibility { get { return m_BoneVisibilityEvent; } }
         public virtual MeshPreviewBehaviourChangeEvent meshPreviewBehaviourChange { get { return m_MeshPreviewBehaviourChange; } }
-        public virtual UnityEvent dataModified
-        {
-            get => m_DataModified;
-        }
     }
 }

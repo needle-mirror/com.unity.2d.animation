@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML xmlns:ui="UnityEngine.UIElements" xmlns:aui="UnityEditor.U2D.Animation">
+    <aui:PoseToolbar name="PoseToolbar">
+        <ui:PopupWindow name="PopupWindow" text="Pose">
+            <ui:Button name="PreviewPose" tooltip="Pose character to view setup">
+                <ui:Image name="EditPoseImage" />
+                <ui:Label text ="Preview Pose"/>
+            </ui:Button>
+            <ui:Button name="RestorePose" tooltip="Restore the character's pose to its default pose">
+                <ui:Image name="ResetPoseImage" />
+                <ui:Label text ="Restore Pose"/>
+            </ui:Button>
+        </ui:PopupWindow>
+    </aui:PoseToolbar>
+</UXML>

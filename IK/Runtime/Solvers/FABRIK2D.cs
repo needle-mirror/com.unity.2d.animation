@@ -8,22 +8,55 @@ namespace UnityEngine.U2D.IK
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     public struct FABRIKChain2D
     {
+        /// <summary>
+        /// Returns the first element's position.
+        /// </summary>
         public Vector2 first
         {
             get { return positions[0]; }
         }
 
+        /// <summary>
+        /// Returns the last element's position.
+        /// </summary>
         public Vector2 last
         {
             get { return positions[positions.Length - 1]; }
         }
 
+        /// <summary>
+        /// Position of the origin.
+        /// </summary>
         public Vector2 origin;
+        
+        /// <summary>
+        /// Position of the target which is used to indicate the desired position for the Effector.
+        /// </summary>
         public Vector2 target;
+        
+        /// <summary>
+        /// Target position's tolerance (squared).
+        /// </summary>
         public float sqrTolerance;
+        
+        /// <summary>
+        /// Array of chain positions.
+        /// </summary>
         public Vector2[] positions;
+        
+        /// <summary>
+        /// Array of chain lengths.
+        /// </summary>
         public float[] lengths;
+        
+        /// <summary>
+        /// Sub-Chain indices.
+        /// </summary>
         public int[] subChainIndices;
+        
+        /// <summary>
+        /// Array of world positions.
+        /// </summary>
         public Vector3[] worldPositions;
     }
 
@@ -61,6 +94,12 @@ namespace UnityEngine.U2D.IK
             return iterations != 0;
         }
 
+        /// <summary>
+        /// Solve IK based on FABRIK.
+        /// </summary>
+        /// <param name="solverLimit">Solver iteration count.</param>
+        /// <param name="chains">FABRIK chains.</param>
+        /// <returns>True if solver successfully completes within iteration limit. False otherwise.</returns>
         public static bool SolveChain(int solverLimit, ref FABRIKChain2D[] chains)
         {
             // Do a quick validation of the end points that it has not been solved

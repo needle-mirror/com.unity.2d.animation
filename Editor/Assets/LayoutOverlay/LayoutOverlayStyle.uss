@@ -61,7 +61,7 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay {
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow {
     flex:1 0 auto;
-    width : 280px;
+    width : 300px;
     padding-left : 12px;
     padding-right : 12px;
 }

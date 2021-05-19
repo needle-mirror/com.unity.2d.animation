@@ -56,6 +56,11 @@ namespace UnityEditor.U2D.Animation
         {
             return (int)bone.depth;
         }
+        
+        public Color GetBoneColor(BoneCache bone)
+        {
+            return bone.bindPoseColor;
+        }        
 
         public SkeletonCache GetSelectedSkeleton()
         {
@@ -120,6 +125,17 @@ namespace UnityEditor.U2D.Animation
 
             skinningCache.events.boneDepthChanged.Invoke(bone);
         }
+        
+        public void SetBoneColor(BoneCache bone, Color color)
+        {
+            var characterBone = bone.ToCharacterIfNeeded();
+            characterBone.bindPoseColor = color;
+            
+            if (characterBone != bone || skinningCache.mode == SkinningMode.Character)
+                skinningCache.SyncSpriteSheetSkeletons();
+            
+            skinningCache.events.boneColorChanged.Invoke(bone);
+        }        
 
         public void SetName(BoneCache bone, string name)
         {
@@ -160,6 +176,8 @@ namespace UnityEditor.U2D.Animation
         void SetBoneParent(BoneCache newParent, BoneCache bone, int insertAtIndex);
         int GetDepth(BoneCache bone);
         void SetDepth(BoneCache bone, int depth);
+        Color GetBoneColor(BoneCache bone);
+        void SetBoneColor(BoneCache bone, Color color);
         void SetAllVisibility(SkeletonCache skeleton, bool visibility);
         bool GetAllVisibility();
         void SelectBones(BoneCache[] bones);

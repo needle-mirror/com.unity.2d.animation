@@ -17,7 +17,7 @@ namespace UnityEditor.U2D.Animation
             public static GUIContent labelLabel = EditorGUIUtility.TrTextContent("Label");
             public static GUIContent categoryIsEmptyLabel = EditorGUIUtility.TrTextContent("Category is Empty");
             public static GUIContent noCategory = EditorGUIUtility.TrTextContent("No Category");
-            public static string[] emptyCategoryDropDownOption = new[] {Style.categoryIsEmptyLabel.text};
+            public static string[] emptyCategoryDropDownOption = new[] { Style.categoryIsEmptyLabel.text };
         }
 
         struct SpriteCategorySelectionList
@@ -27,18 +27,18 @@ namespace UnityEditor.U2D.Animation
             public Sprite[] sprites;
         }
 
-        private SerializedProperty m_SpriteKey;
-        private SerializedProperty m_LabelHash;
-        private SerializedProperty m_CategoryHash;
-        private SpriteSkin m_SpriteSkin;
+        SerializedProperty m_SpriteKey;
+        SerializedProperty m_LabelHash;
+        SerializedProperty m_CategoryHash;
+        SpriteSkin m_SpriteSkin;
         Dictionary<string, SpriteCategorySelectionList> m_SpriteLibSelection = new Dictionary<string, SpriteCategorySelectionList>();
         string[] m_CategorySelection;
         int m_CategorySelectionIndex = 0;
         int m_LabelSelectionIndex = 0;
-        private string m_PreviousCategoryValue;
-        private string m_PreviousLabelValue;
-        private bool m_IgnoreNextDeserializeCallback;
-        private bool m_ReInitOnNextGUI;
+        string m_PreviousCategoryValue;
+        string m_PreviousLabelValue;
+        bool m_IgnoreNextDeserializeCallback;
+        bool m_ReInitOnNextGUI;
         SpriteSelectorWidget m_SpriteSelectorWidget = new SpriteSelectorWidget();
 
         public void OnEnable()
@@ -59,7 +59,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
         
-        SpriteResolver spriteResolver { get {return target as SpriteResolver; } }
+        SpriteResolver spriteResolver => target as SpriteResolver;
 
         void GetCategoryAndLabelStringValue(out string categoryName, out string labelName)
         {
@@ -131,14 +131,8 @@ namespace UnityEditor.U2D.Animation
                     m_SpriteLibSelection[m_CategorySelection[m_CategorySelectionIndex]].sprites);
                 if (m_SpriteLibSelection.ContainsKey(categoryName))
                 {
-                    var labelIndex = Array.FindIndex(m_SpriteLibSelection[categoryName].entryNames,
+                    m_LabelSelectionIndex = Array.FindIndex(m_SpriteLibSelection[categoryName].entryNames,
                         x => x == labelName);
-                    
-                    if (labelIndex >= 0 ||
-                        m_SpriteLibSelection[categoryName].entryNames.Length <= m_LabelSelectionIndex)
-                    {
-                        m_LabelSelectionIndex = labelIndex;
-                    }
                 }
             }
             else
@@ -166,11 +160,9 @@ namespace UnityEditor.U2D.Animation
             if (spriteResolver.spriteLibChanged)
                 UpdateSpriteLibrary();
 
-            var currentLabelValue = "";
-            var currentCategoryValue = "";
-            GetCategoryAndLabelStringValue(out currentCategoryValue, out currentLabelValue);
+            GetCategoryAndLabelStringValue(out var currentCategoryValue, out var currentLabelValue);
             var catIndex = Array.FindIndex(m_CategorySelection, x => x == currentCategoryValue);
-            if(catIndex >= 0)
+            if (catIndex >= 0)
                 m_CategorySelectionIndex = catIndex;
             ValidateCategorySelectionIndexValue();
             
@@ -181,7 +173,7 @@ namespace UnityEditor.U2D.Animation
             SpriteCategorySelectionList selection;
             m_SpriteLibSelection.TryGetValue(m_CategorySelection[m_CategorySelectionIndex], out selection);
 
-            string[] entryNames = Style.emptyCategoryDropDownOption;
+            var entryNames = Style.emptyCategoryDropDownOption;
             if (selection.entryNames != null)
                 entryNames = selection.entryNames;
             if (m_LabelSelectionIndex < 0 || m_LabelSelectionIndex >= entryNames.Length)

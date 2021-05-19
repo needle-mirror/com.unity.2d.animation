@@ -133,6 +133,7 @@ namespace UnityEditor.U2D.Animation
         {
             var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/GenerateGeometryPanel.uxml");
             var clone = visualTree.CloneTree().Q<GenerateGeometryPanel>("GenerateGeometryPanel");
+            clone.LocalizeTextInChildren();
             clone.BindElements();
             return clone;
         }

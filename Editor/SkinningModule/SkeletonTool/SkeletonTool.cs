@@ -90,6 +90,7 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.skinningModeChanged.AddListener(SkinningModeChanged);
             skinningCache.events.boneDepthChanged.AddListener(BoneDataChanged);
             skinningCache.events.boneNameChanged.AddListener(BoneDataChanged);
+            skinningCache.events.boneColorChanged.AddListener(BoneDataChanged);
             skeletonStyle = null;
         }
 
@@ -102,6 +103,7 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.skinningModeChanged.RemoveListener(SkinningModeChanged);
             skinningCache.events.boneDepthChanged.RemoveListener(BoneDataChanged);
             skinningCache.events.boneNameChanged.RemoveListener(BoneDataChanged);
+            skinningCache.events.boneColorChanged.RemoveListener(BoneDataChanged);
             skeletonStyle = null;
         }
 
@@ -170,7 +172,7 @@ namespace UnityEditor.U2D.Animation
             {
                 skinningCache.BeginUndoOperation(TextContent.colorBoneChanged);
                 selectedBone.bindPoseColor = color;
-                skinningCache.events.dataModified.Invoke();
+                skinningCache.events.boneColorChanged.Invoke(selectedBone);
             }
         }
         

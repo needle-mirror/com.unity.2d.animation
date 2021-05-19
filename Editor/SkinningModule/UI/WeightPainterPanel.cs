@@ -270,6 +270,7 @@ namespace UnityEditor.U2D.Animation
         {
             var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/WeightPainterPanel.uxml");
             var clone = visualTree.CloneTree().Q<WeightPainterPanel>("WeightPainterPanel");
+            clone.LocalizeTextInChildren();
 
             // EnumField can only get type of Enum from the current running assembly when defined through UXML
             // Manually create the EnumField here

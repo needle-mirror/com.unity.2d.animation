@@ -146,7 +146,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override VisibilityToolColumnHeader SetupToolColumnHeader()
         {
-            var columns = new MultiColumnHeaderState.Column[3];
+            var columns = new MultiColumnHeaderState.Column[4];
             columns[0] = new MultiColumnHeaderState.Column
             {
                 headerContent = VisibilityTreeViewBase.VisibilityIconStyle.visibilityOnIcon,
@@ -159,7 +159,7 @@ namespace UnityEditor.U2D.Animation
             };
             columns[1] = new MultiColumnHeaderState.Column
             {
-                headerContent = EditorGUIUtility.TrTextContent(TextContent.bone),
+                headerContent = new GUIContent(TextContent.bone),
                 headerTextAlignment = TextAlignment.Center,
                 width = 130,
                 minWidth = 130,
@@ -169,7 +169,7 @@ namespace UnityEditor.U2D.Animation
             
             columns[2] = new MultiColumnHeaderState.Column
             {
-                headerContent = EditorGUIUtility.TrTextContent(TextContent.depth),
+                headerContent = new GUIContent(TextContent.depth),
                 headerTextAlignment = TextAlignment.Center,
                 width = 50,
                 minWidth = 50,
@@ -177,6 +177,18 @@ namespace UnityEditor.U2D.Animation
                 autoResize = true,
                 allowToggleVisibility = true
             };
+            
+            columns[3] = new MultiColumnHeaderState.Column
+            {
+                headerContent = new GUIContent(TextContent.color),
+                headerTextAlignment = TextAlignment.Center,
+                width = 50,
+                minWidth = 50,
+                maxWidth = 50,
+                autoResize = true,
+                allowToggleVisibility = true
+            };            
+            
             var multiColumnHeaderState = new MultiColumnHeaderState(columns);
             return new VisibilityToolColumnHeader(multiColumnHeaderState)
             {

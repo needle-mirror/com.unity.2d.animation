@@ -1,5 +1,4 @@
 using System;
-using UnityEngine.Animations;
 using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.U2D.Animation
@@ -22,26 +21,26 @@ namespace UnityEngine.U2D.Animation
     public class SpriteResolver : MonoBehaviour, ISerializationCallbackReceiver
     {
         // SpriteKey is the new animation key.
-        // We are keeping the old ones so that the animation clip doesn't braek
+        // We are keeping the old ones so that the animation clip doesn't break
         
         // These are for animation
         [SerializeField]
-        private float m_CategoryHash = 0;
+        float m_CategoryHash = 0;
         [SerializeField]
-        private float m_labelHash = 0;
+        float m_labelHash = 0;
 
         [SerializeField]
-        private float m_SpriteKey = 0;
+        float m_SpriteKey = 0;
         
         // For comparing hash values
-        private int m_CategoryHashInt;
-        private int m_LabelHashInt;
-        private int m_SpriteKeyInt;
+        int m_CategoryHashInt;
+        int m_LabelHashInt;
+        int m_SpriteKeyInt;
 
         // For OnUpdate during animation playback
-        private int m_PreviousCategoryHash;
-        private int m_PreviouslabelHash;
-        private int m_PreviousSpriteKeyInt;
+        int m_PreviousCategoryHash;
+        int m_PreviousLabelHash;
+        int m_PreviousSpriteKeyInt;
 
 #if UNITY_EDITOR
         bool m_SpriteLibChanged;
@@ -54,7 +53,6 @@ namespace UnityEngine.U2D.Animation
             // we select the Sprite
             if(spriteRenderer)
                 SetSprite(spriteRenderer.sprite);
-            
         }
 
         void SetSprite(Sprite sprite)
@@ -82,7 +80,7 @@ namespace UnityEngine.U2D.Animation
             m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
             m_PreviousCategoryHash = m_CategoryHashInt;
             m_LabelHashInt = ConvertFloatToInt(m_labelHash);
-            m_PreviouslabelHash = m_LabelHashInt;
+            m_PreviousLabelHash = m_LabelHashInt;
             
             m_SpriteKeyInt = ConvertFloatToInt(m_SpriteKey);
             if (m_SpriteKeyInt == 0)
@@ -94,10 +92,7 @@ namespace UnityEngine.U2D.Animation
             ResolveSpriteToSpriteRenderer();
         }
 
-        SpriteRenderer spriteRenderer
-        {
-            get { return GetComponent<SpriteRenderer>(); }
-        }
+        SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
 
         /// <summary>
         /// Set the Category and label to use
@@ -123,7 +118,6 @@ namespace UnityEngine.U2D.Animation
             {
                 sl.GetCategoryAndEntryNameFromHash(spriteKeyInt, out returnString, out _);
             }
-                
 
             return returnString;
         }
@@ -159,12 +153,12 @@ namespace UnityEngine.U2D.Animation
             {
                 m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
                 m_LabelHashInt = ConvertFloatToInt(m_labelHash);
-                if (m_LabelHashInt != m_PreviouslabelHash || m_CategoryHashInt != m_PreviousCategoryHash)
+                if (m_LabelHashInt != m_PreviousLabelHash || m_CategoryHashInt != m_PreviousCategoryHash)
                 {
                     if (spriteLibrary != null)
                     {
                         m_PreviousCategoryHash = m_CategoryHashInt;
-                        m_PreviouslabelHash = m_LabelHashInt;
+                        m_PreviousLabelHash = m_LabelHashInt;
                         m_SpriteKey = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, m_CategoryHashInt, m_LabelHashInt);
                         m_SpriteKeyInt = ConvertFloatToInt(m_SpriteKey);
                         m_PreviousSpriteKeyInt = m_SpriteKeyInt;
@@ -218,8 +212,7 @@ namespace UnityEngine.U2D.Animation
         public void ResolveSpriteToSpriteRenderer()
         {
             m_PreviousSpriteKeyInt = m_SpriteKeyInt;
-            bool validEntry;
-            var sprite = GetSprite(out validEntry);
+            var sprite = GetSprite(out var validEntry);
             var sr = spriteRenderer;
             if (sr != null && (sprite != null || validEntry))
                 sr.sprite = sprite;
@@ -235,7 +228,7 @@ namespace UnityEngine.U2D.Animation
 
         int spriteKeyInt
         {
-            get { return m_SpriteKeyInt; }
+            get => m_SpriteKeyInt;
             set
             {
                 m_SpriteKeyInt = value;
@@ -243,31 +236,38 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        internal unsafe static int ConvertFloatToInt(float f)
+        internal static unsafe int ConvertFloatToInt(float f)
         {
-            float* fp = &f;
-            int* i = (int*)fp;
+            var fp = &f;
+            var i = (int*)fp;
             return *i;
         }
 
-        internal unsafe static float ConvertIntToFloat(int f)
+        internal static unsafe float ConvertIntToFloat(int f)
         {
-            int* fp = &f;
-            float* i = (float*)fp;
+            var fp = &f;
+            var i = (float*)fp;
             return *i;
         }
 
 #if UNITY_EDITOR
         internal bool spriteLibChanged
         {
-            get {return m_SpriteLibChanged;}
-            set { m_SpriteLibChanged = value; }
+            get => m_SpriteLibChanged;
+            set => m_SpriteLibChanged = value;
         }
 #endif
+        
+        /// <summary>
+        /// Called before object is serialized.
+        /// </summary>
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
         }
 
+        /// <summary>
+        /// Called after object is deserialized.
+        /// </summary>
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
 #if UNITY_EDITOR

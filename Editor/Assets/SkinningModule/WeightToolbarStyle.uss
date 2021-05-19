@@ -15,6 +15,10 @@
     background-image: url("Icons/Light/Bone_Influence.png");
 }
 
+#SpriteInfluenceWidgetImage {
+    background-image: url("Icons/Light/Sprite_Influence.png");
+}
+
 .Checked #AutoGenerateWeightImage {
     background-image: url("Icons/Selected/Generate_Weights.png");
 }
@@ -32,6 +36,10 @@
     background-image: url("Icons/Selected/Bone_Influence.png");
 }
 
+.Checked #SpriteInfluenceWidgetImage {
+    background-image: url("Icons/Selected/Sprite_Influence.png");
+}
+
 .Dark #AutoGenerateWeightImage {
     background-image: url("Icons/Dark/d_Generate_Weights.png");
 }
@@ -47,4 +55,8 @@
 
 .Dark #BoneInfluenceWidgetImage {
     background-image: url("Icons/Dark/d_Bone_Influence.png");
+}
+
+.Dark #SpriteInfluenceWidgetImage {
+    background-image: url("Icons/Dark/d_Sprite_Influence.png");
 }
