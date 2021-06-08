@@ -12,10 +12,10 @@ namespace UnityEngine.Experimental.U2D.Animation
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html%23sprite-library-component")]
     public class SpriteLibrary : MonoBehaviour
     {
-        internal class StringAndHash
+        internal struct StringAndHash
         {
             public string name;
-            public int hash;
+            public readonly int hash;
 
             public StringAndHash(string name)
             {
@@ -31,42 +31,28 @@ namespace UnityEngine.Experimental.U2D.Animation
 
             public static bool operator==(StringAndHash l, StringAndHash r)
             {
-                if (Object.ReferenceEquals(l, null) && Object.ReferenceEquals(r, null))
-                    return true;
-                if (!Object.ReferenceEquals(l, null))
-                    return l.Equals(r);
-
-                return false;
+                return l.Equals(r);
             }
 
             public static bool operator!=(StringAndHash l, StringAndHash r)
             {
-                return !(l == r);
+                return !l.Equals(r);
             }
 
             public override bool Equals(object obj)
             {
-                return this.Equals(obj as StringAndHash);
+                if (obj == null || this.GetType() != obj.GetType())
+                    return false;
+
+                return this.Equals((StringAndHash)obj);
             }
 
             private bool Equals(StringAndHash p)
             {
-                if (Object.ReferenceEquals(p, null))
-                {
-                    return false;
-                }
-
-                // Optimization for a common success case.
-                if (Object.ReferenceEquals(this, p))
-                {
-                    return true;
-                }
-
                 // If run-time types are not exactly the same, return false.
                 if (this.GetType() != p.GetType())
-                {
                     return false;
-                }
+
                 return (hash == p.hash) || (name == p.name);
             }
 
@@ -129,7 +115,7 @@ namespace UnityEngine.Experimental.U2D.Animation
         internal string GetCategoryNameFromHash(int categoryHash)
         {
             var key = m_Overrides.Keys.FirstOrDefault(x => x.hash == categoryHash);
-            if (key != null)
+            if (key != default)
                 return key.name;
             return m_SpriteLibraryAsset == null ? "" : m_SpriteLibraryAsset.GetCategoryNameFromHash(categoryHash);
         }
@@ -138,7 +124,7 @@ namespace UnityEngine.Experimental.U2D.Animation
         {
             var overrides = GetCategoryOverride(new StringAndHash(categoryHash), false);
             var label = overrides.Keys.FirstOrDefault(x => x.hash == labelHash);
-            if (label != null)
+            if (label != default)
                 return label.name;
             return m_SpriteLibraryAsset == null ? "" : m_SpriteLibraryAsset.GetLabelNameFromHash(categoryHash, labelHash);
         }

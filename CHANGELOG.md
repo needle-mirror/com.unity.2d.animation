@@ -1,5 +1,10 @@
 # Changelog
 
+## [5.0.6] - 2021-06-08
+### Fixed
+- Fixed Unable to remove Empty Category in Sprite Editor after changing Sprite Layer name with external image editor (case 1328475)
+- SpriteResolver generates garbage every few frames when playing an animation (case 1337463)
+
 ## [5.0.5] - 2021-04-19
 ### Fixed
 - Fixed crash when disabling Sprite Skin when multithreaded rendering is enabled. (case 1296355)

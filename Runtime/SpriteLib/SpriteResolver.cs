@@ -95,21 +95,7 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <summary>
         /// Property to get the SpriteLibrary the SpriteResolver is resolving from
         /// </summary>
-        public SpriteLibrary spriteLibrary
-        {
-            get
-            {
-                var t = transform;
-                while (t != null)
-                {
-                    var sl = t.GetComponent<SpriteLibrary>();
-                    if (sl != null)
-                        return sl;
-                    t = t.parent;
-                }
-                return null;
-            }
-        }
+        public SpriteLibrary spriteLibrary => gameObject.GetComponentInParent<SpriteLibrary>(true);
 
         void LateUpdate()
         {

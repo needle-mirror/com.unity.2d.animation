@@ -546,9 +546,12 @@ namespace UnityEditor.U2D.Animation
         {
             var spriteLib = m_Model.spriteCategoryList;
             var changed = false;
-            for (int i = 0; i < spriteLib.categories.Count; ++i)
+
+            var spriteIds = m_Model.character.parts.Select(partCache => partCache.sprite.id);
+            for (var i = 0; i < spriteLib.categories.Count; ++i)
             {
-                if (spriteLib.categories[i].labels.Count == 0)
+                if (spriteLib.categories[i].labels.Count == 0 ||
+                    !spriteLib.categories[i].labels.Any(label => spriteIds.Contains(label.spriteId)))
                 {
                     spriteLib.categories.RemoveAt(i);
                     --i;
