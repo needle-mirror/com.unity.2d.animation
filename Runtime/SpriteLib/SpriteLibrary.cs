@@ -30,6 +30,7 @@ namespace UnityEngine.U2D.Animation
         Dictionary<int, CategoryEntrySprite> m_CategoryEntryHashCache = null;
         Dictionary<string, HashSet<string>> m_CategoryEntryCache = null;
         private int m_PreviousSpriteLibraryAsset;
+        private long m_PreviousModificationHash;
         
         /// <summary>Get or Set the current SpriteLibraryAsset to use </summary>
         public SpriteLibraryAsset spriteLibraryAsset
@@ -71,7 +72,9 @@ namespace UnityEngine.U2D.Animation
 
         void UpdateCacheOverridesIfNeeded()
         {
-            if(m_CategoryEntryCache == null || m_PreviousSpriteLibraryAsset != m_SpriteLibraryAsset?.GetInstanceID())
+            if(m_CategoryEntryCache == null || 
+                m_PreviousSpriteLibraryAsset != m_SpriteLibraryAsset?.GetInstanceID() ||
+                m_PreviousModificationHash != m_SpriteLibraryAsset?.modificationHash)
                 CacheOverrides();
         }
 
@@ -275,11 +278,13 @@ namespace UnityEngine.U2D.Animation
         internal void CacheOverrides()
         {
             m_PreviousSpriteLibraryAsset = 0;
+            m_PreviousModificationHash = 0;
             m_CategoryEntryHashCache = new Dictionary<int, CategoryEntrySprite>();
             m_CategoryEntryCache = new Dictionary<string, HashSet<string>>();
             if (m_SpriteLibraryAsset)
             {
                 m_PreviousSpriteLibraryAsset = m_SpriteLibraryAsset.GetInstanceID();
+                m_PreviousModificationHash = m_SpriteLibraryAsset.modificationHash;
                 foreach (var category in m_SpriteLibraryAsset.categories)
                 {
                     var catName = category.name;

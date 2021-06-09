@@ -131,8 +131,14 @@ namespace UnityEditor.U2D.Animation
                     m_SpriteLibSelection[m_CategorySelection[m_CategorySelectionIndex]].sprites);
                 if (m_SpriteLibSelection.ContainsKey(categoryName))
                 {
-                    m_LabelSelectionIndex = Array.FindIndex(m_SpriteLibSelection[categoryName].entryNames,
+                    var labelIndex = Array.FindIndex(m_SpriteLibSelection[categoryName].entryNames,
                         x => x == labelName);
+                    
+                    if (labelIndex >= 0 ||
+                        m_SpriteLibSelection[categoryName].entryNames.Length <= m_LabelSelectionIndex)
+                    {
+                        m_LabelSelectionIndex = labelIndex;
+                    }
                 }
             }
             else
@@ -218,16 +224,21 @@ namespace UnityEditor.U2D.Animation
                 sf.ResolveSpriteToSpriteRenderer();
             }
 
-            if (!string.IsNullOrEmpty(currentCategoryValue) && m_PreviousCategoryValue != currentCategoryValue)
+            if (m_PreviousCategoryValue != currentCategoryValue)
             {
-                if (m_SpriteLibSelection.ContainsKey(currentCategoryValue))
+                if (!string.IsNullOrEmpty(currentCategoryValue))
                 {
-                    m_SpriteSelectorWidget.UpdateContents(m_SpriteLibSelection[currentCategoryValue].sprites);
+                    if (m_SpriteLibSelection.ContainsKey(currentCategoryValue))
+                    {
+                        m_SpriteSelectorWidget.UpdateContents(m_SpriteLibSelection[currentCategoryValue].sprites);
+                    }
+                    else
+                        m_SpriteSelectorWidget.UpdateContents(new Sprite[0]);
+                    
+                    this.Repaint();
                 }
-                else
-                    m_SpriteSelectorWidget.UpdateContents(new Sprite[0]);
+                
                 m_PreviousCategoryValue = currentCategoryValue;
-                this.Repaint();
             }
 
             if (!string.IsNullOrEmpty(currentLabelValue) && m_PreviousLabelValue != currentLabelValue)

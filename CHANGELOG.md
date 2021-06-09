@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.0.4] - 2021-06-09
+### Fixed
+- Sprite Resolver component not updated when new categories/labels are added into Sprite Library asset. (case 1321069)
+- Thumbnails in Sprite Library Asset flicker when the Library Asset contains many Categories and Labels. (case 1333228)
+- SpriteLibraryAsset Category & Label does not generate hash in Inspector (case 1340587)
+- SpriteResolver inspector selects first element when failing to resolve. (case 1340070)
+
 ## [6.0.3] - 2021-04-19
 ### Fixed
 - Fixed package description

@@ -10,70 +10,84 @@ namespace UnityEditor.U2D.Animation
     [MovedFrom("UnityEditor.Experimental.U2D.Animation")]
     internal class SpriteLibraryInspector : Editor
     {
-        class SpriteLibCombineCache : ScriptableObject
-        {
-            [SerializeField]
-            List<SpriteLibCategoryOverride> m_Library = new List<SpriteLibCategoryOverride>();
-
-            public List<SpriteLibCategoryOverride> library
-            {
-                get =>  m_Library;
-            }
-        }
-
         static class Style
         {
             public static string libraryDifferentValue = L10n.Tr("Sprite Library has different values.");
         }
         
-        private SpriteLibCombineCache m_SpriteLibCombineCache;
-        private SerializedObject m_InternalCombineCacheSO;
-        private SerializedProperty m_SpriteLibraryAsset;
-        private SerializedProperty m_Library;
-        private SerializedProperty m_LibraryOverride;
+        private SpriteLibCombineCache m_OverrideLibraryObject;
+        private SerializedObject m_OverrideLibraryCache;
+        private SerializedProperty m_MasterLibraryProperty;
+        private SpriteLibraryAsset m_MasterLibraryObject;
+        private SerializedProperty m_MasterLibraryCategories;
+        private SerializedProperty m_OverrideLibraryCategories;
         private SpriteLibraryDataInspector m_SpriteLibraryDataInspector;
+        private long m_PreviousModificationHash;
+
+        private List<SpriteLibrary> m_CachedLibraryTargets = new List<SpriteLibrary>();
+        private List<SpriteResolver> m_CachedResolvers = new List<SpriteResolver>();
+
         public void OnEnable()
         {
-            m_SpriteLibCombineCache = ScriptableObject.CreateInstance<SpriteLibCombineCache>();
-            m_InternalCombineCacheSO = new SerializedObject(m_SpriteLibCombineCache);
+            m_OverrideLibraryObject = ScriptableObject.CreateInstance<SpriteLibCombineCache>();
+            m_OverrideLibraryCache = new SerializedObject(m_OverrideLibraryObject);
+            m_OverrideLibraryCategories = m_OverrideLibraryCache.FindProperty("m_Library");
             
-            m_SpriteLibraryAsset = serializedObject.FindProperty("m_SpriteLibraryAsset");
-            m_Library = serializedObject.FindProperty("m_Library");
-            m_LibraryOverride = m_InternalCombineCacheSO.FindProperty("m_Library");
-            InitSpriteLibraryDataCache();
+            m_MasterLibraryProperty = serializedObject.FindProperty("m_SpriteLibraryAsset");
+            m_MasterLibraryCategories = serializedObject.FindProperty("m_Library");
+
+            UpdateMasterLibraryObject();
+            CacheTargets();
+            UpdateSpriteLibraryDataCache();
         }
 
-        void InitSpriteLibraryDataCache()
+        private void UpdateMasterLibraryObject()
         {
-            if (!m_Library.hasMultipleDifferentValues && !m_SpriteLibraryAsset.hasMultipleDifferentValues)
+            m_MasterLibraryObject = (SpriteLibraryAsset)m_MasterLibraryProperty.objectReferenceValue;
+        }
+
+        private void CacheTargets()
+        {
+            m_CachedLibraryTargets.Clear();
+            foreach(var t in targets)
+                m_CachedLibraryTargets.Add(t as SpriteLibrary);
+
+            m_CachedResolvers.Clear();
+            foreach (var sl in m_CachedLibraryTargets)
             {
-                ConvertSpriteLibraryToOverride(m_SpriteLibCombineCache.library, m_Library);
-                m_InternalCombineCacheSO.Update();
-                SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary((SpriteLibraryAsset)m_SpriteLibraryAsset.objectReferenceValue, m_LibraryOverride);
-                m_SpriteLibraryDataInspector = new SpriteLibraryDataInspector(serializedObject, m_LibraryOverride);
-                m_InternalCombineCacheSO.ApplyModifiedPropertiesWithoutUndo();
+                var resolvers = sl.GetComponentsInChildren<SpriteResolver>();
+                m_CachedResolvers.AddRange(resolvers);
             }
+        }
+
+        void UpdateSpriteLibraryDataCache()
+        {
+            if(m_MasterLibraryCategories.hasMultipleDifferentValues)
+                return;
+            if (m_MasterLibraryProperty.hasMultipleDifferentValues)
+                return;
+            
+            CopySpriteLibraryToOverride(m_OverrideLibraryObject.library, m_MasterLibraryCategories);
+            m_OverrideLibraryCache.Update();
+            SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(m_MasterLibraryObject, m_OverrideLibraryCategories);
+            m_SpriteLibraryDataInspector = new SpriteLibraryDataInspector(serializedObject, m_OverrideLibraryCategories);
+            m_OverrideLibraryCache.ApplyModifiedPropertiesWithoutUndo();
         }
         
         public override void OnInspectorGUI()
         {
+            RefreshMasterLibraryAssetData();
+            
             serializedObject.Update();
-            m_InternalCombineCacheSO.Update();
+            m_OverrideLibraryCache.Update();
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(m_SpriteLibraryAsset);
+            EditorGUILayout.PropertyField(m_MasterLibraryProperty);
             if (EditorGUI.EndChangeCheck())
             {
-                InitSpriteLibraryDataCache();
+                UpdateMasterLibraryObject();
+                UpdateSpriteLibraryDataCache();
                 serializedObject.ApplyModifiedProperties();
-                foreach (var t in targets)
-                {
-                    var srs = (t as SpriteLibrary).GetComponentsInChildren<SpriteResolver>();
-                    foreach (var sr in srs)
-                    {
-                        sr.ResolveSpriteToSpriteRenderer();
-                        sr.spriteLibChanged = true;
-                    }
-                }
+                UpdateSpriteResolvers();
             }
 
             if (m_SpriteLibraryDataInspector != null)
@@ -82,21 +96,14 @@ namespace UnityEditor.U2D.Animation
                 m_SpriteLibraryDataInspector.OnGUI();
                 if (EditorGUI.EndChangeCheck())
                 {
-                    m_InternalCombineCacheSO.ApplyModifiedProperties();
-                    ConvertOverrideToSpriteLibrary(m_SpriteLibCombineCache.library, m_Library);
+                    m_OverrideLibraryCache.ApplyModifiedProperties();
+                    CopyOverrideToSpriteLibrary(m_OverrideLibraryObject.library, m_MasterLibraryCategories);
                     serializedObject.ApplyModifiedProperties();
 
-                    foreach (var t in targets)
-                    {
-                        var spriteLib = (SpriteLibrary) t;
+                    foreach(var spriteLib in m_CachedLibraryTargets)
                         spriteLib.CacheOverrides();
-                        var srs = spriteLib.GetComponentsInChildren<SpriteResolver>();
-                        foreach (var sr in srs)
-                        {
-                            sr.ResolveSpriteToSpriteRenderer();
-                            sr.spriteLibChanged = true;
-                        }
-                    }
+
+                    UpdateSpriteResolvers();
                 }
             }
             else
@@ -105,74 +112,94 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        void ConvertSpriteLibraryToOverride(List<SpriteLibCategoryOverride> libOverride, SerializedProperty lib)
+        private void RefreshMasterLibraryAssetData()
+        {
+            var modificationHash = m_MasterLibraryObject ? m_MasterLibraryObject.modificationHash : 0;
+            if (m_PreviousModificationHash != modificationHash)
+            {
+                UpdateSpriteLibraryDataCache();
+                UpdateSpriteResolvers();
+                m_PreviousModificationHash = modificationHash;
+            }            
+        }
+
+        private void UpdateSpriteResolvers()
+        {
+            foreach (var resolver in m_CachedResolvers)
+            {
+                resolver.ResolveSpriteToSpriteRenderer();
+                resolver.spriteLibChanged = true;
+            } 
+        }
+
+        static void CopySpriteLibraryToOverride(List<SpriteLibCategoryOverride> libOverride, SerializedProperty lib)
         {
             libOverride.Clear();
-            if (lib.arraySize > 0)
+            if (lib.arraySize == 0)
+                return;
+            
+            var categoryEntries = lib.GetArrayElementAtIndex(0);
+            for (var i = 0; i < lib.arraySize; ++i)
             {
-                var categoryEntries = lib.GetArrayElementAtIndex(0);
-                for (int i = 0; i < lib.arraySize; ++i)
+                var overrideCategory = new SpriteLibCategoryOverride()
                 {
-                    var overrideCategory = new SpriteLibCategoryOverride()
+                    categoryList = new List<SpriteCategoryEntry>(),
+                    entryOverrideCount = 0,
+                    fromMain = false,
+                    name = categoryEntries.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue,
+                    overrideEntries = new List<SpriteCategoryEntryOverride>()
+                };
+                var entries = categoryEntries.FindPropertyRelative(SpriteLibraryPropertyString.categoryList);
+                var overrideCategoryEntries = overrideCategory.overrideEntries;
+                if (entries.arraySize > 0)
+                {
+                    var entry = entries.GetArrayElementAtIndex(0); 
+                    for (var j = 0; j < entries.arraySize; ++j)
                     {
-                        categoryList = new List<SpriteCategoryEntry>(),
-                        entryOverrideCount = 0,
-                        fromMain = false,
-                        name = categoryEntries.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue,
-                        overrideEntries = new List<SpriteCategoryEntryOverride>()
-                    };
-                    var entries = categoryEntries.FindPropertyRelative(SpriteLibraryPropertyString.categoryList);
-                    var overrideCategoryEntries = overrideCategory.overrideEntries;
-                    if (entries.arraySize > 0)
-                    {
-                        var entry = entries.GetArrayElementAtIndex(0); 
-                        for (int j = 0; j < entries.arraySize; ++j)
+                        overrideCategoryEntries.Add(new SpriteCategoryEntryOverride()
                         {
-                            overrideCategoryEntries.Add(new SpriteCategoryEntryOverride()
-                            {
-                                fromMain = false,
-                                name = entry.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue,
-                                sprite = (Sprite)entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite).objectReferenceValue,
-                                spriteOverride = (Sprite)entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite).objectReferenceValue
-                            });
-                            entry.Next(false);
-                        }
+                            fromMain = false,
+                            name = entry.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue,
+                            sprite = (Sprite)entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite).objectReferenceValue,
+                            spriteOverride = (Sprite)entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite).objectReferenceValue
+                        });
+                        entry.Next(false);
                     }
-                    libOverride.Add(overrideCategory);
-                    categoryEntries.Next(false);
                 }
+                libOverride.Add(overrideCategory);
+                categoryEntries.Next(false);
             }
         }
         
-        void ConvertOverrideToSpriteLibrary(List<SpriteLibCategoryOverride> libOverride, SerializedProperty lib)
+        static void CopyOverrideToSpriteLibrary(List<SpriteLibCategoryOverride> libOverride, SerializedProperty lib)
         {
             lib.arraySize = 0;
-            if (libOverride.Count > 0)
+            if (libOverride.Count == 0)
+                return;
+            
+            for (var i = 0; i < libOverride.Count; ++i)
             {
-                for (int i = 0; i < libOverride.Count; ++i)
+                var libOverrideElement = libOverride[i];
+                if (!libOverrideElement.fromMain || libOverrideElement.entryOverrideCount > 0)
                 {
-                    var libOverrideElement = libOverride[i];
-                    if (!libOverrideElement.fromMain || libOverrideElement.entryOverrideCount > 0)
+                    lib.arraySize += 1;
+                    var libElement = lib.GetArrayElementAtIndex(lib.arraySize - 1);
+                    libElement.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = libOverrideElement.name;
+                    var overrideEntries = libOverrideElement.overrideEntries;
+                    var entries = libElement.FindPropertyRelative(SpriteLibraryPropertyString.categoryList);
+                    entries.arraySize = 0;
+                    if (overrideEntries.Count > 0)
                     {
-                        lib.arraySize += 1;
-                        var libElement = lib.GetArrayElementAtIndex(lib.arraySize - 1);
-                        libElement.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = libOverrideElement.name;
-                        var overrideEntries = libOverrideElement.overrideEntries;
-                        var entries = libElement.FindPropertyRelative(SpriteLibraryPropertyString.categoryList);
-                        entries.arraySize = 0;
-                        if (overrideEntries.Count > 0)
+                        for (var j = 0; j < overrideEntries.Count; ++j)
                         {
-                            for (int j = 0; j < overrideEntries.Count; ++j)
+                            var overrideEntry = overrideEntries[j];
+                            if (!overrideEntry.fromMain ||
+                                overrideEntry.sprite != overrideEntry.spriteOverride)
                             {
-                                var overrideEntry = overrideEntries[j];
-                                if (!overrideEntry.fromMain ||
-                                    overrideEntry.sprite != overrideEntry.spriteOverride)
-                                {
-                                    entries.arraySize += 1;
-                                    var entry = entries.GetArrayElementAtIndex(entries.arraySize - 1);
-                                    entry.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = overrideEntry.name;
-                                    entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite).objectReferenceValue = overrideEntry.spriteOverride;
-                                }
+                                entries.arraySize += 1;
+                                var entry = entries.GetArrayElementAtIndex(entries.arraySize - 1);
+                                entry.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = overrideEntry.name;
+                                entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite).objectReferenceValue = overrideEntry.spriteOverride;
                             }
                         }
                     }

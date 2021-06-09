@@ -27,15 +27,19 @@ namespace UnityEngine.U2D.Animation
 
         public string name
         {
-            get { return m_Name; }
+            get => m_Name;
             set
             {
                 m_Name = value;
                 m_Hash = SpriteLibraryAsset.GetStringHash(m_Name);
             }
         }
-        public int hash { get { return m_Hash; } }
-        public Sprite sprite {get { return m_Sprite; } set { m_Sprite = value; }}
+        public int hash => m_Hash;
+        public Sprite sprite 
+        {
+            get => m_Sprite;
+            set => m_Sprite = value;
+        }
         public void UpdateHash()
         {
             m_Hash = SpriteLibraryAsset.GetStringHash(m_Name);
@@ -67,8 +71,8 @@ namespace UnityEngine.U2D.Animation
 
         public List<SpriteCategoryEntry> categoryList
         {
-            get { return m_CategoryList; }
-            set { m_CategoryList = value; }
+            get => m_CategoryList;
+            set => m_CategoryList = value;
         }
 
         public void UpdateHash()
@@ -102,29 +106,45 @@ namespace UnityEngine.U2D.Animation
     {
         [SerializeField]
         private List<SpriteLibCategory> m_Labels = new List<SpriteLibCategory>();
+        [SerializeField]
+        private long m_ModificationHash;
 
+        internal static SpriteLibraryAsset CreateAsset(List<SpriteLibCategory> categories, string assetName, long version)
+        {
+            var asset = ScriptableObject.CreateInstance<SpriteLibraryAsset>();
+            asset.m_Labels = categories;
+            asset.ValidateCategories();
+            asset.name = assetName;
+            asset.UpdateHashes();
+            asset.m_ModificationHash = version;
+            return asset;
+        }
+        
         internal List<SpriteLibCategory> categories
         {
-            get
-            {
-                return m_Labels;
-            }
+            get => m_Labels;
             set
             {
                 m_Labels = value;
                 ValidateCategories();
+                UpdateModificationHash();
             }
         }
+        
+        /// <summary>
+        /// Hash to quickly check if the library has any changes made to it. 
+        /// </summary>
+        internal long modificationHash => m_ModificationHash;
 
         internal Sprite GetSprite(int categoryHash, int labelHash)
         {
             var category = m_Labels.FirstOrDefault(x => x.hash == categoryHash);
             if (category != null)
             {
-                var spritelabel = category.categoryList.FirstOrDefault(x => x.hash == labelHash);
-                if (spritelabel != null)
+                var spriteLabel = category.categoryList.FirstOrDefault(x => x.hash == labelHash);
+                if (spriteLabel != null)
                 {
-                    return spritelabel.sprite;
+                    return spriteLabel.sprite;
                 }
             }
 
@@ -266,6 +286,8 @@ namespace UnityEngine.U2D.Animation
                 }
                 m_Labels.Add(slc);
             }
+            
+            UpdateModificationHash();
 #if UNITY_EDITOR
             EditorUtility.SetDirty(this);
 #endif
@@ -289,6 +311,8 @@ namespace UnityEngine.U2D.Animation
                 libCategory.categoryList.RemoveAll(x => x.hash == labelHash);
                 if (deleteCategory && libCategory.categoryList.Count == 0)
                     m_Labels.RemoveAll(x => x.hash == libCategory.hash);
+                
+                UpdateModificationHash();
 #if UNITY_EDITOR
                 EditorUtility.SetDirty(this);
 #endif
@@ -309,9 +333,9 @@ namespace UnityEngine.U2D.Animation
             RenameDuplicate(m_Labels, (originalName, newName)
                 =>
                 {
-                    Debug.LogWarning(string.Format("Category {0} renamed to {1} due to hash clash", originalName, newName));
+                    Debug.LogWarning($"Category {originalName} renamed to {newName} due to hash clash");
                 });
-            for (int i = 0; i < m_Labels.Count; ++i)
+            for (var i = 0; i < m_Labels.Count; ++i)
             {
                 // Verify categories have no hash clash
                 var category = m_Labels[i];
@@ -324,7 +348,7 @@ namespace UnityEngine.U2D.Animation
         internal static void RenameDuplicate(IEnumerable<INameHash> nameHashList, Action<string, string> onRename)
         {
             const int k_IncrementMax = 1000;
-            for (int i = 0; i < nameHashList.Count(); ++i)
+            for (var i = 0; i < nameHashList.Count(); ++i)
             {
                 // Verify categories have no hash clash
                 var category = nameHashList.ElementAt(i);
@@ -337,7 +361,7 @@ namespace UnityEngine.U2D.Animation
                     while (increment < k_IncrementMax)
                     {
                         var name = categoryClash.name;
-                        name = string.Format("{0}_{1}", name, increment);
+                        name = $"{name}_{increment}";
                         var nameHash = SpriteLibraryAsset.GetStringHash(name);
                         var exist = nameHashList.FirstOrDefault(x => (x.hash == nameHash || x.name == name) && x != categoryClash);
                         if (exist == null)
@@ -366,6 +390,13 @@ namespace UnityEngine.U2D.Animation
             if (bytes[exponentialBit] == 0xFF)
                 bytes[exponentialBit] -= 1;
             return BitConverter.ToInt32(bytes, 0);
+        }
+
+        private void UpdateModificationHash()
+        {
+            var hash = System.DateTime.Now.Ticks;
+            hash ^= m_Labels.GetHashCode();
+            m_ModificationHash = hash;
         }
     }
 }
