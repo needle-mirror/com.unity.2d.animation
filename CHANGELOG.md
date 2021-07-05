@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.2.10] - 2021-07-05
+### Fixed
+- Fixed Unable to remove Empty Category in Sprite Editor after changing Sprite Layer name with external image editor (case 1328475)
+- Error constantly encountered when opening a psb on skinningEditor with mosaic disabled (case 1349685)
+
 ## [3.2.9] - 2021-05-11
 ###Changed
 - Update package related dependency
