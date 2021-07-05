@@ -9,7 +9,7 @@ The Sprite Skin deforms a Sprite by using GameObject Transforms to represent the
 
 Property            | Function
 --------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-**Always Update**   | Enable this to have the Sprite Skin will continue to deform the Sprite even when the visual is not in the view of the Camera.
+**Always Update**   | Enable this to have the Sprite Skin continue to deform the Sprite even when the visual is not in the view of the Camera.
 **[Auto Rebind](#auto-rebind)**     | Enable this to have the component attempt to find the correct GameObject Transforms to use as bones for the Sprite by using the GameObject Transform set in the **Root Bone** property as the starting point.
 **Root Bone**       | The property is use to indicate which GameObject Transform will be use as the Root Bone for the Sprite.
 **Bones**           | This shows the list of bones that are being setup for the Sprite in the Skinning Editor module. For each Sprite’s **Bone** entry, there needs to be a GameObject Transform associated with it so that deformation can be done correctly.
@@ -45,8 +45,8 @@ After completing these steps, the **Collections** package is added to the Projec
 
 ![](images/2D-optional-perf-boost-enabled.png)<br/>The **Sprite Skin** component settings.
 
-With both packages installed, __Enable batching__ becomes available in the [Sprite Skin component](SpriteSkin.md) properties. Note that if you do not have the required packages installed, the option will be disabled, with a notification to installed the required packages.
+With both packages installed, __Enable batching__ becomes available in the [Sprite Skin component](SpriteSkin.md) properties. Note that if you do not have the required packages installed, the option will be disabled, with a notification to install the required packages.
 
 ![](images/2D-optional-perf-boost-disabled.png)<br/>
 
-The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.3.3 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6. However if you encounter an bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.
+The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.4.1 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6. However if you encounter an bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.

@@ -13,4 +13,4 @@ Adjust the appearance of the 2D Animation tools in the Skinning Editor by going 
 
 Enable __Hide Tool Text__ to have only the tool icons visible in the [Skinning Editor](SkinningEditor.md) window.
 
-![](images/2DAnimationV2_compacted.png)
+![](images/2DAnimationV7_compacted.png)

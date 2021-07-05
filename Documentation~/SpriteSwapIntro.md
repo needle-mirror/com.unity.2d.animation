@@ -1,14 +1,12 @@
 # Sprite Swapping
-__Sprite Swap__ a feature that enables you to change a GameObject’s rendered Sprite at runtime. This has a number of uses, such as easily creating multiple characters which [share a skeleton](ex-skeletong-sharing) (requires the [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest)) or [reuse existing bone and Mesh data](SkinEdToolsShortcuts.md#copy-and-paste-behavior) while looking visually different.
+__Sprite Swap__ is a feature that enables you to change a GameObject’s rendered Sprite at runtime. This has a number of uses, such as easily creating multiple characters which [share a skeleton](ex-skeleton-sharing.md) (requires the [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest)) or [reuse existing bone and Mesh data](SkinEdToolsShortcuts.md#copy-and-paste-behavior) while looking visually different.
 
 Using Sprite Swap to change the rendered Sprites on each frame at runtime, you can even simulate a [frame-by-frame animation](FFanimation.md) style. The 2D Animation package comes with several Sample projects of the other different ways you can use Sprite Swap to achieve different effects and features, refer to the [Sample documentation here](ex-sprite-swap.md) for more information about these examples.
-
-The workflow for implementing Sprite Swap differs if you are using the workflow that is [integrated with 2D Animation](#sprite-swap-and-2d-animation-integration), or if you are [manually setting up](SSManual.md) the Sprite Swap components.
 
 ## Sprite Swap Assets and components
 Sprite Swap requires the following Assets and components, which are all included with the 2D Animation package:
 
-1. The [Sprite Library Asset](SLAsset.md) that contains a set of selected Sprites which are assigned to different [Categories](SLAsset.md#Category) and [Labels](SLAsset.md#Entry).
+1. The [Sprite Library Asset](SLAsset.md) that contains a set of selected Sprites which are assigned to different [Categories](SLAsset.md#category) and [Labels](SLAsset.md#entry).
    <br/>
 2. Attach the [Sprite Library component](SLAsset.html#sprite-library-component) to a GameObject to assign or change which __Sprite Library Asset__ the GameObject refers to.
    <br/>

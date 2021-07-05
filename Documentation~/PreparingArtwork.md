@@ -13,7 +13,7 @@ The PSD Importer has many features and options that prepare the actor for animat
 ![](images/2DAnimationV2_Mosaic_Prefab.png)<br/>Example 2: The imported actor's layers arranged into a Sprite sheet, and reassembled into their original positions in the generated Prefab.
 
 ## General workflow
-There are several ways to animate with the 2D Animation package, depending on how your artwork is prepared and how the your animation will be used in your Unity Project. Sample projects with examples of the different ways to use the 2D Animation package are distributed with the package, and can be imported via the [Package Manager](https://docs.unity3d.com/Manual/Packages.html). Refer to the [Samples documentation](Examples.md) for more information.
+There are several ways to animate with the 2D Animation package, depending on how your artwork is prepared and how your animation will be used in your Unity Project. Sample projects with examples of the different ways to use the 2D Animation package are distributed with the package, and can be imported via the [Package Manager](https://docs.unity3d.com/Manual/Packages.html). Refer to the [Samples documentation](Examples.md) for more information.
 
 The following is a general workflow for importing a multilayered and multipart character into Unity for 2D animation with the PSD Importer, with a more detailed specific example available in the [Character imported with the PSD Importer](ex-psd-importer.md) sample documentation:
 

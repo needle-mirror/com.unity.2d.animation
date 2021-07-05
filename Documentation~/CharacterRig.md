@@ -1,5 +1,5 @@
 # Actor skinning and weighting workflow
-The following steps are the general workflow for preparing your actor for animation with the Skinning Editor, after you have [imported](PreparingArtwork.md) it into Unity. Follow the steps below to create the bones, generate the meshes, and adjust the weights for your actor. For more specific samples and examples, refer to the samples distributed with the 2D Animation package and the sample documentation included [here](#Examples.md).
+The following steps are the general workflow for preparing your actor for animation with the Skinning Editor, after you have [imported](PreparingArtwork.md) it into Unity. Follow the steps below to create the bones, generate the meshes, and adjust the weights for your actor. For more specific samples and examples, refer to the samples distributed with the 2D Animation package and the sample documentation included [here](Examples.md).
 
 1. Use the [Create Bone](SkinEdToolsShortcuts.md#bone-tools) tool to build the bones of the actor skeleton:
 
@@ -26,7 +26,7 @@ The following steps are the general workflow for preparing your actor for animat
 
 1. Use the [Weight Slider](SkinEdToolsShortcuts.md#weight-slider) and [Weight Brush](SkinEdToolsShortcuts.md#weight-brush) tools to further adjust the weights of the Mesh vertices.
 
-1. To edit which bones influence a Sprite, select it and then go to the [Bone Influence](SkinEdToolsShortcuts.md#bone-influence) tool. A list of bones currently influencing the Sprite’s Mesh are listed in this panel at the bottom-right of the editor.
+1. To edit which bones influence a Sprite, select it and then go to the [Bone Influence](SkinEdToolsShortcuts.md#bone-influences-panel) tool. A list of bones currently influencing the Sprite’s Mesh are listed in this panel at the bottom-right of the editor.
 
    - To remove a bone, select it from the list and select __Remove (-)__ at the bottom right of the list.
 
@@ -34,9 +34,11 @@ The following steps are the general workflow for preparing your actor for animat
 
    - To add a bone as an influencer to the currently selected Sprite Mesh, select the bone in the editor window and select __Add (+)__ to add it to the list.
 
-1. Test your rigged actor by posing it with the [Preview Pose](SkinEdToolsShortcuts.md#preview-pose) tool. Move and rotate the different bones to check that the geometry Mesh deforms properly. Previewing poses can also be done while the following tools are selected: the __Weight Brush__, __Weight Slider__, __Bone Influence__, __Auto Weights__, and __Visibility__ tools.
+   - To do the reverse and edit which Sprites are being influenced by a bone, select the bone you want to examine, and then go to the [Sprite Influence](SkinEdToolsShortcuts.md#sprite-influences-panel) tool. Similarly to the Bone Influence tool, there is an __Add (+)__ and __Remove (-)__ button.
 
-   - To restore a rigged actor to its original pose, select __Reset Pose__ from the [Editor toolbar](SkinEdToolsShortcuts.md#editor-toolbar).
-   - Edit the default pose by moving the actor bones and joints with the [Edit Bone](SkinEdToolsShortcuts.md#editor-toolbar) tool.
+1. Test your rigged actor by posing it with the [Preview Pose](SkinEdToolsShortcuts.md#pose-tools) tool. Move and rotate the different bones to check that the geometry Mesh deforms properly. Previewing poses can also be done while the following tools are selected: the __Weight Brush__, __Weight Slider__, __Bone Influence__, __Auto Weights__, and __Visibility__ tools.
+
+   - To restore a rigged actor to its original pose, select __Reset Pose__ from the [Pose toolbar](SkinEdToolsShortcuts.md#pose-tools).
+   - Edit the default pose by moving the actor bones and joints with the [Edit Bone](SkinEdToolsShortcuts.md#bone-tools) tool.
 
 After you have completed rigging your actor, you are now prepared to [animate](Animating-actor.md) the actor.

@@ -21,7 +21,7 @@ namespace UnityEditor.U2D.Animation
     {
         IMGUIContainer m_Container;
         SearchField m_SearchField;
-        protected TreeView m_TreeView;
+        protected IMGUI.Controls.TreeView m_TreeView;
         protected TreeViewState m_TreeViewState = new TreeViewState();
 
         public Action<float> SetOpacityValue = null;
@@ -89,7 +89,7 @@ namespace UnityEditor.U2D.Animation
         }
     }
 
-    internal class VisibilityTreeViewBase : TreeView
+    internal class VisibilityTreeViewBase : IMGUI.Controls.TreeView
     {
         static internal class VisibilityIconStyle
         {

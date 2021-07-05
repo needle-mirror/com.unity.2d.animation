@@ -548,9 +548,20 @@ namespace UnityEditor.U2D.Animation
         {
             cacheUndo.BeginUndoOperation(TextContent.removeVertices);
 
-            m_SpriteMeshDataController.RemoveVertex(selection.elements);
+            var noOfVertsToDelete = selection.elements.Length;
+            var noOfVertsInMesh = m_SpriteMeshDataController.spriteMeshData.vertexCount;
+            var shouldClearMesh = (noOfVertsInMesh - noOfVertsToDelete) < 3;
 
-            Triangulate();
+            if (shouldClearMesh)
+            {
+                m_SpriteMeshDataController.spriteMeshData.Clear();
+            }
+            else
+            {
+                m_SpriteMeshDataController.RemoveVertex(selection.elements);
+                Triangulate();                
+            }
+            
             selection.Clear();
         }
 

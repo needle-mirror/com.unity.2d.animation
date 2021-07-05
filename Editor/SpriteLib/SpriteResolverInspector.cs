@@ -131,8 +131,14 @@ namespace UnityEditor.U2D.Animation
                     m_SpriteLibSelection[m_CategorySelection[m_CategorySelectionIndex]].sprites);
                 if (m_SpriteLibSelection.ContainsKey(categoryName))
                 {
-                    m_LabelSelectionIndex = Array.FindIndex(m_SpriteLibSelection[categoryName].entryNames,
+                    var labelIndex = Array.FindIndex(m_SpriteLibSelection[categoryName].entryNames,
                         x => x == labelName);
+                    
+                    if (labelIndex >= 0 ||
+                        m_SpriteLibSelection[categoryName].entryNames.Length <= m_LabelSelectionIndex)
+                    {
+                        m_LabelSelectionIndex = labelIndex;
+                    }
                 }
             }
             else

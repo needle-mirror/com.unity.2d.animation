@@ -6,57 +6,34 @@ The Skinning Editor tools are split-up into the following groups:
 
 A. [Editor toolbar](#editor-toolbar)
 
-B. [Bone tools](#bone-tools)
+B. [Pose tools](#pose-tools)
 
-C. [Geometry tools](#geometry-tools)
+C. [Bone tools](#bone-tools)
 
-D. [Weight tools](#weight-tools)
+D. [Geometry tools](#geometry-tools)
+
+E. [Weight tools](#weight-tools)
+
+F. [Rig tools](#rig-tools)
 
 ## Editor toolbar
 
-This is toolbar that contains the options that affect what is overall visible in the __Skinning Editor__ window, as well as the __Copy__ and __Paste__ functions.
+This toolbar allows the user to toggle between __Character__ and __Sprite Sheet__ modes. It also contains the __Visibility__ toggle.
 
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
-| ![Reset Pose](images/icon_RestoreBind.png)<br/>__Reset Pose__ | Shift + 1            | Restore a character’s bones and joints to their original positions. |
 | ![Toggle View Mode](images/icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the __Character__ and __Sprite Sheet__ view modes. |
-| ![Copy](images/icon_Copy.png)<br/>__Copy__                   | Ctrl + C             | Copies the bone and mesh data from the current selection.    |
-| ![Paste](images/icon_Paste.png)<br/>__Paste__                | Ctrl + V             | Pastes the copied bone and mesh data to the current selection. |
-| ![Paste](images/icon_Paste.png)<br/>__Paste__                | Shift + B            | Use this shortcut to show additional pasting options.        |
 | ![Visibility eyecon](images/icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite Meshes and bones in the editor window. |
 | __Toggle Tool Text__                                         | Shift + `            | Show or hide text on tool buttons.                           |
 
-### Copy and Paste behavior
-Once you [rigged the skeleton and bone weights](CharacterRig.md) of your actor, you can reuse the same rigged skeleton with other Model Prefabs by using the **Copy** and **Paste** options on the [editor toolbar](SkinEdToolsShortcuts.md#editor-toolbar). This is useful if you need to quickly create characters that share the same build and animations.
+## Pose tools
 
-Copy and Paste can only be done if the source and destination Model Prefabs have the same number of Sprites and Sprite names. When you Copy and Paste the bone and mesh data, the following occurs:
+This is a toolbar that contains the options to __Preview Pose__ and restore the default pose with __Restore Pose__.
 
-1. Copied bone data is pasted to the destination.
-2. Mesh, weights, and bone association of source Sprite(s) are pasted to destination Sprite(s) with the same names.
-
-### Copy behavior
-To copy a Sprite's data, select a Sprite and then select the __Copy__ button to copy the Mesh and bone data associated with that Sprite. If no Sprite is selected, the data of all the Sprites' currently in the [Skinning Editor](SkinningEditor.md) window is copied.
-
-### Paste behavior
-To paste Sprite data to another Sprite, select the Sprite that should receive the paste data and then select __Paste__. This will bring up the Paste panel at the bottom right of the editor window:
-
-![](images/PasteDialog.png)<br/>Paste dialog box.
-
-| __Option__ | Function                                      |
-| ---------- | --------------------------------------------- |
-| __Bones__  | Paste bone data.                              |
-| __Mesh__   | Paste Mesh data.                              |
-| __Flip X__ | Paste the data but mirrored along the X-axis. |
-| __Flip Y__ | Paste the data but mirrored along the Y-axis. |
-
-
-The __Copy__ and __Paste__ tools behave in the following ways depending on these factors:
-
-|                                   | Copy from a selected Sprite                                  | Copy with no Sprite selected                                 |
-| --------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| __Paste with a Sprite selected__  | Data from the source Sprite will be copied to the selected destination Sprite. | Data is pasted to all Sprites at the destination with the same name(s) as the respective source Sprites. |
-| __Paste with no Sprite selected__ | No data is pasted.                                           | Data is pasted to all Sprites at the destination with the same name(s) as the respective source Sprites. |
-
+| __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
+| ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
+| ![Preview Pose](images/icon_PreviewPose.png)<br/>__Preview Pose__ | Shift + Q            | Preview character poses after rigging.                       |
+| ![Reset Pose](images/icon_RestoreBind.png)<br/>__Reset Pose__ | Shift + 1            | Restore a character’s bones and joints to their original positions. |
 
 ## Bone tools
 
@@ -64,8 +41,7 @@ Use the __Bone Tools__ to create and edit the bones of your character and their 
 
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
-| ![Preview Pose](images/icon_PreviewPose.png)<br/>__Preview Pose__ | Shift + Q            | Preview character poses after rigging.                       |
-| ![Edit Bone](images/icon_EditJoints.png)<br/>__Edit Bone__   | Shift + W            | Reposition the bones into a new position. These changes are automatically saved as the default bind pose for the Restore Bind Pose tool.Sprite geometry does not deform with the bones in this mode, even if the bones are attached as influencers. |
+| ![Edit Bone](images/icon_EditJoints.png)<br/>__Edit Bone__   | Shift + W            | Reposition the bones into a new position. These changes are automatically saved as the default bind pose for the Restore Bind Pose tool. Sprite geometry does not deform with the bones in this mode, even if the bones are attached as influencers. |
 | ![Create Bone](images/icon_CreateBone.png)<br/>__Create Bone__ | Shift + E            | Click and drag to create bones.                              |
 | ![Split Bone](images/icon_SplitBone.png)<br/>__Split Bone__  | Shift + R            | Splits the selected bone.                                    |
 
@@ -110,7 +86,7 @@ Use the __Geometry tools__ to generate and edit the meshes of the different Spri
 
 The __Geometry panel__ is only visible when __Auto Geometry__ is enabled. It contains the available settings that affect how the geometry of selected Sprites are generated.
 
-![](images/GeoPanel.png)<br/>Visible only when Auto Geometry is enabled.
+![](images/GeoPanel.png)<br/>Visible only when **Auto Geometry** is enabled.
 
 | __Property__                                       | __Function__                                                 |
 | -------------------------------------------------- | ------------------------------------------------------------ |
@@ -122,22 +98,23 @@ The __Geometry panel__ is only visible when __Auto Geometry__ is enabled. It con
 
 ## Weight tools
 
-Vertices in the generated geometry meshes are influenced by different bones which affect how the meshes deform during animation. The percentage of influences from different bones for each vertex is contained in the weight information assigned to that vertex, which you can control with the following weight tools.
+Vertices in the generated geometry meshes are influenced by different bones which affect how the meshes deform during animation. The percentage of influences from different bones for each vertex is contained in the weight information assigned to that vertex, which you can control with the following Weight tools.
 
 To add weights to your Sprites, you can first ensure that there are [bones](#bone-tools) overlaying the Sprites and [geometry](#geometry-tools) has been generated.
 
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
-| ![Auto Weights](images/icon_GenWeights.png)<br/>__Auto Weights__ | Shift + Z            | Auto-generate weights between the geometry and bones. When this tool is selected, the [Weights panel](#weights-panel) becomes available at the bottom-right of the __Skinning Editor__ that displays the available settings and the option to generate weights for |
+| ![Auto Weights](images/icon_GenWeights.png)<br/>__Auto Weights__ | Shift + Z            | Auto-generate weights between the geometry and bones. When this tool is selected, the [Weights panel](#weights-panel) becomes available at the bottom-right of the __Skinning Editor__ that displays the available settings and the option to generate weights for. |
 | ![Weight Slider](images/icon_WeightSlider.png)<br/>__Weight Slider__ | Shift + X            | Use the slider to adjust weights.                            |
 | ![Weight Brush](images/icon_WeightPaint.png)<br/>__Weight Brush__ | Shift + N            | Adjust weights by painting with a brush.                     |
 | ![Bone Influence](images/icon_BoneInfluence.png)<br/>__Bone Influence__ | Shift + V            | Select which bones influence a Sprite.                       |
+| ![Sprite Influence](images/icon_SpriteInfluence.png)<br/>__Sprite Influence__ | Shift + M      | Select which Sprites are being influenced by a bone.         |
 
 ### Weights panel
 
 ![](images/Weights_panel.png)
 
-The weights panel appears at the lower-right of the Sprite Editor window when __Auto Weights__ is selected.
+The Weights panel appears at the lower-right of the Sprite Editor window when __Auto Weights__ under the Weight tools is selected.
 
 | __Property__              | __Function__                                                 |
 | ------------------------- | ------------------------------------------------------------ |
@@ -150,15 +127,13 @@ The weights panel appears at the lower-right of the Sprite Editor window when __
 
 ![](images/WeightSlider.png)
 
-
-
 | __Property__                                | __Function__                                                 |
 | ------------------------------------------- | ------------------------------------------------------------ |
 | __Mode__                                    | The current behavior of the __Weight Slider__ tool.          |
-| &nbsp;&nbsp;&nbsp;&nbsp;Add and Subtract    | Use the slider to increase or decrease the selected bone’s (currently displayed in the __Bone__ property) influence on selected vertices. *Increasing in* |
-| &nbsp;&nbsp;&nbsp;&nbsp;Grow and Shrink     | Use the slider to increase or decrease the weight on vertices that are already influenced by the selected bone. |
+| &nbsp;&nbsp;&nbsp;&nbsp;Add and Subtract    | Select this mode to have all sliders influence all vertices around the selected bone (currently displayed in the **Bone** property). |
+| &nbsp;&nbsp;&nbsp;&nbsp;Grow and Shrink     | Select this mode to have all sliders influence only vertices that are already affected by the selected bone (which is selected in the **Bone** property). |
 | &nbsp;&nbsp;&nbsp;&nbsp;Smooth              | Averages the weights of all vertices with their neighbors to create an even distribution of weight across all vertices. |
-| __Bone__ (unavailable if __Mode > Smooth__) | Displays the currently selected bone. Use the drop-down menu to select a different bone, or select another bone |
+| __Bone__ (unavailable if __Mode > Smooth__) | Displays the currently selected bone. Use the drop-down menu to select a different bone, or select another bone. |
 | __Normalize__                               | Select this to ensure the total normalized weight of all vertices of a selected Sprite mesh is equal to one. |
 | __Amount__                                  | Amount of weight applied on selected vertices.               |
 | __Vertex Weight__                           | Adjust the bone weights of selected vertices.                |
@@ -170,8 +145,8 @@ The weights panel appears at the lower-right of the Sprite Editor window when __
 | __Property__                             | __Function__                                                 |
 | ---------------------------------------- | ------------------------------------------------------------ |
 | __Mode__                                 | The current behavior mode of the weights tool.               |
-| &nbsp;&nbsp;&nbsp;&nbsp;Add and Subtract | Use the slider to increase or decrease the influence on vertices around the selected bone. |
-| &nbsp;&nbsp;&nbsp;&nbsp;Grow and Shrink  | Use the slider to increase or decrease the influence on vertices that are already affected by the selected bone. |
+| &nbsp;&nbsp;&nbsp;&nbsp;Add and Subtract | Select this mode to have all sliders  influence all vertices around the selected bone. |
+| &nbsp;&nbsp;&nbsp;&nbsp;Grow and Shrink  | Select this mode to have all sliders influence only vertices that are already affected by the selected bone. |
 | &nbsp;&nbsp;&nbsp;&nbsp;Smooth           | Averages the weights of vertices with their neighbors to create a smoother distribution of weights. |
 | __Bone__                                 | The bone that the Brush is painting influence for. Select a different bone via the drop-down menu. |
 | __Normalize__                            | Enable to ensure the normalized weight of painted vertices will equal to 1. |
@@ -198,3 +173,53 @@ You can rearrange the bone order in the Bone Influences panel by selecting and t
 The order of the bones in the Bone Influences panel determines the order of the bones on the __Sprite Skin__ component. This is especially important when replacing the Sprite for deformation in the __Sprite Renderer__, such as when using [Sprite Swap](SpriteSwapIntro.md), as you can ensure the bone order remains the same between the Sprites and that the correct Transform drives the correct deformation.
 
 ![](images/BoneInfluences_orderSpriteSkin.png)
+
+### Sprite Influences panel
+
+ The __Sprite Influences panel__ displays a list of Sprite Meshes that are currently being influenced by the selected bone.
+
+ ![](images/SpriteInfluencesExample.png)
+
+ When the __Skinning Editor__ is set to [Character mode](#editor-toolbar), the Sprite Influences panel allows you to remove an unwanted Sprite Mesh from the list so that it’s not influenced by the selected bone. It’s also possible to add a selected Sprite to the list which will include the selected bone’s influence in its deformation.
+
+ To add a Sprite Mesh to the list, select the bone in the Skinning Editor window as well as the Sprite you want to add, and then select __Add (+)__ at the bottom-right of the panel. To remove a Sprite from the list, select it  in the list or in the editor window and then select __Remove (-)__.
+
+## Rig tools
+
+The __Rig tools__ contain the option to __Copy__ and __Paste__ bones from and into a skeleton rig.
+
+| __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
+| ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
+| ![Copy](images/icon_Copy.png)<br/>__Copy__                   | Ctrl + C             | Copies the bone and mesh data from the current selection.    |
+| ![Paste](images/icon_Paste.png)<br/>__Paste__                | Ctrl + V             | Pastes the copied bone and mesh data to the current selection. |
+| ![Paste](images/icon_Paste.png)<br/>__Paste__                | Shift + B            | Use this shortcut to show additional pasting options.        |
+
+### Copy and Paste behavior
+Once you [rigged the skeleton and bone weights](CharacterRig.md) of your actor, you can reuse the same rigged skeleton with other Model Prefabs by using the **Copy** and **Paste** options on the [Rig tools](SkinEdToolsShortcuts.md#rig-tools). This is useful if you need to quickly create characters that share the same build and animations.
+
+Copy and Paste can only be done if the source and destination Model Prefabs have the same number of Sprites and Sprite names. When you Copy and Paste the bone and mesh data, the following occurs:
+
+1. Copied bone data is pasted to the destination.
+2. Mesh, weights, and bone association of source Sprite(s) are pasted to destination Sprite(s) with the same names.
+
+### Copy behavior
+To copy a Sprite's data, select a Sprite and then select the __Copy__ button to copy the Mesh and bone data associated with that Sprite. If no Sprite is selected, the data of all the Sprites' currently in the [Skinning Editor](SkinningEditor.md) window is copied.
+
+### Paste behavior
+To paste Sprite data to another Sprite, select the Sprite that should receive the paste data and then select __Paste__. This will bring up the Paste panel at the bottom right of the editor window:
+
+![](images/PasteDialog.png)<br/>Paste dialog box.
+
+| __Option__ | Function                                      |
+| ---------- | --------------------------------------------- |
+| __Bones__  | Paste bone data.                              |
+| __Mesh__   | Paste Mesh data.                              |
+| __Flip X__ | Paste the data but mirrored along the X-axis. |
+| __Flip Y__ | Paste the data but mirrored along the Y-axis. |
+
+The __Copy__ and __Paste__ tools behave in the following ways depending on these factors:
+
+|                                   | Copy from a selected Sprite                                  | Copy with no Sprite selected                                 |
+| --------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| __Paste with a Sprite selected__  | Data from the source Sprite will be copied to the selected destination Sprite. | Data is pasted to all Sprites at the destination with the same name(s) as the respective source Sprites. |
+| __Paste with no Sprite selected__ | No data is pasted.                                           | Data is pasted to all Sprites at the destination with the same name(s) as the respective source Sprites. |

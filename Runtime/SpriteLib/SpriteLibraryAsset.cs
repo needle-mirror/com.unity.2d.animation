@@ -109,6 +109,17 @@ namespace UnityEngine.U2D.Animation
         [SerializeField]
         private long m_ModificationHash;
 
+        internal static SpriteLibraryAsset CreateAsset(List<SpriteLibCategory> categories, string assetName, long version)
+        {
+            var asset = ScriptableObject.CreateInstance<SpriteLibraryAsset>();
+            asset.m_Labels = categories;
+            asset.ValidateCategories();
+            asset.name = assetName;
+            asset.UpdateHashes();
+            asset.m_ModificationHash = version;
+            return asset;
+        }
+        
         internal List<SpriteLibCategory> categories
         {
             get => m_Labels;

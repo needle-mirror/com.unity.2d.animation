@@ -10,14 +10,6 @@ namespace UnityEditor.U2D.Animation
     [MovedFrom("UnityEditor.Experimental.U2D.Animation")]
     internal class SpriteLibraryInspector : Editor
     {
-        class SpriteLibCombineCache : ScriptableObject
-        {
-            [SerializeField]
-            List<SpriteLibCategoryOverride> m_Library = new List<SpriteLibCategoryOverride>();
-
-            public List<SpriteLibCategoryOverride> library => m_Library;
-        }
-
         static class Style
         {
             public static string libraryDifferentValue = L10n.Tr("Sprite Library has different values.");

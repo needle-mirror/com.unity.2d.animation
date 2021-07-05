@@ -5,7 +5,7 @@ Toggle the __Sprite Visibility__ panel by selecting the __Visibility tool__ butt
 
 The panel appears on the right-side of the editor window. It has two sliders at the top that control the visibility of the ![](images/bone_icon.png) bones and ![](images/mesh_icon.png) Sprite meshes within the editor window. Move either slider further to the left to decrease the visibility of the bones or meshes respectively, and to the right to increase their visibility.
 
-![](images/2D-animation-v6-vis-panel.png)
+![](images/2D-animation-v7-vis-panel.png)
 
 The **Bone** tab displays the [Bone hierarchy](#bone-tab-and-hierarchy-tree) of the character Prefab, and the **Sprite** tab displays the names of the Sprites and their grouping hierarchy.
 
@@ -21,10 +21,11 @@ Select the __Bone__ tab to view the list of bones in the character Prefab. The l
 | ------------------------------- | ------------------------------------------------------------ |
 | ![](images/visibility_icon.png) | Toggle the visibility of each bone by selecting this icon next to the bone. |
 | __Bone__                        | The name of the Bone.                                        |
-| __Depth__                       | Displays the Z-value of bones that are influencing the same Sprite Mesh. The parts of the Mesh that is influenced by a bone with higher **Depth** value will render in front of the Mesh influenced by bones with lower **Depth** value. <br/>A bone’s **Depth** value is 0 by default. To set a bone’s Depth value, select one of the available [Bone tools](SkinEdToolsShortcuts.html#bone-tools) and then select one of the bones. Find the [Bone panel](SkinEdToolsShortcuts.html#bone-panel) at the bottom right of the window, and enter the desired value to its __Depth__ property box. |
+| __Depth__                       | Displays the Z-value of bones that are influencing the same Sprite Mesh. The parts of the Mesh that is influenced by a bone with higher **Depth** value will render in front of the Mesh influenced by bones with lower **Depth** value. <br/>A bone’s **Depth** value is 0 by default. |
+| __Color__                        | The color of the Bone.                                        |
 
 ## Sprite tab
 
 Select the __Sprite tab__ to see the list of Sprites that make up the character Prefab in the Skinning editor window. The names  and order of the Sprites mirror their names, layer and grouping order in the original source file.
 
-![](images/2D-animation-v6-sprite-tab.png)
+![](images/2D-animation-v7-sprite-tab.png)

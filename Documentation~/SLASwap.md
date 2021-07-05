@@ -9,7 +9,7 @@ The following example shows how to switch from a Sprite Library Asset of color S
    <br/>
 2. [Import](PreparingArtwork.md) both .psb files into the Unity Editor. Both become separate Model Prefabs in the Asset window.
    <br/>
-3. [Create a Sprite Library Asset](SpriteSwapSetup.md) and assign each Sprite of the actor to a unique [Category](SLAsset.md#Category). It is suggested to name each Category and Label after the respective body part of the actor for convenience. Apply the changes once complete.<br/>![](images/2d-anim-slasset-swap-category-color.png)<br/>The Category and Label names for the parts of the color actor.
+3. [Create a Sprite Library Asset](SpriteSwapSetup.md) and assign each Sprite of the actor to a unique [Category](SLAsset.md#category). It is suggested to name each Category and Label after the respective body part of the actor for convenience. Apply the changes once complete.<br/>![](images/2d-anim-slasset-swap-category-color.png)<br/>The Category and Label names for the parts of the color actor.
    <br/>
 4. Repeat step 3 for the grayscale actor. Use the same Category and Label names for the corresponding gray Sprites.<br/>![](images/2d-anim-slasset-swap-category-gray.png)<br/>The grayscale Sprites with the same corresponding Category and Label names.
    <br/>

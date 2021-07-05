@@ -8,6 +8,7 @@ namespace UnityEditor.U2D.Animation
         public static string sprite = "m_Sprite";
         public static string overrideEntryCount = "m_EntryOverrideCount";
         public static string name = "m_Name";
+        public static string hash = "m_Hash";
         public static string categoryList = "m_CategoryList";
     }
 }

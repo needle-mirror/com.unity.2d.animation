@@ -1,4 +1,4 @@
-# Sprite Swap
+# Sprite Swap examples
 This following sample projects demonstrate the different ways you can use Sprite Swap to achieve different effects and outcomes.
 
 ![](images/2D-animation-samples-spriteswap-Scenes.png)
@@ -85,7 +85,7 @@ Follow the steps below to reconstruct the sample Scene:
 In this sample, the Sprite Library component is not attached to the same GameObject as the Sprite Resolver component. The Sprite Resolver will attempt to locate a Sprite Library component starting from the same GameObject it is on and then traverse up the GameObject hierarchy. This makes it possible to have a single or multiple Sprite Resolvers use the same Sprite Library component by attaching the Sprite Library component to a common root GameObject that the Sprite Resolver components are attached to.
 
 ## Part Swap
-This sample demonstrates how to swap Sprite Assets using the API provided by changing the Sprite Resolver data. This sample uses some of the Assets and a similar setup to the [Multiple Skinned Sprites](ex-multiple-skinned-sprites) sample. Open the  `3 Part Swap.unity` Scene to see the sample in action.
+This sample demonstrates how to swap Sprite Assets using the API provided by changing the Sprite Resolver data. This sample uses some of the Assets and a similar setup to the [Multiple Skinned Sprites](ex-multiple-skinned-sprites.md) sample. Open the  `3 Part Swap.unity` Scene to see the sample in action.
 
 ![](images/2D-animation-samples-partswap-Scene.png)
 

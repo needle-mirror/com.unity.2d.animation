@@ -1,6 +1,6 @@
 # Sprite Library Asset
 
-A Sprite Library Asset groups multiple Sprites into [Categories](#category) and unique [Label](#entry) names. It is used in combination with the [Sprite Library](#sprite-library-component) component and [Sprite Resolver](#sprite-resolver) component to swap Sprite graphics at runtime.
+A Sprite Library Asset groups multiple Sprites into [Categories](#category) and unique [Label](#entry) names. It is used in combination with the [Sprite Library](#sprite-library-component) component and [Sprite Resolver](#sprite-resolver-component) component to swap Sprite graphics at runtime.
 
 To create the Asset, go to __Assets__ > __Create__ > **2D** > __Sprite Library Asset__.
 
@@ -95,7 +95,7 @@ By assigning a Sprite Library Asset, the component’s Inspector will show a pre
 Similar to the [Sprite Library Asset](#sprite-library-asset-inspector-window)’s Inspector window, you can add new Categories, change the Sprite an Entry refers to, and add a new Sprite Entry into the Category in Sprite Library component's Inspector window.
 
 ## Sprite Resolver component
-The Sprite Resolver component is attached to each GameObject in the Prefab. The component pulls information from the [Sprite Library Asset](SLAsset.md) (assigned to the [Sprite Library component](SLComponent.md) at the root of the Prefab). The component contains two properties - [Category and Label](SpriteVis.html#sprite-tab) - and a visual Variant Selector that displays thumbnails of the Sprites contained in the Sprite Library Asset.
+The Sprite Resolver component is attached to each GameObject in the Prefab. The component pulls information from the [Sprite Library Asset](SLAsset.md) (assigned to the [Sprite Library component](#sprite-library-component) at the root of the Prefab). The component contains two properties - [Category](#category) and [Label](#entry) - and a visual Variant Selector that displays thumbnails of the Sprites contained in the Sprite Library Asset.
 
 ![](images/2D-animation-SResolver-properties.png)<br/>Inspector view of Sprite Resolver component.
 

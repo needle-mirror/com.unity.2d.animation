@@ -137,7 +137,7 @@ namespace UnityEditor.U2D.Animation
         {
             m_Influences = transformsList;
             m_ListView.itemsSource = m_Influences;
-            m_ListView.Refresh();
+            m_ListView.Rebuild();
         }
 
         public void UpdateSelection(IEnumerable<TransformCache> newSelection)

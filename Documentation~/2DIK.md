@@ -2,7 +2,7 @@
 
 ## Overview
 
-The 2D [Inverse Kinematics](https://docs.unity3d.com/Manual/InverseKinematics.html) (IK) package allows you to apply __2D IK__ to the bones and Transforms of your characters’ animation skeletons. __2D IK__ automatically calculates for the positions and rotations of the a chain of bones moving towards a target position. This makes it easier to pose and animate character limbs for animation, or to manipulate a skeleton in real-time, as manually keyframing the chain of bones is not required.  
+The 2D [Inverse Kinematics](https://docs.unity3d.com/Manual/InverseKinematics.html) (IK) feature set allows you to apply __2D IK__ to the bones and Transforms of your characters’ animation skeletons. __2D IK__ automatically calculates for the positions and rotations of a chain of bones moving towards a target position. This makes it easier to pose and animate character limbs for animation, or to manipulate a skeleton in real-time, as manually keyframing the chain of bones is not required.  
 
 ## Workflow
 
@@ -26,7 +26,7 @@ The following workflow continues from the __2D Animation__ package animation wor
 
 The __IK Solver__ calculates the position and rotation the Effector and its connected bones should take to achieve their Target position. Each type of __IK Solver__ has its own algorithm that makes them better suited to different kinds of conditions.
 
-The following are properties are available to all Solvers:
+The following properties are available to all Solvers:
 
 | __Property__                                                 | __Description__                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -46,7 +46,7 @@ This is a standard two bone Solver that is ideal for posing joints such as arms 
 
 ### Chain (CCD) - Cyclic Coordinate Descent
 
-This IK Solver uses the *Cyclic Coordinate Descent* algorithm,which gradually becomes more accurate the more times thealgorithm is run. The Solver stops running once the set [tolerance](#tolerance) or [number of iterations](#runs) is reached.
+This IK Solver uses the *Cyclic Coordinate Descent* algorithm, which gradually becomes more accurate the more times the algorithm is run. The Solver stops running once the set [tolerance](#tolerance) or [number of iterations](#runs) is reached.
 
 The following property is only available to the __Chain (CCD) IK Solver__:
 
@@ -159,7 +159,7 @@ This function does validation for all parameters passed into the solver. Use thi
 
 - protected virtual void DoInitialize()
 
-This function initializes the solver and builds the IK chains owned by the solver. This is called whenever the solver is invalid after changing the target of the solver or other parameters of the solver. Use this to do initialize all the data from the parameters given to the solver, such as the IK chains owned by the solver.
+This function initializes the solver and builds the IK chains owned by the solver. This is called whenever the solver is invalid after changing the target of the solver or other parameters of the solver. Use this to initialize all the data from the parameters given to the solver, such as the IK chains owned by the solver.
 
 - protected virtual void DoPrepare()
 
