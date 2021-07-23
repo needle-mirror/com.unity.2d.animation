@@ -26,7 +26,7 @@ You can improve the performance of the animated Sprite’s deformation at runtim
 
 With both packages installed, the Experimental __Enable batching__ setting becomes available in the [Sprite Skin component](#sprite-skin-component). As the implementation of the performance boost might contain bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.
 
-The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.3.3 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6.
+The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.4.1 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6.
 
 ## Sprite Skin component
 

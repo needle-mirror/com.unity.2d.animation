@@ -1,5 +1,10 @@
 # Changelog
 
+## [5.0.7] - 2021-07-23
+### Fixed
+- IKManager2D does not detect classes inheriting from Solver2D (case 1347059)
+- Error constantly encountered when opening a psb on skinningEditor with mosaic disabled (case 1349744)
+
 ## [5.0.6] - 2021-06-08
 ### Fixed
 - Fixed Unable to remove Empty Category in Sprite Editor after changing Sprite Layer name with external image editor (case 1328475)

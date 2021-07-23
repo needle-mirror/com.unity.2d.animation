@@ -1033,10 +1033,16 @@ namespace UnityEditor.U2D.Animation
         void CreateSpriteLibrary(ISpriteEditor spriteEditor)
         {
             var dataProvider = spriteEditor.GetDataProvider<ISpriteLibDataProvider>();
-            if (dataProvider != null)
+            if (dataProvider != null && hasCharacter)
             {
                 m_SpriteCategoryList = CreateCache<SpriteCategoryListCacheObject>();
-                m_SpriteCategoryList.CopyFrom(dataProvider.GetSpriteCategoryList());
+                var categoryList = dataProvider.GetSpriteCategoryList();
+
+                var spriteIds = m_Character.parts.Select(p => p.sprite.id);
+                foreach (var category in categoryList.categories)
+                    category.labels.RemoveAll(label => !spriteIds.Contains(label.spriteId));
+
+                m_SpriteCategoryList.CopyFrom(categoryList);
             }
         }
 
