@@ -49,4 +49,4 @@ With both packages installed, __Enable batching__ becomes available in the [Spri
 
 ![](images/2D-optional-perf-boost-disabled.png)<br/>
 
-The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.3.3 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6. However if you encounter an bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.
+The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.4.1 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6. However if you encounter an bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [6.0.5] - 2021-07-26
+### Fixed
+- IKManager2D does not detect classes inheriting from Solver2D (case 1347056)
+
 ## [6.0.4] - 2021-06-09
 ### Fixed
 - Sprite Resolver component not updated when new categories/labels are added into Sprite Library asset. (case 1321069)
