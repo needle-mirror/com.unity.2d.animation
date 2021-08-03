@@ -3,39 +3,35 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEditorInternal;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class SelectListView : ListView
-    {
-        public class CustomUxmlFactory : UxmlFactory<SelectListView, UxmlTraits> {}
-
-        public new void AddToSelection(int index)
-        {
-            base.AddToSelection(index);
-        }
-
-        public new void ClearSelection()
-        {
-            base.ClearSelection();
-        }
-    }
-
     internal class SpriteBoneInfluenceListWidget : VisualElement
     {
         public class CustomUxmlFactory : UxmlFactory<SpriteBoneInfluenceListWidget, CustomUxmlTraits> {}
         public class CustomUxmlTraits : UxmlTraits {}
 
-        private List<BoneCache> m_BoneInfluences;
-        private SelectListView m_ListView;
-        bool m_IgnoreSelectionChange = false;
-        private Button m_AddButton;
-        private Button m_RemoveButton;
+        static class Contents
+        {
+            public static readonly GUIContent PlusSign = new GUIContent("+");
+            public static readonly GUIContent MinusSign = new GUIContent("-");
+        }
+
+        const float k_AddRemoveButtonWidth = 30f;
+
         public Action onAddBone = () => {};
         public Action onRemoveBone = () => {};
         public Action<IEnumerable<BoneCache>> onReordered = _ => {};
         public Action<IEnumerable<BoneCache>> onSelectionChanged = (s) => {};
         public Func<SpriteBoneInflueceToolController> GetController = () => null;
+
+        IMGUIContainer m_IMGUIContainer;
+        ReorderableList m_ReorderableList;
+        
+        List<BoneCache> m_BoneInfluences = new List<BoneCache>();
+        bool m_IgnoreSelectionChange = false;
+        Vector2 m_ScrollPosition = Vector2.zero;
 
         public SpriteBoneInfluenceListWidget()
         {
@@ -47,85 +43,90 @@ namespace UnityEditor.U2D.Animation
             this.Add(ve);
             BindElements();
         }
-
-        private void BindElements()
+        
+        void BindElements()
         {
-            m_ListView = this.Q<SelectListView>();
-            m_ListView.selectionType = SelectionType.Multiple;
-            m_ListView.itemsSource = m_BoneInfluences;
-            m_ListView.makeItem = () =>
-            {
-                var label = new Label()
-                {
-                    name = "ListRow"
-                };
-                return label;
-            };
-            m_ListView.bindItem = (e, index) =>
-            {
-                if (m_BoneInfluences[index] == null)
-                    return;
+            m_ReorderableList = new ReorderableList(m_BoneInfluences, typeof(List<BoneCache>), true, false, false, false);
+            m_ReorderableList.headerHeight = 0;
+            m_ReorderableList.footerHeight = 0;
+            m_ReorderableList.drawElementCallback = OnDrawElement;
+            m_ReorderableList.onSelectCallback = OnListViewSelectionChanged;
+            m_ReorderableList.onReorderCallback = _ => { onReordered(m_BoneInfluences); };
 
-                (e as Label).text = m_BoneInfluences[index].name;
-                if (index % 2 == 0)
-                {
-                    e.RemoveFromClassList("ListRowOddColor");
-                    e.AddToClassList("ListRowEvenColor");
-                }
-                else
-                {
-                    e.RemoveFromClassList("ListRowEvenColor");
-                    e.AddToClassList("ListRowOddColor");
-                }
-            };
-
-            m_ListView.onSelectionChanged += OnListViewSelectionChanged;
-            m_AddButton = this.Q<Button>("AddButton");
-            m_AddButton.clickable.clicked += OnAddButtonClick;
-            m_RemoveButton = this.Q<Button>("RemoveButton");
-            m_RemoveButton.clickable.clicked += OnRemoveButtonClick;
-            this.RegisterCallback<DragPerformEvent>(x => onReordered(m_BoneInfluences) );
+            m_IMGUIContainer = this.Q<IMGUIContainer>();
+            m_IMGUIContainer.onGUIHandler = OnDrawGUIContainer;
         }
 
-        private void OnListViewSelectionChanged(List<object> o)
+        void OnDrawElement(Rect rect, int index, bool isActive, bool isFocused)
+        {
+            if (m_BoneInfluences != null && m_BoneInfluences.Count > index)
+                EditorGUI.LabelField(rect, m_BoneInfluences[index].name);
+        }
+
+        void OnAddCallback()
+        {
+            onAddBone();
+            OnListViewSelectionChanged(m_ReorderableList);
+        }
+
+        void OnRemoveCallback()
+        {
+            onRemoveBone();
+            OnListViewSelectionChanged(m_ReorderableList);
+        }
+
+        void OnListViewSelectionChanged(ReorderableList list)
         {
             if (m_IgnoreSelectionChange)
                 return;
 
-            var selectedBones = o.OfType<BoneCache>().ToArray();
-
+            var selectedBones = new List<BoneCache>()
+            {
+                m_BoneInfluences.Count > 0 ? m_BoneInfluences[list.index] : null
+            };
             onSelectionChanged(selectedBones);
         }
 
-        private void OnAddButtonClick()
+        void OnDrawGUIContainer()
         {
-            onAddBone();
+            m_ScrollPosition = EditorGUILayout.BeginScrollView(m_ScrollPosition,
+                false,
+                false,
+                GUILayout.Height(GetScrollViewHeight()));
+            if(m_BoneInfluences != null)
+                m_ReorderableList.DoLayoutList();
+            EditorGUILayout.EndScrollView();
+            
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUI.enabled = IsAddButtonEnabled();
+            if(GUILayout.Button(Contents.PlusSign, GUILayout.Width(k_AddRemoveButtonWidth)))
+                OnAddCallback();
+            
+            GUI.enabled = IsRemoveButtonEnabled();
+            if(GUILayout.Button(Contents.MinusSign, GUILayout.Width(k_AddRemoveButtonWidth)))
+                OnRemoveCallback();
+            
+            GUI.enabled = true;
+            EditorGUILayout.EndHorizontal();
         }
-
-        private void OnRemoveButtonClick()
-        {
-            onRemoveBone();
-        }
+        
+        bool IsAddButtonEnabled() => GetController().ShouldEnableAddButton(m_BoneInfluences);
+        bool IsRemoveButtonEnabled() => GetController().InCharacterMode() && m_BoneInfluences.Count > 0 && m_ReorderableList.index >= 0;
+        float GetScrollViewHeight() => Mathf.Min(m_ReorderableList.GetHeight(), 130f);
 
         public void Update()
         {
             m_BoneInfluences = GetController().GetSelectedSpriteBoneInfluence().ToList();
-            m_ListView.itemsSource = m_BoneInfluences;
-            m_ListView.Refresh();
+            m_ReorderableList.list = m_BoneInfluences;
         }
 
         internal void OnBoneSelectionChanged()
         {
             var selectedBones = GetController().GetSelectedBoneForList(m_BoneInfluences);
             m_IgnoreSelectionChange = true;
-            m_ListView.ClearSelection();
-            foreach (var bone in selectedBones)
-            {
-                m_ListView.AddToSelection(bone);
-            }
+            m_ReorderableList.index = selectedBones.Length > 0 ? selectedBones[0] : 0;
             m_IgnoreSelectionChange = false;
-            m_AddButton.SetEnabled(GetController().ShouldEnableAddButton(m_BoneInfluences));
-            m_RemoveButton.SetEnabled(GetController().InCharacterMode() && m_ListView.selectedIndex >= 0);
         }
     }
 }

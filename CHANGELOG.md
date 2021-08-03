@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.2.11] - 2021-08-03
+### Fixed
+- Fixed an issue where the bones cannot be rearranged in the Bone Influence tool. (case 1352717)
+- Sprite outline in the Skinning Editor is now rendered based on Sprite's geometry. (case 1354801)
+
 ## [3.2.10] - 2021-07-05
 ### Fixed
 - Fixed Unable to remove Empty Category in Sprite Editor after changing Sprite Layer name with external image editor (case 1328475)
