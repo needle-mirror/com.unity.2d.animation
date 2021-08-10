@@ -42,6 +42,8 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(selection != null);
             Debug.Assert(cacheUndo != null);
 
+            ValidateSelectionValues();
+
             spriteMeshView.selection = selection;
             spriteMeshView.frame = frame;
 
@@ -97,6 +99,18 @@ namespace UnityEditor.U2D.Animation
             spriteMeshView.DoRepaint();
 
             EditorGUI.EndDisabledGroup();         
+        }
+
+        private void ValidateSelectionValues()
+        {
+            foreach (var index in selection.elements)
+            {
+                if (index >= m_SpriteMeshData.vertexCount)
+                {
+                    selection.Clear();
+                    break;
+                }
+            }            
         }
 
         private void LayoutVertices()
@@ -555,13 +569,14 @@ namespace UnityEditor.U2D.Animation
             if (shouldClearMesh)
             {
                 m_SpriteMeshDataController.spriteMeshData.Clear();
+                m_SpriteMeshDataController.CreateQuad();
             }
             else
             {
                 m_SpriteMeshDataController.RemoveVertex(selection.elements);
-                Triangulate();                
             }
             
+            Triangulate();
             selection.Clear();
         }
 

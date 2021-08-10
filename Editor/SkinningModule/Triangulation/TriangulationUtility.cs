@@ -121,6 +121,42 @@ namespace UnityEditor.U2D.Animation
             return true;
         }
 
+        internal static void Quad(IList<Vector2> vertices, IList<Edge> edges, IList<int> indices, Allocator allocator)
+        {
+            if (vertices.Count < 3)
+                return;
+
+            NativeArray<float2> points = new NativeArray<float2>(vertices.Count, allocator);
+            for (int i = 0; i < vertices.Count; ++i)
+                points[i] = vertices[i];
+
+            int arrayCount = vertices.Count * vertices.Count * 4;
+            int vertexCount = 0, indexCount = 0, edgeCount = 0;
+            NativeArray<int> outputIndices = new NativeArray<int>(arrayCount, allocator);
+            NativeArray<int2> outputEdges = new NativeArray<int2>(arrayCount, allocator);
+            NativeArray<float2> outputVertices = new NativeArray<float2>(arrayCount, allocator);
+            
+            NativeArray<int2> fallback = new NativeArray<int2>(0, allocator);
+            TessellateSafe(points, fallback, ref outputVertices, ref vertexCount, ref outputIndices,
+                ref indexCount, ref outputEdges, ref edgeCount);
+            fallback.Dispose();
+
+            vertices.Clear();
+            for (int i = 0; i < vertexCount; ++i)
+                vertices.Add(outputVertices[i]);
+            indices.Clear();
+            for (int i = 0; i < indexCount; ++i)
+                indices.Add(outputIndices[i]);
+            edges.Clear();
+            for (int i = 0; i < edgeCount; ++i)
+                edges.Add(new Edge(){index1 = outputEdges[i].x, index2 = outputEdges[i].y});
+
+            outputEdges.Dispose();
+            outputIndices.Dispose();
+            outputVertices.Dispose();
+            points.Dispose();            
+        }
+        
         internal static void Triangulate(IList<Vector2> vertices, IList<Edge> edges, IList<int> indices, Allocator allocator)
         {
             if (vertices.Count < 3)

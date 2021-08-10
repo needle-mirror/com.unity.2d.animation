@@ -786,27 +786,74 @@ namespace UnityEditor.U2D.Animation
             var guid = new GUID(sprite.id);
             var mesh = CreateCache<MeshCache>();
             var skeleton = m_SkeletonMap[sprite] as SkeletonCache;
-            var metaVertices = meshProvider.GetVertices(guid);
 
             mesh.sprite = sprite;
             mesh.SetCompatibleBoneSet(skeleton.bones);
-
-            foreach (var mv in metaVertices)
+            
+            var metaVertices = meshProvider.GetVertices(guid);
+            if (metaVertices.Length > 0)
             {
-                var v = new Vertex2D(mv.position, mv.boneWeight);
-                mesh.vertices.Add(v);
+                foreach (var mv in metaVertices)
+                {
+                    var v = new Vertex2D(mv.position, mv.boneWeight);
+                    mesh.vertices.Add(v);
+                }
+                
+                mesh.indices = new List<int>(meshProvider.GetIndices(guid));
+                var edges = meshProvider.GetEdges(guid);
+
+                foreach (var e in edges)
+                    mesh.edges.Add(new Edge(e.x, e.y));
             }
-
-            mesh.indices = new List<int>(meshProvider.GetIndices(guid));
-
-            var edges = meshProvider.GetEdges(guid);
-
-            foreach (var e in edges)
-                mesh.edges.Add(new Edge(e.x, e.y));
+            else
+            {
+                GenerateOutline(sprite, textureDataProvider, out var vertices, out var indices, out var edges);
+                mesh.vertices = vertices;
+                mesh.indices = indices;
+                mesh.edges = edges;
+            }
 
             mesh.textureDataProvider = textureDataProvider;
 
             m_MeshMap[sprite] = mesh;
+        }
+
+        static void GenerateOutline(SpriteCache sprite, ITextureDataProvider textureDataProvider, 
+            out List<Vertex2D> vertices, out List<int> indices, out List<Edge> edges)
+        {
+            if (textureDataProvider == null ||
+                textureDataProvider.texture == null)
+            {
+                vertices = new List<Vertex2D>();
+                indices = new List<int>();
+                edges = new List<Edge>();
+                return;
+            }
+
+            const float detail = 0.05f;
+            const byte alphaTolerance = 200;
+
+            var smd = new SpriteMeshData
+            {
+                spriteID = new GUID(sprite.id), 
+                frame = sprite.textureRect, 
+                pivot = sprite.pivotNormalized
+            };
+
+            var meshDataController = new SpriteMeshDataController
+            {
+                spriteMeshData = smd
+            };
+            
+            meshDataController.OutlineFromAlpha(new OutlineGenerator(), textureDataProvider, detail, alphaTolerance);
+            meshDataController.Triangulate(new Triangulator());
+            
+            vertices = smd.vertices;
+            indices = smd.indices;
+            edges = smd.edges;
+            
+            foreach (var vertex in vertices)
+                vertex.position -= sprite.textureRect.position;
         }
 
         private void CreateMeshPreviewCache(SpriteCache sprite)

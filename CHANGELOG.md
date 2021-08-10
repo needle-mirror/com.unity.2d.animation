@@ -1,12 +1,18 @@
 # Changelog
 
+## [7.0.0] - 2021-08-10
+### Fixed
+- Bone and Sprite influence lists are displayed correctly (case 1349041)
+- Exception thrown when manually adding vertices in the Skinning Editor to a Sprite w/o mesh. (case 1348202)
+- Sprite outline in the Skinning Editor is now rendered based on Sprite's geometry. (case 1354798)
+
 ## [7.0.0-pre.3] - 2021-07-05
 ### Fixed
 - Thumbnails in Sprite Library Asset flicker when the Library Asset contains many Categories and Labels. (case 1333228)
-- SpriteLibraryAsset Category & Label does not generate hash in Inspector (case 1340587)
+- SpriteLibraryAsset Category & Label does not generate hash in Inspector. (case 1340587)
 - SpriteResolver inspector selects first element when failing to resolve. (case 1340070)
-- IKManager2D does not detect classes inheriting from Solver2D (case 1343260)
-- Skinning Editor tooltips updated
+- IKManager2D does not detect classes inheriting from Solver2D. (case 1343260)
+- Skinning Editor tooltips updated.
 
 ## [7.0.0-pre.2] - 2021-05-19
 ### Fixed

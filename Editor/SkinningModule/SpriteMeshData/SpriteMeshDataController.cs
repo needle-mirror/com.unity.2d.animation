@@ -31,7 +31,7 @@ namespace UnityEditor.U2D.Animation
 
         public void CreateVertex(Vector2 position, int edgeIndex)
         {
-            Debug.Assert(spriteMeshData != null);
+            Debug.Assert(spriteMeshData != null, "Assert failed. Expected: spriteMeshData != null. Actual: spriteMeshData == null");
 
             spriteMeshData.AddVertex(position, default(BoneWeight));
 
@@ -46,12 +46,12 @@ namespace UnityEditor.U2D.Animation
 
         public void CreateEdge(int index1, int index2)
         {
-            Debug.Assert(spriteMeshData != null);
-            Debug.Assert(index1 >= 0);
-            Debug.Assert(index2 >= 0);
-            Debug.Assert(index1 < spriteMeshData.vertexCount);
-            Debug.Assert(index2 < spriteMeshData.vertexCount);
-            Debug.Assert(index1 != index2);
+            Debug.Assert(spriteMeshData != null, "Assert failed. Expected: spriteMeshData != null. Actual: spriteMeshData == null");
+            Debug.Assert(index1 >= 0, $"Assert failed. Expected: index1 >= 0. Actual: index1 == {index1}");
+            Debug.Assert(index2 >= 0, $"Assert failed. Expected: index2 >= 0. Actual: index2 == {index2}");
+            Debug.Assert(index1 < spriteMeshData.vertexCount, $"Assert failed. Expected: index1 < spriteMeshData.vertexCount. Actual: index1 == {index1} spriteMeshData.vertexCount == {spriteMeshData.vertexCount}");
+            Debug.Assert(index2 < spriteMeshData.vertexCount, $"Assert failed. Expected: index2 < spriteMeshData.vertexCount. Actual: index2 == {index2} spriteMeshData.vertexCount == {spriteMeshData.vertexCount}");
+            Debug.Assert(index1 != index2, $"Assert failed. Expected: index1 != index2. Actual: index1 == {index1} index2 == {index2}");
 
             Edge newEdge = new Edge(index1, index2);
 
@@ -146,17 +146,86 @@ namespace UnityEditor.U2D.Animation
             return found;
         }
 
+        public void CreateQuad()
+        {
+            var frame = spriteMeshData.frame;
+            var verts = new Vector2[]
+            {
+                new Vector2(0f, 0f),
+                new Vector2(frame.width, 0f),
+                new Vector2(0f, frame.height),
+                new Vector2(frame.width, frame.height)
+            };
+            
+            for(var i = 0; i < verts.Length; ++i)
+                CreateVertex(verts[i]);
+            
+            var tris = new int[]
+            {
+                0, 2, 3, 1
+            };
+
+            for (var i = 0; i < tris.Length; ++i)
+            {
+                var n = (i + 1) % tris.Length;
+                CreateEdge(tris[i], tris[n]);
+            }
+        }
+
         public void Triangulate(ITriangulator triangulator)
         {
             Debug.Assert(spriteMeshData != null);
             Debug.Assert(triangulator != null);
+            
+            FillMeshDataContainers(ref m_VerticesTemp, ref m_EdgesTemp, out var weightData, out var hasWeightData);
 
-            m_VerticesTemp.Clear();
+            var indices = new List<int>();
+            triangulator.Triangulate(m_VerticesTemp, m_EdgesTemp, indices);
 
-            for (int i = 0; i < spriteMeshData.vertexCount; ++i)
-                m_VerticesTemp.Add(spriteMeshData.GetPosition(i));
+            if (m_VerticesTemp.Count == 0)
+            {
+                spriteMeshData.Clear();
+                CreateQuad();
+                
+                FillMeshDataContainers(ref m_VerticesTemp, ref m_EdgesTemp, out weightData, out hasWeightData);
+                indices.Clear();
+                triangulator.Triangulate(m_VerticesTemp, m_EdgesTemp, indices);
+            }
+            
+            spriteMeshData.Clear();
+            spriteMeshData.edges.AddRange(m_EdgesTemp);
+            spriteMeshData.indices.AddRange(indices);
 
-            triangulator.Triangulate(m_VerticesTemp, spriteMeshData.edges, spriteMeshData.indices);
+            var hasNewVertices = m_VerticesTemp.Count != weightData.Count;
+            for (var i = 0; i < m_VerticesTemp.Count; ++i)
+            {
+                var boneWeight = default(BoneWeight);
+                if (!hasNewVertices)
+                    boneWeight = weightData[i].ToBoneWeight(true);
+                spriteMeshData.AddVertex(m_VerticesTemp[i], boneWeight);
+            }
+
+            if(hasNewVertices && hasWeightData)
+                CalculateWeights(new BoundedBiharmonicWeightsGenerator(), null, 0.01f);
+        }
+
+        void FillMeshDataContainers(ref List<Vector2> vertices, ref List<Edge> edges, out List<EditableBoneWeight> weightData, out bool hasWeightData)
+        {
+            edges.Clear();
+            vertices.Clear();
+            
+            edges.AddRange(spriteMeshData.edges);
+            
+            weightData = new List<EditableBoneWeight>(spriteMeshData.vertexCount);
+            hasWeightData = false;
+            for (var i = 0; i < spriteMeshData.vertexCount; ++i)
+            {
+                vertices.Add(spriteMeshData.GetPosition(i));
+                var boneWeight = spriteMeshData.GetWeight(i);
+                weightData.Add(boneWeight);
+                if (boneWeight != default)
+                    hasWeightData = true;
+            }            
         }
 
         public void Subdivide(ITriangulator triangulator, float largestAreaFactor, float areaThreshold)
@@ -202,9 +271,9 @@ namespace UnityEditor.U2D.Animation
 
         public void OutlineFromAlpha(IOutlineGenerator outlineGenerator, ITextureDataProvider textureDataProvider, float outlineDetail, byte alphaTolerance)
         {
-            Debug.Assert(spriteMeshData != null);
-            Debug.Assert(textureDataProvider != null);
-            Debug.Assert(textureDataProvider.texture != null);
+            Debug.Assert(spriteMeshData != null, "Assert failed. Expected: spriteMeshData != null. Actual: spriteMeshData == null");
+            Debug.Assert(textureDataProvider != null, "Assert failed. Expected: textureDataProvider != null. Actual: textureDataProvider == null");
+            Debug.Assert(textureDataProvider.texture != null, "Assert failed. Expected: textureDataProvider.texture != null. Actual: textureDataProvider.texture == null");
 
             int width, height;
             textureDataProvider.GetTextureActualWidthAndHeight(out width, out height);

@@ -78,7 +78,7 @@ InfluenceWindow
     background-color: #3C3C3C;
 }
 
-ListView . .unity-list-view__item--selected
+ListView . .unity-collection-view__item--selected
 {
     background-image: resource("Builtin Skins/LightSkin/images/ro_selected_l.png");
     -unity-slice-left: 2;
@@ -86,14 +86,15 @@ ListView . .unity-list-view__item--selected
     -unity-slice-bottom: 3;
 }
 
-.Dark . ListView . .unity-list-view__item--selected
+.Dark . ListView . .unity-collection-view__item--selected
 {
     background-image: resource("Builtin Skins/DarkSkin/images/ro_selected_d.png");
 }
 
-ScrollView
+ScrollView .unity-list-view__empty-label
 {
-    flex :1 0 auto;
+    /* we don't want any text displayed when the list is is empty */
+    display: none;
 }
 
 .Dark . #ContentBackgroundImage
