@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.0.8] - 2021-09-11
+### Fixed
+- Sprite outline in the Skinning Editor is now rendered based on Sprite's geometry. (case 1354800)
+- Fixed render texture size error in the Skinning Editor. (case 1357820)
+- Improved the steps on how to install the optional performance boost, in the documentation. (case 1360786)
+- Fixed an issue where an error would show up when destroying a Sprite Skin component while deep profling. (case 1364930)
+- Fixed an issue where copying mesh and bone data from a .psb containing a single sprite would throw an exception. (case 1364626)
+- Fixed an issue where IK Solvers would not be updated when previewing an animation clip. (1364597)
+
 ## [5.0.7] - 2021-07-23
 ### Fixed
 - IKManager2D does not detect classes inheriting from Solver2D (case 1347059)

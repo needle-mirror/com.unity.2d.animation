@@ -58,7 +58,7 @@ namespace UnityEditor.U2D.Animation
                 SetupModuleToolGroup();
                 m_MeshPreviewTool.Activate();
 
-                m_SpriteOutlineRenderer = new SpriteOutlineRenderer(spriteEditor, skinningCache.events);
+                m_SpriteOutlineRenderer = new SpriteOutlineRenderer(skinningCache.events);
 
                 spriteEditor.enableMouseMoveEvent = true;
 

@@ -18,16 +18,25 @@ The [.psb](https://helpx.adobe.com/photoshop/using/file-formats.html#large_docum
 
 For character animation with the __2D Animation package__, the __PSD Importer__ package is required. The PSD Importer package currently only imports the __Adobe Photoshop .psb format__, and does not import the Adobe .psd format. The .psb format has identical functions as .psd, and is able to support larger image sizes.
 
-## Optional Performance Boost
-
-You can improve the performance of the animated Sprite’s deformation at runtime by installing the [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) package from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite mesh deformation.
-
-![](images/SpriteSkin_inspect_exp.png)
-
-With both packages installed, the Experimental __Enable batching__ setting becomes available in the [Sprite Skin component](#sprite-skin-component). As the implementation of the performance boost might contain bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.
-
-The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.4.1 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6.
-
 ## Sprite Skin component
 
 When the character Prefab is brought into the Scene view, Unity automatically adds the __Sprite Skin__ component to any Sprite that have any [bone influences](SkinEdToolsShortcuts.md#bone-influences). This component is required for the bones deform the Sprite Meshes in the Scene view.
+
+## Optional Performance Boost
+
+When animating your characters, you can improve the performance of the animated Sprite’s deformation at runtime by installing both the [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) package from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite Mesh deformation.
+
+The **Burst** package is visible by default in the **Package Manager**, however the **Collections** package is not publicly visible. To install the **Collections** package, follow these steps:
+1. Open the **Package Manager**.
+2. Press **+** at the upper-left corner of the **Package Manager** window to open a drop-down menu, then select **Add package from git URL…** from the list of options.<br/> ![](images/Collections_0.png)<br/><br/>
+3. In the **Name** box, enter “com.unity.collections”, then select **Add**. <br/>![](images/Collections_1.png)<br/>
+
+After completing these steps, the **Collections** package is added to the Project.
+
+![](images/2D-optional-perf-boost-visible.png)<br/>The **Sprite Skin** component settings.
+
+With both packages installed, __Enable batching__ becomes available in the [Sprite Skin component](SpriteSkin.md) properties. Note that if you do not have the required packages installed, the option will not be visible.
+
+![](images/2D-optional-perf-boost-hidden.png)<br/>
+
+The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.4.1 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6. However if you encounter an bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.

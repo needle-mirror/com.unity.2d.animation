@@ -1,6 +1,4 @@
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "com.unity3d.animation/SpriteOutline"
+Shader "Hidden/2D-Animation-SpriteOutline"
 {
     Properties
     {
@@ -26,9 +24,9 @@ Shader "com.unity3d.animation/SpriteOutline"
         Pass
         {
             CGPROGRAM
-#pragma vertex vert
-#pragma fragment frag
-#include "UnityCG.cginc"
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
 
             struct appdata_t
             {

@@ -2,7 +2,7 @@
 
 The __Sprite Library Asset__ contains the __Categories__ and __Labels__ that a character Prefab refers to to determine what Sprites are rendered. This allows you to group similar or interchangeable Sprites together that can be used for [Sprite Swapping](SpriteSwapIntro.md).
 
-Unity automatically generates a Sprite Library Asset as a sub-Asset of the Prefab when you create any [Categories or Labels](SpriteVis.html#sprite-tab) while editing the character Prefab. To [manually](SSManual.md) create a __Sprite Library Asset__, go to __Assets__ > __Create__ > __Sprite Library Asset__.
+Unity automatically generates a Sprite Library Asset as a sub-Asset of the Prefab when you create any [Categories or Labels](SpriteVis.html#sprite-tab) while editing the character Prefab. To [manually](SSManual.md) create a __Sprite Library Asset__, go to __Assets__ > __Create__ > __2D__ > __Sprite Library Asset__.
 
 ![](images/image_0.png)<br/>Inspector view of Sprite Library Asset
 
