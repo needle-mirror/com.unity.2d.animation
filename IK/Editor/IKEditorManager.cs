@@ -8,33 +8,53 @@ using UnityEngine.Profiling;
 
 namespace UnityEditor.U2D.IK
 {
-    internal class IKEditorManager : ScriptableSingleton<IKEditorManager>
+    internal class IKEditorManager : ScriptableObject
     {
-        private readonly HashSet<IKManager2D> m_DirtyManagers = new HashSet<IKManager2D>();
-        private readonly HashSet<Solver2D> m_IKSolvers = new HashSet<Solver2D>();
-        private readonly List<IKManager2D> m_IKManagers = new List<IKManager2D>();
-        private readonly Dictionary<IKChain2D, Vector3> m_ChainPositionOverrides = new Dictionary<IKChain2D, Vector3>();
-        private readonly List<Vector3> m_TargetPositions = new List<Vector3>();
+        static IKEditorManager s_Instance;
+        
+        readonly HashSet<IKManager2D> m_DirtyManagers = new HashSet<IKManager2D>();
+        readonly HashSet<Solver2D> m_IKSolvers = new HashSet<Solver2D>();
+        readonly List<IKManager2D> m_IKManagers = new List<IKManager2D>();
+        readonly Dictionary<IKChain2D, Vector3> m_ChainPositionOverrides = new Dictionary<IKChain2D, Vector3>();
+        readonly List<Vector3> m_TargetPositions = new List<Vector3>();
 
-        private GameObject m_Helper;
-        private GameObject[] m_SelectedGameobjects;
-        private bool m_IgnorePostProcessModifications = false;
-        private HashSet<Transform> m_IgnoreTransformsOnUndo = new HashSet<Transform>();
+        GameObject m_Helper;
+        GameObject[] m_SelectedGameobjects;
+        bool m_IgnorePostProcessModifications = false;
+        HashSet<Transform> m_IgnoreTransformsOnUndo = new HashSet<Transform>();
+        
         internal bool isDraggingATool { get; private set; }
         internal bool isDragging { get { return IKGizmos.instance.isDragging || isDraggingATool; } }
 
-
         [InitializeOnLoadMethod]
-        private static void Setup()
+        static void CreateInstance()
         {
-            instance.Create();
+            if (s_Instance != null)
+                return;
+            
+            var ikManagers = Resources.FindObjectsOfTypeAll<IKEditorManager>();
+            if (ikManagers.Length > 0)
+                s_Instance = ikManagers[0];
+            else
+                s_Instance = ScriptableObject.CreateInstance<IKEditorManager>();
+            s_Instance.hideFlags = HideFlags.HideAndDontSave;            
         }
-
-        private void Create() {}
-
+        
+        public static IKEditorManager instance
+        {
+            get
+            {
+                if (s_Instance == null)
+                    CreateInstance();
+                return s_Instance;
+            }
+        }
+        
         private void OnEnable()
         {
-            SetupLateUpdateHelper();
+            if (s_Instance == null)
+                s_Instance = this;
+            
             RegisterCallbacks();
             Initialize();
         }
@@ -42,13 +62,13 @@ namespace UnityEditor.U2D.IK
         private void OnDisable()
         {
             UnregisterCallbacks();
-            DestroyLateUpdateHelper();
         }
 
         private void RegisterCallbacks()
         {
             EditorApplication.hierarchyChanged += Initialize;
             Undo.postprocessModifications += OnPostProcessModifications;
+            EditorApplication.update += OnLateUpdate;
 #if UNITY_2019_1_OR_NEWER
             SceneView.duringSceneGui += OnSceneGUI;
 #else
@@ -61,6 +81,7 @@ namespace UnityEditor.U2D.IK
         {
             EditorApplication.hierarchyChanged -= Initialize;
             Undo.postprocessModifications -= OnPostProcessModifications;
+            EditorApplication.update -= OnLateUpdate;
 #if UNITY_2019_1_OR_NEWER
             SceneView.duringSceneGui -= OnSceneGUI;
 #else
@@ -98,23 +119,6 @@ namespace UnityEditor.U2D.IK
         private void OnSelectionChanged()
         {
             m_SelectedGameobjects = null;
-        }
-
-        private void SetupLateUpdateHelper()
-        {
-            if (m_Helper != null)
-                return;
-
-            m_Helper = new GameObject("IKEditorManagerHelper");
-            m_Helper.hideFlags = HideFlags.HideAndDontSave;
-            var helper = m_Helper.AddComponent<IKEditorManagerHelper>();
-            helper.onLateUpdate.AddListener(OnLateUpdate);
-        }
-
-        private void DestroyLateUpdateHelper()
-        {
-            if (m_Helper != null)
-                GameObject.DestroyImmediate(m_Helper);
         }
 
         public void Initialize()
@@ -307,7 +311,6 @@ namespace UnityEditor.U2D.IK
         {
             if (Application.isPlaying)
                 return;
-
             Profiler.BeginSample("IKEditorManager.OnLateUpdate");
 
             SetAllManagersDirty();

@@ -130,9 +130,8 @@ namespace UnityEditor.U2D.Animation
     /// <remarks>Available only when the Main Skeleton has been assigned.</remarks>
     public interface IMainSkeletonDataProvider
     {
-        /// <summary>
-        /// Returns Main Skeleton data.
-        /// </summary>
+        /// <summary> Returns Main Skeleton data.</summary>
+        /// <returns>MainSkeletonData data.</returns>
         MainSkeletonData GetMainSkeletonData();
     }
 

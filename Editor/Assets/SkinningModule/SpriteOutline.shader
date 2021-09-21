@@ -1,6 +1,4 @@
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "com.unity3d.animation/SpriteOutline"
+Shader "Hidden/2D-Animation-SpriteOutline"
 {
     Properties
     {

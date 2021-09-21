@@ -61,6 +61,12 @@ namespace UnityEngine.U2D.IK
             return iterations != 0;
         }
 
+        /// <summary>
+        /// Solve IK based on FABRIK.
+        /// </summary>
+        /// <param name="solverLimit">Solver iteration count.</param>
+        /// <param name="chains">FABRIK chains.</param>
+        /// <returns>True if solver successfully completes within iteration limit. False otherwise.</returns>
         public static bool SolveChain(int solverLimit, ref FABRIKChain2D[] chains)
         {
             // Do a quick validation of the end points that it has not been solved
