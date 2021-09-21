@@ -167,7 +167,7 @@ namespace UnityEditor.U2D.Animation
                 return null;
 
             var mesh = GetMesh(spriteCache);
-            if (mesh == null || mesh.bounds.size.x == 0 || mesh.bounds.size.y == 0)
+            if (mesh == null || (int)mesh.bounds.size.x == 0 || (int)mesh.bounds.size.y == 0)
                 return null;
 
             var bounds = mesh.bounds;

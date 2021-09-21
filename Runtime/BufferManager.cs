@@ -168,12 +168,9 @@ namespace UnityEngine.U2D.Animation
             var foundBuffer = m_Buffers.TryGetValue(id, out var buffer);
             if (!foundBuffer)
                 buffer = CreateBuffer(id, bufferSize);
-            
-            if(buffer == null)
-                return null;
 
             Profiler.EndSample();
-            return buffer.GetBuffer(bufferSize);
+            return buffer?.GetBuffer(bufferSize);
         }
         
         private VertexBuffer CreateBuffer(int id, int bufferSize)
@@ -193,14 +190,13 @@ namespace UnityEngine.U2D.Animation
         public void ReturnBuffer(int id)
         {
             Profiler.BeginSample("BufferManager.ReturnBuffer");
-            var foundBuffer = m_Buffers.TryGetValue(id, out var buffer);
-            if (!foundBuffer)
-                return;
+            if (m_Buffers.TryGetValue(id, out var buffer))
+            {
+                buffer.Deactivate();
+                m_BuffersToDispose.Enqueue(buffer);
+                m_Buffers.Remove(id);
+            }
 
-            buffer.Deactivate();
-            m_BuffersToDispose.Enqueue(buffer);
-            m_Buffers.Remove(id);
-            
             Profiler.EndSample();
         }
 

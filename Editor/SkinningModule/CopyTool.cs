@@ -118,11 +118,15 @@ namespace UnityEditor.U2D.Animation
 
         public void OnCopyActivated()
         {
-            SkinningCopyData skinningCopyData;
+            SkinningCopyData skinningCopyData = null;
             var selectedSprite = skinningCache.selectedSprite;
             if (selectedSprite == null)
             {
-                skinningCopyData = CopyAll();
+                var sprites = skinningCache.GetSprites();
+                if(!skinningCache.character || sprites.Length > 1)
+                    skinningCopyData = CopyAll();
+                else if(sprites.Length == 1)
+                    skinningCopyData = CopySingle(sprites[0]);
             }
             else
             {
@@ -134,7 +138,7 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.copy.Invoke();
         }
 
-        public SkinningCopyData CopyAll()
+        SkinningCopyData CopyAll()
         {
             var skinningCopyData = new SkinningCopyData();
             skinningCopyData.pixelsPerUnit = pixelsPerUnit;
@@ -157,7 +161,6 @@ namespace UnityEditor.U2D.Animation
                             order = -1
                         }).ToList();
                     }
-                        
                     else
                     {
                         skinningSpriteData.spriteBones = new List<SpriteBoneCopyData>();
@@ -181,13 +184,14 @@ namespace UnityEditor.U2D.Animation
             return skinningCopyData;
         }
 
-        public SkinningCopyData CopySingle(SpriteCache sprite)
+        SkinningCopyData CopySingle(SpriteCache sprite)
         {
             var skinningCopyData = new SkinningCopyData();
             skinningCopyData.pixelsPerUnit = pixelsPerUnit;
 
             // Mesh
             var skinningSpriteData = new SkinningCopySpriteData();
+            skinningSpriteData.spriteName = sprite.name;
             skinningCopyData.copyData.Add(skinningSpriteData);
 
             CopyMeshFromSpriteCache(sprite, skinningSpriteData);
@@ -352,14 +356,15 @@ namespace UnityEditor.U2D.Animation
                 foreach (var skinningSpriteData in skinningCopyData.copyData)
                 {
                     SpriteCache sprite = null;
-                    if (!String.IsNullOrEmpty(skinningSpriteData.spriteName))
-                    {
-                        sprite = sprites.FirstOrDefault(x => x.name == skinningSpriteData.spriteName);
-                    }
-                    if (sprite == null && (skinningCopyData.copyData.Count == 1 || String.IsNullOrEmpty(skinningSpriteData.spriteName)))
+                    if (skinningCache.selectedSprite != null && skinningCopyData.copyData.Count == 1)
                     {
                         sprite = skinningCache.selectedSprite;
                     }
+                    if (sprite == null && !string.IsNullOrEmpty(skinningSpriteData.spriteName))
+                    {
+                        sprite = sprites.FirstOrDefault(x => x.name == skinningSpriteData.spriteName);
+                    }
+                    
                     if (sprite == null)
                         continue;
 

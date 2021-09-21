@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "unity": "2021.2",
   "displayName": "2D Animation",
   "description": "2D Animation provides all the necessary tooling and runtime components for skeletal animation using Sprites.",
@@ -16,9 +16,9 @@
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "7.0.0",
+    "com.unity.2d.animation.tests": "7.0.1",
     "com.unity.2d.common.tests": "6.0.0",
-    "com.unity.2d.psdimporter": "6.0.0"
+    "com.unity.2d.psdimporter": "6.0.1"
   },
   "samples": [
     {
@@ -28,11 +28,11 @@
     }
   ],
   "upmCi": {
-    "footprint": "82fff2c7f434f7b9c39db8b79b68548ec5b8a36e"
+    "footprint": "85aeac0c8842464ed4bccb49f23eb86c50345db1"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "bcbc5fb1cb18a1a4cf6e15325550ed4b8fbb21bc"
+    "revision": "b015022decd440f484d85cf6ee096c0ecaa60e30"
   }
 }

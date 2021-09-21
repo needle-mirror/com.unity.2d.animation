@@ -1,5 +1,13 @@
 # Changelog
 
+## [7.0.1] - 2021-09-21
+### Fixed
+- Fixed render texture size error in the Skinning Editor. (1357814)
+- Fixed a case where quads generated in the Skinning Editor would be created with the wrong size and position. (case 1361500)
+- Fixed an issue where IK Solvers would not be updated when previewing an animation clip. (1364307)
+- Fixed an issue where copying mesh and bone data from a .psb containing a single sprite would throw an exception. (case 1364619)
+- Fixed an issue where an error would show up when destroying a Sprite Skin component while deep profling. (case 1364916)
+
 ## [7.0.0] - 2021-08-10
 ### Fixed
 - Bone and Sprite influence lists are displayed correctly (case 1349041)

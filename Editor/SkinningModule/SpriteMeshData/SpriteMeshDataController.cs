@@ -151,10 +151,10 @@ namespace UnityEditor.U2D.Animation
             var frame = spriteMeshData.frame;
             var verts = new Vector2[]
             {
-                new Vector2(0f, 0f),
-                new Vector2(frame.width, 0f),
-                new Vector2(0f, frame.height),
-                new Vector2(frame.width, frame.height)
+                new Vector2(frame.xMin, frame.yMin),
+                new Vector2(frame.xMax, frame.yMin),
+                new Vector2(frame.xMin, frame.yMax),
+                new Vector2(frame.xMax, frame.yMax)
             };
             
             for(var i = 0; i < verts.Length; ++i)
