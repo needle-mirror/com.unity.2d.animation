@@ -375,11 +375,17 @@ namespace UnityEngine.U2D.Animation
             CacheValidFlag();
         }
 
+        /// <summary>
+        /// Called before object is serialized.
+        /// </summary>
         public void OnBeforeSerialize()
         {
             OnBeforeSerializeBatch();
         }
 
+        /// <summary>
+        /// Called after object is deserialized.
+        /// </summary>
         public void OnAfterDeserialize()
         {
             OnAfterSerializeBatch();

@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.2.13] - 2021-09-22
+### Fixed
+- Fixed an issue where an error would show up when destroying a Sprite Skin component while deep profling. (case 1364933)
+
+## [3.2.12] - 2021-09-11
+### Fixed
+- Fixed render texture size error in the Skinning Editor. (1357821)
+- Fixed an issue where copying mesh and bone data from a .psb containing a single sprite would throw an exception. (case 1364634)
+
 ## [3.2.11] - 2021-08-03
 ### Fixed
 - Fixed an issue where the bones cannot be rearranged in the Bone Influence tool. (case 1352717)
