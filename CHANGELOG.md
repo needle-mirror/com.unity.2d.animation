@@ -1,5 +1,9 @@
 # Changelog
 
+## [5.0.9] - 2021-10-11
+### Fixed
+- Fixed errors in the Sprite Skin section of documentation. (case 1368103)
+
 ## [5.0.8] - 2021-09-11
 ### Fixed
 - Sprite outline in the Skinning Editor is now rendered based on Sprite's geometry. (case 1354800)

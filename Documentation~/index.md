@@ -20,13 +20,13 @@ For character animation with the __2D Animation package__, the __PSD Importer__ 
 
 ## Sprite Skin component
 
-When the character Prefab is brought into the Scene view, Unity automatically adds the __Sprite Skin__ component to any Sprite that have any [bone influences](SkinEdToolsShortcuts.md#bone-influences). This component is required for the bones deform the Sprite Meshes in the Scene view.
+When the character Prefab is brought into the Scene view, Unity automatically adds the __Sprite Skin__ component to any Sprite that has any [bone influences](SkinEdToolsShortcuts.md#bone-influences). This component is required for the bones to deform the Sprite meshes in the Scene view.
 
 ## Optional Performance Boost
 
-When animating your characters, you can improve the performance of the animated Sprite’s deformation at runtime by installing both the [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) package from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite Mesh deformation.
+When animating your characters, you can improve the runtime performance of the animated Sprite’s deformation by installing both the [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) packages from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite mesh deformation.
 
-The **Burst** package is visible by default in the **Package Manager**, however the **Collections** package is not publicly visible. To install the **Collections** package, follow these steps:
+The **Burst** package is visible by default in the **Package Manager**, however the **Collections** package is not. To install the **Collections** package, follow these steps:
 1. Open the **Package Manager**.
 2. Press **+** at the upper-left corner of the **Package Manager** window to open a drop-down menu, then select **Add package from git URL…** from the list of options.<br/> ![](images/Collections_0.png)<br/><br/>
 3. In the **Name** box, enter “com.unity.collections”, then select **Add**. <br/>![](images/Collections_1.png)<br/>
@@ -39,4 +39,4 @@ With both packages installed, __Enable batching__ becomes available in the [Spri
 
 ![](images/2D-optional-perf-boost-hidden.png)<br/>
 
-The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.4.1 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6. However if you encounter an bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.
+The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.4.1 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6. However if you encounter any bugs, you can turn the optional performance boost off by clearing the __Enable batching__ option.
