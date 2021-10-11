@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.2.14] - 2021-10-11
+### Fixed
+- Fixed errors in the Sprite Skin section of documentation. (case 1368106)
+
 ## [3.2.13] - 2021-09-22
 ### Fixed
 - Fixed an issue where an error would show up when destroying a Sprite Skin component while deep profling. (case 1364933)

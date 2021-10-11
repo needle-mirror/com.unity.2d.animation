@@ -18,14 +18,14 @@ For character animation with the __2D Animation package__, the __PSD Importer__ 
 
 ## Optional Performance Boost
 
-You can improve the performance of the animated Sprite’s deformation at runtime by installing the [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) package from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite mesh deformation.
+When animating your characters, you can improve the runtime performance of the animated Sprite’s deformation by installing both the [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) packages from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite mesh deformation.
 
 ![](images/SpriteSkin_inspect_exp.png)
 
-With both packages installed, the Experimental __Enable batching__ setting becomes available in the [Sprite Skin component](#sprite-skin-component). As the implementation of the performance boost might contain bugs, you may switch back to the previous implementation by clearing the __Enable batching__ option.
+With both packages installed, the Experimental __Enable batching__ setting becomes available in the [Sprite Skin component](#sprite-skin-component). As the implementation of the performance boost might contain bugs, you can turn the optional performance boost off by clearing the __Enable batching__ option.
 
 The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.4.1 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6.
 
 ## Sprite Skin component
 
-When the character Prefab is brought into the Scene view, Unity automatically adds the __Sprite Skin__ component to any Sprite that have any [bone influences](SkinEdToolsShortcuts.md#bone-influences). This component is required for the bones deform the Sprite Meshes in the Scene view.
+When the character Prefab is brought into the Scene view, Unity automatically adds the __Sprite Skin__ component to any Sprite that has any [bone influences](SkinEdToolsShortcuts.md#bone-influences). This component is required for the bones to deform the Sprite meshes in the Scene view.
