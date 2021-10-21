@@ -8,7 +8,7 @@ using UnityEditor;
 
 namespace Unity.U2D.Animation.Sample
 {
-    public class LoadSwapDLC : MonoBehaviour
+    internal class LoadSwapDLC : MonoBehaviour
     {
         const string k_AssetBundleName = "2DAnimationSampleAssetBundles";
         public SwapFullSkin[] swapFullSkin;

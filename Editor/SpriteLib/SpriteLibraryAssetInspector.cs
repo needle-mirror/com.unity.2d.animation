@@ -2,6 +2,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.U2D.Animation;
+using UnityEditor.U2D.Animation.Upgrading;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -15,6 +16,8 @@ namespace UnityEditor.U2D.Animation
             public static GUIContent duplicateWarning = EditorGUIUtility.TrIconContent("console.warnicon.sml", duplicateWarningText.text);
             public static GUIContent nameLabel = new GUIContent(TextContent.label);
             public static string categoryListLabel = TextContent.categoryList;
+            public static readonly string UpgradeHelpBox = L10n.Tr("Sprite Library Asset has been upgraded to improve scalability and performance. You may choose to upgrade the asset to enjoy the improvements or continue using the existing asset.");
+            public static readonly string UpgradeButton = L10n.Tr("Open Sprite Library Asset Upgrader");
             public static int lineSpacing = 3;
         }
 
@@ -133,6 +136,12 @@ namespace UnityEditor.U2D.Animation
 
         public override void OnInspectorGUI()
         {
+            EditorGUILayout.HelpBox(Style.UpgradeHelpBox, MessageType.Info);
+            if (GUILayout.Button(Style.UpgradeButton))
+                AssetUpgraderWindow.OpenWindow();
+            
+            EditorGUILayout.Space(10);
+            
             serializedObject.Update();
             EditorGUI.BeginChangeCheck();
             if (EditorGUI.EndChangeCheck())
@@ -150,12 +159,12 @@ namespace UnityEditor.U2D.Animation
         bool IsNameInUsed(string name, SerializedProperty property, string propertyField, int threshold)
         {
             int count = 0;
-            var nameHash = SpriteLibraryAsset.GetStringHash(name);
+            var nameHash = SpriteLibraryUtility.GetStringHash(name);
             for (int i = 0; i < property.arraySize; ++i)
             {
                 var sp = property.GetArrayElementAtIndex(i);
                 var otherName = sp.FindPropertyRelative(propertyField).stringValue;
-                var otherNameHash = SpriteLibraryAsset.GetStringHash(otherName);
+                var otherNameHash = SpriteLibraryUtility.GetStringHash(otherName);
                 if (otherName == name || nameHash == otherNameHash)
                 {
                     count++;
@@ -184,7 +193,7 @@ namespace UnityEditor.U2D.Animation
 
             var sp = m_Labels.GetArrayElementAtIndex(oldSize);
             sp.FindPropertyRelative("m_Name").stringValue = newCatName;
-            sp.FindPropertyRelative("m_Hash").intValue = SpriteLibraryAsset.GetStringHash(newCatName);
+            sp.FindPropertyRelative("m_Hash").intValue = SpriteLibraryUtility.GetStringHash(newCatName);
         }
 
         private void SetupOrderList()

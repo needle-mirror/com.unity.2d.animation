@@ -31,7 +31,7 @@ namespace UnityEngine.U2D.Animation
             set
             {
                 m_Name = value;
-                m_Hash = SpriteLibraryAsset.GetStringHash(m_Name);
+                m_Hash = SpriteLibraryUtility.GetStringHash(m_Name);
             }
         }
         public int hash => m_Hash;
@@ -42,7 +42,7 @@ namespace UnityEngine.U2D.Animation
         }
         public void UpdateHash()
         {
-            m_Hash = SpriteLibraryAsset.GetStringHash(m_Name);
+            m_Hash = SpriteLibraryUtility.GetStringHash(m_Name);
         }
     }
 
@@ -63,7 +63,7 @@ namespace UnityEngine.U2D.Animation
             set
             {
                 m_Name = value;
-                m_Hash = SpriteLibraryAsset.GetStringHash(m_Name);
+                m_Hash = SpriteLibraryUtility.GetStringHash(m_Name);
             }
         }
 
@@ -77,7 +77,7 @@ namespace UnityEngine.U2D.Animation
 
         public void UpdateHash()
         {
-            m_Hash = SpriteLibraryAsset.GetStringHash(m_Name);
+            m_Hash = SpriteLibraryUtility.GetStringHash(m_Name);
             foreach (var s in m_CategoryList)
                 s.UpdateHash();
         }
@@ -94,7 +94,7 @@ namespace UnityEngine.U2D.Animation
     }
 
     /// <summary>
-    /// A custom Asset that stores Sprites grouping
+    /// A custom Asset that stores Sprites grouping.
     /// </summary>
     /// <Description>
     /// Sprites are grouped under a given category as categories. Each category and label needs to have
@@ -102,21 +102,25 @@ namespace UnityEngine.U2D.Animation
     /// </Description>
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
+    [Icon(IconUtility.IconPath + "Animation.SpriteLibrary.png")]
     public class SpriteLibraryAsset : ScriptableObject
     {
         [SerializeField]
         private List<SpriteLibCategory> m_Labels = new List<SpriteLibCategory>();
         [SerializeField]
         private long m_ModificationHash;
-
-        internal static SpriteLibraryAsset CreateAsset(List<SpriteLibCategory> categories, string assetName, long version)
+        [SerializeField]
+        int m_Version;
+        
+        internal static SpriteLibraryAsset CreateAsset(List<SpriteLibCategory> categories, string assetName, long modificationHash)
         {
             var asset = ScriptableObject.CreateInstance<SpriteLibraryAsset>();
             asset.m_Labels = categories;
             asset.ValidateCategories();
             asset.name = assetName;
             asset.UpdateHashes();
-            asset.m_ModificationHash = version;
+            asset.m_ModificationHash = modificationHash;
+            asset.version = 1;
             return asset;
         }
         
@@ -127,14 +131,37 @@ namespace UnityEngine.U2D.Animation
             {
                 m_Labels = value;
                 ValidateCategories();
-                UpdateModificationHash();
             }
         }
         
         /// <summary>
         /// Hash to quickly check if the library has any changes made to it. 
         /// </summary>
-        internal long modificationHash => m_ModificationHash;
+        internal long modificationHash
+        {
+            get => m_ModificationHash;
+            set => m_ModificationHash = value;
+        }
+
+        /// <summary>
+        /// File version number.
+        /// </summary>
+        internal int version
+        {
+            set => m_Version = value;
+        }
+        
+        void OnEnable()
+        {
+            if (m_Version < 1)
+                UpdateToVersionOne();
+        }
+
+        void UpdateToVersionOne()
+        {
+            UpdateHashes();
+            m_Version = 1; 
+        }
 
         internal Sprite GetSprite(int categoryHash, int labelHash)
         {
@@ -185,32 +212,32 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Returns the Sprite registered in the Asset given the Category and Label value
+        /// Returns the Sprite registered in the Asset given the Category and Label value.
         /// </summary>
-        /// <param name="category">Category string value</param>
-        /// <param name="label">Label string value</param>
+        /// <param name="category">Category string value.</param>
+        /// <param name="label">Label string value.</param>
         /// <returns></returns>
         public Sprite GetSprite(string category, string label)
         {
-            var categoryHash = SpriteLibraryAsset.GetStringHash(category);
-            var labelHash = SpriteLibraryAsset.GetStringHash(label);
+            var categoryHash = SpriteLibraryUtility.GetStringHash(category);
+            var labelHash = SpriteLibraryUtility.GetStringHash(label);
             return GetSprite(categoryHash, labelHash);
         }
 
         /// <summary>
         /// Return all the Category names of the Sprite Library Asset that is associated.
         /// </summary>
-        /// <returns>A Enumerable string value representing the name</returns>
+        /// <returns>A Enumerable string value representing the name.</returns>
         public IEnumerable<string> GetCategoryNames()
         {
             return m_Labels.Select(x => x.name);
         }
 
         /// <summary>
-        /// (Obsolete) Returns the labels' name for the given name
+        /// (Obsolete) Returns the labels' name for the given name.
         /// </summary>
-        /// <param name="category">Category name</param>
-        /// <returns>A Enumerable string representing labels' name</returns>
+        /// <param name="category">Category name.</param>
+        /// <returns>A Enumerable string representing labels' name.</returns>
         [Obsolete("GetCategorylabelNames has been deprecated. Please use GetCategoryLabelNames (UnityUpgradable) -> GetCategoryLabelNames(*)")]
         public IEnumerable<string> GetCategorylabelNames(string category)
         {
@@ -218,10 +245,10 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Returns the labels' name for the given name
+        /// Returns the labels' name for the given name.
         /// </summary>
-        /// <param name="category">Category name</param>
-        /// <returns>A Enumerable string representing labels' name</returns>
+        /// <param name="category">Category name.</param>
+        /// <returns>A Enumerable string representing labels' name.</returns>
         public IEnumerable<string> GetCategoryLabelNames(string category)
         {
             var label = m_Labels.FirstOrDefault(x => x.name == category);
@@ -229,11 +256,11 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Add or replace and existing Sprite into the given Category and Label
+        /// Add or replace and existing Sprite into the given Category and Label.
         /// </summary>
-        /// <param name="sprite">Sprite to add</param>
-        /// <param name="category">Category to add the Sprite to</param>
-        /// <param name="label">Label of the Category to add the Sprite to. If this parameter is null or an empty string, it will attempt to add a empty category</param>
+        /// <param name="sprite">Sprite to add.</param>
+        /// <param name="category">Category to add the Sprite to.</param>
+        /// <param name="label">Label of the Category to add the Sprite to. If this parameter is null or an empty string, it will attempt to add a empty category.</param>
         public void AddCategoryLabel(Sprite sprite, string category, string label)
         {
             category = category.Trim();
@@ -241,7 +268,7 @@ namespace UnityEngine.U2D.Animation
             if (string.IsNullOrEmpty(category))
                 throw new ArgumentException("Cannot add empty or null Category string");
             
-            var catHash = SpriteLibraryAsset.GetStringHash(category);
+            var catHash = SpriteLibraryUtility.GetStringHash(category);
             SpriteCategoryEntry categorylabel = null;
             SpriteLibCategory libCategory = null;
             libCategory = m_Labels.FirstOrDefault(x => x.hash == catHash);
@@ -252,7 +279,7 @@ namespace UnityEngine.U2D.Animation
                     throw new ArgumentException("Cannot add empty or null Label string");
                 Assert.AreEqual(libCategory.name, category, "Category string  hash clashes with another existing Category. Please use another string");
 
-                var labelHash = SpriteLibraryAsset.GetStringHash(label);
+                var labelHash = SpriteLibraryUtility.GetStringHash(label);
                 categorylabel = libCategory.categoryList.FirstOrDefault(y => y.hash == labelHash);
                 if (categorylabel != null)
                 {
@@ -287,32 +314,30 @@ namespace UnityEngine.U2D.Animation
                 m_Labels.Add(slc);
             }
             
-            UpdateModificationHash();
 #if UNITY_EDITOR
             EditorUtility.SetDirty(this);
 #endif
         }
 
         /// <summary>
-        /// Remove a Label from a given Category
+        /// Remove a Label from a given Category.
         /// </summary>
-        /// <param name="category">Category to remove from</param>
-        /// <param name="label">Label to remove</param>
-        /// <param name="deleteCategory">Indicate to remove the Category if it is empty</param>
+        /// <param name="category">Category to remove from.</param>
+        /// <param name="label">Label to remove.</param>
+        /// <param name="deleteCategory">Indicate to remove the Category if it is empty.</param>
         public void RemoveCategoryLabel(string category, string label, bool deleteCategory)
         {
-            var catHash = SpriteLibraryAsset.GetStringHash(category);
+            var catHash = SpriteLibraryUtility.GetStringHash(category);
             SpriteLibCategory libCategory = null;
             libCategory = m_Labels.FirstOrDefault(x => x.hash == catHash);
 
             if (libCategory != null)
             {
-                var labelHash = SpriteLibraryAsset.GetStringHash(label);
+                var labelHash = SpriteLibraryUtility.GetStringHash(label);
                 libCategory.categoryList.RemoveAll(x => x.hash == labelHash);
                 if (deleteCategory && libCategory.categoryList.Count == 0)
                     m_Labels.RemoveAll(x => x.hash == libCategory.hash);
                 
-                UpdateModificationHash();
 #if UNITY_EDITOR
                 EditorUtility.SetDirty(this);
 #endif
@@ -362,7 +387,7 @@ namespace UnityEngine.U2D.Animation
                     {
                         var name = categoryClash.name;
                         name = $"{name}_{increment}";
-                        var nameHash = SpriteLibraryAsset.GetStringHash(name);
+                        var nameHash = SpriteLibraryUtility.GetStringHash(name);
                         var exist = nameHashList.FirstOrDefault(x => (x.hash == nameHash || x.name == name) && x != categoryClash);
                         if (exist == null)
                         {
@@ -374,29 +399,6 @@ namespace UnityEngine.U2D.Animation
                     }
                 }
             }
-        }
-
-        // Allow delegate override for test
-        internal static Func<string, int> GetStringHash = Default_GetStringHash;
-        internal static int Default_GetStringHash(string value)
-        {
-#if DEBUG_GETSTRINGHASH_CLASH
-            if (value == "abc" || value == "123")
-                value = "abc";
-#endif
-            var hash = Animator.StringToHash(value);
-            var bytes = BitConverter.GetBytes(hash);
-            var exponentialBit = BitConverter.IsLittleEndian ? 3 : 1;
-            if (bytes[exponentialBit] == 0xFF)
-                bytes[exponentialBit] -= 1;
-            return BitConverter.ToInt32(bytes, 0);
-        }
-
-        private void UpdateModificationHash()
-        {
-            var hash = System.DateTime.Now.Ticks;
-            hash ^= m_Labels.GetHashCode();
-            m_ModificationHash = hash;
         }
     }
 }

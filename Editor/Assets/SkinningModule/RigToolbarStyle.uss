@@ -3,25 +3,25 @@
 /**********************************************************************************************************************/
 
 #CopyRigImage {
-    background-image: url("Icons/Light/Copy.png");
+    background-image: url("../EditorIcons/Light/Copy.png");
 }
 
 #PasteRigImage {
-    background-image: url("Icons/Light/Paste.png");
+    background-image: url("../EditorIcons/Light/Paste.png");
 }
 
 .Dark #CopyRigImage {
-    background-image: url("Icons/Dark/d_Copy.png");
+    background-image: url("../EditorIcons/Dark/d_Copy.png");
 }
 
 .Dark #PasteRigImage {
-    background-image: url("Icons/Dark/d_Paste.png");
+    background-image: url("../EditorIcons/Dark/d_Paste.png");
 }
 
 .Checked #CopyRigImage{
-    background-image: url("Icons/Selected/Copy.png");
+    background-image: url("../EditorIcons/Selected/Copy.png");
 }
 
 .Checked #PasteRigImage {
-    background-image: url("Icons/Selected/Paste.png");
+    background-image: url("../EditorIcons/Selected/Paste.png");
 }

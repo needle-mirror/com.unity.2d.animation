@@ -372,7 +372,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 0, y: 0}
   mosaicSpriteImportData: []
   rigSpriteImportData:
@@ -395,7 +394,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -1227, y: 839}
   - name: head
     originalName: 
@@ -1183,7 +1181,6 @@ ScriptedImporter:
     - {x: 61, y: 60}
     - {x: 0, y: 61}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -356, y: -1189}
   - name: scarf
     originalName: 
@@ -1765,7 +1762,6 @@ ScriptedImporter:
     - {x: 41, y: 40}
     - {x: 0, y: 41}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -777, y: 1603}
   - name: hair
     originalName: 
@@ -2241,7 +2237,6 @@ ScriptedImporter:
     - {x: 36, y: 35}
     - {x: 36, y: 0}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -362, y: 2320}
   - name: right_arm
     originalName: 
@@ -2776,7 +2771,6 @@ ScriptedImporter:
     - {x: 36, y: 35}
     - {x: 0, y: 36}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -572, y: 1196}
   - name: amulet
     originalName: 
@@ -3432,7 +3426,6 @@ ScriptedImporter:
     - {x: 55, y: 54}
     - {x: 0, y: 55}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -949, y: 2677}
   - name: body
     originalName: 
@@ -3952,7 +3945,6 @@ ScriptedImporter:
     - {x: 40, y: 39}
     - {x: 0, y: 40}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -687, y: 560}
   - name: left_arm
     originalName: 
@@ -4537,7 +4529,6 @@ ScriptedImporter:
     - {x: 36, y: 35}
     - {x: 0, y: 36}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -1088, y: 2267}
   - name: right_leg
     originalName: 
@@ -5063,7 +5054,6 @@ ScriptedImporter:
     - {x: 37, y: 36}
     - {x: 0, y: 37}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -39, y: 920}
   - name: left_leg
     originalName: 
@@ -5600,7 +5590,6 @@ ScriptedImporter:
     - {x: 38, y: 37}
     - {x: 0, y: 38}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -728, y: 2732}
   characterData:
     bones:
@@ -5886,6 +5875,7 @@ ScriptedImporter:
       order: 0
     dimension: {x: 0, y: 0}
     characterGroups: []
+    pivot: {x: 0, y: 0}
     boneReadOnly: 0
   sharedRigSpriteImportData: []
   sharedRigCharacterData:
@@ -5893,6 +5883,7 @@ ScriptedImporter:
     parts: []
     dimension: {x: 0, y: 0}
     characterGroups: []
+    pivot: {x: 0, y: 0}
     boneReadOnly: 0
   platformSettings: []
   mosaicLayers: 1
@@ -5905,6 +5896,7 @@ ScriptedImporter:
   paperDollMode: 0
   keepDupilcateSpriteName: 1
   skeletonAssetReferenceID: 
+  padding: 4
   spriteCategoryList:
     categories: []
   spritePackingTag: 
@@ -5915,7 +5907,7 @@ ScriptedImporter:
     spriteName: 
     isGroup: 0
     parentIndex: -1
-    spriteID: 00000000000000000000000000000000
+    spriteID: 3a59cbb01889c4935a517c37ac598d9b
     layerID: 3
     mosaicPosition: {x: 0, y: 0}
     flatten: 0
@@ -6025,13 +6017,15 @@ ScriptedImporter:
     spriteName: 
     isGroup: 0
     parentIndex: -1
-    spriteID: 00000000000000000000000000000000
+    spriteID: a31a4b10af3db4d488760c724f316f13
     layerID: 5
     mosaicPosition: {x: 0, y: 0}
     flatten: 0
     isImported: 0
     isVisible: 0
   sharedRigPSDLayers: []
+  pSDLayerImportSetting: []
+  importFileNodeState: 1
   generateGOHierarchy: 0
   textureAssetName: Fei
   prefabAssetName: Fei_GO

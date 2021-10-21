@@ -10,6 +10,10 @@
                 <ui:Image name="ResetPoseImage" />
                 <ui:Label text ="Restore Pose"/>
             </ui:Button>
+            <ui:Button name="PivotPose" tooltip="Sets the pivot point for the actor.">
+                <ui:Image name="SetPivotImage" />
+                <ui:Label text ="Set Pivot"/>
+            </ui:Button>
         </ui:PopupWindow>
     </aui:PoseToolbar>
 </UXML>

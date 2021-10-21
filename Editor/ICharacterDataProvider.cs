@@ -47,7 +47,10 @@ namespace UnityEditor.U2D.Animation
         /// Character grouping information
         /// </summary>
         public CharacterGroup[] characterGroups;
-
+        /// <summary>
+        /// Character pivot. The value is a normalized value between (0,0) and (1,1) where (1,1) represents the value in CharacterData.dimension 
+        /// </summary>
+        public Vector2 pivot;
         /// <summary>
         /// Bones are readonly
         /// </summary>

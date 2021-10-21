@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine.Profiling;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.IK
 {
@@ -9,7 +10,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenuAttribute("Chain (CCD)")]
-    public class CCDSolver2D : Solver2D
+    public sealed class CCDSolver2D : Solver2D
     {
         private const float kMinTolerance = 0.001f;
         private const int kMinIterations = 1;
@@ -73,7 +74,7 @@ namespace UnityEngine.U2D.IK
         {
             return m_Chain;
         }
-        
+
         /// <summary>
         /// DoPrepare override from base class.
         /// </summary>

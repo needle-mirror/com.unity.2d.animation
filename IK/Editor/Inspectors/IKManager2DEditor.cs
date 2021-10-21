@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.U2D.IK;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq;
 using UnityEditor.U2D.Animation;
 
@@ -16,7 +15,7 @@ namespace UnityEditor.U2D.IK
     [CanEditMultipleObjects]
     class IKManager2DEditor : Editor
     {
-        private class Contents
+        class Contents
         {
             public static readonly GUIContent findAllSolversLabel = new GUIContent("Find Solvers", "Find all applicable solvers handled by this manager");
             public static readonly GUIContent weightLabel = new GUIContent("Weight", "Blend between Forward and Inverse Kinematics");
@@ -34,15 +33,15 @@ namespace UnityEditor.U2D.IK
             {
                 visibilityToggleStyle = new GUIStyle();
                 visibilityToggleStyle.fixedWidth = EditorGUIUtility.singleLineHeight;
-                visibilityToggleStyle.onNormal.background = IconUtility.LoadIconResource("Visibility_Tool", IconUtility.k_LightIconResourcePath, IconUtility.k_DarkIconResourcePath);
-                visibilityToggleStyle.normal.background = IconUtility.LoadIconResource("Visibility_Hidded", IconUtility.k_LightIconResourcePath, IconUtility.k_DarkIconResourcePath);
+                visibilityToggleStyle.onNormal.background = EditorIconUtility.LoadIconResource("Visibility_Tool", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath);
+                visibilityToggleStyle.normal.background = EditorIconUtility.LoadIconResource("Visibility_Hidded", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath);
             }
         }
 
-        static Contents k_Contents;
-        private ReorderableList m_ReorderableList;
-        private Solver2D m_SelectedSolver;
-        private Editor m_SelectedSolverEditor;
+        static Contents s_Contents;
+        ReorderableList m_ReorderableList;
+        Solver2D m_SelectedSolver;
+        Editor m_SelectedSolverEditor;
 
         SerializedProperty m_SolversProperty;
         SerializedProperty m_SolverEditorDataProperty;
@@ -50,17 +49,17 @@ namespace UnityEditor.U2D.IK
         List<Type> m_SolverTypes;
         IKManager2D m_Manager;
 
-        private void OnEnable()
+        void OnEnable()
         {
             m_Manager = target as IKManager2D;
             m_SolverTypes = GetDerivedTypes<Solver2D>();
             m_SolversProperty = serializedObject.FindProperty("m_Solvers");
             m_SolverEditorDataProperty = serializedObject.FindProperty("m_SolverEditorData");
             m_WeightProperty = serializedObject.FindProperty("m_Weight");
-            SetupReordeableList();
+            SetupReorderableList();
         }
 
-        void SetupReordeableList()
+        void SetupReorderableList()
         {
             m_ReorderableList = new ReorderableList(serializedObject, m_SolversProperty, true, true, true, true);
             m_ReorderableList.drawHeaderCallback = (Rect rect) =>
@@ -80,7 +79,7 @@ namespace UnityEditor.U2D.IK
                     var width = rect.width;
                     rect.width = width > Contents.showGizmoPropertyWidth ? Contents.showGizmoPropertyWidth : width;
                     var showGizmoProperty = elementData.FindPropertyRelative("showGizmo");
-                    showGizmoProperty.boolValue = GUI.Toggle(rect, showGizmoProperty.boolValue, Contents.gizmoVisibilityToolTip, k_Contents.visibilityToggleStyle);
+                    showGizmoProperty.boolValue = GUI.Toggle(rect, showGizmoProperty.boolValue, Contents.gizmoVisibilityToolTip, s_Contents.visibilityToggleStyle);
                     rect.x += rect.width;
                     width -= rect.width;
                     rect.width = width > Contents.solverPropertyWidth ? width - Contents.solverColorPropertyWidth  : Contents.solverPropertyWidth;
@@ -131,17 +130,17 @@ namespace UnityEditor.U2D.IK
                 };
         }
 
-        private void OnSelectMenu(object param)
+        void OnSelectMenu(object param)
         {
-            Type solverType = param as Type;
+            var solverType = param as Type;
 
-            GameObject solverGO = new GameObject(GameObjectUtility.GetUniqueNameForSibling(m_Manager.transform, "New " + solverType.Name));
+            var solverGO = new GameObject(GameObjectUtility.GetUniqueNameForSibling(m_Manager.transform, "New " + solverType.Name));
             solverGO.transform.SetParent(m_Manager.transform);
             solverGO.transform.localPosition = Vector3.zero;
             solverGO.transform.rotation = Quaternion.identity;
             solverGO.transform.localScale = Vector3.one;
 
-            Solver2D solver = solverGO.AddComponent(solverType) as Solver2D;
+            var solver = solverGO.AddComponent(solverType) as Solver2D;
 
             Undo.RegisterCreatedObjectUndo(solverGO, Contents.createSolverString);
             Undo.RegisterCompleteObjectUndo(m_Manager, Contents.createSolverString);
@@ -156,8 +155,8 @@ namespace UnityEditor.U2D.IK
         /// </summary>
         public override void OnInspectorGUI()
         {
-            if(k_Contents == null)
-                k_Contents = new Contents();
+            if (s_Contents == null)
+                s_Contents = new Contents();
 
             serializedObject.Update();
 
@@ -180,7 +179,7 @@ namespace UnityEditor.U2D.IK
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DoRestoreDefaultPoseButton()
+        void DoRestoreDefaultPoseButton()
         {
             if (GUILayout.Button(Contents.restoreDefaultPoseString, GUILayout.MaxWidth(150f)))
             {

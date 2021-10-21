@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Unity.Profiling;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.IK
 {
@@ -9,7 +11,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [DefaultExecutionOrder(-2)]
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
-    public partial class IKManager2D : MonoBehaviour
+    public partial class IKManager2D : MonoBehaviour, IPreviewable
     {
         [SerializeField]
         private List<Solver2D> m_Solvers = new List<Solver2D>();
@@ -37,10 +39,6 @@ namespace UnityEngine.U2D.IK
         {
             m_Weight = Mathf.Clamp01(m_Weight);
             OnEditorDataValidate();
-        }
-
-        private void OnEnable()
-        {
         }
 
         private void Reset()
@@ -91,6 +89,8 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         public void UpdateManager()
         {
+            var profilerMarker = new ProfilerMarker("IKManager2D.UpdateManager");
+            profilerMarker.Begin();
             foreach (var solver in m_Solvers)
             {
                 if (solver == null || !solver.isActiveAndEnabled)
@@ -101,13 +101,28 @@ namespace UnityEngine.U2D.IK
 
                 solver.UpdateIK(weight);
             }
+            profilerMarker.End();
         }
 
+        /// <summary>
+        /// Used by the animation clip preview window.
+        /// Recommended to not use outside of this purpose.
+        /// </summary>
+        public void OnPreviewUpdate()
+        {
+#if UNITY_EDITOR 
+            if(IsInGUIUpdateLoop())
+                UpdateManager();
+#endif
+        }
+
+        static bool IsInGUIUpdateLoop() => Event.current != null;      
+        
         private void LateUpdate()
         {
             UpdateManager();
         }
-        
+
 #if UNITY_EDITOR
         internal static Events.UnityEvent onDrawGizmos = new Events.UnityEvent();
         private void OnDrawGizmos() { onDrawGizmos.Invoke(); }

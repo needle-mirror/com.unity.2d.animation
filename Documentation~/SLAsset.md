@@ -107,10 +107,12 @@ The Sprite Resolver component is attached to each GameObject in the Prefab. The 
 
 Select the Sprite you want the **Sprite Renderer** to render by selecting from the **Category** and **Label** dropdown menus, or select the Sprite directly in the visual variant selector.
 
-### Animation keyframe changes in version 6.0
+### Animation keyframe changes in version 8.0
 
-The Sprite Resolver has been changed in 2D Animation version 6.0 onwards so that when the component is keyframed in the Animation window, one consolidated property change is recorded instead of the two property changes in previous versions.
+The Sprite Resolver has been changed in 2D Animation version 8.0 onwards so that when the component is keyframed in the Animation window, the value is now stored in a parameter called Sprite Hash. 
 
-![](images/2D-animation-SResolver-anim-prev.png)<br/>The previous Sprite Resolver key.
+In previous versions of the 2D Animation package, when keyframing the Sprite Resolver, each individual key would have to be setup to properly swap to the intended Sprite. With this new parameter, there is no need for this additional setup step. Just record the indended swap, and it will playback the expected swap accordingly.
 
-![](images/2D-animation-SResolver-anim-v6.png)<br/>The Sprite Resolver key from Animation 6.0 onwards.
+![](images/2D-animation-SResolver-anim-v6.png)<br/>The previous Sprite Resolver key.
+
+![](images/2D-animation-SResolver-anim-v8.png)<br/>The Sprite Resolver key from Animation 8.0 onwards.

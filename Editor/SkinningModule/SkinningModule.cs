@@ -85,6 +85,7 @@ namespace UnityEditor.U2D.Animation
                 skinningCache.events.boneDepthChanged.AddListener(OnBoneDepthChanged);
                 skinningCache.events.boneColorChanged.AddListener(OnBoneColorChanged);
                 skinningCache.events.meshPreviewBehaviourChange.AddListener(OnMeshPreviewBehaviourChange);
+                skinningCache.events.pivotChange.AddListener(OnPivotChanged);
 
                 skinningCache.RestoreFromPersistentState();
                 ActivateTool(skinningCache.selectedTool);
@@ -141,6 +142,7 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.boneDepthChanged.RemoveListener(OnBoneDepthChanged);
             skinningCache.events.boneColorChanged.RemoveListener(OnBoneColorChanged);
             skinningCache.events.meshPreviewBehaviourChange.RemoveListener(OnMeshPreviewBehaviourChange);
+            skinningCache.events.pivotChange.RemoveListener(OnPivotChanged);
 
             RemoveMainUI(spriteEditor.GetMainVisualContainer());
             RestoreSpriteEditor();
@@ -201,6 +203,11 @@ namespace UnityEditor.U2D.Animation
             DataModified();
         }
 
+        private void OnPivotChanged()
+        {
+            DataModified();
+        }
+        
         private void DataModified()
         {
             spriteEditor.SetDataModified();
@@ -534,7 +541,7 @@ namespace UnityEditor.U2D.Animation
                 var data = new CharacterData();
                 var characterBones = character.skeleton.bones;
                 data.bones = characterBones.ToSpriteBone(Matrix4x4.identity);
-
+                data.pivot = character.pivot;
                 var parts = character.parts;
                 data.parts = parts.Select(x =>
                     new CharacterPart()
@@ -574,6 +581,13 @@ namespace UnityEditor.U2D.Animation
             m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.BoneInfluence), () => currentTool = skinningCache.GetTool(Tools.BoneInfluence));
             m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.SpriteInfluence), () => currentTool = skinningCache.GetTool(Tools.SpriteInfluence));
             m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.CopyPaste), () => currentTool = skinningCache.GetTool(Tools.CopyPaste));
+            m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.CharacterPivotTool), () =>
+            {
+                if(skinningCache.hasCharacter)
+                    currentTool = skinningCache.GetTool(Tools.CharacterPivotTool);
+                else
+                    ActivateTool(skinningCache.GetTool(Tools.EditPose));
+            });
         }
     }
 }

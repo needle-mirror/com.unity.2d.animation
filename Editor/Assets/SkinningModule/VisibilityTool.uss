@@ -5,53 +5,47 @@ VisibilityToolWindow {
     width: 300px;
 }
 
-VisibilityToolWindow > PopupWindow{
+VisibilityToolWindow > PopupWindow {
     flex : 1 0;
 }
 
-VisibilityToolWindow > PopupWindow > #unity-content-container{
+VisibilityToolWindow > PopupWindow > #unity-content-container {
     flex : 1 0;
 }
 
-BoneVisibilityToolView{
+BoneVisibilityToolView {
     flex:1 0 auto;
 }
 
-SpriteVisibilityToolView{
+SpriteVisibilityToolView {
     flex:1 0 auto;
 }
 
-MeshVisibilityToolView{
+MeshVisibilityToolView {
     flex:1 0 auto;
 }
 
-#VisibilityToolSelection{
+#VisibilityToolSelection {
     max-height : 20px;
     flex-direction : row;
     flex: 1 0 auto;
 }
 
-#VisibilityToolContainer{
+#VisibilityToolContainer {
     padding-bottom : 45px;
 }
 
-#VisibilityToolSelection > Label{
+#VisibilityToolSelection > Label {
     flex:1 0 auto;
 }
 
-#HierarchyToolButtonImage{
+#HierarchyToolButtonImage {
     background-image: resource("Icons/HierarchyTool");
 }
 
-#VisibilityToolSelection > Button{
-    margin-top: 0;
-    margin-left: 0;
-    margin-bottom: 0;
-    margin-right: 0;
-    padding-top: 0;
-    padding-left: 0;
-    padding-bottom: 0;
-    padding-right: 0;
+#VisibilityToolSelection > Button {
+    margin: 0;
+    padding: 0;
     border-left-width: 0;
     border-top-width: 0;
     border-right-width: 0;
@@ -59,179 +53,88 @@ MeshVisibilityToolView{
     cursor : link;
 }
 
-
 .visibilityToolTab {
-    background-image: none;
-    color: #505050;
     -unity-slice-left: 6;
     -unity-slice-top: 4;
     -unity-slice-right: 6;
     -unity-slice-bottom: 4;
     flex :1 0 auto;
-    margin-top: 0;
-    margin-left: 0;
-    margin-bottom: 0;
-    margin-right: 0;
-    padding-top: 0;
-    padding-left: 0;
-    padding-bottom: 0;
-    padding-right: 0;
+    margin: 0;
+    padding: 0;
     border-left-width: 0;
     border-top-width: 0;
     border-right-width: 0;
     border-bottom-width: 0;
 }
 
-.visibilityToolTabDark{
-    color: #B4B4B4;
+.visibilityToolTab:hover:checked {
+    background-color: var(--unity-colors-button-background-hover_pressed);
 }
 
-.visibilityToolTab:checked{
-    background-image: resource("Builtin Skins/LightSkin/Images/tabbar on f.png");
-    color: #505050;
-    flex :1 0 auto;
-    -unity-slice-left: 6;
-    -unity-slice-top: 4;
-    -unity-slice-right: 6;
-    -unity-slice-bottom: 4;
-    margin-top: 0;
-    margin-left: 0;
-    margin-bottom: 0;
-    margin-right: 0;
-    padding-top: 0;
-    padding-left: 0;
-    padding-bottom: 0;
-    padding-right: 0;
-    border-left-width: 0;
-    border-top-width: 0;
-    border-right-width: 0;
-
+.visibilityToolTab:active {
+    background-color: var(--unity-colors-button-background-pressed);
 }
 
-.visibilityToolTabDark:checked{
-    background-image: resource("Builtin Skins/DarkSkin/Images/tabbar on f.png");
-    color: #B4B4B4;
+.visibilityToolTab:active:hover {
+    background-color: var(--unity-colors-button-background-pressed);
 }
 
-.visibilityToolTab:hover:active:checked{
-    background-image: resource("Builtin Skins/LightSkin/Images/tabbar on.png");
-    flex :1 0 auto;
-    -unity-slice-left: 6;
-    -unity-slice-top: 4;
-    -unity-slice-right: 6;
-    -unity-slice-bottom: 4;
-    margin-top: 0;
-    margin-left: 0;
-    margin-bottom: 0;
-    margin-right: 0;
-    padding-top: 0;
-    padding-left: 0;
-    padding-bottom: 0;
-    padding-right: 0;
-    border-left-width: 0;
-    border-top-width: 0;
-    border-right-width: 0;
-    border-bottom-width: 0;
-}
-
-.visibilityToolTabDark:hover:active:checked{
-    background-image: resource("Builtin Skins/DarkSkin/Images/tabbar on.png");
-}
-
-.visibilityToolTab:hover:active{
-    background-image: resource("Builtin Skins/LightSkin/Images/tabbar on.png");
-    color: #505050;
-    flex :1 0 auto;
-    -unity-slice-left: 6;
-    -unity-slice-top: 4;
-    -unity-slice-right: 6;
-    -unity-slice-bottom: 4;
-    margin-top: 0;
-    margin-left: 0;
-    margin-bottom: 0;
-    margin-right: 0;
-    padding-top: 0;
-    padding-left: 0;
-    padding-bottom: 0;
-    padding-right: 0;
-    border-left-width: 0;
-    border-top-width: 0;
-    border-right-width: 0;
-    border-bottom-width: 0;
-}
-
-.visibilityToolTabDark:hover:active{
-    background-image: resource("Builtin Skins/DarkSkin/Images/tabbar on.png");
-}
-
-#OpacitySliderGroup
-{
+#OpacitySliderGroup {
     margin-bottom : 5px;
     flex-direction:row;
     flex : 1 0 auto;
     max-height : 16px;
 }
 
-#BoneOpacitySliderGroup
-{
+#BoneOpacitySliderGroup {
     flex-direction:row;
     height : 16px;
 }
 
-#MeshOpacitySliderGroup
-{
+#MeshOpacitySliderGroup {
     flex-direction:row;
     height : 16px;
 }
 
-#MeshOpacitySlider
-{
+#MeshOpacitySlider {
     align-self : center;
     flex : 1 0;
 }
 
-#BoneOpacitySlider
-{
+#BoneOpacitySlider {
     align-self : center;
     flex : 1 0;
 }
 
-
-#BoneOpacitySliderIcon
-{
-    background-image: url("Icons/Light/Bone.png");
+#BoneOpacitySliderIcon {
+    background-image: url("../EditorIcons/Light/Bone.png");
     width : 16px;
     height : 16px;
 }
 
-#MeshOpacitySliderIcon
-{
-    background-image: url("Icons/Light/Mesh.png");
+#MeshOpacitySliderIcon {
+    background-image: url("../EditorIcons/Light/Mesh.png");
     width : 16px;
     height : 16px;
 }
 
-.Dark #BoneOpacitySliderIcon
-{
-    background-image: url("Icons/Dark/d_Bone.png");
+.Dark #BoneOpacitySliderIcon {
+    background-image: url("../EditorIcons/Dark/d_Bone.png");
     width : 16px;
     height : 16px;
 }
 
-.Dark  #MeshOpacitySliderIcon
-{
-    background-image: url("Icons/Dark/d_Mesh.png");
+.Dark  #MeshOpacitySliderIcon {
+    background-image: url("../EditorIcons/Dark/d_Mesh.png");
     width : 16px;
     height : 16px;
 }
 
-BoneReparentToolView
-{
+BoneReparentToolView {
     flex : 1 0 auto;
 }
 
-#Resizer
-{
+#Resizer {
     cursor : resize-horizontal;
     min-width: 20px;
     margin-right: -15px;

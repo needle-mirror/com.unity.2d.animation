@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.Serialization;
+using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.IK
 {
@@ -9,7 +10,7 @@ namespace UnityEngine.U2D.IK
     /// Abstract class for implementing a 2D IK Solver.
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
-    public abstract class Solver2D : MonoBehaviour
+    public abstract class Solver2D : MonoBehaviour, IPreviewable
     {
         [SerializeField]
         private bool m_ConstrainRotation = true;
@@ -178,7 +179,7 @@ namespace UnityEngine.U2D.IK
         {
             if(positions.Count != chainCount)
                 return;
-                 
+
             float finalWeight = globalWeight * weight;
             if (finalWeight == 0f)
                 return;
@@ -233,13 +234,13 @@ namespace UnityEngine.U2D.IK
         /// <param name="index">Index for IKChain2D.</param>
         /// <returns></returns>
         public abstract IKChain2D GetChain(int index);
-        
+
         /// <summary>
         /// OVerride to return the number of chains in the Solver
         /// </summary>
         /// <returns>Integer represents IKChain2D count.</returns>
         protected abstract int GetChainCount();
-        
+
         /// <summary>
         /// Override to perform Solver IK update
         /// </summary>
@@ -251,17 +252,17 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         /// <returns>Returns true if the Solver is in a valid state. False otherwise.</returns>
         protected virtual bool DoValidate() { return true; }
-        
+
         /// <summary>
         /// Override to perform initialize the solver
         /// </summary>
         protected virtual void DoInitialize() {}
-        
+
         /// <summary>
         /// Override to prepare the solver for update
         /// </summary>
         protected virtual void DoPrepare() {}
-        
+
         /// <summary>
         /// Override to return the root Unity Transform of the Solver. The default implementation returns the root
         /// transform of the first chain.
@@ -293,5 +294,10 @@ namespace UnityEngine.U2D.IK
         {
             return GetPlaneRootTransform().TransformPoint(planePoint);
         }
+
+        /// <summary>
+        /// Empty method. Implemented for the IPreviewable interface.
+        /// </summary>
+        public void OnPreviewUpdate() { }
     }
 }

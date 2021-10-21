@@ -49,12 +49,12 @@ namespace UnityEditor.U2D.IK
                 return s_Instance;
             }
         }
-        
+
         private void OnEnable()
         {
             if (s_Instance == null)
                 s_Instance = this;
-            
+
             RegisterCallbacks();
             Initialize();
         }
@@ -92,13 +92,13 @@ namespace UnityEditor.U2D.IK
 
         private bool m_EnableGizmos;
         private bool m_CurrentEnableGizmoState;
-        
+
         void OnDrawGizmos()
         {
             m_EnableGizmos = true;
             IKManager2D.onDrawGizmos.RemoveListener(OnDrawGizmos);
         }
-        
+
         public void CheckGizmoToggle()
         {
             //Ignore events other than Repaint
@@ -115,7 +115,7 @@ namespace UnityEditor.U2D.IK
             IKManager2D.onDrawGizmos.RemoveListener(OnDrawGizmos);
             IKManager2D.onDrawGizmos.AddListener(OnDrawGizmos);
         }
-        
+
         private void OnSelectionChanged()
         {
             m_SelectedGameobjects = null;
@@ -214,7 +214,7 @@ namespace UnityEditor.U2D.IK
 
                             Undo.RecordObject(t, undoName);
                         }
-                        
+
 
                         if(chain.target && !m_IgnoreTransformsOnUndo.Contains(chain.target))
                             Undo.RecordObject(chain.target, undoName);
@@ -278,7 +278,7 @@ namespace UnityEditor.U2D.IK
             CheckGizmoToggle();
             if (!m_CurrentEnableGizmoState)
                 return;
-            
+
             if (m_SelectedGameobjects == null)
                 m_SelectedGameobjects = Selection.gameObjects;
 

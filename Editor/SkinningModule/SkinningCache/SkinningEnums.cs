@@ -28,6 +28,7 @@ namespace UnityEditor.U2D.Animation
         SpriteInfluence,
         CopyPaste,
         Visibility,
-        SwitchMode
+        SwitchMode,
+        CharacterPivotTool
     }
 }

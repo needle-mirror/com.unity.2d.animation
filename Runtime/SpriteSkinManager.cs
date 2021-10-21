@@ -1,4 +1,6 @@
-﻿namespace UnityEngine.U2D.Animation
+﻿using Unity.Profiling;
+
+namespace UnityEngine.U2D.Animation
 {
     internal class SpriteSkinManager
     {
@@ -15,7 +17,11 @@
                     GameObject.DestroyImmediate(gameObject);
                     return;
                 }
+                
+                var profilerMarker = new ProfilerMarker("SpriteSkinManager.LateUpdate");
+                profilerMarker.Begin();
                 SpriteSkinComposite.instance.LateUpdate();
+                profilerMarker.End();
             }
 #endif
         }

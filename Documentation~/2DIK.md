@@ -64,7 +64,7 @@ The __Chain (FABRIK)__ Solver generally takes less iterations to reach the __Tar
 
 The __IK Manager 2D__ component controls the __IK Solvers__ in the hierarchy.  Add the Manager component to the highest bone in the hierarchy, commonly referred to as the *Root* bone.
 
-1. In this example, add the component to *PlunkahG* as it is the *Root* bone in the hierarchy:
+1. In this example, add the component to *Plunkah* as it is the *Root* bone in the hierarchy:
    ![](images/2D_IK_Image1.png)
 
 
@@ -104,7 +104,7 @@ Follow the steps below to set a __Target__:
    ![](images/2D_IK_Image5.png)
 
 
-4. Select the __IK Solver.__ With its Inspector window open, drag the Transform from the hierarchy onto the __Effector__ field
+4. Select the __IK Solver.__ With its Inspector window open, drag the Transform from the hierarchy onto the __Effector__ field.
    ![](images/2D_IK_Image6.png)
 
 
@@ -125,7 +125,7 @@ Toggle or customize the display settings of the IK Gizmos to adjust their visibi
 
 ### Global IK Gizmos Toggle
 
-You can toggle the IK Gizmos by going to the Gizmos drop-down menu at the upper right of the Scene view window, then select or clear __IKManager2D__ (menu: __Gizmos > Recently Changed > IKManager2D__) to enable or disable the Gizmos respectively.
+You can toggle the IK Gizmos by going to the Gizmos drop-down menu at the upper right of the Scene view window, then select or clear __IKManager2D__ (menu: __Gizmos > Scripts > IKManager2D__) to enable or disable the Gizmos respectively.
 
 ![](images/2D_IK_Sceneview_Toggle.png)
 
@@ -145,31 +145,31 @@ You can add your own solver by extending from the class __Solver2D__. Your exten
 
 This is the base class for all IK Solvers in this package. __IKManager2D__ will detect all classes extending this and accept it as a Solver it can control. Implement or override the following methods to create your own IK Solver:
 
-- protected abstract int GetChainCount()
+`protected abstract int GetChainCount()`
 
 This function returns the number of IK chains the solver owns. Use this to return the number of IK chains your solver owns.
 
-- public abstract IKChain2D GetChain(int index)
+`public abstract IKChain2D GetChain(int index)`
 
 This function returns the IKChain2D at the given index. Use this to return the IKChain2D your solver owns at the given index.
 
-- protected virtual bool DoValidate()
+`protected virtual bool DoValidate()`
 
 This function does validation for all parameters passed into the solver. Use this to check if your solver is set up correctly with all inputs.
 
-- protected virtual void DoInitialize()
+`protected virtual void DoInitialize()`
 
 This function initializes the solver and builds the IK chains owned by the solver. This is called whenever the solver is invalid after changing the target of the solver or other parameters of the solver. Use this to initialize all the data from the parameters given to the solver, such as the IK chains owned by the solver.
 
-- protected virtual void DoPrepare()
+`protected virtual void DoPrepare()`
 
 This function prepares and converts the information of the Transforms (position, rotation, IK parameters etc) to structures which can be used by the IK algorithms. Use this to do any work to gather data used by your solver when updating the IK positions.
 
-- protected abstract void DoUpdateIK(List effectorPositions)
+`protected abstract void DoUpdateIK(List effectorPositions)`
 
 This function calculates and sets the desired IK positions for the Transforms controlled by the solver given a list of effector positions for each chain owned by the solver. The effector positions may be overridden by user positions if manipulated from the SceneView.
 
-- protected virtual Transform GetPlaneRootTransform()
+`protected virtual Transform GetPlaneRootTransform()`
 
 This function returns the transform whose localspace XY plane is used to perform IK calculations. Use this to define the Transform used.
 

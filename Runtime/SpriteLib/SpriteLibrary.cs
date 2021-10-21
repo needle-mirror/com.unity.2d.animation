@@ -1,17 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.Animation
 {
     /// <summary>
-    /// Component that holds a Sprite Library Asset. The component is used by SpriteResolver Component to query for Sprite based on Category and Index
+    /// Component that holds a Sprite Library Asset. The component is used by SpriteResolver Component to query for Sprite based on Category and Index.
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Library")]
+    [IconAttribute(IconUtility.IconPath + "Animation.SpriteLibrary.png")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html%23sprite-library-component")]
-    public class SpriteLibrary : MonoBehaviour
+    public class SpriteLibrary : MonoBehaviour, IPreviewable
     {
         struct CategoryEntrySprite
         {
@@ -32,7 +34,7 @@ namespace UnityEngine.U2D.Animation
         int m_PreviousSpriteLibraryAsset;
         long m_PreviousModificationHash;
         
-        /// <summary>Get or Set the current SpriteLibraryAsset to use </summary>
+        /// <summary>Get or Set the current SpriteLibraryAsset to use.</summary>
         public SpriteLibraryAsset spriteLibraryAsset
         {
             set
@@ -51,13 +53,18 @@ namespace UnityEngine.U2D.Animation
         {
             CacheOverrides();
         }
+        
+        /// <summary>
+        /// Empty method. Implemented for the IPreviewable interface. 
+        /// </summary>
+        public void OnPreviewUpdate() { }
 
         /// <summary>
-        /// Return the Sprite that is registered for the given Category and Label for the SpriteLibrary
+        /// Return the Sprite that is registered for the given Category and Label for the SpriteLibrary.
         /// </summary>
-        /// <param name="category">Category name</param>
-        /// <param name="label">Label name</param>
-        /// <returns>Sprite associated to the name and index</returns>
+        /// <param name="category">Category name.</param>
+        /// <param name="label">Label name.</param>
+        /// <returns>Sprite associated to the name and index.</returns>
         public Sprite GetSprite(string category, string label) 
         {
             return GetSprite(GetHashForCategoryAndEntry(category, label));
@@ -95,7 +102,7 @@ namespace UnityEngine.U2D.Animation
 
         internal static int GetHashForCategoryAndEntry(string category, string entry)
         {
-            return SpriteLibraryAsset.GetStringHash($"{category}_{entry}");
+            return SpriteLibraryUtility.GetStringHash($"{category}_{entry}");
         }
 
         internal Sprite GetSpriteFromCategoryAndEntryHash(int hash, out bool validEntry)
@@ -146,11 +153,11 @@ namespace UnityEngine.U2D.Animation
         }
         
         /// <summary>
-        /// Add or replace an override when querying for the given Category and Label from a SpriteLibraryAsset
+        /// Add or replace an override when querying for the given Category and Label from a SpriteLibraryAsset.
         /// </summary>
-        /// <param name="spriteLib">Sprite Library Asset to query</param>
-        /// <param name="category">Category name from the Sprite Library Asset to add override</param>
-        /// <param name="label">Label name to add override</param>
+        /// <param name="spriteLib">Sprite Library Asset to query.</param>
+        /// <param name="category">Category name from the Sprite Library Asset to add override.</param>
+        /// <param name="label">Label name to add override.</param>
         public void AddOverride(SpriteLibraryAsset spriteLib, string category, string label)
         {
             var sprite = spriteLib.GetSprite(category, label);
@@ -163,11 +170,11 @@ namespace UnityEngine.U2D.Animation
         /// <summary>
         /// Add or replace an override when querying for the given Category. All the categories in the Category will be added.
         /// </summary>
-        /// <param name="spriteLib">Sprite Library Asset to query</param>
-        /// <param name="category">Category name from the Sprite Library Asset to add override</param>
+        /// <param name="spriteLib">Sprite Library Asset to query.</param>
+        /// <param name="category">Category name from the Sprite Library Asset to add override.</param>
         public void AddOverride(SpriteLibraryAsset spriteLib, string category)
         {
-            var categoryHash = SpriteLibraryAsset.GetStringHash(category);
+            var categoryHash = SpriteLibraryUtility.GetStringHash(category);
             var cat = spriteLib.categories.FirstOrDefault(x => x.hash == categoryHash);
             if (cat != null)
             {
@@ -184,9 +191,9 @@ namespace UnityEngine.U2D.Animation
         /// <summary>
         /// Add or replace an override when querying for the given Category and Label.
         /// </summary>
-        /// <param name="sprite">Sprite to override to</param>
-        /// <param name="category">Category name to override</param>
-        /// <param name="label">Label name to override</param>
+        /// <param name="sprite">Sprite to override to.</param>
+        /// <param name="category">Category name to override.</param>
+        /// <param name="label">Label name to override.</param>
         public void AddOverride(Sprite sprite, string category, string label)
         {
             GetEntry(GetEntries(category, true), label, true).sprite = sprite;
@@ -195,9 +202,9 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Remove all Sprite Library override for a given category
+        /// Remove all Sprite Library override for a given category.
         /// </summary>
-        /// <param name="category">Category overrides to remove</param>
+        /// <param name="category">Category overrides to remove.</param>
         public void RemoveOverride(string category)
         {
             var index = m_Library.FindIndex(x => x.name == category);
@@ -210,10 +217,10 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Remove Sprite Library override for a given category and label
+        /// Remove Sprite Library override for a given category and label.
         /// </summary>
-        /// <param name="category">Category to remove</param>
-        /// <param name="label">Label to remove</param>
+        /// <param name="category">Category to remove.</param>
+        /// <param name="label">Label to remove.</param>
         public void RemoveOverride(string category, string label)
         {
             var entries = GetEntries(category, false);
@@ -230,11 +237,11 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Method to check if a Category and Label pair has an override
+        /// Method to check if a Category and Label pair has an override.
         /// </summary>
-        /// <param name="category">Category name</param>
-        /// <param name="label">Label name</param>
-        /// <returns>True if override exist, false otherwise</returns>
+        /// <param name="category">Category name.</param>
+        /// <param name="label">Label name.</param>
+        /// <returns>True if override exist, false otherwise.</returns>
         public bool HasOverride(string category, string label)
         {
             var catOverride = GetEntries(category, false);
@@ -244,7 +251,7 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Request SpriteResolver components that are in the same hierarchy to refresh
+        /// Request SpriteResolver components that are in the same hierarchy to refresh.
         /// </summary>
         public void RefreshSpriteResolvers()
         {

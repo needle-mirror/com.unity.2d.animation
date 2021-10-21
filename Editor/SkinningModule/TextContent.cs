@@ -13,6 +13,7 @@ namespace UnityEditor.U2D.Animation
         public static string normalizeWeights = "Normalize Weights";
         public static string clearWeights = "Clear Weights";
         public static string restorePose = "Restore Pose";
+        public static string pivotPose = "Pivot Pose";
         public static string selection = "Selection";
         public static string clearSelection = "Clear Selection";
         public static string editWeights = "Edit Weights";
@@ -52,6 +53,7 @@ namespace UnityEditor.U2D.Animation
         public static string addSpriteInfluence = "Add Sprite Influence";
         public static string removeSpriteInfluence = "Remove Sprite Influence";
         public static string spriteSelection = "Sprite selection";
+        public static string pivotChanged = "Pivot changed";
 
         // Tooltips
         public static string visibilityIconTooltip = L10n.Tr("Visibility tool");
@@ -109,6 +111,7 @@ namespace UnityEditor.U2D.Animation
         public static string mode = L10n.Tr("Mode");
         public static string modeTooltip = L10n.Tr("Different operation mode for weight adjustment");
         public static string boneToolTip = L10n.Tr("The bone that is affecting");
+        public static string pivot = L10n.Tr("Pivot");
         
         public static string noBoneSelected = L10n.Tr("No bone selected");
         public static string boneInfluences = L10n.Tr("Bone Influences");

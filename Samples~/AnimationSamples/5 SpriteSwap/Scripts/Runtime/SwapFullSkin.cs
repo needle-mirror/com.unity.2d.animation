@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Unity.U2D.Animation.Sample
 {
-    public class SwapFullSkin : MonoBehaviour
+    internal class SwapFullSkin : MonoBehaviour
     {
         public SpriteLibraryAsset[] spriteLibraries;
         public SpriteLibrary spriteLibraryTarget;

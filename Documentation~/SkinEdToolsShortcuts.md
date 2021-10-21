@@ -32,8 +32,20 @@ This is a toolbar that contains the options to __Preview Pose__ and restore the 
 
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
-| ![Preview Pose](images/icon_PreviewPose.png)<br/>__Preview Pose__ | Shift + Q            | Preview character poses after rigging.                       |
-| ![Reset Pose](images/icon_RestoreBind.png)<br/>__Reset Pose__ | Shift + 1            | Restore a character’s bones and joints to their original positions. |
+| ![Preview Pose](images/icon_PreviewPose.png)<br/>__Preview Pose__ | Shift + Q            | Enable this mode when moving and rotating an actor's model and joints to preview its poses after rigging. Any changes made in this mode are not saved.                      |
+| ![Reset Pose](images/icon_RestoreBind.png)<br/>__Reset Pose__ | Shift + 1            | Restores an actor's bones and joints to their original positions. |
+| ![Set Pivot](images/icon_PosePivot.png)<br/>__Set Pivot__ | Shift + T            | Enable this tool to edit the pivot point of the actor with the [Pivot Panel](#pivot-panel) options.  |
+
+### Pivot Panel
+
+The __Pivot Panel__ appears when you enable the __Set Pivot__ tool.
+
+![](images/2D-animation-v8-pose-pivot-panel.png)
+
+Property  | Function  
+--|--
+**Pivot**  | Select the desired location of the Pivot from the dropdown menu.
+**Position**  |  Enter a value from 0 to 1 to adjust the X and Y position of the pivot. This is a normalized value from 0 to 1, where (0,0) is lower left of workspace and (1,1) is the upper right of the workspace.
 
 ## Bone tools
 

@@ -8,9 +8,9 @@ namespace UnityEditor.U2D.IK
     /// </summary>
     [CustomEditor(typeof(Solver2D))]
     [CanEditMultipleObjects]
-    public class Solver2DEditor : Editor
+    public abstract class Solver2DEditor : Editor
     {
-        private static class Contents
+        static class Contents
         {
             public static readonly GUIContent constrainRotationLabel = new GUIContent("Constrain Rotation", "Set Effector's rotation to Target");
             public static readonly GUIContent solveFromDefaultPoseLabel = new GUIContent("Solve from Default Pose", "Restore transform's rotation to default value before solving the IK");
@@ -19,12 +19,12 @@ namespace UnityEditor.U2D.IK
             public static readonly string createTargetString = "Create Target";
         }
 
-        private SerializedProperty m_ConstrainRotationProperty;
-        private SerializedProperty m_SolveFromDefaultPoseProperty;
-        private SerializedProperty m_WeightProperty;
-        private SerializedProperty m_SolverColorProperty;
+        SerializedProperty m_ConstrainRotationProperty;
+        SerializedProperty m_SolveFromDefaultPoseProperty;
+        SerializedProperty m_WeightProperty;
+        SerializedProperty m_SolverColorProperty;
 
-        private void SetupProperties()
+        void SetupProperties()
         {
             if(m_ConstrainRotationProperty == null || m_SolveFromDefaultPoseProperty == null || m_WeightProperty == null)
             {
@@ -64,7 +64,7 @@ namespace UnityEditor.U2D.IK
             EditorGUILayout.Space();
         }
 
-        private bool EnableRestoreDefaultPose()
+        bool EnableRestoreDefaultPose()
         {
             foreach (var l_target in targets)
             {
@@ -79,7 +79,7 @@ namespace UnityEditor.U2D.IK
             return false;
         }
 
-        private bool EnableCreateTarget()
+        bool EnableCreateTarget()
         {
             foreach (var l_target in targets)
             {
@@ -100,7 +100,7 @@ namespace UnityEditor.U2D.IK
             return false;
         }
 
-        private void DoRestoreDefaultPoseButton()
+        void DoRestoreDefaultPoseButton()
         {
             if (GUILayout.Button(Contents.restoreDefaultPoseString, GUILayout.MaxWidth(150f)))
             {
@@ -130,7 +130,7 @@ namespace UnityEditor.U2D.IK
             }
         }
 
-        private void DoCreateTargetButton()
+        void DoCreateTargetButton()
         {
             if (GUILayout.Button(Contents.createTargetString, GUILayout.MaxWidth(125f)))
             {

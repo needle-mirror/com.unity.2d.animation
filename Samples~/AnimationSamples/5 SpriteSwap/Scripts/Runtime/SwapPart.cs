@@ -8,14 +8,14 @@ using UnityEngine.UI;
 namespace Unity.U2D.Animation.Sample
 {
     [Serializable]
-    public struct SwapOptionData
+    internal struct SwapOptionData
     {
         public Dropdown dropdown;
         public SpriteResolver spriteResolver;
         public string category;
     }
 
-    public class SwapPart : MonoBehaviour
+    internal class SwapPart : MonoBehaviour
     {
         public SpriteLibrary spriteLibrary;
         public SwapOptionData[] swapOptionData;

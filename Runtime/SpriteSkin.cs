@@ -16,7 +16,7 @@ namespace UnityEngine.U2D.Animation
     /// <summary>
     /// Represents vertex position.
     /// </summary>
-    public struct PositionVertex
+    internal struct PositionVertex
     {
         /// <summary>
         /// Vertex position.
@@ -27,7 +27,7 @@ namespace UnityEngine.U2D.Animation
     /// <summary>
     /// Represents vertex position and tangent.
     /// </summary>
-    public struct PositionTangentVertex
+    internal struct PositionTangentVertex
     {
         /// <summary>
         /// Vertex position.
@@ -41,7 +41,7 @@ namespace UnityEngine.U2D.Animation
     }
 
     /// <summary>
-    /// Deforms the Sprite that is currently assigned to the SpriteRenderer in the same GameObject
+    /// Deforms the Sprite that is currently assigned to the SpriteRenderer in the same GameObject.
     /// </summary>
     [Preserve]
     [ExecuteInEditMode]
@@ -49,9 +49,10 @@ namespace UnityEngine.U2D.Animation
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
     [AddComponentMenu("2D Animation/Sprite Skin")]
+    [IconAttribute(IconUtility.IconPath + "Animation.SpriteSkin.png")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/index.html%23sprite-skin-component")]
-    public sealed partial class SpriteSkin : MonoBehaviour, ISerializationCallbackReceiver
+    public sealed partial class SpriteSkin : MonoBehaviour, IPreviewable, ISerializationCallbackReceiver
     {
         [SerializeField]
         private Transform m_RootBone;
@@ -194,7 +195,7 @@ namespace UnityEngine.U2D.Animation
         /// Gets a byte array to the currently deformed vertices for this SpriteSkin.
         /// </summary>
         /// <returns>Returns a reference to the currently deformed vertices. This is valid only for this calling frame.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when there are no currently deformed vertices</exception>
+        /// <exception cref="InvalidOperationException">Thrown when there are no currently deformed vertices.</exception>
         internal NativeArray<byte> GetCurrentDeformedVertices()
         {
             if (!m_IsValid)
@@ -294,14 +295,33 @@ namespace UnityEngine.U2D.Animation
             OnDisableBatch();
         }
 
+        /// <summary>
+        /// Used by the animation clip preview window.
+        /// Recommended to not use outside of this purpose.
+        /// </summary>
+        public void OnPreviewUpdate()
+        {
+#if UNITY_EDITOR 
+            if(IsInGUIUpdateLoop())
+                Deform(false);
+#endif
+        }
+
+        static bool IsInGUIUpdateLoop() => Event.current != null;
+
 #if ENABLE_SPRITESKIN_COMPOSITE
         internal void OnLateUpdate()
 #else
         void LateUpdate()
 #endif
         {
+            Deform(batchSkinning);
+        }
+
+        void Deform(bool useBatching)
+        {
             CacheCurrentSprite(m_AutoRebind);
-            if (isValid && !batchSkinning && this.enabled && (this.alwaysUpdate || this.spriteRenderer.isVisible))
+            if (isValid && !useBatching && this.enabled && (this.alwaysUpdate || this.spriteRenderer.isVisible))
             {
                 var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
                 var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
@@ -341,9 +361,9 @@ namespace UnityEngine.U2D.Animation
         internal SpriteRenderer spriteRenderer => m_SpriteRenderer;
 
         /// <summary>
-        /// Returns the Transform Components that is used for deformation
+        /// Returns the Transform Components that is used for deformation.
         /// </summary>
-        /// <returns>An array of Transform Components</returns>
+        /// <returns>An array of Transform Components.</returns>
         public Transform[] boneTransforms
         {
             get { return m_BoneTransforms; }
@@ -356,9 +376,9 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Returns the Transform Component that represents the root bone for deformation
+        /// Returns the Transform Component that represents the root bone for deformation.
         /// </summary>
-        /// <returns>A Transform Component</returns>
+        /// <returns>A Transform Component.</returns>
         public Transform rootBone
         {
             get { return m_RootBone; }

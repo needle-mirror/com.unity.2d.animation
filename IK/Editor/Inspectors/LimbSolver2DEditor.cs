@@ -8,19 +8,19 @@ namespace UnityEditor.U2D.IK
     /// </summary>
     [CustomEditor(typeof(LimbSolver2D))]
     [CanEditMultipleObjects]
-    public class LimbSolver2DEditor : Solver2DEditor
+    internal class LimbSolver2DEditor : Solver2DEditor
     {
-        private static class Contents
+        static class Contents
         {
             public static readonly GUIContent effectorLabel = new GUIContent("Effector", "The last Transform of a hierarchy constrained by the target");
-            public static readonly GUIContent targetLabel = new GUIContent("Target", "Transfrom which the effector will follow");
+            public static readonly GUIContent targetLabel = new GUIContent("Target", "Transform which the effector will follow");
             public static readonly GUIContent flipLabel = new GUIContent("Flip", "Select between the two possible solutions of the solver");
         }
 
-        private SerializedProperty m_ChainProperty;
-        private SerializedProperty m_FlipProperty;
+        SerializedProperty m_ChainProperty;
+        SerializedProperty m_FlipProperty;
 
-        private void OnEnable()
+        void OnEnable()
         {
             m_ChainProperty = serializedObject.FindProperty("m_Chain");
             m_FlipProperty = serializedObject.FindProperty("m_Flip");

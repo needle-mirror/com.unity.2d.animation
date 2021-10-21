@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
@@ -35,8 +36,8 @@ namespace UnityEditor.U2D.Animation
             if (obj != null)
             {
                 var extraTargetSourceAsset = extraTarget as SpriteLibrarySourceAsset;
-                extraTargetSourceAsset.library = obj.library;
-                extraTargetSourceAsset.primaryLibraryID = obj.primaryLibraryID;
+                SpriteLibrarySourceAssetImporter.UpdateSpriteLibrarySourceAssetLibraryWithMainAsset(obj);
+                extraTargetSourceAsset.Copy(obj);
             }
         }
 
@@ -54,11 +55,23 @@ namespace UnityEditor.U2D.Animation
         protected override void Apply()
         {
             base.Apply();
-            for (int i = 0; i < targets.Length; i++)
+            for (var i = 0; i < targets.Length; i++)
             {
-                string path = ((AssetImporter)targets[i]).assetPath;
+                var path = ((AssetImporter)targets[i]).assetPath;
                 var sourceAsset = (SpriteLibrarySourceAsset) extraDataTargets[i];
-                SpriteLibrarySourceAssetImporter.SaveSpriteLibrarySourceAsset(sourceAsset, path);
+                var toSavedAsset = SpriteLibrarySourceAssetImporter.LoadSpriteLibrarySourceAsset(path);
+                
+                toSavedAsset.Copy(sourceAsset);
+                for (var j = 0; j < toSavedAsset.library.Count; ++j)
+                {
+                    toSavedAsset.library[j].overrideEntries = new List<SpriteCategoryEntryOverride>(sourceAsset.library[j].overrideEntries);
+                }
+                var so = new SerializedObject(toSavedAsset);
+                var lib = so.FindProperty("m_Library");
+                SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(null, lib);
+                if (so.hasModifiedProperties)
+                    so.ApplyModifiedPropertiesWithoutUndo();
+                SpriteLibrarySourceAssetImporter.SaveSpriteLibrarySourceAsset(toSavedAsset, path);
             }
         }
         
@@ -107,8 +120,8 @@ namespace UnityEditor.U2D.Animation
         static private void CreateSpriteLibrarySourceAssetMenu()
         {
             var action = ScriptableObject.CreateInstance<CreateSpriteLibrarySourceAsset>();
-            var icon = IconUtility.LoadIconResource("Sprite Library", "Icons/Light", "Icons/Dark");
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, action, "SpriteLib.spriteLib", icon, null);
+            var icon = EditorIconUtility.LoadIconResource("Sprite Library", "Icons/Light", "Icons/Dark");
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, action, "New Sprite Library Asset.spriteLib", icon, null);
         }
     }
 }

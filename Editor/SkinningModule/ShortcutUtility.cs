@@ -24,6 +24,7 @@ namespace UnityEditor.U2D.Animation
         public const string spriteInfluence = "2D/Animation/Sprite Influence";
         public const string pastePanelWeights = "2D/Animation/Paste Panel Weights";
         public const string visibilityPanel = "2D/Animation/Visibility Panel";
+        public const string characterPivot = "2D/Animation/Character Pivot";
     }
     
     internal class ShortcutUtility

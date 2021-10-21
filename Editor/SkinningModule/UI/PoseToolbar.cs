@@ -11,15 +11,20 @@ namespace UnityEditor.U2D.Animation
 
         private const string k_PreviewPoseId = "PreviewPose";
         private const string k_RestorePoseId = "RestorePose";
+        private const string k_CharacterPivotId = "PivotPose";
 
         public class CustomUXMLFactor : UxmlFactory<PoseToolbar, UxmlTraits> {}
-
+        
+        public event Action<Tools> SetMeshTool = (mode) => {};
+        public event Action<Tools> SetSkeletonTool = (mode) => {};
+    
         public event Action ActivateEditPoseTool = () => {};
         
-        public SkinningCache skinningCache { get; set; }      
+        SkinningCache skinningCache { get; set; }      
         
         private Button m_PreviewBtn;
-        private Button m_RestoreBtn;        
+        private Button m_RestoreBtn;
+        private Button m_PivotBtn;
         
         public static PoseToolbar GenerateFromUXML()
         {
@@ -36,6 +41,13 @@ namespace UnityEditor.U2D.Animation
             styleSheets.Add(ResourceLoader.Load<StyleSheet>(k_UssPath));
         }
 
+        public void Setup(SkinningCache s)
+        {
+            skinningCache = s;
+            skinningCache.events.skinningModeChanged.AddListener(OnSkinningModeChange);
+            OnSkinningModeChange(s.mode);
+        }
+        
         private void BindElements()
         {
             m_PreviewBtn = this.Q<Button>(k_PreviewPoseId);
@@ -43,8 +55,41 @@ namespace UnityEditor.U2D.Animation
             
             m_RestoreBtn = this.Q<Button>(k_RestorePoseId);
             m_RestoreBtn.clickable.clicked += RestorePose;
+            
+            m_PivotBtn = this.Q<Button>(k_CharacterPivotId);
+            m_PivotBtn.clickable.clicked += PivotPose;
         }
 
+        private void PivotPose()
+        {
+            SetMeshTool(Tools.CharacterPivotTool);
+        }
+        
+        private void OnSkinningModeChange(SkinningMode mode)
+        {
+            if (skinningCache.hasCharacter)
+            {
+                m_PivotBtn.SetHiddenFromLayout(false);
+                if (mode == SkinningMode.SpriteSheet)
+                {
+                    m_PivotBtn.SetEnabled(false);
+                    if (skinningCache.GetTool(Tools.CharacterPivotTool).isActive)
+                        SetSkeletonTool(Tools.EditPose);
+                }
+                else if (mode == SkinningMode.Character)
+                {
+                    m_PivotBtn.SetEnabled(true);
+                }
+            }
+            else
+            {
+                m_PivotBtn.SetHiddenFromLayout(true);
+                var tool = skinningCache.GetTool(Tools.CharacterPivotTool);
+                if (tool != null && tool.isActive)
+                    SetSkeletonTool(Tools.EditPose);
+            }
+        }
+        
         private void RestorePose()
         {
             using (skinningCache.UndoScope(TextContent.restorePose))
@@ -65,9 +110,10 @@ namespace UnityEditor.U2D.Animation
             };            
         }
 
-        public void UpdatePreviewButtonCheckedState()
+        public void UpdateToggleState()
         {
             SetButtonChecked(m_PreviewBtn, skinningCache.GetTool(Tools.EditPose).isActive);
+            SetButtonChecked(m_PivotBtn, skinningCache.GetTool(Tools.CharacterPivotTool).isActive);
         }
 
         public void UpdateResetButtonState()
@@ -81,6 +127,7 @@ namespace UnityEditor.U2D.Animation
         {
             m_ShortcutUtility.AddShortcutToButtonTooltip(this, k_PreviewPoseId, ShortcutIds.previewPose);
             m_ShortcutUtility.AddShortcutToButtonTooltip(this, k_RestorePoseId, ShortcutIds.restoreBindPose);
+            m_ShortcutUtility.AddShortcutToButtonTooltip(this, k_CharacterPivotId, ShortcutIds.characterPivot);
         }        
     }
 }

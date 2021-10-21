@@ -85,6 +85,17 @@ namespace UnityEditor.U2D.Animation
                 sm.skinningCache.events.shortcut.Invoke("#q");
             }
         }
+        
+        [Shortcut(ShortcutIds.characterPivot, typeof(InternalEditorBridge.ShortcutContext), KeyCode.T, ShortcutModifiers.Shift)]
+        private static void EditCharacterPivotKey(ShortcutArguments args)
+        {
+            var sm = GetModuleFromContext(args);
+            if (sm != null && !sm.spriteEditor.editingDisabled && sm.skinningCache.mode == SkinningMode.Character)
+            {
+                sm.SetSkeletonTool(Tools.CharacterPivotTool);
+                sm.skinningCache.events.shortcut.Invoke("#t");
+            }
+        }
 
         [Shortcut(ShortcutIds.editBone, typeof(InternalEditorBridge.ShortcutContext), KeyCode.W, ShortcutModifiers.Shift)]
         private static void EditJointsKey(ShortcutArguments args)
@@ -310,9 +321,11 @@ namespace UnityEditor.U2D.Animation
         private void CreatePoseToolbar()
         {
             m_PoseToolbar = PoseToolbar.GenerateFromUXML();
-            m_PoseToolbar.skinningCache = skinningCache;
+            m_PoseToolbar.Setup(skinningCache);
             m_LayoutOverlay.verticalToolbar.AddToContainer(m_PoseToolbar);
             
+            m_PoseToolbar.SetMeshTool += SetMeshTool;
+            m_PoseToolbar.SetSkeletonTool += SetSkeletonTool;
             m_PoseToolbar.ActivateEditPoseTool += ActivateEditPoseTool;
             m_PoseToolbar.SetEnabled(!spriteEditor.editingDisabled);            
         }
@@ -458,7 +471,7 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(m_MeshToolbar != null);
             Debug.Assert(m_WeightToolbar != null);
 
-            m_PoseToolbar.UpdatePreviewButtonCheckedState();
+            m_PoseToolbar.UpdateToggleState();
             m_BoneToolbar.UpdateToggleState();
             m_MeshToolbar.UpdateToggleState();
             m_WeightToolbar.UpdateToggleState();

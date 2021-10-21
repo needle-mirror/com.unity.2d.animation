@@ -93,8 +93,8 @@ namespace UnityEditor.U2D.Animation
     {
         static internal class VisibilityIconStyle
         {
-            public static readonly GUIContent visibilityOnIcon  = new GUIContent(IconUtility.LoadIconResource("Visibility_Tool", IconUtility.k_LightIconResourcePath, IconUtility.k_DarkIconResourcePath), L10n.Tr("On"));
-            public static readonly GUIContent visibilityOffIcon = new GUIContent(IconUtility.LoadIconResource("Visibility_Hidded", IconUtility.k_LightIconResourcePath, IconUtility.k_DarkIconResourcePath), L10n.Tr("Off"));
+            public static readonly GUIContent visibilityOnIcon  = new GUIContent(EditorIconUtility.LoadIconResource("Visibility_Tool", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), L10n.Tr("On"));
+            public static readonly GUIContent visibilityOffIcon = new GUIContent(EditorIconUtility.LoadIconResource("Visibility_Hidded", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), L10n.Tr("Off"));
         }
 
 

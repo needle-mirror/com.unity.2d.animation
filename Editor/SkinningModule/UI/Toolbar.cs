@@ -39,7 +39,10 @@ namespace UnityEditor.U2D.Animation
             if (button.IsChecked() != check)
             {
                 if (check)
+                {
                     button.AddToClassList("Checked");
+                    button.Focus();
+                }
                 else
                     button.RemoveFromClassList("Checked");
                 button.SetChecked(check);

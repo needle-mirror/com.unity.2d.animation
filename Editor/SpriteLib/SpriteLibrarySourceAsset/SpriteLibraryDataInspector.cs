@@ -91,26 +91,26 @@ namespace UnityEditor.U2D.Animation
             m_LabelReorderableList.onCanRemoveCallback = OnCanRemoveCallback;
         }
 
-        public static void UpdateLibraryWithNewMainLibrary(SpriteLibraryAsset spriteLib, SerializedProperty library)
+        public static void UpdateLibraryWithNewMainLibrary(SpriteLibraryAsset newMainLibrary, SerializedProperty destLibrary)
         {
             var emptyStringArray = new string[0];
-            var categories = spriteLib != null ? spriteLib.GetCategoryNames() : emptyStringArray;
+            var newCategories = newMainLibrary != null ? newMainLibrary.GetCategoryNames().ToArray() : emptyStringArray;
             
             // populate new primary
-            int newCatgoryIndex = 0;
-            foreach (var newCategory in categories)
+            var newCategoryIndex = 0;
+            foreach (var newCategory in newCategories)
             {
                 SerializedProperty existingCategory = null;
-                if (library.arraySize > 0)
+                if (destLibrary.arraySize > 0)
                 {
-                    var cat = library.GetArrayElementAtIndex(0);
-                    for (int i = 0; i < library.arraySize; ++i)
+                    var cat = destLibrary.GetArrayElementAtIndex(0);
+                    for (int i = 0; i < destLibrary.arraySize; ++i)
                     {
                         if (cat.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue == newCategory)
                         {
                             existingCategory = cat;
-                            if(i != newCatgoryIndex)
-                                library.MoveArrayElement(i, newCatgoryIndex);
+                            if(i != newCategoryIndex)
+                                destLibrary.MoveArrayElement(i, newCategoryIndex);
                             break;
                         }
                         cat.Next(false);
@@ -124,16 +124,16 @@ namespace UnityEditor.U2D.Animation
                 }
                 else
                 {
-                    library.InsertArrayElementAtIndex(newCatgoryIndex);
-                    existingCategory = library.GetArrayElementAtIndex(newCatgoryIndex);
+                    destLibrary.InsertArrayElementAtIndex(newCategoryIndex);
+                    existingCategory = destLibrary.GetArrayElementAtIndex(newCategoryIndex);
                     SetPropertyName(existingCategory, newCategory);
                     existingCategory.FindPropertyRelative(SpriteLibraryPropertyString.fromMain).boolValue = true;
                     existingCategory.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntryCount).intValue = 0;
                     existingCategory.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries).arraySize = 0;
                 }
-                newCatgoryIndex++;
+                newCategoryIndex++;
                 
-                var newEntries = spriteLib.GetCategoryLabelNames(newCategory);
+                var newEntries = newMainLibrary.GetCategoryLabelNames(newCategory);
                 var entries = existingCategory.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries);
                 int newEntryIndex = 0;
                 foreach (var newEntry in newEntries)
@@ -154,7 +154,7 @@ namespace UnityEditor.U2D.Animation
                             ent.Next(false);
                         }
                     }
-                    var mainSprite = spriteLib.GetSprite(newCategory, newEntry);
+                    var mainSprite = newMainLibrary.GetSprite(newCategory, newEntry);
                     if (cacheEntry == null)
                     {
                         entries.InsertArrayElementAtIndex(newEntryIndex);
@@ -173,15 +173,15 @@ namespace UnityEditor.U2D.Animation
             }
                 
             // Remove any library or entry that is not in primary and not overridden
-            for (int i = 0; i < library.arraySize; ++i)
+            for (var i = 0; i < destLibrary.arraySize; ++i)
             {
-                var categoryProperty = library.GetArrayElementAtIndex(i);
+                var categoryProperty = destLibrary.GetArrayElementAtIndex(i);
                 var categoryEntriesProperty = categoryProperty.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries);
                 var categoryFromMainProperty = categoryProperty.FindPropertyRelative(SpriteLibraryPropertyString.fromMain);
                 
                 var categoryName = categoryProperty.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
-                var categoryInPrimary = categories.Contains(categoryName);
-                var entriesInPrimary = categoryInPrimary ? spriteLib.GetCategoryLabelNames(categoryName) : emptyStringArray;
+                var categoryInPrimary = newCategories.Contains(categoryName);
+                var entriesInPrimary = categoryInPrimary ? newMainLibrary.GetCategoryLabelNames(categoryName) : emptyStringArray;
 
                 var categoryOverride = 0;
                 for (int j = 0; j < categoryEntriesProperty.arraySize; ++j)
@@ -224,7 +224,7 @@ namespace UnityEditor.U2D.Animation
 
                 if (!categoryInPrimary && categoryEntriesProperty.arraySize == 0 && categoryFromMainProperty.boolValue)
                 {
-                    library.DeleteArrayElementAtIndex(i);
+                    destLibrary.DeleteArrayElementAtIndex(i);
                     --i;
                     continue;
                 }
@@ -302,12 +302,12 @@ namespace UnityEditor.U2D.Animation
         {
             if (m_Library.arraySize == 0)
                 return null;
-            var nameHash = SpriteLibraryAsset.GetStringHash(name);
+            var nameHash = SpriteLibraryUtility.GetStringHash(name);
             var sp = m_Library.GetArrayElementAtIndex(0);
             for (int i = 0; i < m_Library.arraySize; ++i)
             {
                 var nameProperty = sp.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
-                var hash = SpriteLibraryAsset.GetStringHash(nameProperty);
+                var hash = SpriteLibraryUtility.GetStringHash(nameProperty);
                 if (nameProperty == name || nameHash == hash)
                     return sp;
                 sp.Next(false);
@@ -329,6 +329,11 @@ namespace UnityEditor.U2D.Animation
         static bool IsGUIRectVisible(Rect guiRect)
         {
             var screenRect = GUIUtility.GUIToScreenRect(guiRect);
+            
+            var mainWindowPosition = EditorGUIUtility.GetMainWindowPosition();
+            screenRect.x -= mainWindowPosition.x;
+            screenRect.y -= mainWindowPosition.y;
+
             var halfHeight = screenRect.height / 2f;
             return screenRect.y > -halfHeight && screenRect.y < ((Screen.height / EditorGUIUtility.pixelsPerPoint) + halfHeight);
         }
@@ -632,12 +637,12 @@ namespace UnityEditor.U2D.Animation
             if (spriteList.arraySize == 0)
                 return false;
             var sp = spriteList.GetArrayElementAtIndex(0);
-            var nameHash = SpriteLibraryAsset.GetStringHash(name);
+            var nameHash = SpriteLibraryUtility.GetStringHash(name);
             int count = 0;
             for (int i = 0; i < spriteList.arraySize; ++i, sp.Next(false))
             {
                 var stringValue = sp.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
-                var hash = SpriteLibraryAsset.GetStringHash(stringValue);
+                var hash = SpriteLibraryUtility.GetStringHash(stringValue);
                 if (stringValue == name || hash == nameHash)
                 {
                     ++count;
@@ -723,7 +728,7 @@ namespace UnityEditor.U2D.Animation
         static void SetPropertyName(SerializedProperty sp, string newName)
         {
             sp.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = newName;
-            sp.FindPropertyRelative(SpriteLibraryPropertyString.hash).intValue = SpriteLibraryAsset.GetStringHash(newName);
+            sp.FindPropertyRelative(SpriteLibraryPropertyString.hash).intValue = SpriteLibraryUtility.GetStringHash(newName);
         }
         
         bool OnCanRemoveCallback(ReorderableList list)

@@ -9,7 +9,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenu("Chain (FABRIK)")]
-    public class FabrikSolver2D : Solver2D
+    public sealed class FabrikSolver2D : Solver2D
     {
         private const float kMinTolerance = 0.001f;
         private const int kMinIterations = 1;

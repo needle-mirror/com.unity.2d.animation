@@ -2,7 +2,7 @@
 
 This sample shows a simple single Sprite rigged actor, which was imported with its **Texture Type** set to Sprite (2D and UI) and **Sprite Mode** set to Single. The Project and Assets can be found in the following location (the version number folder may differ):
 
-![](images/2D-animation-samples-simple-import.png)<br/>Sample project location in the Project window (for 2D Animation 6.0).
+![](images/2D-animation-samples-simple-import.png)<br/>Sample project location in the Project window (for 2D Animation 8.0).
 
 Open the Asset `Assets/Samples/2D Animation/[X.Y.Z]/Samples/1 Simple/Sprites/Boris.png` in the [Skinning Editor](SkinningEditor.md) module to examine how the Sprite is rigged.
 

@@ -1,18 +1,46 @@
 # Changelog
 
-## [7.0.1] - 2021-09-21
-### Fixed
-- Fixed render texture size error in the Skinning Editor. (1357814)
-- Fixed a case where quads generated in the Skinning Editor would be created with the wrong size and position. (case 1361500)
-- Fixed an issue where IK Solvers would not be updated when previewing an animation clip. (1364307)
-- Fixed an issue where copying mesh and bone data from a .psb containing a single sprite would throw an exception. (case 1364619)
-- Fixed an issue where an error would show up when destroying a Sprite Skin component while deep profling. (case 1364916)
+## [8.0.0-pre.3] - 2021-10-21
+### Changed
+- Update to latest com.unity.2d.common package
 
-## [7.0.0] - 2021-08-10
+## [8.0.0-pre.2] - 2021-10-11
+### Changed
+- Sprite Library Asset are now named "New Sprite Library Asset.spriteLib" by default on creation.
+- Updated Toolbar and Visibility tab buttons' selection color.
+
 ### Fixed
-- Bone and Sprite influence lists are displayed correctly (case 1349041)
-- Exception thrown when manually adding vertices in the Skinning Editor to a Sprite w/o mesh. (case 1348202)
-- Sprite outline in the Skinning Editor is now rendered based on Sprite's geometry. (case 1354798)
+- Sprite selection actions now work with Undo. (case 1367257)
+- Fixed an issue where removing an edge in the Skinning editor would result in the mesh falling back to a quad. (case 1365831)
+- Quads are now generated at correct positions after removing all vertices from Sprite meshes. (case 1366633)
+
+## [8.0.0-pre.1] - 2021-08-06
+### Added
+- Added an asset upgrading tool, which can upgrade older Sprite Library Assets and Animation Clips to the latest version.
+
+### Changed
+- SpriteResolver.SetCategoryAndLabel and SpriteResolver.ResolveSpriteToSpriteRenderer now returns a bool to signal if the methods managed to resolve the request or not.
+- Orientation function being replaced with a simpler version.
+
+### Fixed
+- Thumbnails in Sprite Library Asset flicker when the Library Asset contains many Categories and Labels. (case 1333228)
+- SpriteLibraryAsset Category & Label does not generate hash in Inspector. (case 1340587)
+- SpriteResolver inspector selects first element when failing to resolve. (case 1340070)
+- IKManager2D does not detect classes inheriting from Solver2D. (case 1343260)
+- Skinning Editor tooltips updated.
+- Bone and Sprite influence lists are displayed correctly. (case 1349041)
+- Sprite Library Assets are now being cached properly. (case 1347339)
+- Sprite outline in the Skinning Editor is now rendered based on Sprite's geometry. (case 1335586)
+- Animation Preview windows can now show Sprite deformation, Sprite Swapping and IK controlled movement.
+- Removed the need to set Broken and Constant tangent on each key when animating a SpriteResolver.
+- Fixed render texture size error in the Skinning Editor. (case 1357552)
+- Skinning Editor toolbar buttons now focus on hoykey presses. (case 1358714)
+- Fixed an issue where opening certain .psb files would result in errors. (case 1358972)
+- Fixed a case where quads generated in the Skinning Editor would be created with the wrong size and position. (case 1361053)
+- Fixed an issue where variant Sprite Libraries would not display its main library content. (case 1362389)
+- Fixed an issue where IK Solvers would not be updated when previewing an animation clip. (1354389)
+- Fixed an issue where copying mesh and bone data from a .psb containing a single sprite would throw an exception. (case 1351543)
+- Fixed an issue where an error would show up when destroying a Sprite Skin component while deep profling. (case 1364910)
 
 ## [7.0.0-pre.3] - 2021-07-05
 ### Fixed
@@ -43,71 +71,71 @@
 
 ## [6.0.0] - 2021-03-17
 ### Changed
-- Update version for release
+- Update version for release.
 
 ## [6.0.0-pre.3] - 2021-03-15
 ### Changed
-- Updated manual
+- Updated manual.
 
 ### Fixed
-- Deleting bones from a skeleton referenced by another character sometimes throws IndexOutOfRangeException (case 1304768)
+- Deleting bones from a skeleton referenced by another character sometimes throws IndexOutOfRangeException. (case 1304768)
 
 ## [6.0.0-pre.2] - 2021-01-16
 ### Changed
-- Update license file
+- Update license file.
 
 ### Added
-- Initial documentation update for new features for 6.0.0
+- Initial documentation update for new features for 6.0.0.
 
 ### Fixed
-- SpriteResolver resets to the current Sprite from SpriteRenderer if exist in Sprite Library
+- SpriteResolver resets to the current Sprite from SpriteRenderer if exist in Sprite Library.
 
 ## [6.0.0-pre.1] - 2020-11-02
 ### Changed
-- Sprite Swap related features moved out of experimental namespace
-- Removed editing of Sprite Swap feature in Skinning Module
-- Updated Sprite Swap workflow focusing on Project Window and Inspector
-- Sprite Library Asset is created via AssetImporter
+- Sprite Swap related features moved out of experimental namespace.
+- Removed editing of Sprite Swap feature in Skinning Module.
+- Updated Sprite Swap workflow focusing on Project Window and Inspector.
+- Sprite Library Asset is created via AssetImporter.
 
 ### Added
-- Sprite Library Asset supports variant
-- Sprite Library supports override during editing
-- Supports sharing of bone structures in Skinning Module
-- Added position, rotation and bone color editing in Skinning Module
+- Sprite Library Asset supports variant.
+- Sprite Library supports override during editing.
+- Supports sharing of bone structures in Skinning Module.
+- Added position, rotation and bone color editing in Skinning Module.
 
 ### Fixed
-- Added missing tooltips in the Sprite Skin inspector (case 1285255)
+- Added missing tooltips in the Sprite Skin inspector. (case 1285255)
 
 ## [5.0.3] - 2020-10-15
 ### Fixed
-- Fixed Sprite with no animation data is being processed during AssetPostProcessor
-- Fixed properties under the Sprite Library Asset overlapping in inspector (case 1280017)
-- Fixed vertical slider handle is not aligned and placed slightly to the right side in the Bone Influence window (case 1260568)
+- Fixed Sprite with no animation data is being processed during AssetPostProcessor.
+- Fixed properties under the Sprite Library Asset overlapping in inspector. (case 1280017)
+- Fixed vertical slider handle is not aligned and placed slightly to the right side in the Bone Influence window. (case 1260568)
 
 ## [5.0.2] - 2020-08-31
 ### Fixed
-- Fixed Visibility window overlaps with weights and geometry window when Sprite Editor Window resizes (case 1263353)
-- Fixed 'Depth' column label gets clipped in Visibility Tool Window (case 1257991)
-- Fixed 'Invalid worldAABB' error message when repeatedly pressing Pack Preview button (case 1270150)
-- Fixed Null reference exception when changing values of a material while recording animation with Skinning Module enabled (case 1267300)
-- Improved memory and speed of Animation SpritePostProcess for large sprite count
+- Fixed Visibility window overlaps with weights and geometry window when Sprite Editor Window resizes. (case 1263353)
+- Fixed 'Depth' column label gets clipped in Visibility Tool Window. (case 1257991)
+- Fixed 'Invalid worldAABB' error message when repeatedly pressing Pack Preview button. (case 1270150)
+- Fixed Null reference exception when changing values of a material while recording animation with Skinning Module enabled. (case 1267300)
+- Improved memory and speed of Animation SpritePostProcess for large sprite count.
 
 ## [5.0.1] - 2020-07-24
 ### Fixed
-- Fixed Skinning module flickers when creating in category in Visibility Window (case 1244097)
-- Fixed NullReferenceException when creating Preset for SpriteSkin component (case 1254873)
-- Updated optional dependency support for Collections to 0.9.0-preview.6 and Burst 1.3.3 (case 1255839)
+- Fixed Skinning module flickers when creating in category in Visibility Window. (case 1244097)
+- Fixed NullReferenceException when creating Preset for SpriteSkin component. (case 1254873)
+- Updated optional dependency support for Collections to 0.9.0-preview.6 and Burst 1.3.3. (case 1255839)
 
 ## [5.0.0] - 2020-05-11
 ### Changed
-- Version bump for Unity 2020.2
+- Version bump for Unity 2020.2.
 
 ### Added
-- Combined 2D IK package with 2D Animation package
+- Combined 2D IK package with 2D Animation package.
 
 ### Fixed
-- Remove unused XR dependency (case 1249390) 
-- Fixed NullReferenceException when creating prefab with SpriteSkin component (case 1245149)
+- Remove unused XR dependency. (case 1249390) 
+- Fixed NullReferenceException when creating prefab with SpriteSkin component. (case 1245149)
 
 ## [4.2.4] - 2020-05-19
 ### Fixed

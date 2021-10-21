@@ -8,7 +8,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenuAttribute("Limb")]
-    public class LimbSolver2D : Solver2D
+    public sealed class LimbSolver2D : Solver2D
     {
         [SerializeField]
         private IKChain2D m_Chain = new IKChain2D();

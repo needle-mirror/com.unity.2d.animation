@@ -220,6 +220,7 @@ namespace UnityEditor.U2D.Animation
             m_ToolMap.Add(Tools.CreateBone, CreateSkeletonTool<SkeletonToolWrapper>(skeletonTool, SkeletonMode.CreateBone, true, layoutOverlay));
             m_ToolMap.Add(Tools.SplitBone, CreateSkeletonTool<SkeletonToolWrapper>(skeletonTool, SkeletonMode.SplitBone, true, layoutOverlay));
             m_ToolMap.Add(Tools.ReparentBone, CreateSkeletonTool<BoneReparentTool>(skeletonTool, SkeletonMode.EditPose, false, layoutOverlay));
+            m_ToolMap.Add(Tools.CharacterPivotTool, CreateSkeletonTool<PivotTool>(skeletonTool, SkeletonMode.Disabled, false, layoutOverlay));
 
             m_ToolMap.Add(Tools.EditGeometry, CreateMeshTool<MeshToolWrapper>(skeletonTool, meshTool, SpriteMeshViewMode.EditGeometry, SkeletonMode.Disabled, layoutOverlay));
             m_ToolMap.Add(Tools.CreateVertex, CreateMeshTool<MeshToolWrapper>(skeletonTool, meshTool, SpriteMeshViewMode.CreateVertex, SkeletonMode.Disabled, layoutOverlay));
@@ -851,9 +852,6 @@ namespace UnityEditor.U2D.Animation
             vertices = smd.vertices;
             indices = smd.indices;
             edges = smd.edges;
-            
-            foreach (var vertex in vertices)
-                vertex.position -= sprite.textureRect.position;
         }
 
         private void CreateMeshPreviewCache(SpriteCache sprite)
@@ -929,6 +927,7 @@ namespace UnityEditor.U2D.Animation
                 m_Character.parts = characterParts.ToArray();
                 m_Character.skeleton = skeleton;
                 m_Character.dimension = characterData.dimension;
+                m_Character.pivot = characterData.pivot;
                 CreateSpriteSheetSkeletons();
             }
         }

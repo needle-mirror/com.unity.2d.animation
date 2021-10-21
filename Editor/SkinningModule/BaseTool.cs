@@ -47,8 +47,8 @@ namespace UnityEditor.U2D.Animation
 
         public void Deactivate()
         {
-            isActive = false;
             OnDeactivate();
+            isActive = false;
         }
 
         public void DoGUI()

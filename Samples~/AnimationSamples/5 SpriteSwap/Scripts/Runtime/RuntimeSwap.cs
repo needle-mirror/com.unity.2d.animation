@@ -1,11 +1,10 @@
 using System;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
-using UnityEngine.UI;
 
 namespace Unity.U2D.Animation.Sample
 {
-    public class RuntimeSwap : MonoBehaviour
+    internal class RuntimeSwap : MonoBehaviour
     {
         [Serializable]
         class SwapEntry
@@ -22,10 +21,10 @@ namespace Unity.U2D.Animation.Sample
         }
 
         [SerializeField]
-        private SwapGroup[] m_SwapGroup = null;
+        SwapGroup[] m_SwapGroup = null;
 
         [SerializeField]
-        private SpriteLibrary m_SpriteLibraryTarget = null;
+        SpriteLibrary m_SpriteLibraryTarget = null;
         
         public void OverrideEntry(int i)
         {

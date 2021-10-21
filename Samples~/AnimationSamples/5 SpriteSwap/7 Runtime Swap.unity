@@ -771,6 +771,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -1995,6 +1996,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
@@ -2671,6 +2673,7 @@ MonoBehaviour:
   m_CategoryHash: 0
   m_labelHash: 0
   m_SpriteKey: 0.18597205
+  m_SpriteHash: 1044279157
 --- !u!114 &811768366104121203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2685,7 +2688,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: 7.738742e+35
+  m_SpriteKey: 0.002274212
+  m_SpriteHash: 991234802
 --- !u!114 &1171306243024823563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2732,7 +2736,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -7.482884e+25
+  m_SpriteKey: 2.199022e-13
+  m_SpriteHash: 712480382
 --- !u!1 &1424179285087368485
 GameObject:
   m_ObjectHideFlags: 0
@@ -2795,7 +2800,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -5.202357e-33
+  m_SpriteKey: 5.202357e-33
+  m_SpriteHash: 165157107
 --- !u!114 &2264017032020410422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2860,6 +2866,7 @@ MonoBehaviour:
   m_CategoryHash: 0
   m_labelHash: 0
   m_SpriteKey: 3.8692852e-22
+  m_SpriteHash: 468312650
 --- !u!1 &2858923031151958222
 GameObject:
   m_ObjectHideFlags: 0
@@ -2922,7 +2929,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -605.82587
+  m_SpriteKey: 1.7803622e-36
+  m_SpriteHash: 68646107
 --- !u!4 &3988663305358647776
 Transform:
   m_ObjectHideFlags: 0
@@ -3031,7 +3039,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -4.3557156e+30
+  m_SpriteKey: 0.000000012800298
+  m_SpriteHash: 844884046
 --- !u!114 &4836761953437800302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3046,7 +3055,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: 53488244
+  m_SpriteKey: 1.5718782e-31
+  m_SpriteHash: 206310045
 --- !u!114 &4864899355922184709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5186,7 +5196,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -4.7866965e-37
+  m_SpriteKey: 4.7866965e-37
+  m_SpriteHash: 52617730
 --- !u!114 &5973445518855528510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5201,7 +5212,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -1.4887464e+38
+  m_SpriteKey: 0.43750325
+  m_SpriteHash: 1054867565
 --- !u!1 &6170464629085511512
 GameObject:
   m_ObjectHideFlags: 0
@@ -5234,6 +5246,7 @@ MonoBehaviour:
   m_CategoryHash: 0
   m_labelHash: 0
   m_SpriteKey: 1.385471e-19
+  m_SpriteHash: 539201867
 --- !u!114 &6502464518755497510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5248,7 +5261,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: 2.2714625e+23
+  m_SpriteKey: 6.6752284e-16
+  m_SpriteHash: 641754750
 --- !u!114 &6582000042367464830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5263,7 +5277,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -0.0013826926
+  m_SpriteKey: 0.0013826926
+  m_SpriteHash: 984955767
 --- !u!114 &6617688483650275372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5278,7 +5293,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -4.389738e-35
+  m_SpriteKey: 4.389738e-35
+  m_SpriteHash: 107570692
 --- !u!1 &6730146710320774602
 GameObject:
   m_ObjectHideFlags: 0
@@ -5329,7 +5345,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &6883694155862080461
 Animator:
-  serializedVersion: 3
+  serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -5337,11 +5353,12 @@ Animator:
   m_GameObject: {fileID: 1213889495}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0494a7441760c4c00a1b00115f4bdd49, type: 2}
+  m_Controller: {fileID: 9100000, guid: e1b27688b691f493585f08953e3fc05d, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -5392,6 +5409,7 @@ MonoBehaviour:
   m_CategoryHash: 0
   m_labelHash: 0
   m_SpriteKey: 3.611792e-33
+  m_SpriteHash: 160827177
 --- !u!114 &7191084615357514808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5406,7 +5424,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -6.1590044e-26
+  m_SpriteKey: 6.1590044e-26
+  m_SpriteHash: 362315092
 --- !u!114 &7290595003996928792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5421,7 +5440,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -2.500927e-24
+  m_SpriteKey: 2.500927e-24
+  m_SpriteHash: 406945782
 --- !u!4 &7309340356009887924
 Transform:
   m_ObjectHideFlags: 0
@@ -5467,7 +5487,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: -7.9419974e+27
+  m_SpriteKey: 2.3339433e-11
+  m_SpriteHash: 768428987
 --- !u!4 &7941976229650841909
 Transform:
   m_ObjectHideFlags: 0
@@ -5545,7 +5566,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Library: []
-  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: d2e71424ccdb6499ba0866d77095d62f,
+  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: aaca83fdf979343d3914442525d9619b,
     type: 3}
 --- !u!1 &8844590059785843584
 GameObject:
@@ -5625,7 +5646,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CategoryHash: 0
   m_labelHash: 0
-  m_SpriteKey: 1.713142e+9
+  m_SpriteKey: 5.034472e-30
+  m_SpriteHash: 248264946
 --- !u!4 &9207462783154466054
 Transform:
   m_ObjectHideFlags: 0

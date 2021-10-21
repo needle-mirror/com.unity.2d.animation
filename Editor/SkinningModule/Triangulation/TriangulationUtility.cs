@@ -18,8 +18,32 @@ namespace UnityEditor.U2D.Animation
 #if ENABLE_ANIMATION_BURST
         [BurstCompile(FloatPrecision = FloatPrecision.Standard, FloatMode = FloatMode.Fast)]
 #endif
+        private static unsafe int ValidateCollinear(float2* points, int pointCount)
+        {
+            if (pointCount < 3)
+                return 0;
+            
+            for (int i = 0; i < pointCount - 2; ++i)
+            {
+                double2 a = points[i];
+                double2 b = points[i + 1];
+                double2 c = points[i + 2];
+
+                double x = (b.y - a.y) / (b.x - a.x);
+                double y = (c.y - a.y) / (c.x - a.x);
+                if ((!math.isinf(x) || !math.isinf(y)) && math.abs(x - y) > 0.001f)
+                    return 1;
+            }
+
+            return 0;
+        }
+        
+#if ENABLE_ANIMATION_BURST
+        [BurstCompile(FloatPrecision = FloatPrecision.Standard, FloatMode = FloatMode.Fast)]
+#endif
         private static unsafe void TessellateBurst(Allocator allocator, float2* points, int pointCount, int2* edges, int edgeCount, float2* outVertices, int* outIndices, int2* outEdges, int arrayCount, int3* result)
         {
+
             NativeArray<int2> _edges = new NativeArray<int2>(edgeCount, allocator);
             for (int i = 0; i < _edges.Length; ++i)
                 _edges[i] = edges[i];
@@ -36,7 +60,9 @@ namespace UnityEditor.U2D.Animation
             int outIndexCount = 0;
             int outVertexCount = 0;
             
-            ModuleHandle.Tessellate(allocator, _points, _edges, ref _outVertices, ref outVertexCount, ref _outIndices, ref outIndexCount, ref _outEdges, ref outEdgeCount);
+            var check = ValidateCollinear((float2*)_points.GetUnsafeReadOnlyPtr(), pointCount);
+            if (0 != check)
+                ModuleHandle.Tessellate(allocator, _points, _edges, ref _outVertices, ref outVertexCount, ref _outIndices, ref outIndexCount, ref _outEdges, ref outEdgeCount);
             
             for (int i = 0; i < outEdgeCount; ++i)
                 outEdges[i] = _outEdges[i];
@@ -98,6 +124,13 @@ namespace UnityEditor.U2D.Animation
 
         private static bool TessellateSafe(NativeArray<float2> points, NativeArray<int2> edges, ref NativeArray<float2> outVertices, ref int outVertexCount, ref NativeArray<int> outIndices, ref int outIndexCount, ref NativeArray<int2> outEdges, ref int outEdgeCount)
         {
+            unsafe
+            {
+                var check = ValidateCollinear((float2*)points.GetUnsafeReadOnlyPtr(), points.Length);
+                if (0 == check)
+                    return false;                
+            }
+            
             try
             {
                 ModuleHandle.Tessellate(Allocator.Persistent, points, edges, ref outVertices, ref outVertexCount, ref outIndices, ref outIndexCount, ref outEdges, ref outEdgeCount);

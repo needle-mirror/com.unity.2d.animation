@@ -152,9 +152,6 @@ namespace UnityEditor.U2D.Animation
                 var largestAreaFactor = subdivide != 0 ? Mathf.Lerp(0.5f, 0.05f, Math.Min(subdivide, 100f) / 100f) : subdivide;
                 m_SpriteMeshDataController.Subdivide(m_Triangulator, largestAreaFactor, 0f);
             }
-
-            foreach (var vertex in mesh.vertices)
-                vertex.position -= sprite.textureRect.position;
         }
 
         private void GenerateWeights(SpriteCache sprite)

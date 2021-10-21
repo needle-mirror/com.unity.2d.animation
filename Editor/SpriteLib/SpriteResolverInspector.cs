@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.U2D.Animation;
+using UnityEngine.U2D.Common;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -27,6 +28,7 @@ namespace UnityEditor.U2D.Animation
             public Sprite[] sprites;
         }
 
+        SerializedProperty m_SpriteHash;
         SerializedProperty m_SpriteKey;
         SerializedProperty m_LabelHash;
         SerializedProperty m_CategoryHash;
@@ -43,6 +45,7 @@ namespace UnityEditor.U2D.Animation
 
         public void OnEnable()
         {
+            m_SpriteHash = serializedObject.FindProperty("m_SpriteHash");
             m_SpriteKey = serializedObject.FindProperty("m_SpriteKey");
             m_LabelHash = serializedObject.FindProperty("m_labelHash");
             m_CategoryHash = serializedObject.FindProperty("m_CategoryHash");
@@ -68,14 +71,21 @@ namespace UnityEditor.U2D.Animation
             var spriteLib = spriteResolver.spriteLibrary;
             if (spriteLib != null)
             {
-                int entryHash = SpriteResolver.ConvertFloatToInt(m_SpriteKey.floatValue);
+                var entryHash = m_SpriteHash.intValue;
                 spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
+                
                 if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName))
                 {
-                    int labelHash = SpriteResolver.ConvertFloatToInt(m_LabelHash.floatValue);
-                    int categoryHash = SpriteResolver.ConvertFloatToInt(m_CategoryHash.floatValue);
-                    m_SpriteKey.floatValue = SpriteResolver.ConvertCategoryLabelHashToSpriteKey(spriteLib, categoryHash, labelHash);
-                    entryHash = SpriteResolver.ConvertFloatToInt(m_SpriteKey.floatValue);
+                    m_SpriteHash.intValue = InternalEngineBridge.ConvertFloatToInt(m_SpriteKey.floatValue);
+                    entryHash = m_SpriteHash.intValue;
+                    spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
+                }
+                if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName))
+                {
+                    var labelHash = InternalEngineBridge.ConvertFloatToInt(m_LabelHash.floatValue);
+                    var categoryHash = InternalEngineBridge.ConvertFloatToInt(m_CategoryHash.floatValue);
+                    m_SpriteHash.intValue = SpriteResolver.ConvertCategoryLabelHashToSpriteKey(spriteLib, categoryHash, labelHash);
+                    entryHash = m_SpriteHash.intValue;
                     spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
                 }
             }
@@ -213,7 +223,7 @@ namespace UnityEditor.U2D.Animation
                     }
                 }
 
-                m_SpriteKey.floatValue = SpriteResolver.ConvertIntToFloat(SpriteLibrary.GetHashForCategoryAndEntry(currentCategoryValue, currentLabelValue));
+                m_SpriteHash.intValue = SpriteLibrary.GetHashForCategoryAndEntry(currentCategoryValue, currentLabelValue);
                 ApplyModifiedProperty();
 
                 var sf = target as SpriteResolver;

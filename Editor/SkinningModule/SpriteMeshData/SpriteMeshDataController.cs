@@ -148,7 +148,7 @@ namespace UnityEditor.U2D.Animation
 
         public void CreateQuad()
         {
-            var frame = spriteMeshData.frame;
+            var frame = new Rect(Vector2.zero,  spriteMeshData.frame.size);
             var verts = new Vector2[]
             {
                 new Vector2(frame.xMin, frame.yMin),
@@ -280,7 +280,7 @@ namespace UnityEditor.U2D.Animation
 
             Vector2 scale = new Vector2(textureDataProvider.texture.width / (float)width, textureDataProvider.texture.height / (float)height);
             Vector2 scaleInv = new Vector2(1f / scale.x, 1f / scale.y);
-            Vector2 rectOffset = spriteMeshData.frame.size * 0.5f + spriteMeshData.frame.position;
+            Vector2 rectOffset = spriteMeshData.frame.size * 0.5f;
 
             Rect scaledRect = spriteMeshData.frame;
             scaledRect.min = Vector2.Scale(scaledRect.min, scale);

@@ -41,6 +41,7 @@ namespace UnityEditor.U2D.Animation
         private ShortcutEvent m_ShortcutEvent = new ShortcutEvent();
         private BoneVisibilityEvent m_BoneVisibilityEvent = new BoneVisibilityEvent();
         private MeshPreviewBehaviourChangeEvent m_MeshPreviewBehaviourChange = new MeshPreviewBehaviourChangeEvent();
+        private UnityEvent m_PivotChanged = new UnityEvent();
 
         //Setting them as virtual so that we can create mock them
         public virtual SpriteEvent selectedSpriteChanged { get { return m_SelectedSpriteChanged; } }
@@ -62,5 +63,6 @@ namespace UnityEditor.U2D.Animation
         public virtual ShortcutEvent shortcut { get { return m_ShortcutEvent; } }
         public virtual BoneVisibilityEvent boneVisibility { get { return m_BoneVisibilityEvent; } }
         public virtual MeshPreviewBehaviourChangeEvent meshPreviewBehaviourChange { get { return m_MeshPreviewBehaviourChange; } }
+        public virtual UnityEvent pivotChange => m_PivotChanged;
     }
 }

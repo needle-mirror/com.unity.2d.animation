@@ -5,10 +5,11 @@
 using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.Animation
 {
-    public sealed  partial class SpriteSkin : MonoBehaviour
+    public sealed  partial class SpriteSkin : MonoBehaviour, IPreviewable
 #if ENABLE_SPRITESKIN_COMPOSITE
     {
         int m_TransformId;

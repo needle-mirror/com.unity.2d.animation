@@ -1,5 +1,6 @@
 # Sample projects
 Sample projects are available for import from the Package Manger under **Samples**, which demonstrate the different ways you can use the features in the 2D Animation package to achieve a variety of effects and outcomes.
+
 ![](images/sample-import-button.png)<br/>Select **Import** to download and install the Sample projects and Assets.
 
 Each Sample project contain specific examples with ready-made Assets, demonstrating a certain way you can use the 2D Animation package's features and the results and outcomes you can achieve with them.

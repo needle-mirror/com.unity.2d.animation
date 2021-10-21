@@ -87,7 +87,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 0, y: 0}
   mosaicSpriteImportData: []
   rigSpriteImportData:
@@ -110,7 +109,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 559, y: -516}
   - name: arm L
     originalName: 
@@ -131,7 +129,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 262, y: 300}
   - name: hand L bottom
     originalName: 
@@ -152,7 +149,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 557, y: -325}
   - name: hair front
     originalName: 
@@ -173,7 +169,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -259, y: -573}
   - name: mouth open
     originalName: 
@@ -194,7 +189,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -336, y: 328}
   - name: mouth teeth
     originalName: 
@@ -215,7 +209,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 469, y: -530}
   - name: mouth normal
     originalName: 
@@ -236,7 +229,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 469, y: -551}
   - name: eye R closed
     originalName: 
@@ -257,7 +249,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 475, y: -706}
   - name: eye R open
     originalName: 
@@ -278,7 +269,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 387, y: -537}
   - name: eye L closed
     originalName: 
@@ -299,7 +289,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 443, y: -579}
   - name: eye L open
     originalName: 
@@ -320,7 +309,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -316, y: 159}
   - name: head
     originalName: 
@@ -341,7 +329,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -406, y: 116}
   - name: neck element
     originalName: 
@@ -362,7 +349,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -380, y: 351}
   - name: coat front
     originalName: 
@@ -383,7 +369,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 230, y: -18}
   - name: neck
     originalName: 
@@ -404,7 +389,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -299, y: 161}
   - name: torso
     originalName: 
@@ -425,7 +409,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -164, y: 122}
   - name: leg L
     originalName: 
@@ -446,7 +429,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 53, y: 170}
   - name: leg R
     originalName: 
@@ -467,7 +449,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -31, y: 555}
   - name: coat back
     originalName: 
@@ -488,7 +469,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -362, y: 115}
   - name: shoulder plate R
     originalName: 
@@ -509,7 +489,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -357, y: 357}
   - name: hand R top
     originalName: 
@@ -530,7 +509,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 64, y: 618}
   - name: arm R
     originalName: 
@@ -551,7 +529,6 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 207, y: -80}
   - name: hair back
     originalName: 
@@ -572,13 +549,13 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 191, y: -583}
   characterData:
     bones: []
     parts: []
     dimension: {x: 0, y: 0}
     characterGroups: []
+    pivot: {x: 0, y: 0}
     boneReadOnly: 0
   sharedRigSpriteImportData:
   - name: shoulder plate L
@@ -783,7 +760,6 @@ ScriptedImporter:
     - {x: 12, y: 13}
     - {x: 8, y: 9}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 559, y: -516}
   - name: arm L
     originalName: 
@@ -1226,7 +1202,6 @@ ScriptedImporter:
     - {x: 8, y: 34}
     - {x: 9, y: 34}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 262, y: 300}
   - name: hand L bottom
     originalName: 
@@ -1377,7 +1352,6 @@ ScriptedImporter:
     - {x: 2, y: 10}
     - {x: 3, y: 10}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 557, y: -325}
   - name: hair front
     originalName: 
@@ -1957,7 +1931,6 @@ ScriptedImporter:
     - {x: 7, y: 49}
     - {x: 48, y: 49}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -259, y: -573}
   - name: mouth open
     originalName: 
@@ -2097,7 +2070,6 @@ ScriptedImporter:
     - {x: 5, y: 6}
     - {x: 2, y: 3}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -336, y: 328}
   - name: mouth teeth
     originalName: 
@@ -2226,7 +2198,6 @@ ScriptedImporter:
     - {x: 8, y: 0}
     - {x: 4, y: 3}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 469, y: -530}
   - name: mouth normal
     originalName: 
@@ -2366,7 +2337,6 @@ ScriptedImporter:
     - {x: 1, y: 2}
     - {x: 3, y: 4}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 469, y: -551}
   - name: eye R closed
     originalName: 
@@ -2539,7 +2509,6 @@ ScriptedImporter:
     - {x: 8, y: 9}
     - {x: 7, y: 8}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 475, y: -706}
   - name: eye R open
     originalName: 
@@ -2778,7 +2747,6 @@ ScriptedImporter:
     - {x: 1, y: 2}
     - {x: 3, y: 4}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 387, y: -537}
   - name: eye L closed
     originalName: 
@@ -3017,7 +2985,6 @@ ScriptedImporter:
     - {x: 8, y: 9}
     - {x: 7, y: 8}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 443, y: -579}
   - name: eye L open
     originalName: 
@@ -3267,7 +3234,6 @@ ScriptedImporter:
     - {x: 18, y: 19}
     - {x: 0, y: 19}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -316, y: 159}
   - name: head
     originalName: 
@@ -3528,7 +3494,6 @@ ScriptedImporter:
     - {x: 10, y: 11}
     - {x: 8, y: 9}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -406, y: 116}
   - name: neck element
     originalName: 
@@ -3686,7 +3651,6 @@ ScriptedImporter:
     - {x: 0, y: 1}
     - {x: 1, y: 2}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -380, y: 351}
   - name: coat front
     originalName: 
@@ -4009,7 +3973,6 @@ ScriptedImporter:
     - {x: 22, y: 23}
     - {x: 0, y: 24}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 230, y: -18}
   - name: neck
     originalName: 
@@ -4233,7 +4196,6 @@ ScriptedImporter:
     - {x: 7, y: 8}
     - {x: 6, y: 7}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -299, y: 161}
   - name: torso
     originalName: 
@@ -4850,7 +4812,6 @@ ScriptedImporter:
     - {x: 19, y: 47}
     - {x: 47, y: 35}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -164, y: 122}
   - name: leg L
     originalName: 
@@ -5270,7 +5231,6 @@ ScriptedImporter:
     - {x: 5, y: 32}
     - {x: 13, y: 14}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 53, y: 170}
   - name: leg R
     originalName: 
@@ -5690,7 +5650,6 @@ ScriptedImporter:
     - {x: 22, y: 32}
     - {x: 23, y: 32}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -31, y: 555}
   - name: coat back
     originalName: 
@@ -6094,7 +6053,6 @@ ScriptedImporter:
     - {x: 0, y: 1}
     - {x: 7, y: 8}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -362, y: 115}
   - name: shoulder plate R
     originalName: 
@@ -6278,7 +6236,6 @@ ScriptedImporter:
     - {x: 9, y: 10}
     - {x: 10, y: 11}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: -357, y: 357}
   - name: hand R top
     originalName: 
@@ -6550,7 +6507,6 @@ ScriptedImporter:
     - {x: 20, y: 21}
     - {x: 8, y: 21}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 64, y: 618}
   - name: arm R
     originalName: 
@@ -7021,7 +6977,6 @@ ScriptedImporter:
     - {x: 14, y: 37}
     - {x: 15, y: 37}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 207, y: -80}
   - name: hair back
     originalName: 
@@ -7392,7 +7347,6 @@ ScriptedImporter:
     - {x: 13, y: 30}
     - {x: 14, y: 30}
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 191, y: -583}
   sharedRigCharacterData:
     bones:
@@ -7831,6 +7785,7 @@ ScriptedImporter:
       order: 0
     dimension: {x: 0, y: 0}
     characterGroups: []
+    pivot: {x: 0.5, y: 0}
     boneReadOnly: 0
   platformSettings:
   - name: DefaultTexturePlatform
@@ -7857,7 +7812,7 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   mosaicLayers: 1
   characterMode: 1
-  documentPivot: {x: 0, y: 0}
+  documentPivot: {x: 0.5, y: 0}
   documentAlignment: 7
   importHiddenLayers: 0
   layerMappingOption: 2
@@ -7865,6 +7820,7 @@ ScriptedImporter:
   paperDollMode: 0
   keepDupilcateSpriteName: 1
   skeletonAssetReferenceID: 8f519a0f7487d41cebc10ff177ee1436
+  padding: 4
   spriteCategoryList:
     categories: []
   spritePackingTag: 
@@ -8392,6 +8348,8 @@ ScriptedImporter:
     flatten: 0
     isImported: 1
     isVisible: 1
+  pSDLayerImportSetting: []
+  importFileNodeState: 1
   generateGOHierarchy: 0
   textureAssetName: witchgirl Texture
   prefabAssetName: witchgirl Prefab
