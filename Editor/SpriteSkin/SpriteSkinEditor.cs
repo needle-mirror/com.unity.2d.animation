@@ -29,7 +29,7 @@ namespace UnityEditor.U2D.Animation
             public static readonly GUIContent useManager = new GUIContent("Enable batching", "When enabled, SpriteSkin deformation will be done in batch to improve performance.");
             public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update", "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
             public static readonly GUIContent autoRebind = new GUIContent("Auto Rebind", "When the Sprite in SpriteRenderer is changed, SpriteSkin will try to look for the Transforms that is needed for the Sprite using the Root Bone Tranform as parent.");    
-            public static readonly string enableBatchingHelp = L10n.Tr("Install Burst and Collection package to enable deformation batching.");
+            public static readonly string enableBatchingHelp = L10n.Tr("Install Burst and Collections packages to enable deformation batching.");
         }
 
         private static Color s_BoundingBoxHandleColor = new Color(255, 255, 255, 150) / 255;

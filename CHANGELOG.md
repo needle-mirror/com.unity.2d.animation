@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.0.2] - 2021-11-05
+### Fixed
+- Fixed errors in the Sprite Skin section of documentation. (case 1368100)
+- Quads are now generated at correct positions after removing all vertices from Sprite meshes. (case 1369724)
+- Fixed an issue where removing an edge in the Skinning editor would result in the mesh falling back to a quad. (case 1369516)
+
 ## [7.0.1] - 2021-09-21
 ### Fixed
 - Fixed render texture size error in the Skinning Editor. (1357814)

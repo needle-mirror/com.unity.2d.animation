@@ -93,7 +93,6 @@ namespace UnityEditor.U2D.Animation
             EditorGUI.BeginDisabledGroup(disable);
 
             HandleMoveEdge();
-            HandleRemoveEdge();
             HandleRemoveVertices();
 
             spriteMeshView.DoRepaint();
@@ -326,13 +325,6 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleRemoveEdge()
-        {
-            Edge edge;
-            if (GetSelectedEdge(out edge) && spriteMeshView.DoRemove())
-                RemoveEdge(edge);
-        }
-
         private void HandleRemoveVertices()
         {
             if (spriteMeshView.DoRemove())
@@ -531,38 +523,27 @@ namespace UnityEditor.U2D.Animation
             cacheUndo.IncrementCurrentGroup();
         }
 
-        private bool GetSelectedEdge(out Edge edge)
+        private bool IsEdgeSelected()
         {
-            edge = default(Edge);
-
             if (selection.Count != 2)
                 return false;
 
             var indices = selection.elements;
 
-            int index1 = indices[0];
-            int index2 = indices[1];
+            var index1 = indices[0];
+            var index2 = indices[1];
 
-            edge = new Edge(index1, index2);
-
-            if (!m_SpriteMeshData.edges.Contains(edge))
-                return false;
-
-            return true;
-        }
-
-        private void RemoveEdge(Edge edge)
-        {
-            cacheUndo.BeginUndoOperation(TextContent.removeEdge);
-            m_SpriteMeshDataController.RemoveEdge(edge);
-            Triangulate();
+            var edge = new Edge(index1, index2);
+            return m_SpriteMeshData.edges.Contains(edge);
         }
 
         private void RemoveSelectedVertices()
         {
-            cacheUndo.BeginUndoOperation(TextContent.removeVertices);
+            cacheUndo.BeginUndoOperation(IsEdgeSelected() ? TextContent.removeEdge : TextContent.removeVertices);
 
-            var noOfVertsToDelete = selection.elements.Length;
+            var verticesToRemove = selection.elements;
+            
+            var noOfVertsToDelete = verticesToRemove.Length;
             var noOfVertsInMesh = m_SpriteMeshDataController.spriteMeshData.vertexCount;
             var shouldClearMesh = (noOfVertsInMesh - noOfVertsToDelete) < 3;
 
@@ -572,11 +553,10 @@ namespace UnityEditor.U2D.Animation
                 m_SpriteMeshDataController.CreateQuad();
             }
             else
-            {
-                m_SpriteMeshDataController.RemoveVertex(selection.elements);
-            }
-            
+                m_SpriteMeshDataController.RemoveVertex(verticesToRemove);
+
             Triangulate();
+            
             selection.Clear();
         }
 

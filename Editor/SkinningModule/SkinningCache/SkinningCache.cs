@@ -851,9 +851,6 @@ namespace UnityEditor.U2D.Animation
             vertices = smd.vertices;
             indices = smd.indices;
             edges = smd.edges;
-            
-            foreach (var vertex in vertices)
-                vertex.position -= sprite.textureRect.position;
         }
 
         private void CreateMeshPreviewCache(SpriteCache sprite)

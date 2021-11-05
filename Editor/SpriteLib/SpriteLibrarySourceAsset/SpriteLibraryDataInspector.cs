@@ -318,19 +318,7 @@ namespace UnityEditor.U2D.Animation
         
         void DrawElement(Rect rect, int index, bool selected, bool focused)
         {
-            if (rect.width < 0)
-                return;
-            if (!IsGUIRectVisible(rect))
-                return;
-
             DrawCategory(rect, index);
-        }
-        
-        static bool IsGUIRectVisible(Rect guiRect)
-        {
-            var screenRect = GUIUtility.GUIToScreenRect(guiRect);
-            var halfHeight = screenRect.height / 2f;
-            return screenRect.y > -halfHeight && screenRect.y < ((Screen.height / EditorGUIUtility.pixelsPerPoint) + halfHeight);
         }
 
         void DrawCategory(Rect rect, int index)
