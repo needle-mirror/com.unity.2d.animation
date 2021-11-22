@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.2.15] - 2021-11-22
+### Fixed
+- Sprite selection now reacts only to the left mouse button. (case 1378442)
+
 ## [3.2.14] - 2021-10-11
 ### Fixed
 - Fixed errors in the Sprite Skin section of documentation. (case 1368106)
