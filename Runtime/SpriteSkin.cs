@@ -335,6 +335,10 @@ namespace UnityEngine.U2D.Animation
                     m_CurrentDeformSprite = GetSpriteInstanceID();
                 }
             }
+            else if(!InternalEngineBridge.IsUsingDeformableBuffer(spriteRenderer, IntPtr.Zero))
+            {
+                DeactivateSkinning();
+            }
         }
 
         void CacheCurrentSprite(bool rebind)
@@ -491,7 +495,7 @@ namespace UnityEngine.U2D.Animation
             if (sprite != null)
                 InternalEngineBridge.SetLocalAABB(spriteRenderer, sprite.bounds);
 
-            SpriteRendererDataAccessExtensions.DeactivateDeformableBuffer(spriteRenderer);
+            spriteRenderer.DeactivateDeformableBuffer();
         }
 
         internal void ResetSprite()

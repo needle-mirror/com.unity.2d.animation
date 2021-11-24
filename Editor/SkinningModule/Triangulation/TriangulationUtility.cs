@@ -16,7 +16,7 @@ namespace UnityEditor.U2D.Animation
     {
         
 #if ENABLE_ANIMATION_BURST
-        [BurstCompile(FloatPrecision = FloatPrecision.Standard, FloatMode = FloatMode.Fast)]
+        [BurstCompile]
 #endif
         private static unsafe int ValidateCollinear(float2* points, int pointCount)
         {
@@ -39,7 +39,7 @@ namespace UnityEditor.U2D.Animation
         }
         
 #if ENABLE_ANIMATION_BURST
-        [BurstCompile(FloatPrecision = FloatPrecision.Standard, FloatMode = FloatMode.Fast)]
+        [BurstCompile]
 #endif
         private static unsafe void TessellateBurst(Allocator allocator, float2* points, int pointCount, int2* edges, int edgeCount, float2* outVertices, int* outIndices, int2* outEdges, int arrayCount, int3* result)
         {
@@ -83,7 +83,7 @@ namespace UnityEditor.U2D.Animation
 
         }
 #if ENABLE_ANIMATION_BURST
-        [BurstCompile(FloatPrecision = FloatPrecision.Standard, FloatMode = FloatMode.Fast)]
+        [BurstCompile]
 #endif
         private static unsafe void SubdivideBurst(Allocator allocator, float2* points, int pointCount, int2* edges, int edgeCount, float2* outVertices, int* outIndices, int2* outEdges, int arrayCount, float areaFactor, float areaThreshold, int refineIterations, int smoothenIterations, int3* result)
         {
@@ -217,7 +217,7 @@ namespace UnityEditor.U2D.Animation
                 edgeCount = outputResult[0].z;
             }
             // Fallback on numerical precision errors.
-            if (vertexCount <= 8)
+            if (vertexCount <= 8 || indexCount == 0)
                 TessellateSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount);
 
             vertices.Clear();

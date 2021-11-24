@@ -182,7 +182,7 @@ namespace UnityEditor.U2D.Animation
             var indices = new List<int>();
             triangulator.Triangulate(m_VerticesTemp, m_EdgesTemp, indices);
 
-            if (m_VerticesTemp.Count == 0)
+            if (m_VerticesTemp.Count == 0 || indices.Count == 0)
             {
                 spriteMeshData.Clear();
                 CreateQuad();

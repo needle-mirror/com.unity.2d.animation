@@ -9,14 +9,15 @@ namespace UnityEditor.U2D.Animation
 {
     internal class SelectionTool : BaseTool
     {
-        private bool m_ForceSelectedToSpriteEditor = false;
+        bool m_ForceSelectedToSpriteEditor = false;
+        int m_LastMouseButtonDown = -1;
 
         public event Func<bool> CanSelect = () => true;
-        private List<SpriteCache> m_Sprites;
+        List<SpriteCache> m_Sprites;
         public ISpriteEditor spriteEditor { get; set; }
-        private SpriteCache selectedSprite
+        SpriteCache selectedSprite
         {
-            get { return skinningCache.selectedSprite; }
+            get => skinningCache.selectedSprite;
             set
             {
                 if (selectedSprite != value)
@@ -36,7 +37,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private string selectedSpriteAssetID
+        string selectedSpriteAssetID
         {
             get
             {
@@ -81,7 +82,7 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.selectedSpriteChanged.AddListener(OnSpriteSelectionChange);
         }
 
-        private void OnSelectionChanged()
+        void OnSelectionChanged()
         {
             if (m_ForceSelectedToSpriteEditor)
             {
@@ -97,14 +98,14 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void SetFromSpriteEditor()
+        void SetFromSpriteEditor()
         {
             if (selectedSprite == null)
                 selectedSprite = skinningCache.GetSprite(selectedSpriteAssetID);
             spriteEditor.RequestRepaint();
         }
 
-        private void SetToSpriteEditor()
+        void SetToSpriteEditor()
         {
             var id = "";
 
@@ -118,29 +119,33 @@ namespace UnityEditor.U2D.Animation
         {
             HandleSpriteSelection();
         }
-
-        private void HandleSpriteSelection()
+        
+        void HandleSpriteSelection()
         {
             Debug.Assert(Event.current != null);
 
-            if (Event.current.type == EventType.MouseDown && Event.current.button == 0 && GUIUtility.hotControl == 0 &&
-                !Event.current.alt && Event.current.clickCount == 2 && CanSelect())
+            if (Event.current.type == EventType.MouseDown)
             {
-                var mousePosition = Handles.inverseMatrix.MultiplyPoint(Event.current.mousePosition);
-                var newSelected = TrySelect(mousePosition);
-                if (selectedSprite != newSelected)
+                if (IsSelectionRequested())
                 {
-                    using (skinningCache.UndoScope(TextContent.selectionChange))
+                    var mousePosition = Handles.inverseMatrix.MultiplyPoint(Event.current.mousePosition);
+                    var newSelected = TrySelect(mousePosition);
+                    if (selectedSprite != newSelected)
                     {
-                        selectedSprite = newSelected;
+                        using (skinningCache.UndoScope(TextContent.selectionChange))
+                        {
+                            selectedSprite = newSelected;
+                        }
+                        
+                        Event.current.Use();
                     }
-                    Event.current.Use();
-                    Event.current.clickCount = 0;
                 }
+                else
+                    m_LastMouseButtonDown = Event.current.button;
             }
         }
 
-        private SpriteCache TrySelect(Vector2 mousePosition)
+        SpriteCache TrySelect(Vector2 mousePosition)
         {
             m_Sprites.Remove(selectedSprite);
 
@@ -193,6 +198,12 @@ namespace UnityEditor.U2D.Animation
             }
 
             return null;
+        }
+        
+        bool IsSelectionRequested()
+        {
+            return Event.current.button == 0 && m_LastMouseButtonDown == 0 && GUIUtility.hotControl == 0 &&
+                !Event.current.alt && Event.current.clickCount == 2 && CanSelect();
         }
     }
 }

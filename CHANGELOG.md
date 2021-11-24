@@ -1,5 +1,14 @@
 # Changelog
 
+## [8.0.0-pre.4] - 2021-11-24
+### Added
+- Added support in the asset upgrading tool for animation clips authored across multiple Unity editor versions.
+
+### Fixed
+- Added additional fallback for when the bursted tessellation step fails. (case 1372686)
+- Sprite selection now reacts only to the left mouse button. (case 1371567)
+- Fixed an issue where a Sprite Skin outside of the camera frustum enters the frustum, which could cause an editor and player crash. (case 1377867)
+
 ## [8.0.0-pre.3] - 2021-10-21
 ### Changed
 - Update to latest com.unity.2d.common package
@@ -8,6 +17,7 @@
 ### Changed
 - Sprite Library Asset are now named "New Sprite Library Asset.spriteLib" by default on creation.
 - Updated Toolbar and Visibility tab buttons' selection color.
+- Updated package documentation.
 
 ### Fixed
 - Sprite selection actions now work with Undo. (case 1367257)
