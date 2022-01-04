@@ -34,7 +34,7 @@ namespace UnityEngine.U2D.Animation
     [RequireComponent(typeof(SpriteRenderer))]
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/index.html%23sprite-skin-component")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@5.0/manual/index.html#sprite-skin-component")]
     public sealed partial class SpriteSkin : MonoBehaviour, ISerializationCallbackReceiver
     {
         [SerializeField]
@@ -286,6 +286,10 @@ namespace UnityEngine.U2D.Animation
                     m_CurrentDeformSprite = GetSpriteInstanceID();
                 }
             }
+            else if(!InternalEngineBridge.IsUsingDeformableBuffer(spriteRenderer, IntPtr.Zero))
+            {
+                DeactivateSkinning();
+            }
         }
 
         void CacheCurrentSprite()
@@ -366,7 +370,7 @@ namespace UnityEngine.U2D.Animation
             if (sprite != null)
                 InternalEngineBridge.SetLocalAABB(spriteRenderer, sprite.bounds);
 
-            SpriteRendererDataAccessExtensions.DeactivateDeformableBuffer(spriteRenderer);
+            spriteRenderer.DeactivateDeformableBuffer();
         }
 
         internal void ResetSprite()

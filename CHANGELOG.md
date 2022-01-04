@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.1.0] - 2022-01-04
+### Fixed
+- Fixed an issue where a Sprite Skin outside of the camera frustum enters the frustum, which could cause an editor and player crash. (case 1380229)
+- Sprite Skin's help button now leads to the correct documentation page. (case 1383769)
+
+### Changed
+- Update minimum Unity release version.
+
 ## [5.0.10] - 2021-11-24
 ### Fixed
 - Sprite selection now reacts only to the left mouse button. (case 1378440)
