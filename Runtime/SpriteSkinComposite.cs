@@ -240,7 +240,6 @@ namespace UnityEngine.U2D.Animation
 
     internal class SpriteSkinComposite : ScriptableObject
     {
-
         static SpriteSkinComposite m_Instance;
 
         public static SpriteSkinComposite instance
@@ -541,7 +540,10 @@ namespace UnityEngine.U2D.Animation
             int batchCount = m_SpriteSkinData.Length;
             int vertexBufferSize = skinBatch.deformVerticesStartPos;
             if (vertexBufferSize <= 0)
+            {
+                DeactivateDeformableBuffers();
                 return;
+            }
 
             Profiler.BeginSample("SpriteSkinComposite.TransformAccessJob");
             var localToWorldJobHandle = m_LocalToWorldTransformAccessJob.StartLocalToWorldJob();
@@ -621,6 +623,21 @@ namespace UnityEngine.U2D.Animation
                     InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, m_BoundsData[i]);
                     ptrVertices = ptrVertices + vertexBufferLength;
                 }
+            }
+            Profiler.EndSample();
+
+            DeactivateDeformableBuffers();
+        }
+
+        void DeactivateDeformableBuffers()
+        {
+            Profiler.BeginSample("SpriteSkinComposite.DeactivateDeformableBuffer");
+            for (var i = 0; i < m_IsSpriteSkinActiveForDeform.Length; ++i)
+            {
+                var spriteRenderer = m_SpriteSkins[i].spriteRenderer;
+                if(m_IsSpriteSkinActiveForDeform[i] || InternalEngineBridge.IsUsingDeformableBuffer(spriteRenderer, IntPtr.Zero))
+                    continue;
+                spriteRenderer.DeactivateDeformableBuffer();
             }
             Profiler.EndSample();
         }

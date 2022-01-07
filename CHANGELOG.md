@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.2.16] - 2022-01-07
+### Fixed
+- Fixed an issue where a Sprite Skin outside of the camera frustum enters the frustum, which could cause an editor and player crash. (case 1380230)
+- Sprite Skin's help button now leads to the correct documentation page. (case 1383771)
+
 ## [3.2.15] - 2021-11-22
 ### Fixed
 - Sprite selection now reacts only to the left mouse button. (case 1378442)
