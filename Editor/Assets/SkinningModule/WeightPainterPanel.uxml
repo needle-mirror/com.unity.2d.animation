@@ -21,25 +21,22 @@
       </ui:VisualElement>
 
       <ui:VisualElement name="Amount" class="form-row">
-        <ui:Label name="AmountLabel" text="Amount" tooltip ="Weight amount"/>
         <ui:VisualElement class="form-editor">
-          <ui:Slider name="AmountSlider" direction="Horizontal" low-value="-1" high-value="1" />
+          <ui:Slider name="AmountSlider" class="named-slider" direction="Horizontal" low-value="-1" high-value="1" label="Amount" tooltip ="Weight amount" />
           <eui:FloatField name="AmountField" class="slider-field" value="0" />
         </ui:VisualElement>
       </ui:VisualElement>
         <ui:VisualElement name="divider" />
         <aui:WeightInspectorIMGUIPanel name ="WeightsInspector" />
       <ui:VisualElement name="Hardness" class="form-row">
-        <ui:Label name="HardnessLabel" text="Hardness" tooltip ="Brush hardness"/>
         <ui:VisualElement class="form-editor">
-          <ui:Slider name="HardnessSlider" direction="Horizontal" low-value="1" high-value="100" />
+          <ui:Slider name="HardnessSlider" class="named-slider" direction="Horizontal" low-value="1" high-value="100" label="Hardness" tooltip ="Brush hardness" />
           <eui:IntegerField name="HardnessField" class="slider-field" value="1" />
         </ui:VisualElement>
       </ui:VisualElement>
       <ui:VisualElement name="Step" class="form-row">
-        <ui:Label name="StepLabel" text="Step" tooltip ="Brush step size"/>
         <ui:VisualElement class="form-editor">
-          <ui:Slider name="StepSlider" direction="Horizontal" low-value="1" high-value="100" />
+          <ui:Slider name="StepSlider" class="named-slider" direction="Horizontal" low-value="1" high-value="100" label="Step" tooltip ="Brush step size" />
           <eui:IntegerField name="StepField" class="slider-field" value="1" />
         </ui:VisualElement>
       </ui:VisualElement>

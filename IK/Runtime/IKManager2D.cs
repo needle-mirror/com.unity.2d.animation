@@ -11,6 +11,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [DefaultExecutionOrder(-2)]
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
+    [ExecuteInEditMode]
     public partial class IKManager2D : MonoBehaviour, IPreviewable
     {
         [SerializeField]

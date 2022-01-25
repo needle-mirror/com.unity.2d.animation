@@ -83,7 +83,7 @@ namespace UnityEngine.U2D.Animation
             var transforms = new Transform[spriteBones.Length];
             Transform root = null;
 
-            for (int i = 0; i < spriteBones.Length; ++i)
+            for (var i = 0; i < spriteBones.Length; ++i)
             {
                 CreateGameObject(i, spriteBones, transforms, spriteSkin.transform);
                 if (spriteBones[i].parentId < 0 && root == null)
@@ -96,7 +96,7 @@ namespace UnityEngine.U2D.Animation
 
         internal static int GetVertexStreamSize(this Sprite sprite)
         {
-            int vertexStreamSize = 12;
+            var vertexStreamSize = 12;
             if (sprite.HasVertexAttribute(Rendering.VertexAttribute.Normal))
                 vertexStreamSize = vertexStreamSize + 12;
             if (sprite.HasVertexAttribute(Rendering.VertexAttribute.Tangent))
@@ -106,9 +106,9 @@ namespace UnityEngine.U2D.Animation
 
         internal static int GetVertexStreamOffset(this Sprite sprite, Rendering.VertexAttribute channel )
         {
-            bool hasPosition = sprite.HasVertexAttribute(Rendering.VertexAttribute.Position);
-            bool hasNormals = sprite.HasVertexAttribute(Rendering.VertexAttribute.Normal);
-            bool hasTangents = sprite.HasVertexAttribute(Rendering.VertexAttribute.Tangent);
+            var hasPosition = sprite.HasVertexAttribute(Rendering.VertexAttribute.Position);
+            var hasNormals = sprite.HasVertexAttribute(Rendering.VertexAttribute.Normal);
+            var hasTangents = sprite.HasVertexAttribute(Rendering.VertexAttribute.Tangent);
 
             switch(channel)
             {
@@ -122,7 +122,7 @@ namespace UnityEngine.U2D.Animation
             return -1;
         }
 
-        private static void CreateGameObject(int index, SpriteBone[] spriteBones, Transform[] transforms, Transform root)
+        static void CreateGameObject(int index, SpriteBone[] spriteBones, Transform[] transforms, Transform root)
         {
             if (transforms[index] == null)
             {
@@ -165,11 +165,11 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        private static int GetHash(Matrix4x4 matrix)
+        static int GetHash(Matrix4x4 matrix)
         {
             unsafe
             {
-                uint* b = (uint*)&matrix;
+                var b = (uint*)&matrix;
                 {
                     var c = (char*)b;
                     return (int)math.hash(c, 16 * sizeof(float));
@@ -179,8 +179,8 @@ namespace UnityEngine.U2D.Animation
 
         internal static int CalculateTransformHash(this SpriteSkin spriteSkin)
         {
-            int bits = 0;
-            int boneTransformHash = GetHash(spriteSkin.transform.localToWorldMatrix) >> bits;
+            var bits = 0;
+            var boneTransformHash = GetHash(spriteSkin.transform.localToWorldMatrix) >> bits;
             bits++;
             foreach (var transform in spriteSkin.boneTransforms)
             {
@@ -292,7 +292,7 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        internal unsafe static void Deform(Sprite sprite, Matrix4x4 invRoot, Transform[] boneTransformsArray, NativeArray<byte> deformVertexData)
+        internal static void Deform(Sprite sprite, Matrix4x4 invRoot, Transform[] boneTransformsArray, NativeArray<byte> deformVertexData)
         {
             Debug.Assert(sprite != null);
             Debug.Assert(sprite.GetVertexCount() == (deformVertexData.Length / sprite.GetVertexStreamSize()));
@@ -316,7 +316,7 @@ namespace UnityEngine.U2D.Animation
         }
         
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-        private static AtomicSafetyHandle CreateSafetyChecks<T>(ref NativeArray<T> array) where T : struct
+        static AtomicSafetyHandle CreateSafetyChecks<T>(ref NativeArray<T> array) where T : struct
         {
             var handle = AtomicSafetyHandle.Create();
             AtomicSafetyHandle.SetAllowSecondaryVersionWriting(handle, true);
@@ -325,7 +325,7 @@ namespace UnityEngine.U2D.Animation
             return handle;
         }
 
-        private static AtomicSafetyHandle CreateSafetyChecks<T>(ref NativeSlice<T> array) where T : struct
+        static AtomicSafetyHandle CreateSafetyChecks<T>(ref NativeSlice<T> array) where T : struct
         {
             var handle = AtomicSafetyHandle.Create();
             AtomicSafetyHandle.SetAllowSecondaryVersionWriting(handle, true);
@@ -334,7 +334,7 @@ namespace UnityEngine.U2D.Animation
             return handle;
         }
 
-        private static void DisposeSafetyChecks(AtomicSafetyHandle handle)
+        static void DisposeSafetyChecks(AtomicSafetyHandle handle)
         {
             AtomicSafetyHandle.Release(handle);
         }
@@ -350,14 +350,13 @@ namespace UnityEngine.U2D.Animation
             Deform(sprite, Matrix4x4.identity, boneTransformsArray, deformVertexData);
         }
 
-        internal unsafe static void CalculateBounds(this SpriteSkin spriteSkin)
+        internal static unsafe void CalculateBounds(this SpriteSkin spriteSkin)
         {
             Debug.Assert(spriteSkin.isValid);
             var sprite = spriteSkin.sprite;
-
-
+            
             var deformVertexData = new NativeArray<byte>(sprite.GetVertexStreamSize() * sprite.GetVertexCount(), Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            void* dataPtr = NativeArrayUnsafeUtility.GetUnsafePtr(deformVertexData);
+            var dataPtr = deformVertexData.GetUnsafePtr();
             var deformedPosSlice = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<Vector3>(dataPtr, sprite.GetVertexStreamSize(), sprite.GetVertexCount());
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformedPosSlice, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(deformVertexData));
@@ -370,8 +369,8 @@ namespace UnityEngine.U2D.Animation
 
         internal static Bounds CalculateSpriteSkinBounds(NativeSlice<float3> deformablePositions)
         {
-            float3 min = deformablePositions[0];
-            float3 max = deformablePositions[0];
+            var min = deformablePositions[0];
+            var max = deformablePositions[0];
 
             for (int j = 1; j < deformablePositions.Length; ++j)
             {
@@ -379,9 +378,9 @@ namespace UnityEngine.U2D.Animation
                 max = math.max(max, deformablePositions[j]);
             }
             
-            float3 ext = (max - min) * 0.5F;
-            float3 ctr = min + ext;
-            Bounds bounds = new Bounds();
+            var ext = (max - min) * 0.5F;
+            var ctr = min + ext;
+            var bounds = new Bounds();
             bounds.center = ctr;
             bounds.extents = ext;
             return bounds;
@@ -389,10 +388,10 @@ namespace UnityEngine.U2D.Animation
 
         internal static unsafe void UpdateBounds(this SpriteSkin spriteSkin, NativeArray<byte> deformedVertices)
         {
-            byte* deformedPosOffset = (byte*)NativeArrayUnsafeUtility.GetUnsafePtr(deformedVertices);            
+            var deformedPosOffset = (byte*)NativeArrayUnsafeUtility.GetUnsafePtr(deformedVertices);            
             var spriteVertexCount = spriteSkin.sprite.GetVertexCount();
             var spriteVertexStreamSize = spriteSkin.sprite.GetVertexStreamSize();            
-            NativeSlice<float3> deformedPositions = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset, spriteVertexStreamSize, spriteVertexCount);
+            var deformedPositions = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset, spriteVertexStreamSize, spriteVertexCount);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             var handle = CreateSafetyChecks<float3>(ref deformedPositions);

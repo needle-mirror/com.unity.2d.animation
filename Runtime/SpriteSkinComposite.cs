@@ -6,8 +6,8 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.U2D.Common;
-using UnityEngine.Profiling;
 using Unity.Burst;
+using Unity.Profiling;
 using UnityEngine.Assertions;
 
 namespace UnityEngine.U2D.Animation
@@ -50,7 +50,7 @@ namespace UnityEngine.U2D.Animation
 
         public void Execute()
         {
-            for (int i = 0; i < batchDataSize; ++i)
+            for (var i = 0; i < batchDataSize; ++i)
             {
                 var jobData = perSkinJobData[i];
                 for (int k = 0, j = jobData.bindPosesIndex.x; j < jobData.bindPosesIndex.y; ++j, ++k)
@@ -87,8 +87,8 @@ namespace UnityEngine.U2D.Animation
 
         public void Execute(int i)
         {
-            int x = boneLookupData[i].x;
-            int y = boneLookupData[i].y;
+            var x = boneLookupData[i].x;
+            var y = boneLookupData[i].y;
             var ssd = spriteSkinData[x];
             var v = ssd.boneTransformId[y];
             var index = boneTransformIndex[v].transformIndex;
@@ -120,29 +120,29 @@ namespace UnityEngine.U2D.Animation
 
         public unsafe void Execute(int i)
         {
-            int j = vertexLookupData[i].x;
-            int k = vertexLookupData[i].y;
+            var j = vertexLookupData[i].x;
+            var k = vertexLookupData[i].y;
 
-            PerSkinJobData perSkinData = perSkinJobData[j];
+            var perSkinData = perSkinJobData[j];
             var spriteSkin = spriteSkinData[j];
-            float3 srcVertex = spriteSkin.vertices[k];
-            float4 tangents = spriteSkin.tangents[k];
+            var srcVertex = (float3)spriteSkin.vertices[k];
+            var tangents = (float4)spriteSkin.tangents[k];
             var influence = spriteSkin.boneWeights[k];
 
-            int bone0 = influence.boneIndex0 + perSkinData.bindPosesIndex.x;
-            int bone1 = influence.boneIndex1 + perSkinData.bindPosesIndex.x;
-            int bone2 = influence.boneIndex2 + perSkinData.bindPosesIndex.x;
-            int bone3 = influence.boneIndex3 + perSkinData.bindPosesIndex.x;
+            var bone0 = influence.boneIndex0 + perSkinData.bindPosesIndex.x;
+            var bone1 = influence.boneIndex1 + perSkinData.bindPosesIndex.x;
+            var bone2 = influence.boneIndex2 + perSkinData.bindPosesIndex.x;
+            var bone3 = influence.boneIndex3 + perSkinData.bindPosesIndex.x;
 
-            byte* deformedPosOffset = (byte*)vertices.GetUnsafePtr();
-            byte* deformedPosStart = deformedPosOffset + spriteSkin.deformVerticesStartPos;
-            NativeSlice<float3> deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosStart, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
+            var deformedPosOffset = (byte*)vertices.GetUnsafePtr();
+            var deformedPosStart = deformedPosOffset + spriteSkin.deformVerticesStartPos;
+            var deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosStart, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableVerticesFloat3, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
 #endif
             if (spriteSkin.hasTangents)
             {
-                byte* deformedTanOffset = deformedPosStart + spriteSkin.tangentVertexOffset;
+                var deformedTanOffset = deformedPosStart + spriteSkin.tangentVertexOffset;
                 var deformableTangentsFloat4 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float4>(deformedTanOffset, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableTangentsFloat4, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
@@ -184,8 +184,8 @@ namespace UnityEngine.U2D.Animation
                 return;
 
             var spriteSkin = spriteSkinData[i];
-            byte* deformedPosOffset = (byte*)vertices.GetUnsafePtr();
-            NativeSlice<float3> deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset + spriteSkin.deformVerticesStartPos, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
+            var deformedPosOffset = (byte*)vertices.GetUnsafePtr();
+            var deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset + spriteSkin.deformVerticesStartPos, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableVerticesFloat3, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
@@ -214,7 +214,7 @@ namespace UnityEngine.U2D.Animation
         {
             var startIndex = 0;
             var endIndex = spriteSkinDataArray.Length;
-            for (int index = startIndex; index < endIndex; ++index)
+            for (var index = startIndex; index < endIndex; ++index)
             {
                 var spriteSkinData = spriteSkinDataArray[index];
                 spriteSkinData.deformVerticesStartPos = -1;
@@ -260,7 +260,7 @@ namespace UnityEngine.U2D.Animation
         public void Execute(int i)
         {
             var skinData = spriteSkinData[i];
-            IntPtr startVertices = default(IntPtr);
+            var startVertices = default(IntPtr);
             var vertexBufferLength = 0;
             if (isSpriteSkinValidForDeformArray[i])
             {
@@ -274,23 +274,36 @@ namespace UnityEngine.U2D.Animation
 
     internal class SpriteSkinComposite : ScriptableObject
     {
-        static SpriteSkinComposite m_Instance;
+        static class Profiling
+        {
+            public static readonly ProfilerMarker prepareData = new ProfilerMarker("SpriteSkinComposite.PrepareData");
+            public static readonly ProfilerMarker validateSpriteSkinData = new ProfilerMarker("SpriteSkinComposite.ValidateSpriteSkinData");
+            public static readonly ProfilerMarker transformAccessJob = new ProfilerMarker("SpriteSkinComposite.TransformAccessJob");
+            public static readonly ProfilerMarker getSpriteSkinBatchData = new ProfilerMarker("SpriteSkinComposite.GetSpriteSkinBatchData");
+            public static readonly ProfilerMarker resizeBuffers = new ProfilerMarker("SpriteSkinComposite.ResizeBuffers");
+            public static readonly ProfilerMarker prepare = new ProfilerMarker("SpriteSkinComposite.Prepare");
+            public static readonly ProfilerMarker scheduleJobs = new ProfilerMarker("SpriteSkinComposite.ScheduleJobs");
+            public static readonly ProfilerMarker setBatchDeformableBufferAndLocalAABB = new ProfilerMarker("SpriteSkinComposite.SetBatchDeformableBufferAndLocalAABB");
+            public static readonly ProfilerMarker deactivateDeformableBuffer = new ProfilerMarker("SpriteSkinComposite.DeactivateDeformableBuffer");
+        }
+
+        static SpriteSkinComposite s_Instance;
 
         public static SpriteSkinComposite instance
         {
             get
             {
-                if (m_Instance == null)
+                if (s_Instance == null)
                 {
                     var composite = Resources.FindObjectsOfTypeAll<SpriteSkinComposite>();
                     if (composite.Length > 0)
-                        m_Instance = composite[0];
+                        s_Instance = composite[0];
                     else
-                        m_Instance = ScriptableObject.CreateInstance<SpriteSkinComposite>();
-                    m_Instance.hideFlags = HideFlags.HideAndDontSave;
-                    m_Instance.Init();
+                        s_Instance = ScriptableObject.CreateInstance<SpriteSkinComposite>();
+                    s_Instance.hideFlags = HideFlags.HideAndDontSave;
+                    s_Instance.Init();
                 }
-                return m_Instance;
+                return s_Instance;
             }
         }
 
@@ -320,10 +333,7 @@ namespace UnityEngine.U2D.Animation
         [SerializeField]
         GameObject m_Helper;
 
-        internal GameObject helperGameObject
-        {
-            get => m_Helper;
-        }
+        internal GameObject helperGameObject => m_Helper;
 
         internal void RemoveTransformById(int transformId)
         {
@@ -356,8 +366,8 @@ namespace UnityEngine.U2D.Animation
             if (spriteSkin == null)
                 return;
 
-            bool added = m_SpriteSkins.Contains(spriteSkin);
-            Debug.Assert(!added, string.Format("SpriteSkin {0} is already added", spriteSkin.gameObject.name));
+            var added = m_SpriteSkins.Contains(spriteSkin);
+            Debug.Assert(!added, $"SpriteSkin {spriteSkin.gameObject.name} is already added");
             if (!added)
             {
                 m_SpriteSkins.Add(spriteSkin);
@@ -382,7 +392,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (spriteSkin == null)
                 return;
-            int index = m_SpriteSkins.IndexOf(spriteSkin);
+            var index = m_SpriteSkins.IndexOf(spriteSkin);
             if (index < 0)
                 return;
             CopyToSpriteSkinData(index);
@@ -393,7 +403,7 @@ namespace UnityEngine.U2D.Animation
             if (index < 0 || index >= m_SpriteSkins.Count || !m_SpriteSkinData.IsCreated)
                 return;
 
-            SpriteSkinData spriteSkinData = default(SpriteSkinData);
+            var spriteSkinData = default(SpriteSkinData);
             var spriteSkin = m_SpriteSkins[index];
             spriteSkin.CopyToSpriteSkinData(ref spriteSkinData, index);
             m_SpriteSkinData[index] = spriteSkinData;
@@ -402,7 +412,7 @@ namespace UnityEngine.U2D.Animation
 
         internal void RemoveSpriteSkin(SpriteSkin spriteSkin)
         {
-            int index = m_SpriteSkins.IndexOf(spriteSkin);
+            var index = m_SpriteSkins.IndexOf(spriteSkin);
             if (index < 0)
                 return;
 
@@ -434,8 +444,8 @@ namespace UnityEngine.U2D.Animation
             if (spriteSkin == null)
                 return;
 
-            bool added = m_SpriteSkinLateUpdate.Contains(spriteSkin);
-            Debug.Assert( !added, string.Format("SpriteSkin {0} is already added for LateUpdate", spriteSkin.gameObject.name));
+            var added = m_SpriteSkinLateUpdate.Contains(spriteSkin);
+            Debug.Assert(!added, $"SpriteSkin {spriteSkin.gameObject.name} is already added for LateUpdate");
             if (!added)
             {
                 m_SpriteSkinLateUpdate.Add(spriteSkin);
@@ -449,9 +459,9 @@ namespace UnityEngine.U2D.Animation
 
         void Init()
         {
-            if(m_LocalToWorldTransformAccessJob == null)
+            if (m_LocalToWorldTransformAccessJob == null)
                 m_LocalToWorldTransformAccessJob = new TransformAccessJob();
-            if(m_WorldToLocalTransformAccessJob == null)
+            if (m_WorldToLocalTransformAccessJob == null)
                 m_WorldToLocalTransformAccessJob = new TransformAccessJob();
         }
 
@@ -468,7 +478,7 @@ namespace UnityEngine.U2D.Animation
 
         public void OnEnable()
         {
-            m_Instance = this;
+            s_Instance = this;
             if (m_Helper == null)
             {
                 m_Helper = new GameObject("SpriteSkinManager");
@@ -487,7 +497,7 @@ namespace UnityEngine.U2D.Animation
             Init();
 
             // Initialise all existing SpriteSkins as execution order is indeterminate
-            int count = m_SpriteSkins.Count; 
+            var count = m_SpriteSkins.Count; 
             if (count > 0)
             {
                 m_IsSpriteSkinActiveForDeform = new NativeArray<bool>(count, Allocator.Persistent);
@@ -496,7 +506,7 @@ namespace UnityEngine.U2D.Animation
                 m_BoundsData = new NativeArray<Bounds>(count, Allocator.Persistent);
                 m_Buffers = new NativeArray<IntPtr>(count, Allocator.Persistent);
                 m_BufferSizes = new NativeArray<int>(count, Allocator.Persistent);
-                for (int i = 0; i < count; ++i)
+                for (var i = 0; i < count; ++i)
                 {
                     var spriteSkin = m_SpriteSkins[i];
                     spriteSkin.batchSkinning = true;
@@ -514,7 +524,7 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
             m_DeformJobHandle.Complete();
             m_BoundJobHandle.Complete();
@@ -551,8 +561,8 @@ namespace UnityEngine.U2D.Animation
             var count = m_SpriteSkins.Count;
             if (count == 0)
                 return;
-
-            Profiler.BeginSample("SpriteSkinComposite.PrepareData");
+            
+            Profiling.prepareData.Begin();
             Assert.AreEqual(m_IsSpriteSkinActiveForDeform.Length, count);
             Assert.AreEqual(m_PerSkinJobData.Length, count);
             Assert.AreEqual(m_SpriteSkinData.Length, count);
@@ -560,40 +570,42 @@ namespace UnityEngine.U2D.Animation
             Assert.AreEqual(m_Buffers.Length, count);
             Assert.AreEqual(m_BufferSizes.Length, count);
             Assert.AreEqual(m_SpriteRenderers.Length, count);
-
-            Profiler.BeginSample("SpriteSkinComposite.ValidateSpriteSkinData");
-            for (int i = 0; i < m_SpriteSkins.Count; ++i)
+            
+            using (Profiling.validateSpriteSkinData.Auto())
             {
-                var spriteSkin = m_SpriteSkins[i];
-                m_IsSpriteSkinActiveForDeform[i] = spriteSkin.BatchValidate();
-                if (m_IsSpriteSkinActiveForDeform[i] && spriteSkin.NeedUpdateCompositeCache())
+                for (var i = 0; i < m_SpriteSkins.Count; ++i)
                 {
-                    CopyToSpriteSkinData(i);
+                    var spriteSkin = m_SpriteSkins[i];
+                    m_IsSpriteSkinActiveForDeform[i] = spriteSkin.BatchValidate();
+                    if (m_IsSpriteSkinActiveForDeform[i] && spriteSkin.NeedUpdateCompositeCache())
+                    {
+                        CopyToSpriteSkinData(i);
+                    }
                 }
             }
-            Profiler.EndSample();
-
-            Profiler.BeginSample("SpriteSkinComposite.TransformAccessJob");
+            
+            Profiling.transformAccessJob.Begin();
             var localToWorldJobHandle = m_LocalToWorldTransformAccessJob.StartLocalToWorldJob();
             var worldToLocalJobHandle = m_WorldToLocalTransformAccessJob.StartWorldToLocalJob();
-            Profiler.EndSample();
+            Profiling.transformAccessJob.End();
 
-            Profiler.BeginSample("SpriteSkinComposite.GetSpriteSkinBatchData");
-            NativeArrayHelpers.ResizeIfNeeded(ref m_SkinBatchArray, 1);
-            FillPerSkinJobSingleThread fillPerSkinJobSingleThread = new FillPerSkinJobSingleThread()
+            using (Profiling.getSpriteSkinBatchData.Auto())
             {
-                isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
-                combinedSkinBatchArray = m_SkinBatchArray,
-                spriteSkinDataArray = m_SpriteSkinData,
-                perSkinJobDataArray = m_PerSkinJobData,
-            };
-            fillPerSkinJobSingleThread.Run();
-            Profiler.EndSample();
-            Profiler.EndSample();
+                NativeArrayHelpers.ResizeIfNeeded(ref m_SkinBatchArray, 1);
+                var fillPerSkinJobSingleThread = new FillPerSkinJobSingleThread()
+                {
+                    isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
+                    combinedSkinBatchArray = m_SkinBatchArray,
+                    spriteSkinDataArray = m_SpriteSkinData,
+                    perSkinJobDataArray = m_PerSkinJobData,
+                };
+                fillPerSkinJobSingleThread.Run();
+            }
+            Profiling.prepareData.End();
 
             var skinBatch = m_SkinBatchArray[0];
-            int batchCount = m_SpriteSkinData.Length;
-            int vertexBufferSize = skinBatch.deformVerticesStartPos;
+            var batchCount = m_SpriteSkinData.Length;
+            var vertexBufferSize = skinBatch.deformVerticesStartPos;
             if (vertexBufferSize <= 0)
             {
                 localToWorldJobHandle.Complete();
@@ -602,16 +614,16 @@ namespace UnityEngine.U2D.Animation
                 return;
             }
 
-            Profiler.BeginSample("SpriteSkinComposite.ResizeBuffers");
+            using (Profiling.resizeBuffers.Auto())
+            {
+                m_DeformedVerticesBuffer = BufferManager.instance.GetBuffer(GetInstanceID(), vertexBufferSize);
+                NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, skinBatch.bindPosesIndex.y);
+                NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, skinBatch.bindPosesIndex.y);
+                NativeArrayHelpers.ResizeIfNeeded(ref m_VertexLookupData, skinBatch.verticesIndex.y);
+            }
             
-            m_DeformedVerticesBuffer = BufferManager.instance.GetBuffer(GetInstanceID(), vertexBufferSize);
-            NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, skinBatch.bindPosesIndex.y);
-            NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, skinBatch.bindPosesIndex.y);
-            NativeArrayHelpers.ResizeIfNeeded(ref m_VertexLookupData, skinBatch.verticesIndex.y);
-            Profiler.EndSample();
-
-            Profiler.BeginSample("SpriteSkinComposite.Prepare");
-            PrepareDeformJob prepareJob = new PrepareDeformJob
+            Profiling.prepare.Begin();
+            var prepareJob = new PrepareDeformJob
             {
                 batchDataSize = batchCount,
                 perSkinJobData = m_PerSkinJobData,
@@ -619,10 +631,10 @@ namespace UnityEngine.U2D.Animation
                 vertexLookupData = m_VertexLookupData
             };
             var jobHandle = prepareJob.Schedule();
-            Profiler.EndSample();
-
-            Profiler.BeginSample("SpriteSkinComposite.ScheduleJobs");
-            BoneDeformBatchedJob boneJobBatched = new BoneDeformBatchedJob()
+            Profiling.prepare.End();
+            
+            Profiling.scheduleJobs.Begin();
+            var boneJobBatched = new BoneDeformBatchedJob()
             {
                 boneTransform = m_LocalToWorldTransformAccessJob.transformMatrix,
                 rootTransform = m_WorldToLocalTransformAccessJob.transformMatrix,
@@ -635,7 +647,7 @@ namespace UnityEngine.U2D.Animation
             jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle, jobHandle);
             jobHandle = boneJobBatched.Schedule(skinBatch.bindPosesIndex.y, 8, jobHandle);
 
-            SkinDeformBatchedJob skinJobBatched = new SkinDeformBatchedJob()
+            var skinJobBatched = new SkinDeformBatchedJob()
             {
                 vertices = m_DeformedVerticesBuffer.array,
                 vertexLookupData = m_VertexLookupData,
@@ -645,7 +657,7 @@ namespace UnityEngine.U2D.Animation
             };
             m_DeformJobHandle = skinJobBatched.Schedule(skinBatch.verticesIndex.y, 16, jobHandle);
 
-            CopySpriteRendererBuffersJob copySpriteRendererBuffersJob = new CopySpriteRendererBuffersJob()
+            var copySpriteRendererBuffersJob = new CopySpriteRendererBuffersJob()
             {
                 isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
                 spriteSkinData = m_SpriteSkinData,
@@ -655,7 +667,7 @@ namespace UnityEngine.U2D.Animation
             };
             m_CopyJobHandle = copySpriteRendererBuffersJob.Schedule(batchCount, 16, jobHandle);
 
-            CalculateSpriteSkinAABBJob updateBoundJob = new CalculateSpriteSkinAABBJob
+            var updateBoundJob = new CalculateSpriteSkinAABBJob
             {
                 vertices = m_DeformedVerticesBuffer.array,
                 isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
@@ -663,29 +675,31 @@ namespace UnityEngine.U2D.Animation
                 bounds = m_BoundsData,
             };
             m_BoundJobHandle = updateBoundJob.Schedule(batchCount, 4, m_DeformJobHandle);
-            Profiler.EndSample();
+            Profiling.scheduleJobs.End();
 
             JobHandle.ScheduleBatchedJobs();
             jobHandle = JobHandle.CombineDependencies(m_BoundJobHandle, m_CopyJobHandle);
             jobHandle.Complete();
 
-            Profiler.BeginSample("SpriteSkinComposite.SetBatchDeformableBufferAndLocalAABB");
-            InternalEngineBridge.SetBatchDeformableBufferAndLocalAABBArray(m_SpriteRenderers, m_Buffers, m_BufferSizes, m_BoundsData);
-            Profiler.EndSample();
+            using (Profiling.setBatchDeformableBufferAndLocalAABB.Auto())
+            {
+                InternalEngineBridge.SetBatchDeformableBufferAndLocalAABBArray(m_SpriteRenderers, m_Buffers, m_BufferSizes, m_BoundsData);
+            }
 
             DeactivateDeformableBuffers();
         }
 
         void DeactivateDeformableBuffers()
         {
-            Profiler.BeginSample("SpriteSkinComposite.DeactivateDeformableBuffer");
-            for (var i = 0; i < m_IsSpriteSkinActiveForDeform.Length; ++i)
+            using (Profiling.deactivateDeformableBuffer.Auto())
             {
-                if(m_IsSpriteSkinActiveForDeform[i] || InternalEngineBridge.IsUsingDeformableBuffer(m_SpriteRenderers[i], IntPtr.Zero))
-                    continue;
-                m_SpriteRenderers[i].DeactivateDeformableBuffer();
+                for (var i = 0; i < m_IsSpriteSkinActiveForDeform.Length; ++i)
+                {
+                    if (m_IsSpriteSkinActiveForDeform[i] || InternalEngineBridge.IsUsingDeformableBuffer(m_SpriteRenderers[i], IntPtr.Zero))
+                        continue;
+                    m_SpriteRenderers[i].DeactivateDeformableBuffer();
+                }
             }
-            Profiler.EndSample();
         }
 
         internal bool HasDeformableBufferForSprite(int dataIndex)

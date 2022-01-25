@@ -15,10 +15,13 @@ namespace UnityEditor.U2D.Animation
     internal class TriangulationUtility
     {
         
+        // Adjust Tolerance for Collinear Check.
+        static readonly float k_CollinearTolerance = 0.0001f;
+        
 #if ENABLE_ANIMATION_BURST
         [BurstCompile]
 #endif
-        private static unsafe int ValidateCollinear(float2* points, int pointCount)
+        private static unsafe int ValidateCollinear(float2* points, int pointCount, float epsilon)
         {
             if (pointCount < 3)
                 return 0;
@@ -27,11 +30,11 @@ namespace UnityEditor.U2D.Animation
             {
                 double2 a = points[i];
                 double2 b = points[i + 1];
-                double2 c = points[i + 2];
-
-                double x = (b.y - a.y) / (b.x - a.x);
-                double y = (c.y - a.y) / (c.x - a.x);
-                if ((!math.isinf(x) || !math.isinf(y)) && math.abs(x - y) > 0.001f)
+                double2 c = points[i + 2];               
+                
+                // Just check area of triangle and see if its non-zero. 
+                var x = math.abs(a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y));
+                if (x > epsilon)
                     return 1;
             }
 
@@ -60,7 +63,7 @@ namespace UnityEditor.U2D.Animation
             int outIndexCount = 0;
             int outVertexCount = 0;
             
-            var check = ValidateCollinear((float2*)_points.GetUnsafeReadOnlyPtr(), pointCount);
+            var check = ValidateCollinear((float2*)_points.GetUnsafeReadOnlyPtr(), pointCount, k_CollinearTolerance);
             if (0 != check)
                 ModuleHandle.Tessellate(allocator, _points, _edges, ref _outVertices, ref outVertexCount, ref _outIndices, ref outIndexCount, ref _outEdges, ref outEdgeCount);
             
@@ -126,7 +129,7 @@ namespace UnityEditor.U2D.Animation
         {
             unsafe
             {
-                var check = ValidateCollinear((float2*)points.GetUnsafeReadOnlyPtr(), points.Length);
+                var check = ValidateCollinear((float2*)points.GetUnsafeReadOnlyPtr(), points.Length, k_CollinearTolerance);
                 if (0 == check)
                     return false;                
             }
@@ -422,10 +425,11 @@ namespace UnityEditor.U2D.Animation
         // Triangulate Skipped Original Points. These points are discarded during PlanarGrapg cleanup. But bbw only cares if these are part of any geometry. So just insert them. todo: Burst it. 
         internal static void TriangulateInternal(int[] internalIndices, List<Vector2> triVertices, List<int> triIndices)
         {
+            var triangleCount = triIndices.Count / 3;
+            
             foreach(var index in internalIndices)
             {
                 var v = triVertices[index];
-                var triangleCount = triIndices.Count / 3;
                 for (int i = 0; i < triangleCount; ++i)
                 {
                     int i1 = triIndices[0 + (i * 3)];

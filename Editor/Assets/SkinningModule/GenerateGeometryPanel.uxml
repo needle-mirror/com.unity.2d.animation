@@ -4,23 +4,20 @@
     <ui:PopupWindow text="Geometry">
       <ui:VisualElement name="Content">
         <ui:VisualElement class="form-row">
-          <ui:Label name="OutlineDetailLabel" tooltip="Accuracy of the generated outline. Small values will produce simpler outlines. Large values will produce denser outlines that fit to the Sprite better" text="Outline Detail" />
           <ui:VisualElement class="form-editor">
-            <ui:Slider name="OutlineDetailSlider" direction="Horizontal" low-value="0" high-value="100" />
+            <ui:Slider name="OutlineDetailSlider" class="named-slider" direction="Horizontal" low-value="0" high-value="100" label="Outline Detail" tooltip="Accuracy of the generated outline. Small values will produce simpler outlines. Large values will produce denser outlines that fit to the Sprite better" />
             <eui:IntegerField name="OutlineDetailField" class="slider-field" value="0" />
           </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement class="form-row">
-          <ui:Label name="AlphaToleranceLabel" tooltip="Pixels with alpha value smaller than tolerance will be considered transparent during outline detection" text="Alpha Tolerance" />
           <ui:VisualElement class="form-editor">
-            <ui:Slider name="AlphaToleranceSlider" direction="Horizontal" low-value="0" high-value="254" />
+            <ui:Slider name="AlphaToleranceSlider" class="named-slider" direction="Horizontal" low-value="0" high-value="254" label="Alpha Tolerance" tooltip="Pixels with alpha value smaller than tolerance will be considered transparent during outline detection" />
             <eui:IntegerField name="AlphaToleranceField" class="slider-field" value="0" />
           </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement class="form-row">
-          <ui:Label name="SubdivideLabel" tooltip="Tesselate the Sprite by adding vertices inside the generated outline" text="Subdivide" />
           <ui:VisualElement class="form-editor">
-            <ui:Slider name="SubdivideSlider" direction="Horizontal" low-value="0" high-value="100" />
+            <ui:Slider name="SubdivideSlider" class="named-slider" direction="Horizontal" low-value="0" high-value="100" label="Subdivide" tooltip="Tessellate the Sprite by adding vertices inside the generated outline" />
             <eui:IntegerField name="SubdivideField" class="slider-field" value="0" />
           </ui:VisualElement>
         </ui:VisualElement>

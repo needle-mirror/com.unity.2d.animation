@@ -1,13 +1,27 @@
 # Changelog
 
+## [8.0.0] - 2022-01-25
+### Changed
+- Package release version.
+
+### Fixed
+- Sprite Skin's help button now leads to the correct documentation page. (case 1383765)
+- Fixed the isolate behavior in the Sprite tab in the Visibility panel. (case 1387184)
+- Fixed an issue where the animation window's preview of IK targets would not be the same as in Play Mode. (case 1396081)
+
 ## [8.0.0-pre.4] - 2021-11-24
 ### Added
 - Added support in the asset upgrading tool for animation clips authored across multiple Unity editor versions.
+- Added a check to validate collinearity among vertices before tessellation.
+
+### Changed
+- Updated the 2D Animation Upgrader documentation section with new information regarding Animation Clip upgrading.
 
 ### Fixed
 - Added additional fallback for when the bursted tessellation step fails. (case 1372686)
 - Sprite selection now reacts only to the left mouse button. (case 1371567)
 - Fixed an issue where a Sprite Skin outside of the camera frustum enters the frustum, which could cause an editor and player crash. (case 1377867)
+- Slider labels in the Skinning Editor now register input for easier value tweaking. (case 1294945)
 
 ## [8.0.0-pre.3] - 2021-10-21
 ### Changed

@@ -4,7 +4,6 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.U2D.Common;
 using UnityEngine.U2D.IK;
-using UnityEngine.Profiling;
 
 namespace UnityEditor.U2D.IK
 {
@@ -68,7 +67,6 @@ namespace UnityEditor.U2D.IK
         {
             EditorApplication.hierarchyChanged += Initialize;
             Undo.postprocessModifications += OnPostProcessModifications;
-            EditorApplication.update += OnLateUpdate;
 #if UNITY_2019_1_OR_NEWER
             SceneView.duringSceneGui += OnSceneGUI;
 #else
@@ -81,7 +79,6 @@ namespace UnityEditor.U2D.IK
         {
             EditorApplication.hierarchyChanged -= Initialize;
             Undo.postprocessModifications -= OnPostProcessModifications;
-            EditorApplication.update -= OnLateUpdate;
 #if UNITY_2019_1_OR_NEWER
             SceneView.duringSceneGui -= OnSceneGUI;
 #else
@@ -305,18 +302,6 @@ namespace UnityEditor.U2D.IK
 
             if(GUIUtility.hotControl == 0)
                 isDraggingATool = false;
-        }
-
-        internal void OnLateUpdate()
-        {
-            if (Application.isPlaying)
-                return;
-            Profiler.BeginSample("IKEditorManager.OnLateUpdate");
-
-            SetAllManagersDirty();
-            UpdateDirtyManagers(false);
-
-            Profiler.EndSample();
         }
 
         private bool ProcessTransformPropertyModification(UndoPropertyModification modification, out Transform transform)

@@ -3,6 +3,7 @@
 #endif
 
 using System;
+using UnityEngine.Rendering;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.U2D.Common;
@@ -77,15 +78,15 @@ namespace UnityEngine.U2D.Animation
             }
             else
             {
-                m_SpriteUVs = new NativeCustomSlice<Vector2>(sprite.GetVertexAttribute<Vector2>(UnityEngine.Rendering.VertexAttribute.TexCoord0));
-                m_SpriteVertices = new NativeCustomSlice<Vector3>(sprite.GetVertexAttribute<Vector3>(UnityEngine.Rendering.VertexAttribute.Position));
-                m_SpriteTangents = new NativeCustomSlice<Vector4>(sprite.GetVertexAttribute<Vector4>(UnityEngine.Rendering.VertexAttribute.Tangent));
-                m_SpriteBoneWeights = new NativeCustomSlice<BoneWeight>(sprite.GetVertexAttribute<BoneWeight>(UnityEngine.Rendering.VertexAttribute.BlendWeight));
+                m_SpriteUVs = new NativeCustomSlice<Vector2>(sprite.GetVertexAttribute<Vector2>(VertexAttribute.TexCoord0));
+                m_SpriteVertices = new NativeCustomSlice<Vector3>(sprite.GetVertexAttribute<Vector3>(VertexAttribute.Position));
+                m_SpriteTangents = new NativeCustomSlice<Vector4>(sprite.GetVertexAttribute<Vector4>(VertexAttribute.Tangent));
+                m_SpriteBoneWeights = new NativeCustomSlice<BoneWeight>(sprite.GetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight));
                 m_SpriteBindPoses = new NativeCustomSlice<Matrix4x4>(sprite.GetBindPoses());
-                m_SpriteHasTangents = sprite.HasVertexAttribute(Rendering.VertexAttribute.Tangent);
+                m_SpriteHasTangents = sprite.HasVertexAttribute(VertexAttribute.Tangent);
                 m_SpriteVertexStreamSize = sprite.GetVertexStreamSize();
                 m_SpriteVertexCount = sprite.GetVertexCount();
-                m_SpriteTangentVertexOffset = sprite.GetVertexStreamOffset(Rendering.VertexAttribute.Tangent);
+                m_SpriteTangentVertexOffset = sprite.GetVertexStreamOffset(VertexAttribute.Tangent);
             }
             SpriteSkinComposite.instance.CopyToSpriteSkinData(this);
         }
@@ -106,8 +107,8 @@ namespace UnityEngine.U2D.Animation
 
                 if (boneTransforms != null)
                 {
-                    int boneCount = 0;
-                    for (int i = 0; i < boneTransforms.Length; ++i)
+                    var boneCount = 0;
+                    for (var i = 0; i < boneTransforms.Length; ++i)
                     {
                         if (boneTransforms[i] != null)
                             ++boneCount;
@@ -115,7 +116,7 @@ namespace UnityEngine.U2D.Animation
 
                     if (m_BoneTransformId.IsCreated)
                     {
-                        for (int i = 0; i < m_BoneTransformId.Length; ++i)
+                        for (var i = 0; i < m_BoneTransformId.Length; ++i)
                             SpriteSkinComposite.instance.RemoveTransformById(m_BoneTransformId[i]);
                         NativeArrayHelpers.ResizeIfNeeded(ref m_BoneTransformId, boneCount);
                     }
@@ -176,7 +177,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (m_BoneTransformId.IsCreated)
             {
-                for (int i = 0; i < m_BoneTransformId.Length; ++i)
+                for (var i = 0; i < m_BoneTransformId.Length; ++i)
                     SpriteSkinComposite.instance.RemoveTransformById(m_BoneTransformId[i]);
                 m_BoneTransformId.Dispose();
             }
@@ -207,7 +208,7 @@ namespace UnityEngine.U2D.Animation
         {
             unsafe
             {
-                var iptr = new IntPtr(sprite.GetVertexAttribute<Vector2>(UnityEngine.Rendering.VertexAttribute.TexCoord0).GetUnsafeReadOnlyPtr());
+                var iptr = new IntPtr(sprite.GetVertexAttribute<Vector2>(VertexAttribute.TexCoord0).GetUnsafeReadOnlyPtr());
                 var rs = m_SpriteUVs.data != iptr;
                 if (rs)
                 {
@@ -240,8 +241,7 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        void OnBeforeSerializeBatch()
-        {}
+        void OnBeforeSerializeBatch() {}
 
         void OnAfterSerializeBatch()
         {

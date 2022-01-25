@@ -41,23 +41,41 @@ Follow these steps to upgrade the Animation Clips in the project:
 ![](images/AssetUpgrader_AnimationClipsUpgraded.png)
 9. Select the __Open upgrade log__ button to get more detailed information about the upgrade warnings and errors that may appear. The upgrade log will also list all the Asset Bundles that need to be rebuilt for the upgrading process.
 
-## Common upgrading errors
+## Common upgrading errors and solutions
 The following are the common errors you may face when upgrading your projects, and their suggested solutions.
 
-### Both Category hash and Label hash are required in the same clip
-![](images/AssetUpgrader_Err_CatAndLabel.png)
-The 2D Animation Asset Upgrader displays this error when an Animation Clip contains either Sprite Resolver Category hash keys or Sprite Resolver Label hash keys; but not both.
+### Referring to the upgrade log for general debugging
+The first step to debugging an upgrade failure is to refer to the upgrade log. The 2D Animation Asset Upgrader writes each action it takes into the log, helping you to track down the point of failure.
+
+```
+9/11/2021 2:06:23 PM
+Asset Upgrading
+---------------
+Verifying if the asset Talk (UnityEngine.AnimationClip) is an AnimationClip.
+Extracting SpriteHash bindings from clip. Found 0 bindings.
+Extracting SpriteKey bindings from clip. Found 0 bindings.
+Extracting Category bindings from clip. Found 0 bindings.
+Extracting Label keyframes from clip. Found 3 keyframes.
+Extracting Label bindings from clip. Found 1 bindings.
+Merging different types keyframes from the same bindings, into the same binding list. We now have 1 binding lists.
+Order the keyframe data in binding=Hand by time.
+Converting keyframes into uniformed format for binding=Hand
+Cannot find a category for keyframe at time=0 in binding=Hand.
+Cannot find a category for keyframe at time=3.383333 in binding=Hand.
+Cannot find a category for keyframe at time=4.966667 in binding=Hand.
+Expected 3 keyframes after cleanup for binding=Hand, but ended up with 0.
+The upgrade of the clip Talk failed. Some keyframes could not be converted in the animation clip.
+```
+In this example, the upgrade log shows the actions and results from upgrading an Animation Clip that contains only Label hashes, but no Category hashes. The 2D Animation Upgrader writes to the log that it cannot find a Category hash for three out of three keyframes. This results in a failure to upgrade the Animation Clip.
+
+### When some keyframes could not be converted in the Animation Clip
+![](images/AssetUpgrader_Err_CouldNotBeConverted.png)
+One of the most common reasons for this error is when an Animation Clip contains either Sprite Resolver Category hash keys or Sprite Resolver Label hash keys, but not both types of hash keys at the same time.
 
 ![](images/AssetUpgrader_Err_CatLabel_InCorrect.png)
-This example shows an incorrect Animation Clip setup. The Animation Clip contains only the Label hash, but not a Category hash, which leads to the above error.
+This example shows an incorrect Animation Clip setup where the Animation Clip contains only the Label hash, but not a Category hash, which leads to the above error.
 
 ![](images/AssetUpgrader_Err_CatLabel_Correct.png)
 This example shows the corrected setup, where the Animation Clip contains both the Label hash and the Category hash.
 
-Fix this error by recording the Category and Label hash in the Animation Clip using Unity 2019 or Unity 2020. Once the missing hash is added, the 2D Animation Asset Upgrader is able to upgrade the Animation Clip.
-
-### Could not convert the Category and Label hash into one unified hash
-![](images/AssetUpgrader_Err_UnifiedHash.png)
-The Upgrader displays this error when the Sprite Library the Animation Clip is using cannot be found in the project.
-
-Fix this error by ensuring a Sprite Library Asset containing the Category and Label used by the Animation Clip is available in the project's `Assets` folder before initiating the upgrading process.
+Fix this error by recording a Sprite Swap on the first frame in the Animation Clip. Once the Sprite Swap is added, the 2D Animation Asset Upgrader is able to upgrade the Animation Clip.
