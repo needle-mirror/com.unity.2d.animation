@@ -1,5 +1,9 @@
 # Changelog
 
+## [5.1.1] - 2022-02-03
+### Fixed
+- Fixed an issue where the animation window's preview of IK targets would not be the same as in Play Mode. (case 1396083)
+
 ## [5.1.0] - 2022-01-04
 ### Fixed
 - Fixed an issue where a Sprite Skin outside of the camera frustum enters the frustum, which could cause an editor and player crash. (case 1380229)
