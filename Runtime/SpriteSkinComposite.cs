@@ -598,6 +598,7 @@ namespace UnityEngine.U2D.Animation
             {
                 localToWorldJobHandle.Complete();
                 worldToLocalJobHandle.Complete();
+                DeactivateDeformableBuffers();
                 return;
             }
 
@@ -670,6 +671,20 @@ namespace UnityEngine.U2D.Animation
 
             Profiler.BeginSample("SpriteSkinComposite.SetBatchDeformableBufferAndLocalAABB");
             InternalEngineBridge.SetBatchDeformableBufferAndLocalAABBArray(m_SpriteRenderers, m_Buffers, m_BufferSizes, m_BoundsData);
+            Profiler.EndSample();
+
+            DeactivateDeformableBuffers();
+        }
+
+        void DeactivateDeformableBuffers()
+        {
+            Profiler.BeginSample("SpriteSkinComposite.DeactivateDeformableBuffer");
+            for (var i = 0; i < m_IsSpriteSkinActiveForDeform.Length; ++i)
+            {
+                if(m_IsSpriteSkinActiveForDeform[i] || InternalEngineBridge.IsUsingDeformableBuffer(m_SpriteRenderers[i], IntPtr.Zero))
+                    continue;
+                m_SpriteRenderers[i].DeactivateDeformableBuffer();
+            }
             Profiler.EndSample();
         }
 

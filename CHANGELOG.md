@@ -1,8 +1,15 @@
 # Changelog
+## [7.0.4] - 2022-02-07
+### Fixed
+- Deleting certain vertices in sprite mesh doesn't leads to mesh being resetted to quad. (case 1386411)
+- Fixed an issue where the animation window's preview of IK targets would not be the same as in Play Mode. (case 1396082)
 
 ## [7.0.3] - 2021-11-24
 ### Fixed
 - Sprite selection now reacts only to the left mouse button. (case 1378439)
+- Added additional fallback for when the bursted tessellation step fails. (case 1382979)
+- Fixed an issue where a Sprite Skin outside of the camera frustum enters the frustum, which could cause an editor and player crash. (case 1380228)
+- Sprite Skin's help button now leads to the correct documentation page. (case 1383768)
 
 ## [7.0.2] - 2021-11-05
 ### Fixed

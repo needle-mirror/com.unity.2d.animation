@@ -15,11 +15,38 @@ namespace UnityEditor.U2D.Animation
     internal class TriangulationUtility
     {
         
+        // Adjust Tolerance for Collinear Check.
+        static readonly float k_CollinearTolerance = 0.0001f;
+        
 #if ENABLE_ANIMATION_BURST
-        [BurstCompile(FloatPrecision = FloatPrecision.Standard, FloatMode = FloatMode.Fast)]
+        [BurstCompile]
+#endif
+        private static unsafe int ValidateCollinear(float2* points, int pointCount, float epsilon)
+        {
+            if (pointCount < 3)
+                return 0;
+            
+            for (int i = 0; i < pointCount - 2; ++i)
+            {
+                double2 a = points[i];
+                double2 b = points[i + 1];
+                double2 c = points[i + 2];               
+                
+                // Just check area of triangle and see if its non-zero. 
+                var x = math.abs(a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y));
+                if (x > epsilon)
+                    return 1;
+            }
+
+            return 0;
+        }
+        
+#if ENABLE_ANIMATION_BURST
+        [BurstCompile]
 #endif
         private static unsafe void TessellateBurst(Allocator allocator, float2* points, int pointCount, int2* edges, int edgeCount, float2* outVertices, int* outIndices, int2* outEdges, int arrayCount, int3* result)
         {
+
             NativeArray<int2> _edges = new NativeArray<int2>(edgeCount, allocator);
             for (int i = 0; i < _edges.Length; ++i)
                 _edges[i] = edges[i];
@@ -36,7 +63,9 @@ namespace UnityEditor.U2D.Animation
             int outIndexCount = 0;
             int outVertexCount = 0;
             
-            ModuleHandle.Tessellate(allocator, _points, _edges, ref _outVertices, ref outVertexCount, ref _outIndices, ref outIndexCount, ref _outEdges, ref outEdgeCount);
+            var check = ValidateCollinear((float2*)_points.GetUnsafeReadOnlyPtr(), pointCount, k_CollinearTolerance);
+            if (0 != check)
+                ModuleHandle.Tessellate(allocator, _points, _edges, ref _outVertices, ref outVertexCount, ref _outIndices, ref outIndexCount, ref _outEdges, ref outEdgeCount);
             
             for (int i = 0; i < outEdgeCount; ++i)
                 outEdges[i] = _outEdges[i];
@@ -57,7 +86,7 @@ namespace UnityEditor.U2D.Animation
 
         }
 #if ENABLE_ANIMATION_BURST
-        [BurstCompile(FloatPrecision = FloatPrecision.Standard, FloatMode = FloatMode.Fast)]
+        [BurstCompile]
 #endif
         private static unsafe void SubdivideBurst(Allocator allocator, float2* points, int pointCount, int2* edges, int edgeCount, float2* outVertices, int* outIndices, int2* outEdges, int arrayCount, float areaFactor, float areaThreshold, int refineIterations, int smoothenIterations, int3* result)
         {
@@ -98,6 +127,13 @@ namespace UnityEditor.U2D.Animation
 
         private static bool TessellateSafe(NativeArray<float2> points, NativeArray<int2> edges, ref NativeArray<float2> outVertices, ref int outVertexCount, ref NativeArray<int> outIndices, ref int outIndexCount, ref NativeArray<int2> outEdges, ref int outEdgeCount)
         {
+            unsafe
+            {
+                var check = ValidateCollinear((float2*)points.GetUnsafeReadOnlyPtr(), points.Length, k_CollinearTolerance);
+                if (0 == check)
+                    return false;                
+            }
+            
             try
             {
                 ModuleHandle.Tessellate(Allocator.Persistent, points, edges, ref outVertices, ref outVertexCount, ref outIndices, ref outIndexCount, ref outEdges, ref outEdgeCount);
@@ -184,7 +220,7 @@ namespace UnityEditor.U2D.Animation
                 edgeCount = outputResult[0].z;
             }
             // Fallback on numerical precision errors.
-            if (vertexCount <= 8)
+            if (vertexCount <= 8 || indexCount == 0)
                 TessellateSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount);
 
             vertices.Clear();
@@ -389,10 +425,11 @@ namespace UnityEditor.U2D.Animation
         // Triangulate Skipped Original Points. These points are discarded during PlanarGrapg cleanup. But bbw only cares if these are part of any geometry. So just insert them. todo: Burst it. 
         internal static void TriangulateInternal(int[] internalIndices, List<Vector2> triVertices, List<int> triIndices)
         {
+            var triangleCount = triIndices.Count / 3;
+            
             foreach(var index in internalIndices)
             {
                 var v = triVertices[index];
-                var triangleCount = triIndices.Count / 3;
                 for (int i = 0; i < triangleCount; ++i)
                 {
                     int i1 = triIndices[0 + (i * 3)];
