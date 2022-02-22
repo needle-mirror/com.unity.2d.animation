@@ -1,4 +1,7 @@
 # Changelog
+## [3.2.17] - 2022-02-22
+### Changed
+- Removed Triangle.Net from 2D Animation runtime.
 
 ## [3.2.16] - 2022-01-07
 ### Fixed

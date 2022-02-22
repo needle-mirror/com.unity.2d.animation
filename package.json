@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "3.2.16",
+  "version": "3.2.17",
   "unity": "2019.4",
   "unityRelease": "34f1",
   "displayName": "2D Animation",
@@ -11,16 +11,16 @@
   ],
   "category": "2D",
   "dependencies": {
-    "com.unity.2d.common": "2.1.1",
+    "com.unity.2d.common": "2.1.2",
     "com.unity.mathematics": "1.1.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "3.2.16",
-    "com.unity.2d.common.tests": "2.1.1",
-    "com.unity.2d.psdimporter": "2.1.10",
+    "com.unity.2d.animation.tests": "3.2.17",
+    "com.unity.2d.common.tests": "2.1.2",
+    "com.unity.2d.psdimporter": "2.1.11",
     "com.unity.2d.ik": "2.2.0-preview.1"
   },
   "samples": [
@@ -30,12 +30,15 @@
       "path": "Samples~/AnimationSamples"
     }
   ],
+  "upm": {
+    "changelog": "### Changed,- Removed Triangle.Net from 2D Animation runtime."
+  },
   "upmCi": {
-    "footprint": "fd9fee2d101827d2e7874c66fa9593a2fcbc1809"
+    "footprint": "c3e79fb5a0c8f5812ec45d40887bcc2d55c28cde"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "b0c0e0d06611dcc6ac4e240bfd5448b2248a49c8"
+    "revision": "bd748cdce8e418b5107577f07a9ffc43ae92c707"
   }
 }
