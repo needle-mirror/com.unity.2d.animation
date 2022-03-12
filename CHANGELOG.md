@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.2.0] - 2022-03-12
+### Changed
+- Updated minimum Unity release version required for the package to 2020.3.26f1.
+
+## [5.1.2] - 2022-02-21
+### Changed
+- Removed Triangle.Net from 2D Animation runtime.
+
+### Fixed
+- Fixed an issue where the SpriteSkin components would not get initialized on editor launch. (case 1403602)
+
 ## [5.1.1] - 2022-02-03
 ### Fixed
 - Fixed an issue where the animation window's preview of IK targets would not be the same as in Play Mode. (case 1396083)
@@ -10,7 +21,7 @@
 - Sprite Skin's help button now leads to the correct documentation page. (case 1383769)
 
 ### Changed
-- Update minimum Unity release version.
+- Updated minimum Unity release version required for the package to 2020.3.25f1.
 
 ## [5.0.10] - 2021-11-24
 ### Fixed

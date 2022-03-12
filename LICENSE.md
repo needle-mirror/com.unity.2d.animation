@@ -1,4 +1,4 @@
-com.unity.2d.animation © 2020 Unity Technologies
+com.unity.2d.animation copyright © 2022 Unity Technologies ApS
 
 Licensed under the Unity Companion License for Unity-dependent projects (see https://unity3d.com/legal/licenses/unity_companion_license).
 
