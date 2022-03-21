@@ -1,5 +1,4 @@
 # Sprite Library Asset
-
 A Sprite Library Asset groups multiple Sprites into [Categories](#category) and unique [Label](#entry) names. It is used in combination with the [Sprite Library](#sprite-library-component) component and [Sprite Resolver](#sprite-resolver-component) component to swap Sprite graphics at runtime.
 
 To create the Asset, go to __Assets__ > __Create__ > **2D** > __Sprite Library Asset__.
@@ -7,13 +6,12 @@ To create the Asset, go to __Assets__ > __Create__ > **2D** > __Sprite Library A
 ![](images/2D-animation-SLAsset-dropdown.png)
 
 ## Sprite Library Asset Inspector window
-
 Once the Sprite Library Asset is created, select the Asset and go to its Inspector window.
 
 ![](images/2D-animation-SLAsset-properties.png)<br/>Sprite Library Asset properties
 Property  |Function  
 --|--
-**Main Library**  |  Assign another Sprite Library Asset here to have it become the main reference for the current Sprite Library Asset. The current Sprite Library Asset becomes a variant of the **Main Library**, which allows it to access the **Main Library**'s Categories and Entries. Refer to this feature's [documentation](#main-library) for more information about the functions and limitations of this feature.
+**Main Library**  |  Assign another Sprite Library Asset here to make it the main reference for the current Sprite Library Asset. The current Sprite Library Asset becomes a variant of the [Main Library](#main-library), which allows it to access the **Main Library**'s Categories and Entries.
 **List**  |   Lists the [Categories](#category) contained in the Sprite Library Asset. Select **+** to add a new Category or **-** to remove the currently selected Category from the Sprite Library Asset.
 **Revert**  |  This resets all Categories and Entries back to the last saved state. Unsaved changes are removed.
 **Apply**  |  This saves the current state of Categories and Entries in the Sprite Library Asset.
@@ -39,18 +37,18 @@ Property  |Function
 
 ![](images/2D-animation-SLAsset-category-entry2.png)<br/>The selection after selecting a Sprite.
 
-After selecting the Sprites and entering any changes, select **Apply** to ensure these changes are saved.
+After selecting the Sprites and entering any changes, select **Apply** to save the changes.
 
 ### Drag and drop
 You can quickly populate Categories and Entries by dragging Sprites into the Sprite Library Asset’s Inspector window.
 
-Dragging Sprites and Texture into an empty space on the Sprite Library's List will automatically create a new Category and Entry for those Sprites or Textures. The Sprite’s name will be used as the default name for the Category and Entry created in this way.
+Dragging Sprites and Texture into an empty space on the Sprite Library's List automatically creates a new Category and Entry for those Sprites or Textures. The Sprite’s name is used as the default name for the Category and Entry created in this way.
 
 ![](images/2D-animation-SLAsset-category-drapdrop1.png)<br/>An empty List.
 
-![](images/2D-animation-SLAsset-category-drapdrop2.png)<br/>The Category and Entry are created and named after the Sprites are dragged into the List.
+![](images/2D-animation-SLAsset-category-drapdrop2.png)<br/>The Category and Entry are created and named when the Sprites are dragged into the List.
 
-If a Category name matches the name of the Sprite, the Sprite will be added to that existing Category instead.
+If a Category name matches the name of the Sprite, the Sprite is added to that existing Category instead.
 
 You can also quickly populate a specific Category by dragging Sprites directly into a Category.
 
@@ -59,7 +57,7 @@ Assigning another existing Sprite Library Asset to the **Main Library** property
 
 ![](images/2D-animation-SLAsset-category-entry3.png)<br/>Example: Sprite Library Asset showing the Categories and Entries retrieved from the **Main Library** property.
 
-The Labels of the Categories and Entries retrieved from the Main Library property cannot be changed or removed. However, you can add new Entries to a Category which was retrieved from the Sprite Library Asset assigned to the **Main Library** property.
+The Labels of the Categories and Entries retrieved from the Main Library property can't be changed or removed. However, you can add new Entries to a Category which was retrieved from the Sprite Library Asset assigned to the **Main Library** property.
 
 You can also edit an Entry to change the Sprite that it refers to by selecting **Select** and choosing a different Sprite in the Object Picker window. To revert changes to a Sprite, select the inner **-** to restore it to the original Sprite that was retrieved from the Main Library.
 
@@ -70,25 +68,25 @@ You can also edit an Entry to change the Sprite that it refers to by selecting *
 
 The **+** icon appears on a Sprite when:
 
-1. The Entry is added to the Sprite Library Asset in a Category retrieved from the **Main Library**.
+* The Entry is added to the Sprite Library Asset in a Category retrieved from the **Main Library**.
    <br/>
-2. The Sprite for this Entry that was originally retrieved from the **Main Library** property has been changed.
+* The Sprite for this Entry that was originally retrieved from the **Main Library** property has been changed.
 
-When assigning a Sprite Library Asset to the **Main Library** property, if the same Category name already exists in the current Sprite Library Asset, then the Entries from both Categories will be merged into a single Category.
+When assigning a Sprite Library Asset to the **Main Library** property, if the same Category name already exists in the current Sprite Library Asset, then the Entries from both Categories are merged into a single Category.
 
-Similarly, any Entries in the same Category that have the same names will be merged. The Entry will use the Sprite that was referred to in the current Sprite Library Asset instead of the one from the **Main Library** if they are merged.
+Similarly, any Entries in the same Category that have the same names are merged. The Entry uses the Sprite that was referred to in the current Sprite Library Asset instead of the one from the **Main Library** if they are merged.
 
-When a Sprite Library Asset is removed from the **Main Library** property, any changes that were made to the current Sprite Library Asset will remain.
+When a Sprite Library Asset is removed from the **Main Library** property, any changes that were made to the current Sprite Library Asset remain.
 
 ## Sprite Library component
 
-The Sprite Library component is used to define which Sprite Library Asset a GameObject refers to at runtime. Attach this component to a GameObject or any parent GameObject of a Sprite Resolver component to allow the [Sprite Resolver](#sprite-resolver-component) to change the Sprite that is being used by a [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer).
+The Sprite Library component defines which Sprite Library Asset a GameObject refers to at runtime. Attach this component to a GameObject or any parent GameObject of a Sprite Resolver component to allow the [Sprite Resolver](#sprite-resolver-component) to change the Sprite that is being used by a [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer).
 
 In the Sprite Library component’s inspector, you can assign the desired Sprite Library Asset to use.
 
 ![](images/2D-animation-SLComp-properties.png)
 
-By assigning a Sprite Library Asset, the component’s Inspector will show a preview of the content in the Sprite Library Asset
+By assigning a Sprite Library Asset, the component’s Inspector shows a preview of the content in the Sprite Library Asset
 
 ![](images/2D-animation-SLComp-preview.png)
 
@@ -106,13 +104,3 @@ The Sprite Resolver component is attached to each GameObject in the Prefab. The 
 |(Visual variant selector)   |Displays selectable thumbnails of the Sprites contained in this Category.   |
 
 Select the Sprite you want the **Sprite Renderer** to render by selecting from the **Category** and **Label** dropdown menus, or select the Sprite directly in the visual variant selector.
-
-### Animation keyframe changes in version 8.0
-
-The Sprite Resolver has been changed in 2D Animation version 8.0 onwards so that when the component is keyframed in the Animation window, the value is now stored in a parameter called Sprite Hash. 
-
-In previous versions of the 2D Animation package, when keyframing the Sprite Resolver, each individual key would have to be setup to properly swap to the intended Sprite. With this new parameter, there is no need for this additional setup step. Just record the indended swap, and it will playback the expected swap accordingly.
-
-![](images/2D-animation-SResolver-anim-v6.png)<br/>The previous Sprite Resolver key.
-
-![](images/2D-animation-SResolver-anim-v8.png)<br/>The Sprite Resolver key from Animation 8.0 onwards.

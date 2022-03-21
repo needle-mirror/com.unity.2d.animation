@@ -10,6 +10,8 @@ The Scenes for the following samples can be all found in `Assets/Samples/2D Anim
 - [Part swap](#part-swap)
 - [Full skin swap](#full-skin-swap)
 - [DLC swap](#dlc-swap)
+- [Skeleton Sharing](ex-skeleton-sharing.md)
+- [Runtime Swap](ex-runtime-swap.md)
 
 ## Flipbook Animation Swap
 This sample demonstrates how to use Sprite Swap to create a reusable Animation Clip which mimics a flipbook-style animation. Open the Scene `1 Flipbook Animation Swap.unity` to see it in action.
@@ -29,27 +31,27 @@ The Sprites for these Sprite Library Assets are derived from `Scavengers_SpriteS
 Follow the steps below to reconstruct the `1 Flipbook Animation Swap` sample Scene:
 
 1. Create an empty GameObject and name it `Hero`. Add the [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) component and go to its Inspector window. Assign one of the Sprites used in `Hero.spriteLib`. to its **Sprite** property.
-   <br/>
+
 2. Add the [Sprite Library component](SLAsset.md#sprite-library-component) and assign the `Hero.spriteLib` to its **Sprite Library Asset** property. Then add the [Sprite Resolver component](SLAsset.md#sprite-resolver-component) to the same GameObject.
-   <br/>
+
 3. Add the [Animation component](https://docs.unity3d.com/Manual/class-Animation.html). Locate the `Scavengers.anim` [Animation Clip](https://docs.unity3d.com/Manual/AnimationClips.html) in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Animation` and assign this Asset to the component's **Animation** property.
-   <br/>
+
 4. Duplicate the `Hero` GameObject and rename the copy to `Zombie1`.
    - In `Zombie1`'s Sprite Renderer component, set its **Sprite** property to one of the Sprites used in `Zombie1.spriteLib`.
-        <br/>
+
 5. Duplicate the `Hero` GameObject again and rename the copy to `Zombie2`.
    - In `Zombie2`'s Sprite Renderer component, set the **Sprite** property to one of the Sprites used in `Zombie2.spriteLib`
 
 All three GameObjects are now animated with the same Animation Clip. As the Animation Clip plays, the Sprite that each GameObject's Sprite Resolver refers to is swapped which creates the flipbook animation style. By using a different Sprite Library Asset for each GameObject, the same Animation Clip is reused with different Sprites.
 
 ## Animated Swap
-This sample demonstrates how to use Sprite Swap to create a reusable Animation Clip for animations that include both Sprite swapping and [deformation](SpriteSkin.md) of the Sprites. Note that the following example requires the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) installed.
+This sample demonstrates how to use Sprite Swap to create a reusable Animation Clip for animations that include both Sprite swapping and [deformation](SpriteSkin.md) of the Sprites. Note that the following example requires the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) to be installed.
 
-Open the Scene file `2 Animated Swap.unity`to see the sample in action.
+Open the Scene file `2 Animated Swap.unity` to see the sample in action.
 
 ![](images/2D-animation-samples-spriteswap-animated1.png)<br/>Initial frame with the hands in thumbs-up position.
 
-This sample builds on the reusable Animation Clip example from the [Flipbook Animation Swap](#flipbook-animation-swap) sample. This sample uses 2 different source files located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`. The Assets used are:
+This sample builds on the reusable Animation Clip example from the [Flipbook Animation Swap](#flipbook-animation-swap) sample. This sample uses two different source files located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`. The Assets used are:
 
 - `dialog.psb`
 - `dialog gray.psb`
@@ -69,20 +71,20 @@ Two Sprite Library Assets are created using the same steps demonstrated in the [
 Follow the steps below to reconstruct the sample Scene:
 
 1. Drag both `dialog.psb` and `dialog gray.psb` Prefabs from the Project window into the Scene.
-   <br/>
+
 2. Add the [Sprite Library component](SLAsset.md#sprite-library-component) to `dialog` GameObject, then assign the `dialog.spriteLib` Asset to its **Sprite Library Asset** property.
-   <br/>
+
 3. Add the [Sprite Library component](SLAsset.md#sprite-library-component) to `dialog gray` GameObject, then assign the `dialog gray.spriteLib` Asset to its **Sprite Library Asset** property.
-   <br/>
-4. Expand the `dialog` GameObject's hierarchy and disable the `R_arm_2` child GameObject. This Asset is not required as it will be swapped in during the animation.
-   <br/>
+
+4. Expand the `dialog` GameObject's hierarchy and disable the `R_arm_2` child GameObject. This Asset is not required as it is swapped in during the animation.
+
 5. Go to the `R_arm_1` GameObject, and add the [Sprite Resolver component](SLAsset.md#sprite-resolver-component). Select the `R_arm_2` graphic from the **Label** drop-down menu or from its thumbnail.<br/>![](images/2D-animation-samples-spriteswap-animated-spritelib3.png)
-   <br/>
+
 6. Repeat steps 4 to 5 with the `dialog gray` GameObject.
-   <br/>
+
 7. Add the [Animator component](https://docs.unity3d.com/Manual/class-Animator.html) to the `dialog` and `dialog gray` GameObjects. Locate the Dialog [Animator Controller Asset](https://docs.unity3d.com/Manual/Animator.html) in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 Sprite Swap/Animation/Animators` and assign it to the Animator component's **Controller** property.
 
-In this sample, the Sprite Library component is not attached to the same GameObject as the Sprite Resolver component. The Sprite Resolver will attempt to locate a Sprite Library component starting from the same GameObject it is on and then traverse up the GameObject hierarchy. This makes it possible to have a single or multiple Sprite Resolvers use the same Sprite Library component by attaching the Sprite Library component to a common root GameObject that the Sprite Resolver components are attached to.
+In this sample, the Sprite Library component is not attached to the same GameObject as the Sprite Resolver component. The Sprite Resolver attempts to locate a Sprite Library component starting from the same GameObject it is on and then traverse up the GameObject hierarchy. This lets a single or multiple Sprite Resolvers use the same Sprite Library component by attaching the Sprite Library component to a common root GameObject that the Sprite Resolver components are attached to.
 
 ## Part Swap
 This sample demonstrates how to swap Sprite Assets using the API provided by changing the Sprite Resolver data. This sample uses some of the Assets and a similar setup to the [Multiple Skinned Sprites](ex-multiple-skinned-sprites.md) sample. Open the  `3 Part Swap.unity` Scene to see the sample in action.
@@ -114,19 +116,19 @@ A custom MonoBehaviour script called `SwapPart` is attached to the `Rikr_Root` G
 
 The script holds a reference to a Sprite Library component for retrieval of swappable Sprites. It also holds an array of data that describes the Category of Sprites in the Sprite Library that can be changed by a Sprite Resolver component.
 
-When the Swap Part script starts up, it will attempt to fetch the Sprite Library Asset that is used by a Sprite Library component.
+When the Swap Part script starts up, it attempts to fetch the Sprite Library Asset that is used by a Sprite Library component.
 
 ```c++
 var libraryAsset = spriteLibrary.spriteLibraryAsset;
 ```
-From this Sprite Library Asset, it will then fetch the Entries and Label names that are in a Category.
+From this Sprite Library Asset, it then fetches the Entries and Label names that are in a Category.
 
 ```c++
 var labels = libraryAsset.GetCategoryLabelNames(swapOption.category);
 ```
 This is then used to populate the UI Drop Down list.
 
-When a value changes in the UI Drop Down List, it will then set the Sprite Resolver component to use the relevant Sprite.
+When a value changes in the UI Drop Down List, it then sets the Sprite Resolver component to use the relevant Sprite.
 
 ```c++
 swapOption.spriteResolver.SetCategoryAndLabel(swapOption.category, swapOption.dropdown.options[x].text);
@@ -173,8 +175,6 @@ This difference from the Full Skin Swap method is that the Sprite Library Asset 
 
 ![](images/2D-animation-samples-DLCswap-scene.png)
 
-For more information about AssetBundles, please refer to the [AssetBundle documentation](https://docs.unity3d.com/Manual/AssetBundlesIntro.html).
-
 To ensure the AssetBundle works correctly, check that the `Rikr_Poison.spriteLib` and `Rikr_Rage.spriteLib` Assets in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprite Library` are labeled with their corresponding AssetBundle tag.
 
 ![](images/2D-animation-samples-DLCswap-assetbundle-property.png)<br/>The `Rikr_Rage.spriteLib` Asset labeled with 'rikrrage'.
@@ -182,4 +182,4 @@ To ensure the AssetBundle works correctly, check that the `Rikr_Poison.spriteLib
 ### Load Swap DLC Script
 A custom MonoBehaviour script called `LoadSwapDLC` is attached to the `Load DLC` GameObject. The script is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Scripts/Runtime/LoadSwapDLC.cs`
 
-The script is starts up when the DLC is loaded, it will scan the AssetBundles for any Sprite Library Assets. Once the Sprite Library Assets are loaded, it will add these Entries into the `SwapFullSkin` script from the [Full Skin Swap](#full-skin-swap) sample.
+The script starts up when the DLC is loaded, it scan the AssetBundles for any Sprite Library Assets. Once the Sprite Library Assets are loaded, it adds these Entries into the `SwapFullSkin` script from the [Full Skin Swap](#full-skin-swap) sample.

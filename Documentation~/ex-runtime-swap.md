@@ -7,7 +7,7 @@ The graphic Assets are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5
 - `Primary.psb`
 - `Skeleton.psb`
 
-The `Skeleton.psb` uses the [.skeleton Asset](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@5.0/manual/PSD-importer-properties.html#main-skeleton) from the `Primary.psb` for its rigging. It also references the `Primary.spriteLib` Sprite Library Asset located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`.
+The `Skeleton.psb` uses the [.skeleton Asset](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest/index.html?subfolder=/manual/PSD-importer-properties.html%23main-skeleton) from the `Primary.psb` for its rigging. It also references the `Primary.spriteLib` Sprite Library Asset located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`.
 
 ## Runtime Swap script
 A custom MonoBehaviour script called the `RuntimeSwap` is attached to the `KnigtboyRig` GameObject. The script is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Scripts/Runtime/RuntimeSwap.cs`

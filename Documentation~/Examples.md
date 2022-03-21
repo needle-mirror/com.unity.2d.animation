@@ -1,9 +1,9 @@
-# Sample projects
-Sample projects are available for import from the Package Manger under **Samples**, which demonstrate the different ways you can use the features in the 2D Animation package to achieve a variety of effects and outcomes.
+# Importing Samples
+Sample scenes are available for import from the Package Manger under **Samples**, which demonstrate the different ways you can use the features in the 2D Animation package to achieve a variety of effects and outcomes.
 
 ![](images/sample-import-button.png)<br/>Select **Import** to download and install the Sample projects and Assets.
 
-Each Sample project contain specific examples with ready-made Assets, demonstrating a certain way you can use the 2D Animation package's features and the results and outcomes you can achieve with them.
+Each Sample project contains specific examples with ready-made Assets, demonstrating how to use the 2D Animation package's features and the results and outcomes you can achieve with them.
 
 When the import is complete, Unity installs the Sample projects to `Assets/Samples/2D Animation/[X.Y.Z]/Samples`; where `[X.Y.Z]` is the version of the currently installed 2D Animation package.
 

@@ -463,6 +463,32 @@ namespace UnityEngine.U2D.Animation
                 m_LocalToWorldTransformAccessJob = new TransformAccessJob();
             if (m_WorldToLocalTransformAccessJob == null)
                 m_WorldToLocalTransformAccessJob = new TransformAccessJob();
+
+            CreateHelper();
+        }
+
+        void CreateHelper()
+        {
+            if (m_Helper != null)
+                return;
+            
+            m_Helper = new GameObject("SpriteSkinUpdateHelper");
+            m_Helper.hideFlags = HideFlags.HideAndDontSave;
+            var helperComponent = m_Helper.AddComponent<SpriteSkinUpdateHelper>();
+            helperComponent.onDestroyingComponent += OnHelperDestroyed;
+                
+#if !UNITY_EDITOR
+            GameObject.DontDestroyOnLoad(m_Helper);
+#endif
+        }
+
+        void OnHelperDestroyed(GameObject helperGo)
+        {
+            if (m_Helper != helperGo)
+                return;
+
+            m_Helper = null;
+            CreateHelper();
         }
 
         internal void ResetComposite()
@@ -479,16 +505,7 @@ namespace UnityEngine.U2D.Animation
         public void OnEnable()
         {
             s_Instance = this;
-            if (m_Helper == null)
-            {
-                m_Helper = new GameObject("SpriteSkinManager");
-                m_Helper.hideFlags = HideFlags.HideAndDontSave;
-                m_Helper.AddComponent<SpriteSkinManager.SpriteSkinManagerInternal>();
-#if !UNITY_EDITOR
-                GameObject.DontDestroyOnLoad(m_Helper);
-#endif
-            }
-            
+
             m_FinalBoneTransforms = new NativeArray<float4x4>(1, Allocator.Persistent);
             m_BoneLookupData = new NativeArray<int2>(1, Allocator.Persistent);
             m_VertexLookupData = new NativeArray<int2>(1, Allocator.Persistent);
@@ -544,8 +561,13 @@ namespace UnityEngine.U2D.Animation
             m_SkinBatchArray.DisposeIfCreated();
             m_FinalBoneTransforms.DisposeIfCreated();
             m_BoundsData.DisposeIfCreated();
+            
             if (m_Helper != null)
+            {
+                m_Helper.GetComponent<SpriteSkinUpdateHelper>().onDestroyingComponent -= OnHelperDestroyed;
                 GameObject.DestroyImmediate(m_Helper);
+            }
+            
             m_LocalToWorldTransformAccessJob.Destroy();
             m_WorldToLocalTransformAccessJob.Destroy();
         }

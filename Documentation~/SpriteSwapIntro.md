@@ -6,11 +6,11 @@ Using Sprite Swap to change the rendered Sprites on each frame at runtime, you c
 ## Sprite Swap Assets and components
 Sprite Swap requires the following Assets and components, which are all included with the 2D Animation package:
 
-1. The [Sprite Library Asset](SLAsset.md) that contains a set of selected Sprites which are assigned to different [Categories](SLAsset.md#category) and [Labels](SLAsset.md#entry).
-   <br/>
-2. Attach the [Sprite Library component](SLAsset.html#sprite-library-component) to a GameObject to assign or change which __Sprite Library Asset__ the GameObject refers to.
-   <br/>
-3. The [Sprite Resolver component](SLAsset.html#sprite-resolver-component) is used to request a Sprite registered to the Sprite Library Asset by referring to the __Category__ and __Label__ value of the desired Sprite.
+- The [Sprite Library Asset](SLAsset.md) that contains a set of selected Sprites which are assigned to different [Categories](SLAsset.md#category) and [Entries or Labels](SLAsset.md#entry).
+
+- Attach the [Sprite Library component](SLAsset.html#sprite-library-component) to a GameObject to assign or change which __Sprite Library Asset__ the GameObject refers to.
+
+- The [Sprite Resolver component](SLAsset.html#sprite-resolver-component) is used to request a Sprite registered to the Sprite Library Asset by referring to the __Category__ and __Label__ value of the desired Sprite.
 
 ## Skeletal animation limitations
 To ensure Sprite Swap works correctly with skeletal animation, the skeleton must be identical between the Sprites being swapped. Use the [Copy and Paste tools](SkinEdToolsShortcuts.md#copy-and-paste-behavior) to duplicate the bone and skeleton data from one Sprite to another to ensure they can be swapped correctly.

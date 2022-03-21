@@ -6,26 +6,25 @@ In the following example, there are two Sprites that are variations of the actor
 ![](images/bothscarves.PNG)<br/>__Left:__ The original `green scarf` Sprite. __Right:__ An alternate `blue scarf` Sprite.
 
 1. Place the Sprites for both scarves into the same [Sprite Library Asset](SLAsset.md), and add them both to the same **Category** (named `Scarf`).
-   <br/>
+
 2. Give each of the Sprites a unique __Label__ name (in this case `green scarf` and `blue scarf` respectively).<br/>![](images/2d-anim-change-parts-SLAsset.png)
-   <br/>
-3. In the Scene, select the [Instantiated Prefab](https://docs.unity3d.com/Manual/InstantiatingPrefabs.html) and then select the `Scarf` GameObject the Hierarchy window.
-   <br/>
+
+3. In the Scene, select the [Instantiated Prefab](https://docs.unity3d.com/Manual/InstantiatingPrefabs.html) and then select the `Scarf` GameObject in the Hierarchy window.
+
 4. Go to the [Sprite Resolver component](SLAsset.md#sprite-resolver-component) of the `Scarf` GameObject. The Sprite Resolver‘s visual selector displays the two Sprites available in the `Scarf` Category.<br/>![](images/2d-anim-change-parts-select-green.png)
-   <br/>
+
 5. Select the `blue scarf` to switch the Sprite rendered by the `Scarf` GameObject to it instead.<br/>![](images/2d-anim-change-parts-select-blue.png)<br/>The Sprite Resolver's Label is set to `blue scarf`.
 
 If you want to switch more than one Sprite at a time, consider [swapping the Sprite Library Asset](SLASwap.md) to switch to an entire alternate set of Sprites.
 
 ## Sprites pivot alignment
-
 When working with [skinned Sprites](SkinningEditor.md), the positions of their Meshes' vertices are calculated based on the current skeleton pose, and are unaffected by each Sprite’s individual pivot. However, when [swapping](SpriteSwapIntro.md) Sprites which are not skinned (that is not [Rigged](SkinEdToolsShortcuts.md#bone-tools) to an actor’s skeleton), then they may not align correctly as their pivots are not in the same relative positions. This is especially noticeable if the Sprites are of very different sizes. The following example shows how Sprites can misalign when a skinned Sprite is swapped with an unskinned one:
 
 | ![Figure 1: The original `open hand` Sprite.](images/Pivot_Scene_OpenHand.png) | ![Figure 2: Swapping to the `thumbs up` Sprite. ](images/Pivot_Scene_GestureOffset.png) |
 | ----------------------- | ----------------------- |
 | Figure 1: The original `open hand` Sprite. | Figure 2: Swapping to the `thumbs up` Sprite. |
 
-In this example, the GameObject containing the Sprite and the Sprite Swap component are aligned to match the `open hand` Sprite in the Skinning Editor. As the `thumbs up` Sprite is not rigged to the same skeleton, it appears misaligned as its pivot location is not in the same relative position as the original Sprite. To align the unskinned  `thumbs up` Sprite, it is necessary to adjust it’s pivot to match the relative position of the `open hand` Sprite’s pivot.
+In this example, the GameObject containing the Sprite and the Sprite Swap component are aligned to match the `open hand` Sprite in the Skinning Editor. As the `thumbs up` Sprite is not rigged to the same skeleton, it appears misaligned as its pivot location is not in the same relative position as the original Sprite. To align the unskinned  `thumbs up` Sprite, you must adjust its pivot to match the relative position of the `open hand` Sprite’s pivot.
 
 __Note__: If a Sprite is rigged to a skeleton, then its individual pivot location is overridden by the influence and position of the bone it is weighted to .
 

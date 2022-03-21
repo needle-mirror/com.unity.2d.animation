@@ -64,7 +64,7 @@ namespace UnityEditor.U2D.Animation
         public void UpdatePasteButtonEnabledState()
         {
             var tool = skinningCache.GetTool(Tools.CopyPaste) as CopyTool;
-            m_PasteBtn.SetEnabled(tool.HasValidCopiedData);
+            m_PasteBtn.SetEnabled(tool.hasValidCopiedData);
         }        
         
         private void AddShortcutsToToolTips()

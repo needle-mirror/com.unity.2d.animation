@@ -1,4 +1,10 @@
 # Changelog
+## [8.0.1] - 2022-03-21
+### Fixed
+- Fixed an issue where moving vertices in the Skinning Editor might result in invalid edges. (case 1402636)
+- Sprite Library cannot reference itself in the Main Library field or any asset that references it. (case 1402649)
+- Fixed an issue where the SpriteSkin components would not get initialized on editor launch. (case 1403568)
+- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405325)
 
 ## [8.0.0] - 2022-01-25
 ### Changed

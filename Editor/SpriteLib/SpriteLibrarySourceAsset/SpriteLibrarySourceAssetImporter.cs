@@ -14,7 +14,7 @@ namespace UnityEditor.U2D.Animation
     public class SpriteLibrarySourceAssetImporter : ScriptedImporter
     {
         [SerializeField] 
-        private SpriteLibraryAsset m_PrimaryLibrary;
+        SpriteLibraryAsset m_PrimaryLibrary;
         
         /// <summary>
         /// Implementation of ScriptedImporter.OnImportAsset
@@ -26,13 +26,16 @@ namespace UnityEditor.U2D.Animation
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var spriteLib = ScriptableObject.CreateInstance<SpriteLibraryAsset>();
-            spriteLib.name = System.IO.Path.GetFileNameWithoutExtension(assetPath);
+            spriteLib.name = Path.GetFileNameWithoutExtension(assetPath);
             var sourceAsset = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(assetPath);
             if (sourceAsset?.Length > 0)
             {
                 var sourceLibraryAsset = sourceAsset[0] as SpriteLibrarySourceAsset;
                 if (sourceLibraryAsset != null)
                 {
+                    if (!HasValidMainLibrary(sourceLibraryAsset, assetPath))
+                        sourceLibraryAsset.primaryLibraryID = string.Empty;
+                    
                     UpdateSpriteLibrarySourceAssetLibraryWithMainAsset(sourceLibraryAsset);
 
                     foreach (var cat in sourceLibraryAsset.library)
@@ -46,14 +49,12 @@ namespace UnityEditor.U2D.Animation
                     
                     spriteLib.modificationHash = sourceLibraryAsset.modificationHash;
                     spriteLib.version = sourceLibraryAsset.version;
-                }
-                if (!string.IsNullOrEmpty(sourceLibraryAsset.primaryLibraryID))
-                {
-                    var primaryAssetPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryID);
-                    if (primaryAssetPath != assetPath)
+                    
+                    if (!string.IsNullOrEmpty(sourceLibraryAsset.primaryLibraryID))
                     {
+                        var primaryAssetPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryID);
                         ctx.DependsOnArtifact(AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryID));
-                        m_PrimaryLibrary = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(primaryAssetPath);                    
+                        m_PrimaryLibrary = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(primaryAssetPath);
                     }
                 }
             }
@@ -63,15 +64,33 @@ namespace UnityEditor.U2D.Animation
 
         internal static void UpdateSpriteLibrarySourceAssetLibraryWithMainAsset(SpriteLibrarySourceAsset sourceLibraryAsset)
         {
-            SpriteLibraryAsset mainLibraryAsset = null;
-            var mainLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryID);
-            mainLibraryAsset =  AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(mainLibraryAssetAssetPath);
             var so = new SerializedObject(sourceLibraryAsset);
             var library = so.FindProperty("m_Library");
+            var mainLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryID);
+            var mainLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(mainLibraryAssetAssetPath);
             SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(mainLibraryAsset, library);
             if (so.hasModifiedProperties)
                 so.ApplyModifiedPropertiesWithoutUndo();
-    
+        }
+
+        internal static bool HasValidMainLibrary(SpriteLibrarySourceAsset sourceLibraryAsset, string assetPath)
+        {
+            if (string.IsNullOrEmpty(sourceLibraryAsset.primaryLibraryID))
+                return false;
+            
+            var primaryLibraryPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryID);
+            if (assetPath == primaryLibraryPath)
+                return false;
+
+            var primaryAssetParentChain = GetAssetParentChain(AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(primaryLibraryPath));
+            foreach (var parentLibrary in primaryAssetParentChain)
+            {
+                var parentPath = AssetDatabase.GetAssetPath(parentLibrary);
+                if (parentPath == assetPath)
+                    return false;
+            }
+
+            return true;
         }
         
         internal static SpriteLibrarySourceAsset LoadSpriteLibrarySourceAsset(string path)
@@ -87,6 +106,9 @@ namespace UnityEditor.U2D.Animation
 
         internal static void SaveSpriteLibrarySourceAsset(SpriteLibrarySourceAsset obj, string path)
         {
+            if (!HasValidMainLibrary(obj, path))
+                obj.primaryLibraryID = string.Empty;
+            
             UnityEditorInternal.InternalEditorUtility.SaveToSerializedFileAndForget(new [] {obj}, path, true);
         }
             
@@ -143,6 +165,36 @@ namespace UnityEditor.U2D.Animation
                 }
             }
             AssetDatabase.Refresh();
+        }
+        
+        internal static SpriteLibraryAsset GetAssetParent(SpriteLibraryAsset asset)
+        {
+            var currentAssetPath = AssetDatabase.GetAssetPath(asset);
+            var sourceAsset = LoadSpriteLibrarySourceAsset(currentAssetPath);
+            var primaryLibraryId = sourceAsset != null ? sourceAsset.primaryLibraryID : null;
+            if (primaryLibraryId != null)
+            {
+                var primaryLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(primaryLibraryId);
+                return AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(primaryLibraryAssetAssetPath);
+            }
+
+            return null;
+        }
+
+        internal static List<SpriteLibraryAsset> GetAssetParentChain(SpriteLibraryAsset asset)
+        {
+            var chain = new List<SpriteLibraryAsset>();
+            if (asset != null)
+            {
+                var parent = GetAssetParent(asset);
+                while (parent != null && !chain.Contains(parent))
+                {
+                    chain.Add(parent);
+                    parent = GetAssetParent(parent);
+                }
+            }
+
+            return chain;
         }
     }
 }

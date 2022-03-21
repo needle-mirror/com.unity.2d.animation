@@ -24,14 +24,17 @@ namespace UnityEditor.U2D.Animation
             get { return m_SpriteMeshData; }
             set { m_SpriteMeshData = value; }
         }
-
+        
         public ISelection<int> selection { get; set; }
+
         public ICacheUndo cacheUndo { get; set; }
         public ITriangulator triangulator { get; set; }
         public bool disable { get; set; }
         public Rect frame { get; set; }
         private ISpriteMeshData m_SpriteMeshData;
         private bool m_Moved = false;
+        
+        Vector2[] m_MovedVerticesCache;
 
         public void OnGUI()
         {
@@ -109,15 +112,14 @@ namespace UnityEditor.U2D.Animation
                     selection.Clear();
                     break;
                 }
-            }            
+            }
         }
 
         private void LayoutVertices()
         {
-            for (int i = 0; i < m_SpriteMeshData.vertexCount; i++)
+            for (var i = 0; i < m_SpriteMeshData.vertexCount; i++)
             {
-                Vector2 position = m_SpriteMeshData.GetPosition(i);
-                spriteMeshView.LayoutVertex(position, i);
+                spriteMeshView.LayoutVertex(m_SpriteMeshData.GetPosition(i), i);
             }
         }
 
@@ -276,16 +278,21 @@ namespace UnityEditor.U2D.Animation
             if(spriteMeshView.IsActionTriggered(MeshEditorAction.MoveVertex))
                 m_Moved = false;
 
-            Vector2 delta;
-            if (spriteMeshView.DoMoveVertex(out delta))
+            if (spriteMeshView.DoMoveVertex(out var deltaPosition))
             {
+                deltaPosition = MathUtility.MoveRectInsideFrame(CalculateRectFromSelection(), frame, deltaPosition);
+                CacheMovedVertices(deltaPosition);
+                
+                if(IsMovedSelectionIntersectingWithEdges())
+                    return;
+                
                 if(!m_Moved)
                 {
                     cacheUndo.BeginUndoOperation(TextContent.moveVertices);
                     m_Moved = true;
                 }
 
-                MoveSelectedVertices(delta);
+                MoveSelectedVertices();
             }
         }
 
@@ -312,16 +319,21 @@ namespace UnityEditor.U2D.Animation
             if(spriteMeshView.IsActionTriggered(MeshEditorAction.MoveEdge))
                 m_Moved = false;
 
-            Vector2 delta;
-            if (spriteMeshView.DoMoveEdge(out delta))
+            if (spriteMeshView.DoMoveEdge(out var deltaPosition))
             {
+                deltaPosition = MathUtility.MoveRectInsideFrame(CalculateRectFromSelection(), frame, deltaPosition);
+                CacheMovedVertices(deltaPosition);
+                
+                if(IsMovedSelectionIntersectingWithEdges())
+                    return;
+                
                 if(!m_Moved)
                 {
                     cacheUndo.BeginUndoOperation(TextContent.moveVertices);
                     m_Moved = true;
                 }
-                
-                MoveSelectedVertices(delta);
+
+                MoveSelectedVertices();
             }
         }
 
@@ -469,17 +481,10 @@ namespace UnityEditor.U2D.Animation
             selection.Clear();
         }
 
-        private void MoveSelectedVertices(Vector2 delta)
+        private void MoveSelectedVertices()
         {
-            delta = MathUtility.MoveRectInsideFrame(CalculateRectFromSelection(), frame, delta);
-
-            var indices = selection.elements;
-
-            foreach (int index in indices)
-            {
-                Vector2 v = m_SpriteMeshData.GetPosition(index);
-                m_SpriteMeshData.SetPosition(index, ClampToFrame(v + delta));
-            }
+            foreach (var index in selection.elements)
+                m_SpriteMeshData.SetPosition(index, m_MovedVerticesCache[index]);
 
             Triangulate();
         }
@@ -697,6 +702,59 @@ namespace UnityEditor.U2D.Animation
             }
 
             return intersectingEdgeIndex != -1;
+        }
+
+
+        void CacheMovedVertices(Vector2 deltaPosition)
+        {
+            var vertexCount = m_SpriteMeshData.vertexCount;
+            if (m_MovedVerticesCache == null || m_MovedVerticesCache.Length != vertexCount)
+                m_MovedVerticesCache = new Vector2[vertexCount];
+
+            for (var v = 0; v < vertexCount; v++)
+            {
+                var vPos = m_SpriteMeshData.GetPosition(v);
+                if (selection.Contains(v))
+                    vPos += deltaPosition;
+                m_MovedVerticesCache[v] = vPos;
+            }
+        }
+        
+        bool IsMovedSelectionIntersectingWithEdges()
+        {
+            var edges = m_SpriteMeshData.edges;
+            var edgeCount = edges.Count;
+            var edgeIntersectionPoint = Vector2.zero;
+            
+            for (var e = 0; e < edges.Count; e++)
+            {
+                var edgeInSelection = edges[e];
+                var edgeIndex1 = edgeInSelection.index1;
+                var edgeIndex2 = edgeInSelection.index2;
+                if (!(selection.Contains(edgeIndex1) || selection.Contains(edgeIndex2)))
+                    continue;
+
+                var edgeStart = m_MovedVerticesCache[edgeIndex1];
+                var edgeEnd = m_MovedVerticesCache[edgeIndex2];
+
+                for (var o = 0; o < edgeCount; o++)
+                {
+                    if (o == e)
+                        continue;
+
+                    var otherEdge = edges[o];
+                    var otherIndex1 = otherEdge.index1;
+                    var otherIndex2 = otherEdge.index2;
+
+                    if (edgeInSelection.Contains(otherIndex1) || edgeInSelection.Contains(otherIndex2))
+                        continue;
+
+                    if (MathUtility.SegmentIntersection(edgeStart, edgeEnd, m_MovedVerticesCache[otherIndex1], m_MovedVerticesCache[otherIndex2], ref edgeIntersectionPoint))
+                        return true;
+                }
+            }
+
+            return false;
         }
     }
 }

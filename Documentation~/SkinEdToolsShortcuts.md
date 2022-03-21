@@ -18,7 +18,7 @@ F. [Rig tools](#rig-tools)
 
 ## Editor toolbar
 
-This toolbar allows the user to toggle between __Character__ and __Sprite Sheet__ modes. It also contains the __Visibility__ toggle.
+This toolbar lets you toggle between __Character__ and __Sprite Sheet__ modes. It also contains the __Visibility__ toggle.
 
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
@@ -207,9 +207,9 @@ The __Rig tools__ contain the option to __Copy__ and __Paste__ bones from and in
 | ![Paste](images/icon_Paste.png)<br/>__Paste__                | Shift + B            | Use this shortcut to show additional pasting options.        |
 
 ### Copy and Paste behavior
-Once you [rigged the skeleton and bone weights](CharacterRig.md) of your actor, you can reuse the same rigged skeleton with other Model Prefabs by using the **Copy** and **Paste** options on the [Rig tools](SkinEdToolsShortcuts.md#rig-tools). This is useful if you need to quickly create characters that share the same build and animations.
+Once you have [rigged the skeleton and bone weights](CharacterRig.md) of your actor, you can reuse the same rigged skeleton with other Model Prefabs by using the **Copy** and **Paste** options on the [Rig tools](SkinEdToolsShortcuts.md#rig-tools). This is useful if you need to quickly create characters that share the same build and animations.
 
-Copy and Paste can only be done if the source and destination Model Prefabs have the same number of Sprites and Sprite names. When you Copy and Paste the bone and mesh data, the following occurs:
+You can only Copy and Paste if the source and destination Model Prefabs have the same number of Sprites and Sprite names. When you Copy and Paste the bone and mesh data, the following occurs:
 
 1. Copied bone data is pasted to the destination.
 2. Mesh, weights, and bone association of source Sprite(s) are pasted to destination Sprite(s) with the same names.

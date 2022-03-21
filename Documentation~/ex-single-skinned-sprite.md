@@ -16,9 +16,9 @@ The `_Single Skinned Sprite` sample Scene show how the Asset is used in a Scene 
 Follow the steps below to reconstruct the `_Single Skinned Sprite` sample Scene:
 
 1. Create a new Scene, and create an empty GameObject. Name this GameObject 'Plunkah'.
-   <br/>
+
 2. Add the [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) component and go to its Inspector window. Assign the 'Plunkah' Sprite to its **Sprite** property.
-   <br/>
+
 3. Add the [Sprite Skin](SpriteSkin.md) component to the 'Plunkah' GameObject, and go to the component's Inspector window. Select **Create Bones** to create GameObject Transforms which represent the bones of this Sprite.
-   <br/>
+
 4. Add the [Animator component](https://docs.unity3d.com/Manual/class-Animator.html) to the 'Plunkah' GameObject. Locate the Plunkah [Animator Controller Asset](https://docs.unity3d.com/Manual/Animator.html) in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/2 Single Skinned Sprite/Animation/Plunkah.controller` and assign this Asset to the Animator’s **Controller** property.

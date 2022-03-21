@@ -1,4 +1,6 @@
 # Sprite Visibility panel
+Use the Sprite Visibility panel to increase or decrease the visibility of bones and sprite meshes.
+
 Toggle the __Sprite Visibility__ panel by selecting the __Visibility tool__ button along the upper right of the editor window:
 
 ![](images/Highlighted_Visibility_icon.png)
@@ -7,9 +9,10 @@ The panel appears on the right-side of the editor window. It has two sliders at 
 
 ![](images/2D-animation-v7-vis-panel.png)
 
-The **Bone** tab displays the [Bone hierarchy](#bone-tab-and-hierarchy-tree) of the character Prefab, and the **Sprite** tab displays the names of the Sprites and their grouping hierarchy.
+The **Bone** tab displays the [Bone hierarchy](#bone-tab-and-hierarchy-tree) of the character Prefab. The **Sprite** tab displays the names of the Sprites and their grouping hierarchy.
 
-**Note:** You will no longer be able to create or define a [Sprite Library Asset](SLAsset.md) within the Skinning Editor module from 2D Animation version 6.0 onwards, and the **Category** and **Label** columns have been removed from the Sprite Visibility panel. Please refer to the [Sprite Library Asset documentation](SLAsset.md) for more information.
+<!-- Is it still relevant for the following note to be here? -->
+**Note:** You cannot create or define a [Sprite Library Asset](SLAsset.md) within the Skinning Editor module from 2D Animation version 6.0 onwards, and the **Category** and **Label** columns have been removed from the Sprite Visibility panel. Please refer to the [Sprite Library Asset documentation](SLAsset.md) for more information.
 
 ## Bone tab and hierarchy tree
 

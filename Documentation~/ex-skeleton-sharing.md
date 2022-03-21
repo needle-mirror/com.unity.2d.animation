@@ -8,7 +8,7 @@ This sample's setup is similar to the one in the [Full Skin Swap](ex-sprite-swap
 - `Primary.psb`
 - `Variant.psb`
 
-The `Variant.psb` uses the [.skeleton Asset](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@5.0/manual/PSD-importer-properties.html#main-skeleton) from the `Primary.psb`, which means that the `Variant.psb` is prepared using the same skeleton structure as the `Primary.psb`.
+The `Variant.psb` uses the [.skeleton Asset](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest/index.html?subfolder=/manual/PSD-importer-properties.html%23main-skeleton) from the `Primary.psb`, which means that the `Variant.psb` is prepared using the same skeleton structure as the `Primary.psb`.
 
 ![](images/2D-animation-samples-skelesharing-properties.png)
 

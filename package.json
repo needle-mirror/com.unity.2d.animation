@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "8.0.0",
+  "version": "8.0.1",
   "unity": "2022.1",
   "displayName": "2D Animation",
   "description": "2D Animation provides all the necessary tooling and runtime components for skeletal animation using Sprites.",
@@ -16,7 +16,7 @@
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "8.0.0",
+    "com.unity.2d.animation.tests": "8.0.1",
     "com.unity.2d.common.tests": "7.0.0",
     "com.unity.2d.psdimporter": "7.0.0"
   },
@@ -27,12 +27,15 @@
       "path": "Samples~/AnimationSamples"
     }
   ],
+  "upm": {
+    "changelog": "### Fixed\n- Fixed an issue where moving vertices in the Skinning Editor might result in invalid edges. (case 1402636)\n- Sprite Library cannot reference itself in the Main Library field or any asset that references it. (case 1402649)\n- Fixed an issue where the SpriteSkin components would not get initialized on editor launch. (case 1403568)\n- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405325)"
+  },
   "upmCi": {
-    "footprint": "6279a42206debd9ad0867b05f0cbcf66280f92e1"
+    "footprint": "eeb0dff6ef695e5917a80a934cd5b3848b7cd9f5"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "9b89f439ca5c8ef326594d90bc874e30e9e37104"
+    "revision": "7239069ee5cfcb81d36d5fc745557d9ac2f03462"
   }
 }
