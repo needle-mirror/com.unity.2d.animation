@@ -13,9 +13,6 @@ namespace UnityEditor.U2D.Animation
     [ScriptedImporter(22100000, "spriteLib", AllowCaching = true)]
     public class SpriteLibrarySourceAssetImporter : ScriptedImporter
     {
-        [SerializeField] 
-        SpriteLibraryAsset m_PrimaryLibrary;
-        
         /// <summary>
         /// Implementation of ScriptedImporter.OnImportAsset
         /// </summary>
@@ -34,8 +31,8 @@ namespace UnityEditor.U2D.Animation
                 if (sourceLibraryAsset != null)
                 {
                     if (!HasValidMainLibrary(sourceLibraryAsset, assetPath))
-                        sourceLibraryAsset.primaryLibraryID = string.Empty;
-                    
+                        sourceLibraryAsset.SetPrimaryLibraryGUID(string.Empty);
+
                     UpdateSpriteLibrarySourceAssetLibraryWithMainAsset(sourceLibraryAsset);
 
                     foreach (var cat in sourceLibraryAsset.library)
@@ -46,16 +43,12 @@ namespace UnityEditor.U2D.Animation
                             spriteLib.AddCategoryLabel(entry.spriteOverride, cat.name, entry.name);
                         }
                     }
-                    
+
                     spriteLib.modificationHash = sourceLibraryAsset.modificationHash;
                     spriteLib.version = sourceLibraryAsset.version;
-                    
-                    if (!string.IsNullOrEmpty(sourceLibraryAsset.primaryLibraryID))
-                    {
-                        var primaryAssetPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryID);
-                        ctx.DependsOnArtifact(AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryID));
-                        m_PrimaryLibrary = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(primaryAssetPath);
-                    }
+
+                    if (!string.IsNullOrEmpty(sourceLibraryAsset.primaryLibraryGUID))
+                        ctx.DependsOnArtifact(AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryGUID));
                 }
             }
 
@@ -65,8 +58,8 @@ namespace UnityEditor.U2D.Animation
         internal static void UpdateSpriteLibrarySourceAssetLibraryWithMainAsset(SpriteLibrarySourceAsset sourceLibraryAsset)
         {
             var so = new SerializedObject(sourceLibraryAsset);
-            var library = so.FindProperty("m_Library");
-            var mainLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryID);
+            var library = so.FindProperty(SpriteLibrarySourceAssetPropertyString.library);
+            var mainLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryGUID);
             var mainLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(mainLibraryAssetAssetPath);
             SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(mainLibraryAsset, library);
             if (so.hasModifiedProperties)
@@ -75,10 +68,10 @@ namespace UnityEditor.U2D.Animation
 
         internal static bool HasValidMainLibrary(SpriteLibrarySourceAsset sourceLibraryAsset, string assetPath)
         {
-            if (string.IsNullOrEmpty(sourceLibraryAsset.primaryLibraryID))
+            if (string.IsNullOrEmpty(sourceLibraryAsset.primaryLibraryGUID))
                 return false;
-            
-            var primaryLibraryPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryID);
+
+            var primaryLibraryPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryGUID);
             if (assetPath == primaryLibraryPath)
                 return false;
 
@@ -92,7 +85,7 @@ namespace UnityEditor.U2D.Animation
 
             return true;
         }
-        
+
         internal static SpriteLibrarySourceAsset LoadSpriteLibrarySourceAsset(string path)
         {
             var loadedObjects = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(path);
@@ -101,17 +94,18 @@ namespace UnityEditor.U2D.Animation
                 if (obj is SpriteLibrarySourceAsset)
                     return (SpriteLibrarySourceAsset)obj;
             }
+
             return null;
         }
 
         internal static void SaveSpriteLibrarySourceAsset(SpriteLibrarySourceAsset obj, string path)
         {
             if (!HasValidMainLibrary(obj, path))
-                obj.primaryLibraryID = string.Empty;
-            
-            UnityEditorInternal.InternalEditorUtility.SaveToSerializedFileAndForget(new [] {obj}, path, true);
+                obj.SetPrimaryLibraryGUID(string.Empty);
+
+            UnityEditorInternal.InternalEditorUtility.SaveToSerializedFileAndForget(new[] { obj }, path, true);
         }
-            
+
         [MenuItem("internal:Assets/Convert to SpriteLibrarySourceAsset", true)]
         static bool ConvertToSpriteLibrarySourceAssetValidate()
         {
@@ -120,26 +114,26 @@ namespace UnityEditor.U2D.Animation
                 if (obj is SpriteLibraryAsset)
                     return true;
             }
+
             return false;
         }
-        
+
         [MenuItem("internal:Assets/Convert to SpriteLibrarySourceAsset")]
         static void ConvertToSourceAsset()
         {
-        
             foreach (var obj in Selection.objects)
             {
                 if (obj is SpriteLibraryAsset)
                 {
-                    var asset = (SpriteLibraryAsset) obj;
+                    var asset = (SpriteLibraryAsset)obj;
                     var path = AssetDatabase.GetAssetPath(asset);
                     var currentAssetPath = Path.GetDirectoryName(path);
                     var fileName = Path.GetFileNameWithoutExtension(path);
-                    var convertFileName = fileName + ".spriteLib";
+                    var convertFileName = fileName + SpriteLibrarySourceAsset.extension;
                     convertFileName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(currentAssetPath, convertFileName));
                     var convertAsset = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();
                     convertAsset.SetLibrary(new List<SpriteLibCategoryOverride>(asset.categories.Count));
-                    for (int i = 0; i < asset.categories.Count; ++i)
+                    for (var i = 0; i < asset.categories.Count; ++i)
                     {
                         var category = asset.categories[i];
                         var newCategory = new SpriteLibCategoryOverride()
@@ -150,7 +144,7 @@ namespace UnityEditor.U2D.Animation
                             fromMain = false
                         };
                         convertAsset.AddCategory(newCategory);
-                        for (int j = 0; j < category.categoryList.Count; ++j)
+                        for (var j = 0; j < category.categoryList.Count; ++j)
                         {
                             newCategory.overrideEntries.Add(new SpriteCategoryEntryOverride()
                             {
@@ -161,17 +155,19 @@ namespace UnityEditor.U2D.Animation
                             });
                         }
                     }
-                    SpriteLibrarySourceAssetImporter.SaveSpriteLibrarySourceAsset(convertAsset, convertFileName);
+
+                    SaveSpriteLibrarySourceAsset(convertAsset, convertFileName);
                 }
             }
+
             AssetDatabase.Refresh();
         }
-        
+
         internal static SpriteLibraryAsset GetAssetParent(SpriteLibraryAsset asset)
         {
             var currentAssetPath = AssetDatabase.GetAssetPath(asset);
             var sourceAsset = LoadSpriteLibrarySourceAsset(currentAssetPath);
-            var primaryLibraryId = sourceAsset != null ? sourceAsset.primaryLibraryID : null;
+            var primaryLibraryId = sourceAsset != null ? sourceAsset.primaryLibraryGUID : null;
             if (primaryLibraryId != null)
             {
                 var primaryLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(primaryLibraryId);
@@ -195,6 +191,18 @@ namespace UnityEditor.U2D.Animation
             }
 
             return chain;
+        }
+
+        internal static SpriteLibraryAsset GetAssetFromSelection()
+        {
+            foreach (var selectedObject in Selection.objects)
+            {
+                var selectedAsset = selectedObject as SpriteLibraryAsset;
+                if (selectedAsset != null)
+                    return selectedAsset;
+            }
+
+            return null;
         }
     }
 }

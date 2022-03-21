@@ -1,4 +1,3 @@
-#if ENABLE_ANIMATION_COLLECTION
 using System;
 using Unity.Mathematics;
 using System.Collections.Generic;
@@ -33,10 +32,8 @@ namespace UnityEngine.U2D.Animation
         public int transformId;
         public NativeCustomSlice<int> boneTransformId;
     }
-
-#if ENABLE_ANIMATION_BURST
+    
     [BurstCompile]
-#endif 
     internal struct PrepareDeformJob :IJob
     {
         [ReadOnly]
@@ -64,10 +61,8 @@ namespace UnityEngine.U2D.Animation
             }
         }
     }
-
-#if ENABLE_ANIMATION_BURST
+    
     [BurstCompile]
-#endif 
     internal struct BoneDeformBatchedJob : IJobParallelFor
     {
         [ReadOnly]
@@ -100,11 +95,8 @@ namespace UnityEngine.U2D.Animation
             finalBoneTransforms[i] = math.mul(rootTransform[cc], math.mul(aa, bb));
         }
     }
-
-#if ENABLE_ANIMATION_BURST
+    
     [BurstCompile]
-#endif 
-
     internal struct SkinDeformBatchedJob : IJobParallelFor
     {
         public NativeSlice<byte> vertices;
@@ -163,10 +155,8 @@ namespace UnityEngine.U2D.Animation
                 math.transform(finalBoneTransforms[bone3], srcVertex) * influence.weight3;
         }
     }
-
-#if ENABLE_ANIMATION_BURST
+    
     [BurstCompile]
-#endif 
     internal struct CalculateSpriteSkinAABBJob : IJobParallelFor
     {
         public NativeSlice<byte> vertices;
@@ -194,10 +184,8 @@ namespace UnityEngine.U2D.Animation
             bounds[i] = SpriteSkinUtility.CalculateSpriteSkinBounds(deformableVerticesFloat3);
         }
     }
-
-#if ENABLE_ANIMATION_BURST
+    
     [BurstCompile]
-#endif
     internal struct FillPerSkinJobSingleThread : IJob
     {
         public PerSkinJobData combinedSkinBatch;
@@ -239,10 +227,8 @@ namespace UnityEngine.U2D.Animation
             combinedSkinBatchArray[0] = combinedSkinBatch;
         }
     }
-
-#if ENABLE_ANIMATION_BURST
+    
     [BurstCompile]
-#endif 
     internal struct CopySpriteRendererBuffersJob : IJobParallelFor
     {
         [ReadOnly]
@@ -276,6 +262,8 @@ namespace UnityEngine.U2D.Animation
     {
         static class Profiling
         {
+            public static readonly ProfilerMarker batchAddSpriteSkin = new ProfilerMarker("SpriteSkinComposite.BatchAddSpriteSkin");
+            public static readonly ProfilerMarker batchRemoveSpriteSkin = new ProfilerMarker("SpriteSkinComposite.BatchRemoveSpriteSkin");
             public static readonly ProfilerMarker prepareData = new ProfilerMarker("SpriteSkinComposite.PrepareData");
             public static readonly ProfilerMarker validateSpriteSkinData = new ProfilerMarker("SpriteSkinComposite.ValidateSpriteSkinData");
             public static readonly ProfilerMarker transformAccessJob = new ProfilerMarker("SpriteSkinComposite.TransformAccessJob");
@@ -307,8 +295,10 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
+        List<SpriteSkin> m_SpriteSkinsToAdd = new List<SpriteSkin>();
+        List<SpriteSkin> m_SpriteSkinsToRemove = new List<SpriteSkin>();
+        List<int> m_TransformIdsToRemove = new List<int>();
         List<SpriteSkin> m_SpriteSkins = new List<SpriteSkin>();
-        List<SpriteSkin> m_SpriteSkinLateUpdate = new List<SpriteSkin>();
         SpriteRenderer[] m_SpriteRenderers = new SpriteRenderer[0];
 
         NativeByteArray m_DeformedVerticesBuffer;
@@ -365,26 +355,14 @@ namespace UnityEngine.U2D.Animation
         {
             if (spriteSkin == null)
                 return;
+            
+            if (!DoesContainSpriteSkin(m_SpriteSkins, spriteSkin) && !DoesContainSpriteSkin(m_SpriteSkinsToAdd, spriteSkin))
+                m_SpriteSkinsToAdd.Add(spriteSkin);
 
-            var added = m_SpriteSkins.Contains(spriteSkin);
-            Debug.Assert(!added, $"SpriteSkin {spriteSkin.gameObject.name} is already added");
-            if (!added)
+            if (DoesContainSpriteSkin(m_SpriteSkinsToRemove, spriteSkin))
             {
-                m_SpriteSkins.Add(spriteSkin);
-                var count = m_SpriteSkins.Count;
-                Array.Resize(ref m_SpriteRenderers, count);
-                m_SpriteRenderers[count - 1] = spriteSkin.spriteRenderer;
-                m_WorldToLocalTransformAccessJob.AddTransform(spriteSkin.transform);
-                if (m_IsSpriteSkinActiveForDeform.IsCreated)
-                {
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_IsSpriteSkinActiveForDeform, count);
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_PerSkinJobData, count);
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_SpriteSkinData, count);
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoundsData, count);
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_Buffers, count);
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BufferSizes, count);
-                    CopyToSpriteSkinData(count - 1);
-                }
+                m_SpriteSkinsToRemove.Remove(spriteSkin);
+                m_TransformIdsToRemove.Remove(spriteSkin.transform.GetInstanceID());
             }
         }
 
@@ -400,9 +378,11 @@ namespace UnityEngine.U2D.Animation
 
         private void CopyToSpriteSkinData(int index)
         {
-            if (index < 0 || index >= m_SpriteSkins.Count || !m_SpriteSkinData.IsCreated)
+            if (index < 0 || index >= m_SpriteSkins.Count || m_SpriteSkins[index] == null)
                 return;
-
+            if (!m_SpriteSkinData.IsCreated)
+                return;
+            
             var spriteSkinData = default(SpriteSkinData);
             var spriteSkin = m_SpriteSkins[index];
             spriteSkin.CopyToSpriteSkinData(ref spriteSkinData, index);
@@ -412,49 +392,25 @@ namespace UnityEngine.U2D.Animation
 
         internal void RemoveSpriteSkin(SpriteSkin spriteSkin)
         {
-            var index = m_SpriteSkins.IndexOf(spriteSkin);
-            if (index < 0)
-                return;
-
-            // Check if it is not the last SpriteSkin
-            if (index < m_SpriteSkins.Count - 1)
-            {
-                m_SpriteSkins.RemoveAtSwapBack(index);
-                CopyToSpriteSkinData(index);
-            }
-            else
-            {
-                m_SpriteSkins.RemoveAt(index);
-            }
-
-            var count = m_SpriteSkins.Count;
-            Array.Resize(ref m_SpriteRenderers, count);
-            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_IsSpriteSkinActiveForDeform, count);
-            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_PerSkinJobData, count);
-            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_SpriteSkinData, count);
-            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoundsData, count);
-            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_Buffers, count);
-            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BufferSizes, count);
-
-            m_WorldToLocalTransformAccessJob.RemoveTransform(spriteSkin.transform);
-        }
-
-        internal void AddSpriteSkinForLateUpdate(SpriteSkin spriteSkin)
-        {
             if (spriteSkin == null)
                 return;
 
-            var added = m_SpriteSkinLateUpdate.Contains(spriteSkin);
-            Debug.Assert(!added, $"SpriteSkin {spriteSkin.gameObject.name} is already added for LateUpdate");
-            if (!added)
+            if (DoesContainSpriteSkin(m_SpriteSkins, spriteSkin) && !DoesContainSpriteSkin(m_SpriteSkinsToRemove, spriteSkin))
             {
-                m_SpriteSkinLateUpdate.Add(spriteSkin);
+                m_SpriteSkinsToRemove.Add(spriteSkin);
+                m_TransformIdsToRemove.Add(spriteSkin.transform.GetInstanceID());
             }
-        }
 
-        internal void RemoveSpriteSkinForLateUpdate(SpriteSkin spriteSkin)
+            if (DoesContainSpriteSkin(m_SpriteSkinsToAdd, spriteSkin))
+                m_SpriteSkinsToAdd.Remove(spriteSkin);
+        }
+        
+        static bool DoesContainSpriteSkin(in List<SpriteSkin> collection, SpriteSkin skin)
         {
-            m_SpriteSkinLateUpdate.Remove(spriteSkin);
+            var index = collection.IndexOf(skin);
+            if (index < 0)
+                return false;
+            return collection[index] != null;
         }
 
         void Init()
@@ -493,8 +449,6 @@ namespace UnityEngine.U2D.Animation
 
         internal void ResetComposite()
         {
-            foreach (var spriteSkin in m_SpriteSkins)
-                spriteSkin.batchSkinning = false;
             m_SpriteSkins.Clear();
             m_LocalToWorldTransformAccessJob.Destroy();
             m_WorldToLocalTransformAccessJob.Destroy();
@@ -512,6 +466,8 @@ namespace UnityEngine.U2D.Animation
             m_SkinBatchArray = new NativeArray<PerSkinJobData>(1, Allocator.Persistent);
 
             Init();
+            BatchRemoveSpriteSkins();
+            BatchAddSpriteSkins();
 
             // Initialise all existing SpriteSkins as execution order is indeterminate
             var count = m_SpriteSkins.Count; 
@@ -523,12 +479,9 @@ namespace UnityEngine.U2D.Animation
                 m_BoundsData = new NativeArray<Bounds>(count, Allocator.Persistent);
                 m_Buffers = new NativeArray<IntPtr>(count, Allocator.Persistent);
                 m_BufferSizes = new NativeArray<int>(count, Allocator.Persistent);
+                
                 for (var i = 0; i < count; ++i)
-                {
-                    var spriteSkin = m_SpriteSkins[i];
-                    spriteSkin.batchSkinning = true;
                     CopyToSpriteSkinData(i);
-                }
             }
             else
             {
@@ -546,8 +499,6 @@ namespace UnityEngine.U2D.Animation
             m_DeformJobHandle.Complete();
             m_BoundJobHandle.Complete();
             m_CopyJobHandle.Complete();
-            foreach (var spriteSkin in m_SpriteSkins)
-                spriteSkin.batchSkinning = false;
             m_SpriteSkins.Clear();
             m_SpriteRenderers = new SpriteRenderer[0];
             BufferManager.instance.ReturnBuffer(GetInstanceID());
@@ -574,11 +525,8 @@ namespace UnityEngine.U2D.Animation
 
         internal unsafe void LateUpdate()
         {
-            foreach (var ss in m_SpriteSkinLateUpdate)
-            {
-                if(ss != null)
-                    ss.OnLateUpdate();
-            }
+            BatchRemoveSpriteSkins();
+            BatchAddSpriteSkins();
 
             var count = m_SpriteSkins.Count;
             if (count == 0)
@@ -710,6 +658,92 @@ namespace UnityEngine.U2D.Animation
 
             DeactivateDeformableBuffers();
         }
+        
+        void BatchRemoveSpriteSkins()
+        {
+            if (m_SpriteSkinsToRemove.Count == 0)
+                return;
+
+            using (Profiling.batchRemoveSpriteSkin.Auto())
+            {
+                m_WorldToLocalTransformAccessJob.RemoveTransformsByIds(m_TransformIdsToRemove);
+
+                var updatedCount = Mathf.Max(m_SpriteSkins.Count - m_SpriteSkinsToRemove.Count, 0);
+                if (updatedCount == 0)
+                {
+                    m_SpriteSkins.Clear();
+                }
+                else
+                {
+                    foreach (var spriteSkin in m_SpriteSkinsToRemove)
+                    {
+                        var index = m_SpriteSkins.IndexOf(spriteSkin);
+                        if (index < 0)
+                            continue;
+
+                        // Check if it is not the last SpriteSkin
+                        if (index < m_SpriteSkins.Count - 1)
+                        {
+                            m_SpriteSkins.RemoveAtSwapBack(index);
+                            CopyToSpriteSkinData(index);
+                        }
+                        else
+                            m_SpriteSkins.RemoveAt(index);
+                    }
+                }
+                
+                Array.Resize(ref m_SpriteRenderers, updatedCount);
+                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_IsSpriteSkinActiveForDeform, updatedCount);
+                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_PerSkinJobData, updatedCount);
+                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_SpriteSkinData, updatedCount);
+                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoundsData, updatedCount);
+                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_Buffers, updatedCount);
+                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BufferSizes, updatedCount);                
+
+                m_TransformIdsToRemove.Clear();
+                m_SpriteSkinsToRemove.Clear();
+            }
+        }        
+
+        void BatchAddSpriteSkins()
+        {
+            if (m_SpriteSkinsToAdd.Count == 0)
+                return;
+
+            using (Profiling.batchAddSpriteSkin.Auto())
+            {
+                var updatedCount = m_SpriteSkins.Count + m_SpriteSkinsToAdd.Count;
+                Array.Resize(ref m_SpriteRenderers, updatedCount);
+                if (m_IsSpriteSkinActiveForDeform.IsCreated)
+                {
+                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_IsSpriteSkinActiveForDeform, updatedCount);
+                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_PerSkinJobData, updatedCount);
+                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_SpriteSkinData, updatedCount);
+                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoundsData, updatedCount);
+                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_Buffers, updatedCount);
+                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BufferSizes, updatedCount);
+                }
+                
+                foreach (var spriteSkin in m_SpriteSkinsToAdd)
+                {
+                    if (DoesContainSpriteSkin(m_SpriteSkins, spriteSkin))
+                    {
+                        Debug.LogError($"Skin already exists! Name={spriteSkin.name}");
+                        continue;
+                    }
+                    m_SpriteSkins.Add(spriteSkin);
+                    var count = m_SpriteSkins.Count;
+                    
+                    m_SpriteRenderers[count - 1] = spriteSkin.spriteRenderer;
+                    m_WorldToLocalTransformAccessJob.AddTransform(spriteSkin.transform);
+
+                    if (m_IsSpriteSkinActiveForDeform.IsCreated)
+                        CopyToSpriteSkinData(count - 1);       
+                }
+
+                m_SpriteSkinsToAdd.Clear();
+            }
+        }
 
         void DeactivateDeformableBuffers()
         {
@@ -758,15 +792,6 @@ namespace UnityEngine.U2D.Animation
         internal string GetDebugLog()
         {
             var log = "";
-            log = "====SpriteSkinLateUpdate===\n";
-            log += "Count: " + m_SpriteSkinLateUpdate.Count +"\n";
-            foreach (var ss in m_SpriteSkinLateUpdate)
-            {
-                log += ss == null ? "null" : ss.name;
-                log += "\n";
-            }
-            log += "\n";
-
             log += "===SpriteSkinBatch===\n";
             log += "Count: " + m_SpriteSkins.Count +"\n";
             foreach (var ss in m_SpriteSkins)
@@ -801,4 +826,3 @@ namespace UnityEngine.U2D.Animation
         #endregion
     }
 }
-#endif

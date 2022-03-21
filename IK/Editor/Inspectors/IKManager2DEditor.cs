@@ -208,24 +208,11 @@ namespace UnityEditor.U2D.IK
                 }
             }
         }
-
+        
         static List<Type> GetDerivedTypes<T>() where T : class
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            var derivedTypes = new List<Type>();
-
-            for (var i = 0; i < assemblies.Length; ++i)
-            {
-                var assemblyTypes = assemblies[i].GetTypes();
-                var types = assemblyTypes.Where(myType => 
-                    myType.IsClass && 
-                    !myType.IsAbstract && 
-                    myType.IsSubclassOf(typeof(T)));
-                
-                derivedTypes.AddRange(types);
-            }
-            
-            return derivedTypes;
+            var typeCollection = TypeCache.GetTypesDerivedFrom<T>();
+            return typeCollection.ToList();
         }
     }
 }

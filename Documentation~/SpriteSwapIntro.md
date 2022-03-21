@@ -1,7 +1,7 @@
 # Sprite Swapping
 __Sprite Swap__ is a feature that enables you to change a GameObject’s rendered Sprite at runtime. This has a number of uses, such as easily creating multiple characters which [share a skeleton](ex-skeleton-sharing.md) (requires the [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest)) or [reuse existing bone and Mesh data](SkinEdToolsShortcuts.md#copy-and-paste-behavior) while looking visually different.
 
-Using Sprite Swap to change the rendered Sprites on each frame at runtime, you can even simulate a [frame-by-frame animation](FFanimation.md) style. The 2D Animation package comes with several Sample projects of the other different ways you can use Sprite Swap to achieve different effects and features, refer to the [Sample documentation here](ex-sprite-swap.md) for more information about these examples.
+The 2D Animation package comes with several Sample projects of different ways you can use Sprite Swap to achieve different effects and features, refer to the [Sample documentation here](ex-sprite-swap.md) for more information about these examples.
 
 ## Sprite Swap Assets and components
 Sprite Swap requires the following Assets and components, which are all included with the 2D Animation package:

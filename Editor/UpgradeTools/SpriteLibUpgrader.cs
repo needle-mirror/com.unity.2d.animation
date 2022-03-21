@@ -280,7 +280,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 var path = AssetDatabase.GetAssetPath(sourceAsset);
                 var currentAssetPath = Path.GetDirectoryName(path);
                 var fileName = Path.GetFileNameWithoutExtension(path);
-                var convertFileName = fileName + ".spriteLib";
+                var convertFileName = fileName + SpriteLibrarySourceAsset.extension;
                 convertFileName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(currentAssetPath, convertFileName));
                 
                 var destAsset = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();

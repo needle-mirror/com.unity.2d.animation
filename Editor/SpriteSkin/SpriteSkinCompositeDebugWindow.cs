@@ -1,5 +1,4 @@
-﻿#if ENABLE_ANIMATION_COLLECTION && ENABLE_ANIMATION_BURST
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.U2D.Animation;
 
 namespace UnityEditor.U2D.Animation
@@ -32,4 +31,3 @@ namespace UnityEditor.U2D.Animation
    
     }
 }
-#endif

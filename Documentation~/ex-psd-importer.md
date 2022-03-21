@@ -1,9 +1,9 @@
 # Rigging a character imported with the PSD Importer
-This sample demonstrates how to rig an actor that is made from multiple Sprites, when its source file is imported with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest/). This example requires the PSD Importer to be installed.
+This sample demonstrates how to rig an actor that is made from multiple Sprites, imported with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest/).
 
 ![](images/2D-animation-samples-character-sample.png)
 
-Open the Asset `Assets/Samples/2D Animation/[X.Y.Z]/Samples/4 Character/Sprites/Fei.psb` in the [Skinning Editor](SkinningEditor.md) module to examine how the Sprite is rigged.
+Open the Asset `Assets/Samples/2D Animation/[X.Y.Z]/Samples/3 Character/Sprites/Fei.psb` in the [Skinning Editor](SkinningEditor.md) module to examine how the Sprite is rigged.
 
 ![](images/2D-animation-samples-character-skinning-module.png)
 

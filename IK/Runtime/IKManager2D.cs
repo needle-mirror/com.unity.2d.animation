@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Unity.Profiling;
 using UnityEngine.Scripting.APIUpdating;
@@ -11,6 +10,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [DefaultExecutionOrder(-2)]
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
+    [IconAttribute(IconUtility.IconPath + "Animation.IKManager.png")]
     [ExecuteInEditMode]
     public partial class IKManager2D : MonoBehaviour, IPreviewable
     {

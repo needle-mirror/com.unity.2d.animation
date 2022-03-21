@@ -5,7 +5,7 @@ After [preparing and importing](PreparingArtwork.md) your artwork into Unity, br
 
 The Sprite Skin deforms a Sprite by using GameObject Transforms to represent the bones that were added to the Sprite in the Skinning Editor module.
 
-![](images/2D-optional-perf-boost-enabled.png)<br/>Sprite Skin component settings.
+![](images/2D-spriteskin-component.png)<br/>Sprite Skin component settings.
 
 Property            | Function
 --------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -15,8 +15,6 @@ Property            | Function
 **Bones**           | This shows the list of bones that are being set up for the Sprite in the Skinning Editor module. Each Sprite’s **Bone** entry must have a GameObject Transform associated with it for correct deformation.
 **Create Bones**    | The button lets you create GameObject Transform(s) to represent the Sprite’s Bone and assign them to the **Root Bone** property and the individual Bones entry. The Root Bone that is created is placed as a child of the GameObject of the Sprite Skin. The button is only enabled if the Root Bone property isn't assigned.
 **Reset Bind Pose** | The button resets the GameObject Transforms assigned in the Bones entry to the bind pose value set up for the Sprite in the Skinning Editor module.
-**Enable Batching** | If enabled, the Sprite Skin deforms the Sprite in batches for [optimization purposes](#optional-performance-boost). This option is only available when the Burst and Collections packages are installed. If either of them are missing, the checkbox is disabled and the Inspector displays the following message.
--  |![](images/2D-optional-perf-boost-disabled.png)  
 
 ## Auto Rebind
 When you enable **Auto Rebind**, Sprite Skin attempts to automatically locate the GameObject Transform that is needed for the current Sprite assigned to the Sprite Renderer. This is triggered when the Sprite in the Sprite Renderer property is changed.
@@ -32,8 +30,3 @@ For the Sprite Skin component to automatically locate the bones successfully, Ga
 ![](images/2d-anim-sprite-skin-root-bone.png)
 
 By setting the Sprite Skin’s **Root Bone** property to the correct GameObject Transform, Sprite Skin will then map the GameObject Transform to the Sprite’s rigged bone of the same name. For the **Auto Rebind** to be successful, the name and the hierarchy of the rigged bones and the GameObject Transforms must match. This means that changing the name of the bones in the Skinning Editor will require you to update the names of the GameObject Transforms to match as well.
-
-## Optional performance boost
-When animating your characters, you can improve the runtime performance of the animated Sprite’s deformation by installing both the [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) packages from the [Package Manager](https://docs.unity3d.com/Manual/upm-ui.html). This allows the 2D Animation package to use Burst compilation to speed up Unity’s processing of Sprite mesh deformation.
-
-The package has been tested with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest) version 1.4.1 and [Collections](https://docs.unity3d.com/Packages/com.unity.collections@latest) version 0.9.0-preview.6. However if you encounter any bugs, you can turn the optional performance boost off by disabling the __Enable batching__ option.

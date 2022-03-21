@@ -37,64 +37,81 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(m_GenerateGeometryPanel != null);
 
-            m_GenerateGeometryPanel.onAutoGenerateGeometry += (float d, byte a, float s) =>
+            m_GenerateGeometryPanel.onAutoGenerateGeometry += (float detail, byte alpha, float subdivide) =>
             {
                 var selectedSprite = skinningCache.selectedSprite;
-                
                 if (selectedSprite != null)
-                {
-                    EditorUtility.DisplayProgressBar(TextContent.generatingGeometry, selectedSprite.name, 0f);
-
-                    using (skinningCache.UndoScope(TextContent.generateGeometry))
-                    {
-                        GenerateGeometry(selectedSprite, d / 100f, a, s);
-
-                        if (m_GenerateGeometryPanel.generateWeights)
-                        {
-                            EditorUtility.DisplayProgressBar(TextContent.generatingWeights, selectedSprite.name, 1f);
-                            GenerateWeights(selectedSprite);
-                        }
-
-                        skinningCache.vertexSelection.Clear();
-                        skinningCache.events.meshChanged.Invoke(selectedSprite.GetMesh());
-                    }
-
-                    EditorUtility.ClearProgressBar();
-                }
+                    GenerateGeometryForSprites(new[] { selectedSprite }, detail, alpha, subdivide);
             };
 
-            m_GenerateGeometryPanel.onAutoGenerateGeometryAll += (float d, byte a, float s) =>
+            m_GenerateGeometryPanel.onAutoGenerateGeometryAll += (float detail, byte alpha, float subdivide) =>
             {
                 var sprites = skinningCache.GetSprites();
-
-                using (skinningCache.UndoScope(TextContent.generateGeometry))
-                {
-                    for (var i = 0; i < sprites.Length; ++i)
-                    {
-                        var sprite = sprites[i];
-                        
-                        if (!sprite.IsVisible())
-                            continue;
-
-                        EditorUtility.DisplayProgressBar(TextContent.generatingGeometry, sprite.name, i * 2f / (sprites.Length * 2f));
-
-                        GenerateGeometry(sprite, d / 100f, a, s);
-
-                        if (m_GenerateGeometryPanel.generateWeights)
-                        {
-                            EditorUtility.DisplayProgressBar(TextContent.generatingWeights, sprite.name, (i * 2f + 1) / (sprites.Length * 2f));
-                            GenerateWeights(sprite);
-                        }
-                    }
-
-                    foreach(var sprite in sprites)
-                        skinningCache.events.meshChanged.Invoke(sprite.GetMesh());
-
-                    EditorUtility.ClearProgressBar();
-                }
+                GenerateGeometryForSprites(sprites, detail, alpha, subdivide);
             };
         }
 
+        void GenerateGeometryForSprites(SpriteCache[] sprites, float detail, byte alpha, float subdivide)
+        {
+            var cancelProgress = false;
+                
+            using (skinningCache.UndoScope(TextContent.generateGeometry))
+            {
+                for (var i = 0; i < sprites.Length; ++i)
+                {
+                    var sprite = sprites[i];
+                    if (!sprite.IsVisible())
+                        continue;
+
+                    Debug.Assert(sprite != null);
+                    var mesh = sprite.GetMesh();
+                    Debug.Assert(mesh != null);
+
+                    m_SpriteMeshDataController.spriteMeshData = mesh;
+                    
+                    cancelProgress = EditorUtility.DisplayCancelableProgressBar(TextContent.generatingOutline, sprite.name,  i / (sprites.Length * 4f));
+                    if (cancelProgress)
+                        break;
+                    m_SpriteMeshDataController.OutlineFromAlpha(m_OutlineGenerator, mesh.textureDataProvider, detail / 100f, alpha);
+                    
+                    cancelProgress = EditorUtility.DisplayCancelableProgressBar(TextContent.triangulatingGeometry, sprite.name,  (i * 2) / (sprites.Length * 4f));
+                    if (cancelProgress)
+                        break;
+                    m_SpriteMeshDataController.Triangulate(m_Triangulator);
+            
+                    if (subdivide > 0f)
+                    {
+                        cancelProgress = EditorUtility.DisplayCancelableProgressBar(TextContent.subdividingGeometry, sprite.name, (i * 3) / (sprites.Length * 4f));
+                        if (cancelProgress)
+                            break;
+                        var largestAreaFactor = subdivide != 0 ? Mathf.Lerp(0.5f, 0.05f, Math.Min(subdivide, 100f) / 100f) : subdivide;
+                        m_SpriteMeshDataController.Subdivide(m_Triangulator, largestAreaFactor, 0f);
+                    }                    
+
+                    if (m_GenerateGeometryPanel.generateWeights)
+                    {
+                        cancelProgress = EditorUtility.DisplayCancelableProgressBar(TextContent.generatingWeights, sprite.name, (i * 4) / (sprites.Length * 4f));
+                        if (cancelProgress)
+                            break;
+                            
+                        GenerateWeights(sprite);
+                    }
+                }
+
+                if (!cancelProgress)
+                {
+                    skinningCache.vertexSelection.Clear();
+                    foreach(var sprite in sprites)
+                        skinningCache.events.meshChanged.Invoke(sprite.GetMesh());
+                }
+                    
+                EditorUtility.ClearProgressBar();
+            }
+                
+            if(cancelProgress)
+                Undo.PerformUndo();
+        }
+        
         protected override void OnActivate()
         {
             base.OnActivate();
@@ -133,25 +150,6 @@ namespace UnityEditor.U2D.Animation
         private void OnSelectedSpriteChanged(SpriteCache sprite)
         {
             UpdateButton();
-        }
-
-        private void GenerateGeometry(SpriteCache sprite, float outlineDetail, byte alphaTolerance, float subdivide)
-        {
-            Debug.Assert(sprite != null);
-
-            var mesh = sprite.GetMesh();
-
-            Debug.Assert(mesh != null);
-
-            m_SpriteMeshDataController.spriteMeshData = mesh;
-            m_SpriteMeshDataController.OutlineFromAlpha(m_OutlineGenerator, mesh.textureDataProvider, outlineDetail, alphaTolerance);
-            m_SpriteMeshDataController.Triangulate(m_Triangulator);
-            
-            if (subdivide > 0f)
-            {
-                var largestAreaFactor = subdivide != 0 ? Mathf.Lerp(0.5f, 0.05f, Math.Min(subdivide, 100f) / 100f) : subdivide;
-                m_SpriteMeshDataController.Subdivide(m_Triangulator, largestAreaFactor, 0f);
-            }
         }
 
         private void GenerateWeights(SpriteCache sprite)

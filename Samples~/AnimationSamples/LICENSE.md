@@ -1,4 +1,4 @@
-com.unity.2d.animation Samples © 2021 Unity Technologies
+com.unity.2d.animation Samples © 2022 Unity Technologies
 
 Licensed under the Unity Companion License for Unity-dependent projects (see https://unity3d.com/legal/licenses/unity_companion_license).
 

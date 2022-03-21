@@ -1,8 +1,4 @@
-﻿#if ENABLE_ANIMATION_COLLECTION && ENABLE_ANIMATION_BURST
-#define ENABLE_SPRITESKIN_COMPOSITE
-#endif
-
-using System;
+﻿using System;
 using UnityEngine.Rendering;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -11,7 +7,6 @@ using UnityEngine.U2D.Common;
 namespace UnityEngine.U2D.Animation
 {
     public sealed  partial class SpriteSkin : MonoBehaviour, IPreviewable
-#if ENABLE_SPRITESKIN_COMPOSITE
     {
         int m_TransformId;
         NativeArray<int> m_BoneTransformId;
@@ -33,33 +28,21 @@ namespace UnityEngine.U2D.Animation
         {
             m_TransformId = gameObject.transform.GetInstanceID();
             UpdateSpriteDeform();
-
-            if (m_UseBatching && m_BatchSkinning == false)
-            {
-                CacheBoneTransformIds(true);
-                SpriteSkinComposite.instance.AddSpriteSkin(this);
-                m_BatchSkinning = true;
-            }
-            else
-                SpriteSkinComposite.instance.AddSpriteSkinForLateUpdate(this);
+            
+            CacheBoneTransformIds(true);
+            SpriteSkinComposite.instance.AddSpriteSkin(this);
         }
 
         void OnResetBatch()
         {
-            if (m_UseBatching)
-            {
-                CacheBoneTransformIds(true);
-                SpriteSkinComposite.instance.CopyToSpriteSkinData(this);
-            }
+            CacheBoneTransformIds(true);
+            SpriteSkinComposite.instance.CopyToSpriteSkinData(this);
         }
 
         void OnDisableBatch()
         {
             RemoveTransformFromSpriteSkinComposite();
             SpriteSkinComposite.instance.RemoveSpriteSkin(this);
-            SpriteSkinComposite.instance.RemoveSpriteSkinForLateUpdate(this);
-
-            m_BatchSkinning = false;
         }
 
         internal void UpdateSpriteDeform()
@@ -152,27 +135,6 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        void UseBatchingBatch()
-        {
-            if (!this.enabled)
-                return;
-
-            if (m_UseBatching)
-            {
-                m_BatchSkinning = true;
-                CacheBoneTransformIds();
-                SpriteSkinComposite.instance.AddSpriteSkin(this);
-                SpriteSkinComposite.instance.RemoveSpriteSkinForLateUpdate(this);
-            }
-            else
-            {
-                SpriteSkinComposite.instance.RemoveSpriteSkin(this);
-                SpriteSkinComposite.instance.AddSpriteSkinForLateUpdate(this);
-                RemoveTransformFromSpriteSkinComposite();
-                m_BatchSkinning = false;
-            }
-        }
-
         void RemoveTransformFromSpriteSkinComposite()
         {
             if (m_BoneTransformId.IsCreated)
@@ -250,18 +212,4 @@ namespace UnityEngine.U2D.Animation
 #endif
         }
     }
-#else
-    {
-        void OnEnableBatch(){}
-        internal void UpdateSpriteDeform(){}
-        void OnResetBatch(){}
-        void UseBatchingBatch(){}
-        void OnDisableBatch(){}
-        void OnBoneTransformChanged(){}
-        void OnRootBoneTransformChanged(){}
-        void OnBeforeSerializeBatch(){}
-        void OnAfterSerializeBatch(){}
-    }
-#endif
-
 }

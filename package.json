@@ -1,7 +1,7 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "8.0.1",
-  "unity": "2022.1",
+  "version": "9.0.0-pre.1",
+  "unity": "2022.2",
   "displayName": "2D Animation",
   "description": "2D Animation provides all the necessary tooling and runtime components for skeletal animation using Sprites.",
   "keywords": [
@@ -10,15 +10,16 @@
   ],
   "category": "2D",
   "dependencies": {
-    "com.unity.2d.common": "7.0.0",
+    "com.unity.2d.common": "8.0.0-pre.1",
     "com.unity.2d.sprite": "1.0.0",
+    "com.unity.collections": "1.1.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "8.0.1",
-    "com.unity.2d.common.tests": "7.0.0",
-    "com.unity.2d.psdimporter": "7.0.0"
+    "com.unity.2d.animation.tests": "9.0.0-pre.1",
+    "com.unity.2d.common.tests": "8.0.0-pre.1",
+    "com.unity.2d.psdimporter": "8.0.0-pre.1"
   },
   "samples": [
     {
@@ -28,14 +29,14 @@
     }
   ],
   "upm": {
-    "changelog": "### Fixed\n- Fixed an issue where moving vertices in the Skinning Editor might result in invalid edges. (case 1402636)\n- Sprite Library cannot reference itself in the Main Library field or any asset that references it. (case 1402649)\n- Fixed an issue where the SpriteSkin components would not get initialized on editor launch. (case 1403568)\n- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405325)"
+    "changelog": "### Added\n- Added the ability to cancel mesh generation in the Skinning Editor.\n\n### Changed\n- 2D Animation now depends on the Collections package.\n- Sprite Skin's AutoRebind can now swap between all bones underneath the rootBone.\n- Updated Visibility Tab documentation page.\n- Sprite Skins are now registered/deregistered in batches for improved instatiation/destroy performance.\n- Updated ListView event listeners to use new selection API.\n\n### Fixed\n- Fixed an issue where the animation window's preview of IK targets would not be the same as in Play Mode. (case 1391590)\n- Sprite Library cannot reference itself in the Main Library field or any asset that references it. (case 1401464)\n- Fixed an issue where moving vertices in the Skinning Editor might result in invalid edges. (case 1386153)\n- Fixed an issue where the SpriteSkin components would not get initialized on editor launch. (case 1401139)\n- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405289)\n- Fixed an issue where the Skinning Editor's copy/paste tool would fail if two bones shared the same name. (case 1405028)"
   },
   "upmCi": {
-    "footprint": "eeb0dff6ef695e5917a80a934cd5b3848b7cd9f5"
+    "footprint": "10a551bfa069d4b2f91724d52b8ee57067e5168b"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "7239069ee5cfcb81d36d5fc745557d9ac2f03462"
+    "revision": "be5115e7e9c707d0d5ac963699d8a6d45e4ae3a6"
   }
 }

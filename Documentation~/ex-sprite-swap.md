@@ -3,9 +3,8 @@ This following sample projects demonstrate the different ways you can use Sprite
 
 ![](images/2D-animation-samples-spriteswap-Scenes.png)
 
-The Scenes for the following samples can be all found in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap`:
+The Scenes for the following samples can be all found in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/4 SpriteSwap`:
 
-- [Flipbook Animation Swap](#flipbook-animation-swap)
 - [Animated swap](#animated-swap)
 - [Part swap](#part-swap)
 - [Full skin swap](#full-skin-swap)
@@ -13,41 +12,10 @@ The Scenes for the following samples can be all found in `Assets/Samples/2D Anim
 - [Skeleton Sharing](ex-skeleton-sharing.md)
 - [Runtime Swap](ex-runtime-swap.md)
 
-## Flipbook Animation Swap
-This sample demonstrates how to use Sprite Swap to create a reusable Animation Clip which mimics a flipbook-style animation. Open the Scene `1 Flipbook Animation Swap.unity` to see it in action.
-
-![](images/2D-animation-samples-spriteswap-screenshot.png)
-
-The three Sprite Library Assets used in this example are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 Sprite Swap/Sprite Library`:
-
-- `Hero.spriteLib`
-- `Zombie1.spriteLib`
-- `Zombie2.spriteLib`
-
-The Sprites for these Sprite Library Assets are derived from `Scavengers_SpriteSheet.png`, which is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`. All three Sprite Library Assets have the same number of Categories; and their Categories and Entries have the same name.
-
-![](images/2D-animation-samples-spriteswap-SLAsset.png)<br/>The Categories and Label names of the `Hero.spriteLib`, which are identical to the two other Sprite Library Assets.
-
-Follow the steps below to reconstruct the `1 Flipbook Animation Swap` sample Scene:
-
-1. Create an empty GameObject and name it `Hero`. Add the [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) component and go to its Inspector window. Assign one of the Sprites used in `Hero.spriteLib`. to its **Sprite** property.
-
-2. Add the [Sprite Library component](SLAsset.md#sprite-library-component) and assign the `Hero.spriteLib` to its **Sprite Library Asset** property. Then add the [Sprite Resolver component](SLAsset.md#sprite-resolver-component) to the same GameObject.
-
-3. Add the [Animation component](https://docs.unity3d.com/Manual/class-Animation.html). Locate the `Scavengers.anim` [Animation Clip](https://docs.unity3d.com/Manual/AnimationClips.html) in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Animation` and assign this Asset to the component's **Animation** property.
-
-4. Duplicate the `Hero` GameObject and rename the copy to `Zombie1`.
-   - In `Zombie1`'s Sprite Renderer component, set its **Sprite** property to one of the Sprites used in `Zombie1.spriteLib`.
-
-5. Duplicate the `Hero` GameObject again and rename the copy to `Zombie2`.
-   - In `Zombie2`'s Sprite Renderer component, set the **Sprite** property to one of the Sprites used in `Zombie2.spriteLib`
-
-All three GameObjects are now animated with the same Animation Clip. As the Animation Clip plays, the Sprite that each GameObject's Sprite Resolver refers to is swapped which creates the flipbook animation style. By using a different Sprite Library Asset for each GameObject, the same Animation Clip is reused with different Sprites.
-
 ## Animated Swap
 This sample demonstrates how to use Sprite Swap to create a reusable Animation Clip for animations that include both Sprite swapping and [deformation](SpriteSkin.md) of the Sprites. Note that the following example requires the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) to be installed.
 
-Open the Scene file `2 Animated Swap.unity` to see the sample in action.
+Open the Scene file `1 Animated Swap.unity` to see the sample in action.
 
 ![](images/2D-animation-samples-spriteswap-animated1.png)<br/>Initial frame with the hands in thumbs-up position.
 
@@ -87,30 +55,30 @@ Follow the steps below to reconstruct the sample Scene:
 In this sample, the Sprite Library component is not attached to the same GameObject as the Sprite Resolver component. The Sprite Resolver attempts to locate a Sprite Library component starting from the same GameObject it is on and then traverse up the GameObject hierarchy. This lets a single or multiple Sprite Resolvers use the same Sprite Library component by attaching the Sprite Library component to a common root GameObject that the Sprite Resolver components are attached to.
 
 ## Part Swap
-This sample demonstrates how to swap Sprite Assets using the API provided by changing the Sprite Resolver data. This sample uses some of the Assets and a similar setup to the [Multiple Skinned Sprites](ex-multiple-skinned-sprites.md) sample. Open the  `3 Part Swap.unity` Scene to see the sample in action.
+This sample demonstrates how to swap Sprite Assets using the API provided by changing the Sprite Resolver data. Open the `2 Part Swap.unity` Scene to see the sample in action.
 
 ![](images/2D-animation-samples-partswap-Scene.png)
 
 In the Scene, each part has three different visual options that can be swapped. The graphic Assets are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`:
 
-- `Rikr.png`
-- `Rikr Poison.png`
-- `Rikr Rage.png`
+- `Knight.psb`
+- `Skeleton.psb`
+- `Witch.psb`
 
-A [Sprite Library Asset](SLAsset.md) containing Sprites made from all three graphic Assets above is created. A Category is created for each body part of the actor, with three Entries derived from the three different versions of the character. The Asset is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprite Library/Rikr Full.spriteLib`.
+A [Sprite Library Asset](SLAsset.md) containing Sprites made from all three graphic Assets above is created. A Category is created for each body part of the actor, with three Entries derived from the three different versions of the character. The Asset is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprite Library/Part Swap.spriteLib`.
 
 ![](images/2D-animation-samples-partswap-SLasset.png)Corresponding parts from each of the three versions of the actor, and named accordingly.
 
-Attach the Sprite Library component to the `Rikr_Root` GameObject in the Scene. Assign the `Rikr Full.spriteLib` Asset to its **Sprite Library Asset** property.
+Attach the Sprite Library component to the `KnightRig` GameObject in the Scene. Assign the `Part Swap.spriteLib` Asset to its **Sprite Library Asset** property.
 
-Add the Sprite Resolver component to all Sprite Renderers under the `Rikr_Root` GameObject. Assign a Sprite that matches its corresponding GameObject, depending on the body part that GameObject represents. For example, select one of the Sprites in the 'Body' Category for the Sprite Resolver attached to the `Rikr_Body` GameObject and so on.
+Add the Sprite Resolver component to all Sprite Renderers under the `KnightRig` GameObject. Assign a Sprite that matches its corresponding GameObject, depending on the body part that GameObject represents. For example, select one of the Sprites in the 'Body' Category for the Sprite Resolver attached to the `KnightRig` GameObject and so on.
 
 ![](images/2D-animation-samples-partswap-SLasset-body.png)
 
 With this setup, you can swap any part of the actor to another Sprite individually.
 
 ### Swap part script
-A custom MonoBehaviour script called `SwapPart` is attached to the `Rikr_Root` GameObject. This script is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Scripts/Runtime/SwapPart.cs`.
+A custom MonoBehaviour script called `SwapPart` is attached to the `KnightRig` GameObject. This script is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Scripts/Runtime/SwapPart.cs`.
 
 ![](images/2D-animation-samples-spriteswap-script.png)
 
@@ -135,30 +103,30 @@ swapOption.spriteResolver.SetCategoryAndLabel(swapOption.category, swapOption.dr
 ```
 
 ## Full Skin Swap
-This sample demonstrates how to swap Sprite visuals using the provided API by changing the [Sprite Library Asset](SLAsset.md) referenced by the Sprite Library component. Open the `4 Full Swap.unity` Scene to see the sample in action.
+This sample demonstrates how to swap Sprite visuals using the provided API by changing the [Sprite Library Asset](SLAsset.md) referenced by the Sprite Library component. Open the `3 Full Swap.unity` Scene to see the sample in action.
 
 ![](images/2D-animation-samples-fullswap-scene.png)
 
 In the Scene, there are three different visual Asset options that you can swap to. The Assets are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`:
 
-- `Rikr.png`
-- `Rikr Poison.png`
-- `Rikr Rage.png`
+- `Knight.psb`
+- `Wolf.psb`
+- `Witch.psb`
 
 The Sprite Library Assets have identical Categories, Entries, and Label names but with different Sprites selected. The Assets are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprite Library`.
 
-- `Rikr.spriteLib`
-- `Rikr Posion.spriteLib`
-- `Rikr Rage.spriteLib`
+- `Knight.spriteLib`
+- `Wolf.spriteLib`
+- `Witch.spriteLib`
 
-Attach the Sprite Library component to the `Rikr_Root` GameObject. Assign the `Rikr.spriteLib` Asset to its Sprite Library Asset property.
+Attach the Sprite Library component to the `KnightRig` GameObject. Assign the `Knight.spriteLib` Asset to its Sprite Library Asset property.
 
-Add the Sprite Resolver component to each of the Sprite Renderers under the `Rikr_Root` GameObject. Assign a Sprite to each Sprite Resolver that corresponds to the body part they are attached to. For example, the `Body` Sprite is selected for the Sprite Resolver attached to the `Rikr_Body` GameObject.
+Add the Sprite Resolver component to each of the Sprite Renderers under the `KnightRig` GameObject. Assign a Sprite to each Sprite Resolver that corresponds to the body part they are attached to. For example, the `torso` Sprite is selected for the Sprite Resolver attached to the `torso` GameObject.
 
 ![](images/2D-animation-samples-fullswap-sresolver.png)
 
 ### Swap Full Skin Script
-A custom MonoBehaviour script called `SwapFullSkin` is attached to the` Rikr_Root` GameObject. This script is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Scripts/Runtime/SwapFullSkin.cs`
+A custom MonoBehaviour script called `SwapFullSkin` is attached to the` KnightRig` GameObject. This script is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Scripts/Runtime/SwapFullSkin.cs`
 
 ![](images/2D-animation-samples-fullswap-script.png)
 
@@ -169,15 +137,15 @@ spriteLibraryTarget.spriteLibraryAsset = spriteLibraries[value];
 ```
 
 ## DLC Swap
-This sample demonstrates how to swap Sprite visuals by changing the referenced Sprite Library Asset referenced by the Sprite Library component, using the API provided. This sample uses the Assets and a similar setup to the [Multiple Skinned Sprites](#ex-multiple-skinned-sprites) sample, and builds on the [Full Skin Swap](#full-skin-swap) sample.
+This sample demonstrates how to swap Sprite visuals by changing the referenced Sprite Library Asset referenced by the Sprite Library component, using the API provided. This sample builds on the [Full Skin Swap](#full-skin-swap) sample.
 
-This difference from the Full Skin Swap method is that the Sprite Library Asset is loaded from an [AssetBundle](https://docs.unity3d.com/Manual/AssetBundlesIntro.html) during runtime and added to the Sprite Library component at a later time. Open the  `5 DLC Swap.unity` Scene to see the sample in action.
+This difference from the Full Skin Swap method is that the Sprite Library Asset is loaded from an [AssetBundle](https://docs.unity3d.com/Manual/AssetBundlesIntro.html) during runtime and added to the Sprite Library component at a later time. Open the  `4 DLC Swap.unity` Scene to see the sample in action.
 
 ![](images/2D-animation-samples-DLCswap-scene.png)
 
-To ensure the AssetBundle works correctly, check that the `Rikr_Poison.spriteLib` and `Rikr_Rage.spriteLib` Assets in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprite Library` are labeled with their corresponding AssetBundle tag.
+To ensure the AssetBundle works correctly, check that the `Skeleton.spriteLib` Asset in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprite Library` is labeled with its corresponding AssetBundle tag.
 
-![](images/2D-animation-samples-DLCswap-assetbundle-property.png)<br/>The `Rikr_Rage.spriteLib` Asset labeled with 'rikrrage'.
+![](images/2D-animation-samples-DLCswap-assetbundle-property.png)<br/>The `Skeleton.spriteLib` Asset labeled with 'skeleton'.
 
 ### Load Swap DLC Script
 A custom MonoBehaviour script called `LoadSwapDLC` is attached to the `Load DLC` GameObject. The script is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Scripts/Runtime/LoadSwapDLC.cs`

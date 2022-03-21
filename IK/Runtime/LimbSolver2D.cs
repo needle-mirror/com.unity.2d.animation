@@ -8,6 +8,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenuAttribute("Limb")]
+    [IconAttribute(IconUtility.IconPath + "Animation.IKLimb.png")]
     public sealed class LimbSolver2D : Solver2D
     {
         [SerializeField]

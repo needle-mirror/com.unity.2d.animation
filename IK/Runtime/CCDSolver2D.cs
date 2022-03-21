@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine.Profiling;
 using UnityEngine.Scripting.APIUpdating;
-using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.IK
 {
@@ -10,6 +9,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenuAttribute("Chain (CCD)")]
+    [IconAttribute(IconUtility.IconPath + "Animation.IKCCD.png")]
     public sealed class CCDSolver2D : Solver2D
     {
         private const float kMinTolerance = 0.001f;

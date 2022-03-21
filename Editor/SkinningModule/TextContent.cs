@@ -80,19 +80,53 @@ namespace UnityEditor.U2D.Animation
         public static string boneOutlineSize = L10n.Tr("Bone Outline Size");
 
         // Sprite Library
-        public static string convertGroupToCategory = L10n.Tr("Convert Group to Category");
-        public static string newTrailingDots = L10n.Tr("New...");
-        public static string removeEmptyCategory = L10n.Tr("Remove Empty Category");
-        public static string convertLayerToCategory = L10n.Tr("Convert Layer to Category");
-        public static string clearAllCategory = L10n.Tr("Clear All Category");
-        public static string spriteCategoryChanged = L10n.Tr("Sprite Category Changed");
-        public static string spriteCategoryIndexChanged = L10n.Tr("Sprite Category Index Changed");
         public static string categoryList = L10n.Tr("Category List");
         public static string label = L10n.Tr("Label");
         public static string spriteLibraryCircularDependency = L10n.Tr("The Sprite Library can't be added because self-referencing is not allowed. Try another Sprite Library instead.");
+        public static string spriteLibraryNoAssetSelected = L10n.Tr("Select a Sprite Library Asset in your Project window.\n\nNew Sprite Library Assets can be created from the asset creation menu:\nAsset > Create > 2D > Sprite Library Asset");
+        public static string spriteCategoryColumnEmpty = L10n.Tr("To start creating categories drag and drop Sprites or Sprite Texture assets or select the '+' button.");
+        public static string spriteLabelColumnEmpty = L10n.Tr("To start creating labels drag and drop Sprites or Sprite Texture or select the '+' button.");
+        public static string spriteCategoryMultiSelect = L10n.Tr("Multiple Categories selected.");
+        public static string spriteCategoryNoSelection = L10n.Tr("No Categories selected.");
+        public static string spriteLibrarySaveTitle = L10n.Tr("Unsaved changes");
+        public static string spriteLibrarySaveMessage = L10n.Tr("There are some unsaved changes, would you like to save them?");
+        public static string spriteLibraryRevertMessage = L10n.Tr("There are some unsaved changes, are you sure you want to revert them?");
+        public static string spriteLibrarySaveYes = L10n.Tr("Yes");
+        public static string spriteLibrarySaveNo = L10n.Tr("No");
+        public static string spriteLibraryMainLibraryTooltip = L10n.Tr("This field is optional. By linking a Main Library, this Sprite Library becomes a Variant of the Main Library allowing it to reference all the Main Library’s Categories.");
+        public static string spriteLibraryCategoriesTooltip = L10n.Tr("A container to organize the Labels. The Category must be unique from other Categories in the same Sprite Library or Sprite Library hierarchy.");
+        public static string spriteLibraryLabelsTooltip = L10n.Tr("Label contains a Sprite reference. Name has to be unique.");
+        public static string spriteLibraryAddCategoryTooltip = L10n.Tr("Click here to add a new Category.");
+        public static string spriteLibraryAddCategoryTooltipNotAvailable = L10n.Tr("Cannot create new Category with search filter selected.");
+        public static string spriteLibraryAddLabelTooltip = L10n.Tr("Click here to add a new Label.");
+        public static string spriteLibraryAddLabelTooltipNotAvailable = L10n.Tr("Cannot create new Label with search filter selected.");
+        public static string spriteLibraryLocalCategoryTooltip = L10n.Tr("Local Categories exits only in this Sprite Library Asset.");
+        public static string spriteLibraryInheritedCategoryTooltip = L10n.Tr("Inherited Categories come from the Main Library Asset. Their Labels can be overriden in the Labels tab.");
+        public static string spriteLibraryCreateCategory = L10n.Tr("Create new Category");
+        public static string spriteLibraryRenameCategory = L10n.Tr("Rename Category");
+        public static string spriteLibraryDeleteCategories = L10n.Tr("Delete Selected Categories");
+        public static string spriteLibraryCreateLabel = L10n.Tr("Create new Label");
+        public static string spriteLibraryRenameLabel = L10n.Tr("Rename Label");
+        public static string spriteLibraryDeleteLabels = L10n.Tr("Delete Selected Labels");
+        public static string spriteLibraryShowLabel = L10n.Tr("Show Label Location");
+        public static string spriteLibraryRevertLabels = L10n.Tr("Revert Selected Overrides");
+        public static string spriteLibraryRevertAllLabels = L10n.Tr("Revert All Overrides");
+        public static string spriteLibrarySetMainLibrary = L10n.Tr("Set Main Library");
+        public static string spriteLibrarySelectCategories = L10n.Tr("Select Categories");
+        public static string spriteLibrarySelectLabels = L10n.Tr("Select Labels");
+        public static string spriteLibraryReorderCategories = L10n.Tr("Reorder Categories");
+        public static string spriteLibraryReorderLabels = L10n.Tr("Reorder Labels");
+        public static string spriteLibrarySetLabelSprite = L10n.Tr("Set Label's Sprite");
+        public static string spriteLibraryAddDataToCategories = L10n.Tr("Add data to Categories");
+        public static string spriteLibraryAddDataToLabels = L10n.Tr("Add data to Labels");
+        public static string spriteLibraryCreateNewAsset = L10n.Tr("Create new Sprite Library Asset");
+        public static string spriteLibraryCreateTitle = L10n.Tr("New Sprite Library Asset");
+        public static string spriteLibraryCreateMessage = L10n.Tr("Create a new Sprite Library Asset");
 
         // Other
-        public static string generatingGeometry = L10n.Tr("Generating Geometry");
+        public static string generatingOutline = L10n.Tr("Generating Outline");
+        public static string triangulatingGeometry = L10n.Tr("Triangulating Geometry");
+        public static string subdividingGeometry = L10n.Tr("Subdividing Geometry");
         public static string generatingWeights = L10n.Tr("Generating Weights");
         public static string restorePoseLocalized = L10n.Tr("Restore Pose");
         public static string vertexWeight = L10n.Tr("Vertex Weight");
@@ -113,7 +147,7 @@ namespace UnityEditor.U2D.Animation
         public static string modeTooltip = L10n.Tr("Different operation mode for weight adjustment");
         public static string boneToolTip = L10n.Tr("The bone that is affecting");
         public static string pivot = L10n.Tr("Pivot");
-        
+
         public static string noBoneSelected = L10n.Tr("No bone selected");
         public static string boneInfluences = L10n.Tr("Bone Influences");
         public static string influencedSprites = L10n.Tr("Sprite Influences");

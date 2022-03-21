@@ -1,7 +1,3 @@
-#if ENABLE_ANIMATION_COLLECTION && ENABLE_ANIMATION_BURST
-#define ENABLE_ANIMATION_PERFORMANCE
-#endif
-
 using UnityEngine;
 using UnityEditorInternal;
 using UnityEngine.U2D.Animation;
@@ -28,8 +24,7 @@ namespace UnityEditor.U2D.Animation
             public static readonly string invalidTransformArrayLength = L10n.Tr("The number of Sprite's Bind Poses and the number of Transforms should match");
             public static readonly GUIContent useManager = new GUIContent("Enable batching", "When enabled, SpriteSkin deformation will be done in batch to improve performance.");
             public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update", "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
-            public static readonly GUIContent autoRebind = new GUIContent("Auto Rebind", "When the Sprite in SpriteRenderer is changed, SpriteSkin will try to look for the Transforms that is needed for the Sprite using the Root Bone Tranform as parent.");    
-            public static readonly string enableBatchingHelp = L10n.Tr("Install Burst and Collections packages to enable deformation batching.");
+            public static readonly GUIContent autoRebind = new GUIContent("Auto Rebind", "When the Sprite in SpriteRenderer is changed, SpriteSkin will try to look for the Transforms that is needed for the Sprite using the Root Bone Tranform as parent.");
         }
 
         private static Color s_BoundingBoxHandleColor = new Color(255, 255, 255, 150) / 255;
@@ -43,7 +38,6 @@ namespace UnityEditor.U2D.Animation
         private Sprite m_CurrentSprite;
         private BoxBoundsHandle m_BoundsHandle = new BoxBoundsHandle();
         private bool m_NeedsRebind = false;
-        private SerializedProperty m_UseBatching;
         private bool m_BoneFold = true;
 
         private void OnEnable()
@@ -52,8 +46,7 @@ namespace UnityEditor.U2D.Animation
             m_SpriteSkin.OnEditorEnable();
 
             m_RootBoneProperty = serializedObject.FindProperty("m_RootBone");
-            m_UseBatching = serializedObject.FindProperty("m_UseBatching");
-            
+
             m_BoneTransformsProperty = serializedObject.FindProperty("m_BoneTransforms");
             m_AlwaysUpdateProperty = serializedObject.FindProperty("m_AlwaysUpdate");
             m_AutoRebindProperty = serializedObject.FindProperty("m_AutoRebind");
@@ -176,22 +169,6 @@ namespace UnityEditor.U2D.Animation
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
 
-#if !ENABLE_ANIMATION_PERFORMANCE
-            EditorGUILayout.HelpBox(Contents.enableBatchingHelp, MessageType.Info);
-            using (new EditorGUI.DisabledScope(true))
-#endif
-            {
-                EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(m_UseBatching, Contents.useManager);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    foreach (var obj in targets)
-                    {
-                        ((SpriteSkin)obj).UseBatching(m_UseBatching.boolValue);
-                    }
-                }   
-            }
-
             serializedObject.ApplyModifiedProperties();
 
             if (m_NeedsRebind)
@@ -214,10 +191,9 @@ namespace UnityEditor.U2D.Animation
 
                 if(spriteSkin.spriteRenderer.sprite == null || spriteSkin.rootBone == null)
                     continue;
-                var spriteBones = spriteSkin.spriteRenderer.sprite.GetBones();
-                var transforms = new Transform[spriteBones.Length];
-                if (SpriteSkin.GetSpriteBonesTransforms(spriteBones, spriteSkin.rootBone, transforms))
-                    spriteSkin.boneTransforms = transforms;
+                if (!SpriteSkin.GetSpriteBonesTransforms(spriteSkin, out var transforms))
+                    Debug.LogWarning($"Rebind failed for {spriteSkin.name}. Could not find all bones required by the Sprite: {spriteSkin.sprite.name}.");
+                spriteSkin.boneTransforms = transforms;
                 
                 ResetBoundsIfNeeded(spriteSkin);
             }
@@ -352,9 +328,6 @@ namespace UnityEditor.U2D.Animation
                         break;
                     case SpriteSkinValidationResult.RootTransformNotFound:
                         text = Contents.rootTransformNotFound;
-                        break;
-                    case SpriteSkinValidationResult.RootNotFoundInTransformArray:
-                        text = Contents.rootTransformNotFoundInArray;
                         break;
                     case SpriteSkinValidationResult.InvalidTransformArray:
                         text = Contents.invalidTransformArray;

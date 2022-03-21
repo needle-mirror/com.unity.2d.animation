@@ -23,7 +23,7 @@ namespace UnityEngine.U2D.Animation
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     public class SpriteResolver : MonoBehaviour, ISerializationCallbackReceiver, IPreviewable
     {
-        // SpriteKey is the new animation key.
+        // SpriteHash is the new animation key.
         // We are keeping the old ones so that the animation clip doesn't break
         
         // These are for animation

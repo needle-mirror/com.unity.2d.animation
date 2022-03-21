@@ -1,3 +1,4 @@
+using UnityEditor.Callbacks;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
@@ -10,13 +11,27 @@ namespace UnityEditor.U2D.Animation
     [MovedFrom("UnityEditor.Experimental.U2D.Animation")]
     internal class SpriteLibraryAssetInspector : Editor
     {
+        [OnOpenAssetAttribute(OnOpenAssetAttributeMode.Execute)]
+        public static bool ExecuteOpenSpriteLibraryAsset(int instanceID)
+        {
+            var spriteLibraryAsset = EditorUtility.InstanceIDToObject(instanceID) as SpriteLibraryAsset;
+            if (spriteLibraryAsset != null)
+            {
+                SpriteLibraryEditor.SpriteLibraryEditorWindow.OpenWindow();
+                
+                return true;
+            }
+            
+            return false;
+        }
+        
         static class Style
         {
             public static GUIContent duplicateWarningText = EditorGUIUtility.TrTextContent("Duplicate name found or name hash clashes. Please use a different name");
             public static GUIContent duplicateWarning = EditorGUIUtility.TrIconContent("console.warnicon.sml", duplicateWarningText.text);
             public static GUIContent nameLabel = new GUIContent(TextContent.label);
             public static string categoryListLabel = TextContent.categoryList;
-            public static readonly string UpgradeHelpBox = L10n.Tr("Sprite Library Asset has been upgraded to improve scalability and performance. You may choose to upgrade the asset to enjoy the improvements or continue using the existing asset.");
+            public static readonly string UpgradeHelpBox = L10n.Tr("This is the runtime version of the Sprite Library Source Asset. You may choose to convert this asset into a Sprite Library Source Asset for increased tooling support.");
             public static readonly string UpgradeButton = L10n.Tr("Open Sprite Library Asset Upgrader");
             public static int lineSpacing = 3;
         }

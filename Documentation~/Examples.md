@@ -11,7 +11,6 @@ The following is the list of Sample projects and their respective documentation.
 
 - [Simple](ex-simple.md)  - a single Sprite rig with simple bone hierarchy and rigging.
 - [Single Skinned Sprite](ex-single-skinned-sprite.md) - a more advance single Sprite actor.
-- [Multiple Skinned Sprites](ex-multiple-skinned-sprites.md) - Multiple Sprites from a single Texture
 - [Character](ex-psd-importer.md) - Imported with the PSD Importer
 - [Sprite Swap](ex-sprite-swap.md) - - Contains examples of the many different ways that Sprite Swap can be used.
   - [Flipbook Animation Swap](ex-sprite-swap.md#flipbook-animation-swap)

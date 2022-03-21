@@ -1,5 +1,4 @@
-﻿#if ENABLE_ANIMATION_COLLECTION && ENABLE_ANIMATION_BURST
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
@@ -88,42 +87,12 @@ namespace UnityEngine.U2D.Animation
             Array.Resize(ref array, arraySize + 1);
             array[arraySize] = item;
         }
-
-        static void ArrayRemove<T>(ref T[] array, T item)
-        {
-            List<T> newList = new List<T>(array);
-            newList.Remove(item);
-            array = newList.ToArray();
-        }
-
-        public static void ArrayRemoveAt<T>(ref T[] array, int index)
+        
+        static void ArrayRemoveAt<T>(ref T[] array, int index)
         {
             List<T> list = new List<T>(array);
             list.RemoveAt(index);
             array = list.ToArray();
-        }
-
-        public void RemoveTransform(Transform t)
-        {
-            if (t == null || !m_TransformData.IsCreated)
-                return;
-            m_JobHandle.Complete();
-            int instanceId = t.GetInstanceID();
-            if (m_TransformData.ContainsKey(instanceId))
-            {
-                var transformData = m_TransformData[instanceId];
-                if (transformData.refCount == 1)
-                {
-                    m_TransformData.Remove(instanceId);
-                    ArrayRemove(ref m_Transform, t);
-                    m_Dirty = true;
-                }
-                else
-                {
-                    transformData.refCount -= 1;
-                    m_TransformData[instanceId] = transformData;
-                }
-            }
         }
 
         void UpdateTransformIndex()
@@ -210,6 +179,43 @@ namespace UnityEngine.U2D.Animation
             return log;
         }
 
+        internal void RemoveTransformsByIds(IList<int> idsToRemove)
+        {
+            if (!m_TransformData.IsCreated)
+                return;
+            m_JobHandle.Complete();
+            foreach (var id in idsToRemove)
+            {
+                if (!m_TransformData.ContainsKey(id))
+                {
+                    idsToRemove.Remove(id);
+                    continue;
+                }
+                
+                var transformData = m_TransformData[id];
+                if (transformData.refCount > 1)
+                {
+                    transformData.refCount -= 1;
+                    m_TransformData[id] = transformData;
+                    idsToRemove.Remove(id);
+                }
+            }
+
+            if (idsToRemove.Count == 0)
+                return;
+
+            var transformList = new List<Transform>(m_Transform);
+            foreach (var id in idsToRemove)
+            {
+                m_TransformData.Remove(id);
+                var index = transformList.FindIndex(t => t.GetInstanceID() == id);
+                if (index >= 0)
+                    transformList.RemoveAt(index);
+            }
+
+            m_Transform = transformList.ToArray();
+        }
+
         internal void RemoveTransformById(int transformId)
         {
             if (!m_TransformData.IsCreated)
@@ -260,4 +266,3 @@ namespace UnityEngine.U2D.Animation
         }
     }
 }
-#endif

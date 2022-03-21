@@ -15,7 +15,6 @@ namespace UnityEngine.U2D.Animation
         InvalidTransformArray,
         InvalidTransformArrayLength,
         TransformArrayContainsNull,
-        RootNotFoundInTransformArray,
 
         Ready
     }
@@ -57,19 +56,12 @@ namespace UnityEngine.U2D.Animation
 
             if (bindPoses.Length != spriteSkin.boneTransforms.Length)
                 return SpriteSkinValidationResult.InvalidTransformArrayLength;
-
-            var rootFound = false;
+            
             foreach (var boneTransform in spriteSkin.boneTransforms)
             {
                 if (boneTransform == null)
                     return SpriteSkinValidationResult.TransformArrayContainsNull;
-
-                if (boneTransform == spriteSkin.rootBone)
-                    rootFound = true;
             }
-
-            if (!rootFound)
-                return SpriteSkinValidationResult.RootNotFoundInTransformArray;
 
             return SpriteSkinValidationResult.Ready;
         }

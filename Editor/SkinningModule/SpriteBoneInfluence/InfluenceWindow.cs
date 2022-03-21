@@ -118,7 +118,7 @@ namespace UnityEditor.U2D.Animation
                 }
             };
 
-            m_ListView.onSelectionChange += OnListViewSelectionChanged;
+            m_ListView.selectionChanged += OnListViewSelectionChanged;
             m_AddButton = this.Q<Button>("AddButton");
             m_AddButton.clickable.clicked += () =>
             {

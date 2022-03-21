@@ -229,7 +229,7 @@ namespace UnityEditor.U2D.Animation
                 indices[index++] = i + 1 < triangleVerts ? i + 1 : 1;
             }
 
-            return new Mesh { vertices = verts, triangles = indices, hideFlags = HideFlags.HideAndDontSave };
+            return new Mesh { vertices = verts, triangles = indices, hideFlags = HideFlags.HideAndDontSave};
         }
         
         void OnMeshPreviewChanged(MeshPreviewCache mesh)

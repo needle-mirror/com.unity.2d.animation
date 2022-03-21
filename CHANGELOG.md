@@ -1,10 +1,23 @@
 # Changelog
-## [8.0.1] - 2022-03-21
+
+## [9.0.0-pre.1] - 2022-03-21
+### Added
+- Added the ability to cancel mesh generation in the Skinning Editor.
+
+### Changed
+- 2D Animation now depends on the Collections package.
+- Sprite Skin's AutoRebind can now swap between all bones underneath the rootBone.
+- Updated Visibility Tab documentation page.
+- Sprite Skins are now registered/deregistered in batches for improved instatiation/destroy performance.
+- Updated ListView event listeners to use new selection API.
+
 ### Fixed
-- Fixed an issue where moving vertices in the Skinning Editor might result in invalid edges. (case 1402636)
-- Sprite Library cannot reference itself in the Main Library field or any asset that references it. (case 1402649)
-- Fixed an issue where the SpriteSkin components would not get initialized on editor launch. (case 1403568)
-- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405325)
+- Fixed an issue where the animation window's preview of IK targets would not be the same as in Play Mode. (case 1391590)
+- Sprite Library cannot reference itself in the Main Library field or any asset that references it. (case 1401464)
+- Fixed an issue where moving vertices in the Skinning Editor might result in invalid edges. (case 1386153)
+- Fixed an issue where the SpriteSkin components would not get initialized on editor launch. (case 1401139)
+- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405289)
+- Fixed an issue where the Skinning Editor's copy/paste tool would fail if two bones shared the same name. (case 1405028)
 
 ## [8.0.0] - 2022-01-25
 ### Changed
@@ -13,7 +26,6 @@
 ### Fixed
 - Sprite Skin's help button now leads to the correct documentation page. (case 1383765)
 - Fixed the isolate behavior in the Sprite tab in the Visibility panel. (case 1387184)
-- Fixed an issue where the animation window's preview of IK targets would not be the same as in Play Mode. (case 1396081)
 
 ## [8.0.0-pre.4] - 2021-11-24
 ### Added

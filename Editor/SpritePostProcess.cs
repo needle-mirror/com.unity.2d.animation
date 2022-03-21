@@ -1,6 +1,3 @@
-#if ENABLE_ANIMATION_COLLECTION && ENABLE_ANIMATION_BURST
-#define ENABLE_ANIMATION_PERFORMANCE
-#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -77,13 +74,11 @@ namespace UnityEditor.U2D.Animation
 
         static void RefreshSpriteSkinCache()
         {
-#if ENABLE_ANIMATION_PERFORMANCE
             var spriteSkins = GameObject.FindObjectsOfType<SpriteSkin>();
             foreach (var ss in spriteSkins)
             {
                 ss.ResetSprite();
             }
-#endif
         }
 
         static void CalculateLocaltoWorldMatrix(int i, SpriteRect spriteRect, float definitionScale, float pixelsPerUnit, List<UnityEngine.U2D.SpriteBone> spriteBone, ref UnityEngine.U2D.SpriteBone?[] outpriteBone, ref NativeArray<Matrix4x4> bindPose)

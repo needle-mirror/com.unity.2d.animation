@@ -19,7 +19,6 @@ namespace UnityEngine.U2D.Animation
 
         void LateUpdate()
         {
-#if ENABLE_ANIMATION_COLLECTION            
             if (SpriteSkinComposite.instance.helperGameObject != gameObject)
             {
                 GameObject.DestroyImmediate(gameObject);
@@ -29,7 +28,6 @@ namespace UnityEngine.U2D.Animation
             m_ProfilerMarker.Begin();
             SpriteSkinComposite.instance.LateUpdate();
             m_ProfilerMarker.End();
-#endif            
         }
     }
 }

@@ -82,13 +82,14 @@ namespace UnityEngine.U2D.Animation
                 s.UpdateHash();
         }
 
-        internal void ValidateLabels()
+        internal void ValidateLabels(bool log = true)
         {
             SpriteLibraryAsset.RenameDuplicate(m_CategoryList,
                 (originalName, newName)
                 =>
                 {
-                    Debug.LogWarning(string.Format("Label {0} renamed to {1} due to hash clash", originalName, newName));
+                    if(log)
+                        Debug.LogWarning(string.Format("Label {0} renamed to {1} due to hash clash", originalName, newName));
                 });
         }
     }
@@ -111,7 +112,7 @@ namespace UnityEngine.U2D.Animation
         private long m_ModificationHash;
         [SerializeField]
         int m_Version;
-        
+
         internal static SpriteLibraryAsset CreateAsset(List<SpriteLibCategory> categories, string assetName, long modificationHash)
         {
             var asset = ScriptableObject.CreateInstance<SpriteLibraryAsset>();
@@ -353,12 +354,13 @@ namespace UnityEngine.U2D.Animation
 #endif
         }
 
-        internal void ValidateCategories()
+        internal void ValidateCategories(bool log = true)
         {
             RenameDuplicate(m_Labels, (originalName, newName)
                 =>
                 {
-                    Debug.LogWarning($"Category {originalName} renamed to {newName} due to hash clash");
+                    if(log)
+                        Debug.LogWarning($"Category {originalName} renamed to {newName} due to hash clash");
                 });
             for (var i = 0; i < m_Labels.Count; ++i)
             {
@@ -366,7 +368,7 @@ namespace UnityEngine.U2D.Animation
                 var category = m_Labels[i];
 
                 // Verify labels have no clash
-                category.ValidateLabels();
+                category.ValidateLabels(log);
             }
         }
 

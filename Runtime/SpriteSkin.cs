@@ -1,7 +1,4 @@
 #pragma warning disable 0168 // variable declared but not used.
-#if ENABLE_ANIMATION_COLLECTION && ENABLE_ANIMATION_BURST
-#define ENABLE_SPRITESKIN_COMPOSITE
-#endif
 
 using System;
 using System.Collections.Generic;
@@ -58,6 +55,7 @@ namespace UnityEngine.U2D.Animation
         static class Profiling
         {
             public static readonly ProfilerMarker cacheCurrentSprite = new ProfilerMarker("SpriteSkin.CacheCurrentSprite");
+            public static readonly ProfilerMarker cacheHierarchy = new ProfilerMarker("SpriteSkin.CacheHierarchy");
             public static readonly ProfilerMarker getSpriteBonesTransformFromGuid = new ProfilerMarker("SpriteSkin.GetSpriteBoneTransformsFromGuid");
             public static readonly ProfilerMarker getSpriteBonesTransformFromPath = new ProfilerMarker("SpriteSkin.GetSpriteBoneTransformsFromPath");
         }
@@ -68,8 +66,6 @@ namespace UnityEngine.U2D.Animation
         Transform[] m_BoneTransforms = new Transform[0];
         [SerializeField]
         Bounds m_Bounds;
-        [SerializeField]
-        bool m_UseBatching = true;
         [SerializeField] 
         bool m_AlwaysUpdate = true;
         [SerializeField] 
@@ -82,15 +78,11 @@ namespace UnityEngine.U2D.Animation
         SpriteRenderer m_SpriteRenderer;
         int m_CurrentDeformSprite = 0;
         bool m_ForceSkinning;
-        bool m_BatchSkinning = false;
         bool m_IsValid = false;
         int m_TransformsHash = 0;
 
-        internal bool batchSkinning
-        {
-            get => m_BatchSkinning;
-            set => m_BatchSkinning = value;
-        }
+        internal Dictionary<int, List<TransformData>> hierarchyCache => m_HierarchyCache;
+        Dictionary<int, List<TransformData>> m_HierarchyCache = new Dictionary<int, List<TransformData>>();
 
         internal bool autoRebind
         {
@@ -98,6 +90,7 @@ namespace UnityEngine.U2D.Animation
             set
             {
                 m_AutoRebind = value;
+                CacheHierarchy();
                 CacheCurrentSprite(m_AutoRebind);
             }
             
@@ -131,6 +124,10 @@ namespace UnityEngine.U2D.Animation
             Awake();
             m_TransformsHash = 0;
             CacheCurrentSprite(false);
+            
+            if (m_HierarchyCache.Count == 0)
+                CacheHierarchy();
+            
             OnEnableBatch();
         }
 
@@ -153,15 +150,6 @@ namespace UnityEngine.U2D.Animation
             {
                 CacheValidFlag();
                 OnResetBatch();
-            }
-        }
-
-        internal void UseBatching(bool value)
-        {
-            if (m_UseBatching != value)
-            {
-                m_UseBatching = value;
-                UseBatchingBatch();
             }
         }
 
@@ -192,12 +180,8 @@ namespace UnityEngine.U2D.Animation
         {
             if (!m_IsValid)
                 return false;
-
-#if ENABLE_SPRITESKIN_COMPOSITE
+            
             return m_DataIndex >= 0 && SpriteSkinComposite.instance.HasDeformableBufferForSprite(m_DataIndex);
-#else
-            return m_CurrentDeformVerticesLength > 0 && m_DeformedVertices.IsCreated;
-#endif
         }
 
         /// <summary>
@@ -209,20 +193,12 @@ namespace UnityEngine.U2D.Animation
         {
             if (!m_IsValid)
                 throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
-
-#if ENABLE_SPRITESKIN_COMPOSITE
+            
             if (m_DataIndex < 0)
             {
                 throw new InvalidOperationException("There are no currently deformed vertices.");
             }
             return SpriteSkinComposite.instance.GetDeformableBufferForSprite(m_DataIndex);
-#else
-            if (m_CurrentDeformVerticesLength <= 0)
-                throw new InvalidOperationException("There are no currently deformed vertices.");
-            if (!m_DeformedVertices.IsCreated)
-                throw new InvalidOperationException("There are no currently deformed vertices.");
-            return m_DeformedVertices.array;
-#endif
         }
 
         /// <summary>
@@ -312,25 +288,21 @@ namespace UnityEngine.U2D.Animation
         {
 #if UNITY_EDITOR 
             if(IsInGUIUpdateLoop())
-                Deform(false);
+                Deform();
 #endif
         }
 
         static bool IsInGUIUpdateLoop() => Event.current != null;
-
-#if ENABLE_SPRITESKIN_COMPOSITE
+        
         internal void OnLateUpdate()
-#else
-        void LateUpdate()
-#endif
         {
-            Deform(batchSkinning);
+            Deform();
         }
 
-        void Deform(bool useBatching)
+        void Deform()
         {
             CacheCurrentSprite(m_AutoRebind);
-            if (isValid && !useBatching && this.enabled && (this.alwaysUpdate || this.spriteRenderer.isVisible))
+            if (isValid && this.enabled && (this.alwaysUpdate || this.spriteRenderer.isVisible))
             {
                 var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
                 var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
@@ -360,10 +332,9 @@ namespace UnityEngine.U2D.Animation
                     m_CurrentDeformSprite = GetSpriteInstanceID();
                     if (rebind && m_CurrentDeformSprite > 0 && rootBone != null)
                     {
-                        var spriteBones = sprite.GetBones();
-                        var transforms = new Transform[spriteBones.Length];
-                        if (GetSpriteBonesTransforms(spriteBones, rootBone, transforms))
-                            boneTransforms = transforms;
+                        if (!GetSpriteBonesTransforms(this, out var transforms))
+                            Debug.LogWarning($"Rebind failed for {name}. Could not find all bones required by the Sprite: {sprite.name}.");
+                        boneTransforms = transforms;
                     }
                     UpdateSpriteDeform();
                     CacheValidFlag();
@@ -402,8 +373,73 @@ namespace UnityEngine.U2D.Animation
             {
                 m_RootBone = value;
                 CacheValidFlag();
+                CacheHierarchy();
                 OnRootBoneTransformChanged();
             }
+        }
+
+        internal struct TransformData
+        {
+            public string fullName;
+            public Transform transform;
+        }
+
+        void CacheHierarchy()
+        {
+            using (Profiling.cacheHierarchy.Auto())
+            {
+                m_HierarchyCache.Clear();
+                if (rootBone == null || !m_AutoRebind)
+                    return;
+                
+                m_HierarchyCache.EnsureCapacity(rootBone.hierarchyCount);
+                CacheChildren(rootBone, m_HierarchyCache);
+
+                foreach (var entry in m_HierarchyCache)
+                {
+                    if (entry.Value.Count == 1)
+                        continue;
+                    var count = entry.Value.Count;
+                    for (var i = 0; i < count; ++i)
+                    {
+                        var transformEntry = entry.Value[i];
+                        transformEntry.fullName = GenerateTransformPath(rootBone, transformEntry.transform);
+                        entry.Value[i] = transformEntry;
+                    }
+                }
+            }
+        }
+
+        static void CacheChildren(Transform current, Dictionary<int, List<TransformData>> cache)
+        {
+            var nameHash = current.name.GetHashCode();
+            var entry = new TransformData()
+            {
+                fullName = String.Empty,
+                transform = current
+            };
+            if (cache.ContainsKey(nameHash))
+                cache[nameHash].Add(entry);
+            else
+                cache.Add(nameHash, new List<TransformData>(1) { entry });
+            
+            for (var i = 0; i < current.childCount; ++i)
+                CacheChildren(current.GetChild(i), cache);
+        }
+
+        static string GenerateTransformPath(Transform rootBone, Transform child)
+        {
+            var path = child.name;
+            if (child == rootBone)
+                return path;
+            var parent = child.parent;
+            do
+            {
+                path = parent.name + "/" + path;
+                parent = parent.parent;
+            }
+            while (parent != rootBone && parent != null);
+            return path;
         }
 
         internal Bounds bounds
@@ -422,17 +458,18 @@ namespace UnityEngine.U2D.Animation
             set => m_AlwaysUpdate = value;
         }
         
-        internal static bool GetSpriteBonesTransforms(SpriteBone[] spriteBones, Transform rootBone, Transform[] outTransform)
+        internal static bool GetSpriteBonesTransforms(SpriteSkin spriteSkin, out Transform[] outTransform)
         {
+            var rootBone = spriteSkin.rootBone;
+            var spriteBones = spriteSkin.sprite.GetBones();
+
             if(rootBone == null)
                 throw new ArgumentException("rootBone parameter cannot be null");
             if(spriteBones == null)
                 throw new ArgumentException("spriteBones parameter cannot be null");
-            if(outTransform == null)
-                throw new ArgumentException("outTransform parameter cannot be null");
-            if(spriteBones.Length != outTransform.Length)
-                throw new ArgumentException("spriteBones and outTransform array length must be the same");
-            
+
+            outTransform = new Transform[spriteBones.Length];
+
             var boneObjects = rootBone.GetComponentsInChildren<Bone>();
             if (boneObjects != null && boneObjects.Length >= spriteBones.Length)
             {
@@ -453,31 +490,57 @@ namespace UnityEngine.U2D.Animation
                 }
             }
                 
+            var hierarchyCache = spriteSkin.hierarchyCache;
+            if (hierarchyCache.Count == 0)
+                spriteSkin.CacheHierarchy();
+            
             // If unable to successfully map via guid, fall back to path
-            return GetSpriteBonesTransformFromPath(spriteBones, rootBone, outTransform);
+            return GetSpriteBonesTransformFromPath(spriteBones, hierarchyCache, outTransform);
         }
         
-        static bool GetSpriteBonesTransformFromPath(SpriteBone[] spriteBones, Transform rootBone, Transform[] outNewBoneTransform)
+        static bool GetSpriteBonesTransformFromPath(SpriteBone[] spriteBones, Dictionary<int, List<TransformData>> hierarchyCache, Transform[] outNewBoneTransform)
         {
             using (Profiling.getSpriteBonesTransformFromPath.Auto())
             {
-                var bonePath = new string[spriteBones.Length];
+                string[] bonePath = null;
+                var foundBones = true;
                 for (var i = 0; i < spriteBones.Length; ++i)
                 {
-                    if (bonePath[i] == null)
-                        CalculateBoneTransformsPath(i, spriteBones, bonePath);
-                    if (rootBone.name == spriteBones[i].name)
-                        outNewBoneTransform[i] = rootBone;
+                    var nameHash = spriteBones[i].name.GetHashCode();
+                    if (!hierarchyCache.TryGetValue(nameHash, out var children))
+                    {
+                        outNewBoneTransform[i] = null;
+                        foundBones = false;
+                        continue;
+                    }
+                    
+                    if (children.Count == 1)
+                        outNewBoneTransform[i] = children[0].transform;
                     else
                     {
-                        var bone = rootBone.Find(bonePath[i]);
-                        if (bone == null)
-                            return false;
-                        outNewBoneTransform[i] = bone;
+                        if (bonePath == null)
+                            bonePath = new string[spriteBones.Length];
+                        if (bonePath[i] == null)
+                            CalculateBoneTransformsPath(i, spriteBones, bonePath);
+
+                        var m = 0;
+                        for (; m < children.Count; ++m)
+                        {
+                            if (children[m].fullName.Contains(bonePath[i]))
+                            {
+                                outNewBoneTransform[i] = children[m].transform;
+                                break;
+                            }
+                        }
+                        if (m >= children.Count)
+                        {
+                            outNewBoneTransform[i] = null;
+                            foundBones = false;
+                        }
                     }
                 }
 
-                return true;
+                return foundBones;
             }
         }
         
@@ -486,7 +549,7 @@ namespace UnityEngine.U2D.Animation
             var spriteBone = spriteBones[index];
             var parentId = spriteBone.parentId;
             var bonePath = spriteBone.name;
-            if (parentId != -1 && spriteBones[parentId].parentId != -1)
+            if (parentId != -1)
             {
                 if (paths[parentId] == null)
                     CalculateBoneTransformsPath(spriteBone.parentId, spriteBones, paths);

@@ -1,17 +1,12 @@
-﻿#if ENABLE_ANIMATION_COLLECTION
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
-#if ENABLE_ANIMATION_BURST
 using Unity.Burst;
-#endif
 
 
 namespace UnityEngine.U2D.Animation
 {
-#if ENABLE_ANIMATION_BURST
     [BurstCompile]
-#endif
     internal struct UpdateBoundJob : IJobParallelFor
     {
         [ReadOnly]
@@ -62,4 +57,3 @@ namespace UnityEngine.U2D.Animation
         }
     }
 }
-#endif

@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Burst;
 using Unity.Mathematics;
 using UnityEngine;
 using ModuleHandle = UnityEngine.U2D.Common.UTess.ModuleHandle;
-#if ENABLE_ANIMATION_BURST
-using Unity.Burst;
-#endif
 
 namespace UnityEditor.U2D.Animation
 {
@@ -18,9 +16,7 @@ namespace UnityEditor.U2D.Animation
         // Adjust Tolerance for Collinear Check.
         static readonly float k_CollinearTolerance = 0.0001f;
         
-#if ENABLE_ANIMATION_BURST
         [BurstCompile]
-#endif
         private static unsafe int ValidateCollinear(float2* points, int pointCount, float epsilon)
         {
             if (pointCount < 3)
@@ -41,9 +37,7 @@ namespace UnityEditor.U2D.Animation
             return 0;
         }
         
-#if ENABLE_ANIMATION_BURST
         [BurstCompile]
-#endif
         private static unsafe void TessellateBurst(Allocator allocator, float2* points, int pointCount, int2* edges, int edgeCount, float2* outVertices, int* outIndices, int2* outEdges, int arrayCount, int3* result)
         {
 
@@ -85,9 +79,8 @@ namespace UnityEditor.U2D.Animation
             _edges.Dispose();
 
         }
-#if ENABLE_ANIMATION_BURST
+
         [BurstCompile]
-#endif
         private static unsafe void SubdivideBurst(Allocator allocator, float2* points, int pointCount, int2* edges, int edgeCount, float2* outVertices, int* outIndices, int2* outEdges, int arrayCount, float areaFactor, float areaThreshold, int refineIterations, int smoothenIterations, int3* result)
         {
             NativeArray<int2> _edges = new NativeArray<int2>(edgeCount, allocator);

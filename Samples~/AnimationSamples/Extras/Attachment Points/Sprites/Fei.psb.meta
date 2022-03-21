@@ -6028,6 +6028,7 @@ ScriptedImporter:
   sharedRigPSDLayers: []
   pSDLayerImportSetting: []
   importFileNodeState: 1
+  platformSettingsDirtyTick: 0
   generateGOHierarchy: 0
   textureAssetName: Fei
   prefabAssetName: Fei_GO
