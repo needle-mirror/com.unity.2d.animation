@@ -293,7 +293,8 @@ namespace UnityEditor.U2D.Animation
             m_MeshPreviewTool.DoGUI();
             m_MeshPreviewTool.DrawOverlay();
 
-            m_SpriteOutlineRenderer.RenderSpriteOutline(spriteEditor, skinningCache.selectedSprite);
+            if(Event.current.type == EventType.Repaint)
+                m_SpriteOutlineRenderer.RenderSpriteOutline(spriteEditor, skinningCache.selectedSprite);
 
             m_MeshPreviewTool.OverlayWireframe();
 

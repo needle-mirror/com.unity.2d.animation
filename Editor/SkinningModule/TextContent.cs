@@ -87,6 +87,7 @@ namespace UnityEditor.U2D.Animation
         public static string spriteCategoryIndexChanged = L10n.Tr("Sprite Category Index Changed");
         public static string categoryList = L10n.Tr("Category List");
         public static string label = L10n.Tr("Label");
+        public static string spriteLibraryCircularDependency = L10n.Tr("The Sprite Library can't be added because self-referencing is not allowed. Try another Sprite Library instead.");
 
         // Other
         public static string generatingGeometry = L10n.Tr("Generating Geometry");
