@@ -1,4 +1,7 @@
 # Changelog
+## [5.2.1] - 2022-03-29
+### Fixed
+- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405328)
 
 ## [5.2.0] - 2022-03-12
 ### Changed

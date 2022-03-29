@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "unity": "2020.3",
   "unityRelease": "26f1",
   "displayName": "2D Animation",
@@ -18,7 +18,7 @@
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "5.2.0",
+    "com.unity.2d.animation.tests": "5.2.1",
     "com.unity.2d.common.tests": "4.2.0",
     "com.unity.2d.psdimporter": "4.3.0"
   },
@@ -30,14 +30,14 @@
     }
   ],
   "upm": {
-    "changelog": "### Changed,- Updated minimum Unity release version required for the package to 2020.3.26f1."
+    "changelog": "### Fixed\r\n- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405328)"
   },
   "upmCi": {
-    "footprint": "70abdcd1cf43b93e97b3bd529ff87b37582bdbef"
+    "footprint": "0c8082bfb8221b5ab238df15e8b48d813309c69d"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "de062e9b52e01d9b7c1e2b7e86c8897a78342167"
+    "revision": "7d784133332c132799977c54114a39990bd3a75c"
   }
 }
