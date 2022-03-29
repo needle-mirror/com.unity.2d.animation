@@ -51,38 +51,35 @@ namespace UnityEditor.U2D.Animation
             if (spriteEditor == null || sprite == null)
                 return;
 
-            if (Event.current.type == EventType.Repaint)
+            if (SelectionOutlineSettings.selectedSpriteOutlineSize < 0.01f || SelectionOutlineSettings.outlineColor.a < 0.01f)
+                return;
+
+            var mesh = GetMesh(sprite);
+            if (mesh == null)
+                return;
+                
+            UnityEngine.Profiling.Profiler.BeginSample("SpriteOutlineRenderer::RenderSpriteOutline");
+
+            var vertices = mesh.vertices;
+            var edges = sprite.GetMesh().edges;
+            var multMatrix = Handles.matrix * sprite.GetLocalToWorldMatrixFromMode();
+                
+            var texture = spriteEditor.GetDataProvider<ITextureDataProvider>().texture;
+            var outlineSize = SelectionOutlineSettings.selectedSpriteOutlineSize;
+            var outlineColor = SelectionOutlineSettings.outlineColor;
+            var adjustForGamma = PlayerSettings.colorSpace == ColorSpace.Linear ? 1.0f : 0.0f;
+
+            if (edges != null && edges.Count > 0 && vertices.Length > 0)
             {
-                if (SelectionOutlineSettings.selectedSpriteOutlineSize < 0.01f || SelectionOutlineSettings.outlineColor.a < 0.01f)
-                    return;
-
-                var mesh = GetMesh(sprite);
-                if (mesh == null)
-                    return;
-                
-                UnityEngine.Profiling.Profiler.BeginSample("SpriteOutlineRenderer::RenderSpriteOutline");
-
-                var vertices = mesh.vertices;
-                var edges = sprite.GetMesh().edges;
-                var multMatrix = Handles.matrix * sprite.GetLocalToWorldMatrixFromMode();
-                
-                var texture = spriteEditor.GetDataProvider<ITextureDataProvider>().texture;
-                var outlineSize = SelectionOutlineSettings.selectedSpriteOutlineSize;
-                var outlineColor = SelectionOutlineSettings.outlineColor;
-                var adjustForGamma = PlayerSettings.colorSpace == ColorSpace.Linear ? 1.0f : 0.0f;
-
-                if (edges != null && edges.Count > 0 && vertices.Length > 0)
-                {
-                    DrawEdgeOutline(edges, vertices, multMatrix, outlineSize, outlineColor, adjustForGamma);
-                }
-                else // Fallback: Draw using the Sobel filter.
-                {
-                    var finalOutlineSize = Mathf.Max(texture.width, texture.height) * outlineSize / k_ReferenceTextureSize;
-                    DrawMeshOutline(mesh, sprite, multMatrix, finalOutlineSize, outlineColor, adjustForGamma);
-                }
-
-                UnityEngine.Profiling.Profiler.EndSample();
+                DrawEdgeOutline(edges, vertices, multMatrix, outlineSize, outlineColor, adjustForGamma);
             }
+            else // Fallback: Draw using the Sobel filter.
+            {
+                var finalOutlineSize = Mathf.Max(texture.width, texture.height) * outlineSize / k_ReferenceTextureSize;
+                DrawMeshOutline(mesh, sprite, multMatrix, finalOutlineSize, outlineColor, adjustForGamma);
+            }
+
+            UnityEngine.Profiling.Profiler.EndSample();
         }
 
         void DrawEdgeOutline(List<Edge> edges, Vector3[] vertices, Matrix4x4 multMatrix, float outlineSize, Color outlineColor, float adjustForGamma)
@@ -231,7 +228,7 @@ namespace UnityEditor.U2D.Animation
                 indices[index++] = i + 1 < triangleVerts ? i + 1 : 1;
             }
 
-            return new Mesh { vertices = verts, triangles = indices };
+            return new Mesh { vertices = verts, triangles = indices, hideFlags = HideFlags.HideAndDontSave };
         }
         
         void OnMeshPreviewChanged(MeshPreviewCache mesh)

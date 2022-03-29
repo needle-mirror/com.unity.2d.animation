@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "3.2.17",
+  "version": "3.2.18",
   "unity": "2019.4",
   "unityRelease": "34f1",
   "displayName": "2D Animation",
@@ -18,7 +18,7 @@
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "3.2.17",
+    "com.unity.2d.animation.tests": "3.2.18",
     "com.unity.2d.common.tests": "2.1.2",
     "com.unity.2d.psdimporter": "2.1.11",
     "com.unity.2d.ik": "2.2.0-preview.1"
@@ -31,14 +31,14 @@
     }
   ],
   "upm": {
-    "changelog": "### Changed,- Removed Triangle.Net from 2D Animation runtime."
+    "changelog": "### Fixed\r\n- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405330)"
   },
   "upmCi": {
-    "footprint": "c3e79fb5a0c8f5812ec45d40887bcc2d55c28cde"
+    "footprint": "d313b6878ed709a018f2e57e19f79b6c83c0590c"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "bd748cdce8e418b5107577f07a9ffc43ae92c707"
+    "revision": "261189abf85d3c34b6611b5c8db462b8f4572430"
   }
 }

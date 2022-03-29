@@ -1,4 +1,8 @@
 # Changelog
+## [3.2.18] - 2022-03-29
+### Fixed
+- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405330)
+
 ## [3.2.17] - 2022-02-22
 ### Changed
 - Removed Triangle.Net from 2D Animation runtime.
