@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "7.0.5",
+  "version": "7.0.6",
   "unity": "2021.2",
   "unityRelease": "7f1",
   "displayName": "2D Animation",
@@ -17,7 +17,7 @@
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "7.0.5",
+    "com.unity.2d.animation.tests": "7.0.6",
     "com.unity.2d.common.tests": "6.0.3",
     "com.unity.2d.psdimporter": "6.0.3"
   },
@@ -28,15 +28,15 @@
       "path": "Samples~/AnimationSamples"
     }
   ],
-  "upm": {
-    "changelog": "### Fixed\n- Fixed an issue where moving vertices in the Skinning Editor might result in invalid edges. (case 1402637)\n- Sprite Library cannot reference itself in the Main Library field or any asset that references it. (case 1402645)\n- Fixed an issue where the SpriteSkin components would not get initialized on editor launch. (case 1403569)\n- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405327)\n\n# Changelog"
+  "_upm": {
+    "changelog": "### Fixed\n- Fix Sprite Library Asset multi-editing in the Inspector window. (case 1417747)\n\n### Changed\n- Updated Visibility Tab documentation page.\n- Removed the 'Open' button from Sprite Library Asset and Sprite Library Source Asset inspectors."
   },
   "upmCi": {
-    "footprint": "cc21ba26fb3a50c543bd0d0629ee228ef45c128a"
+    "footprint": "f0a0a773302ae873d503ed7597f9604d29dd6066"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "85b89d45fa263d1ee875d5166b61c69181713082"
+    "revision": "1c0695a81f795ed6aaafcb9d6a9c41b20e6d22bf"
   }
 }

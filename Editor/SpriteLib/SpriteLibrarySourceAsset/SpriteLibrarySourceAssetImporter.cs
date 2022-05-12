@@ -135,7 +135,7 @@ namespace UnityEditor.U2D.Animation
                     var convertFileName = fileName + ".spriteLib";
                     convertFileName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(currentAssetPath, convertFileName));
                     var convertAsset = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();
-                    convertAsset.library = new List<SpriteLibCategoryOverride>(asset.categories.Count);
+                    convertAsset.SetLibrary(new List<SpriteLibCategoryOverride>(asset.categories.Count));
                     for (int i = 0; i < asset.categories.Count; ++i)
                     {
                         var category = asset.categories[i];
@@ -146,7 +146,7 @@ namespace UnityEditor.U2D.Animation
                             entryOverrideCount = 0,
                             fromMain = false
                         };
-                        convertAsset.library.Add(newCategory);
+                        convertAsset.AddCategory(newCategory);
                         for (int j = 0; j < category.categoryList.Count; ++j)
                         {
                             newCategory.overrideEntries.Add(new SpriteCategoryEntryOverride()

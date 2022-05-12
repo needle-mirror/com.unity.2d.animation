@@ -1,11 +1,21 @@
+# Changelog
+
+## [7.0.6] - 2022-05-12
+### Fixed
+- Fix Sprite Library Asset multi-editing in the Inspector window. (case 1417747)
+
+### Changed
+- Updated Visibility Tab documentation page.
+- Removed the 'Open' button from Sprite Library Asset and Sprite Library Source Asset inspectors.
+
 ## [7.0.5] - 2022-03-21
 ### Fixed
 - Fixed an issue where moving vertices in the Skinning Editor might result in invalid edges. (case 1402637)
 - Sprite Library cannot reference itself in the Main Library field or any asset that references it. (case 1402645)
 - Fixed an issue where the SpriteSkin components would not get initialized on editor launch. (case 1403569)
 - Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405327)
+- Fixed an issue where the Skinning Editor's copy/paste tool would fail if two bones shared the same name. (case 1411596)
 
-# Changelog
 ## [7.0.4] - 2022-02-07
 ### Fixed
 - Deleting certain vertices in sprite mesh doesn't leads to mesh being resetted to quad. (case 1386411)
