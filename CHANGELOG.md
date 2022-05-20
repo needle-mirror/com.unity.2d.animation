@@ -1,10 +1,22 @@
 # Changelog
+
+## [8.0.2] - 2022-05-20
+### Fixed
+- Fixed Sprite Library Asset 'Revert' behavior. (case 1417743)
+- Fixed Sprite Library Asset multi-editing in the Inspector window. (case 1417747)
+- Fixed an issue where Variant Sprite Libraries would not be updated when the Main Library is changed. (case DANB-5)
+
+### Changed
+- Updated Visibility Tab documentation page.
+- Removed the 'Open' button from Sprite Library Asset and Sprite Library Source Asset inspectors.
+
 ## [8.0.1] - 2022-03-21
 ### Fixed
 - Fixed an issue where moving vertices in the Skinning Editor might result in invalid edges. (case 1402636)
 - Sprite Library cannot reference itself in the Main Library field or any asset that references it. (case 1402649)
 - Fixed an issue where the SpriteSkin components would not get initialized on editor launch. (case 1403568)
 - Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405325)
+- Fixed an issue where the Skinning Editor's copy/paste tool would fail if two bones shared the same name. (case 1411595)
 
 ## [8.0.0] - 2022-01-25
 ### Changed

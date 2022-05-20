@@ -26,6 +26,7 @@ namespace UnityEditor.U2D.Animation
         public List<Vertex2D> vertices;
         public List<int> indices;
         public List<Edge> edges;
+        public List<string> boneWeightGuids;
         public List<string> boneWeightNames;
     }
 

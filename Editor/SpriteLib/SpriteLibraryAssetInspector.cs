@@ -1,3 +1,4 @@
+using UnityEditor.Callbacks;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
@@ -16,18 +17,28 @@ namespace UnityEditor.U2D.Animation
             public static GUIContent duplicateWarning = EditorGUIUtility.TrIconContent("console.warnicon.sml", duplicateWarningText.text);
             public static GUIContent nameLabel = new GUIContent(TextContent.label);
             public static string categoryListLabel = TextContent.categoryList;
-            public static readonly string UpgradeHelpBox = L10n.Tr("Sprite Library Asset has been upgraded to improve scalability and performance. You may choose to upgrade the asset to enjoy the improvements or continue using the existing asset.");
+            public static readonly string UpgradeHelpBox = L10n.Tr("This is the runtime version of the Sprite Library Source Asset. You may choose to convert this asset into a Sprite Library Source Asset for increased tooling support.");
             public static readonly string UpgradeButton = L10n.Tr("Open Sprite Library Asset Upgrader");
             public static int lineSpacing = 3;
         }
 
-        private SerializedProperty m_Labels;
-        private ReorderableList m_LabelReorderableList;
+        SerializedProperty m_Labels;
+        ReorderableList m_LabelReorderableList;
 
-        private bool m_UpdateHash = false;
+        bool m_UpdateHash = false;
 
-        private readonly float kElementHeight = EditorGUIUtility.singleLineHeight * 3;
+        static readonly float k_ElementHeight = EditorGUIUtility.singleLineHeight * 3;
 
+        protected override bool ShouldHideOpenButton() => true;
+        
+        [OnOpenAsset(OnOpenAssetAttributeMode.Execute)]
+        public static bool ExecuteOpenSpriteLibraryAsset(int instanceID)
+        {
+            if (EditorUtility.InstanceIDToObject(instanceID) is SpriteLibraryAsset)
+                return true;
+            return false;
+        }           
+        
         public void OnEnable()
         {
             m_Labels = serializedObject.FindProperty("m_Labels");
@@ -48,17 +59,17 @@ namespace UnityEditor.U2D.Animation
             var property = m_Labels.GetArrayElementAtIndex(index);
             var spriteListProp = property.FindPropertyRelative("m_CategoryList");
             if (spriteListProp.isExpanded)
-                return (spriteListProp.arraySize + 1) * (EditorGUIUtility.singleLineHeight + Style.lineSpacing) + kElementHeight;
+                return (spriteListProp.arraySize + 1) * (EditorGUIUtility.singleLineHeight + Style.lineSpacing) + k_ElementHeight;
 
-            return kElementHeight;
+            return k_ElementHeight;
         }
 
         void DrawElement(Rect rect, int index, bool selected, bool focused)
         {
             var property = m_Labels.GetArrayElementAtIndex(index);
 
-            var catRect = new Rect(rect.x, rect.y, rect.width - kElementHeight, EditorGUIUtility.singleLineHeight);
-            var vaRect = new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight, rect.width - kElementHeight, EditorGUIUtility.singleLineHeight);
+            var catRect = new Rect(rect.x, rect.y, rect.width - k_ElementHeight, EditorGUIUtility.singleLineHeight);
+            var vaRect = new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight, rect.width - k_ElementHeight, EditorGUIUtility.singleLineHeight);
 
             var categoryProp = property.FindPropertyRelative("m_Name");
 
@@ -199,7 +210,7 @@ namespace UnityEditor.U2D.Animation
         private void SetupOrderList()
         {
             m_LabelReorderableList.drawElementCallback = DrawElement;
-            m_LabelReorderableList.elementHeight = kElementHeight;
+            m_LabelReorderableList.elementHeight = k_ElementHeight;
             m_LabelReorderableList.elementHeightCallback = GetElementHeight;
             m_LabelReorderableList.onAddCallback = OnAddCallback;
         }
