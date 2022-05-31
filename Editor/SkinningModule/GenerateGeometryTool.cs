@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.U2D.Common;
 using UnityEditor.U2D.Layout;
 using UnityEngine;
 
@@ -181,8 +182,8 @@ namespace UnityEditor.U2D.Animation
 
             var skeleton = characterPart.skinningCache.character.skeleton;
 
-            return characterPart.BoneCount == 0 ||
-                    (characterPart.BoneCount == 1 && characterPart.GetBone(0) == skeleton.GetBone(0));
+            return characterPart.boneCount == 0 ||
+                    (characterPart.boneCount == 1 && characterPart.GetBone(0) == skeleton.GetBone(0));
         }
 
         private void GenerateWeights(MeshCache mesh)

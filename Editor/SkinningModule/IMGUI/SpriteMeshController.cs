@@ -5,9 +5,9 @@ namespace UnityEditor.U2D.Animation
 {
     internal class SpriteMeshController
     {
-        private const float kSnapDistance = 10f;
+        const float k_SnapDistance = 10f;
 
-        private struct EdgeIntersectionResult
+        struct EdgeIntersectionResult
         {
             public int startVertexIndex;
             public int endVertexIndex;
@@ -15,33 +15,28 @@ namespace UnityEditor.U2D.Animation
             public Vector2 endPosition;
         }
 
-        private SpriteMeshDataController m_SpriteMeshDataController = new SpriteMeshDataController();
-        private EdgeIntersectionResult m_EdgeIntersectionResult;
+        SpriteMeshDataController m_SpriteMeshDataController = new();
+        EdgeIntersectionResult m_EdgeIntersectionResult;
 
         public ISpriteMeshView spriteMeshView { get; set; }
-        public ISpriteMeshData spriteMeshData
-        {
-            get { return m_SpriteMeshData; }
-            set { m_SpriteMeshData = value; }
-        }
-        
+        public ISpriteMeshData spriteMeshData { get; set; }
         public ISelection<int> selection { get; set; }
-
         public ICacheUndo cacheUndo { get; set; }
         public ITriangulator triangulator { get; set; }
+
         public bool disable { get; set; }
         public Rect frame { get; set; }
-        private ISpriteMeshData m_SpriteMeshData;
-        private bool m_Moved = false;
-        
+
+        bool m_Moved;
+
         Vector2[] m_MovedVerticesCache;
 
         public void OnGUI()
         {
-            m_SpriteMeshDataController.spriteMeshData = m_SpriteMeshData;
+            m_SpriteMeshDataController.spriteMeshData = spriteMeshData;
 
             Debug.Assert(spriteMeshView != null);
-            Debug.Assert(m_SpriteMeshData != null);
+            Debug.Assert(spriteMeshData != null);
             Debug.Assert(selection != null);
             Debug.Assert(cacheUndo != null);
 
@@ -54,7 +49,7 @@ namespace UnityEditor.U2D.Animation
 
             spriteMeshView.BeginLayout();
 
-            if(spriteMeshView.CanLayout())
+            if (spriteMeshView.CanLayout())
             {
                 LayoutVertices();
                 LayoutEdges();
@@ -62,11 +57,11 @@ namespace UnityEditor.U2D.Animation
 
             spriteMeshView.EndLayout();
 
-            if(spriteMeshView.CanRepaint())
+            if (spriteMeshView.CanRepaint())
             {
                 DrawEdges();
-                
-                if(GUI.enabled)
+
+                if (GUI.enabled)
                 {
                     PreviewCreateVertex();
                     PreviewCreateEdge();
@@ -100,14 +95,14 @@ namespace UnityEditor.U2D.Animation
 
             spriteMeshView.DoRepaint();
 
-            EditorGUI.EndDisabledGroup();         
+            EditorGUI.EndDisabledGroup();
         }
 
-        private void ValidateSelectionValues()
+        void ValidateSelectionValues()
         {
             foreach (var index in selection.elements)
             {
-                if (index >= m_SpriteMeshData.vertexCount)
+                if (index >= spriteMeshData.vertexCount)
                 {
                     selection.Clear();
                     break;
@@ -115,42 +110,42 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void LayoutVertices()
+        void LayoutVertices()
         {
-            for (var i = 0; i < m_SpriteMeshData.vertexCount; i++)
+            for (var i = 0; i < spriteMeshData.vertexCount; i++)
             {
-                spriteMeshView.LayoutVertex(m_SpriteMeshData.GetPosition(i), i);
+                spriteMeshView.LayoutVertex(spriteMeshData.vertices[i], i);
             }
         }
 
-        private void LayoutEdges()
+        void LayoutEdges()
         {
-            for (int i = 0; i < m_SpriteMeshData.edges.Count; i++)
+            for (var i = 0; i < spriteMeshData.edges.Length; i++)
             {
-                Edge edge = m_SpriteMeshData.edges[i];
-                Vector2 startPosition = m_SpriteMeshData.GetPosition(edge.index1);
-                Vector2 endPosition = m_SpriteMeshData.GetPosition(edge.index2);
+                var edge = spriteMeshData.edges[i];
+                var startPosition = spriteMeshData.vertices[edge.x];
+                var endPosition = spriteMeshData.vertices[edge.y];
 
                 spriteMeshView.LayoutEdge(startPosition, endPosition, i);
             }
         }
 
-        private void DrawEdges()
+        void DrawEdges()
         {
-            UpdateEdgeInstersection();
+            UpdateEdgeIntersection();
 
             spriteMeshView.BeginDrawEdges();
 
-            for (int i = 0; i < m_SpriteMeshData.edges.Count; ++i)
+            for (var i = 0; i < spriteMeshData.edges.Length; ++i)
             {
                 if (SkipDrawEdge(i))
                     continue;
 
-                Edge edge = m_SpriteMeshData.edges[i];
-                Vector2 startPosition = m_SpriteMeshData.GetPosition(edge.index1);
-                Vector2 endPosition = m_SpriteMeshData.GetPosition(edge.index2);
+                var edge = spriteMeshData.edges[i];
+                var startPosition = spriteMeshData.vertices[edge.x];
+                var endPosition = spriteMeshData.vertices[edge.y];
 
-                if (selection.Contains(edge.index1) && selection.Contains(edge.index2))
+                if (selection.Contains(edge.x) && selection.Contains(edge.y))
                     spriteMeshView.DrawEdgeSelected(startPosition, endPosition);
                 else
                     spriteMeshView.DrawEdge(startPosition, endPosition);
@@ -158,9 +153,9 @@ namespace UnityEditor.U2D.Animation
 
             if (spriteMeshView.IsActionActive(MeshEditorAction.SelectEdge))
             {
-                Edge hoveredEdge = m_SpriteMeshData.edges[spriteMeshView.hoveredEdge];
-                Vector2 startPosition = m_SpriteMeshData.GetPosition(hoveredEdge.index1);
-                Vector2 endPosition = m_SpriteMeshData.GetPosition(hoveredEdge.index2);
+                var hoveredEdge = spriteMeshData.edges[spriteMeshView.hoveredEdge];
+                var startPosition = spriteMeshData.vertices[hoveredEdge.x];
+                var endPosition = spriteMeshData.vertices[hoveredEdge.y];
 
                 spriteMeshView.DrawEdgeHovered(startPosition, endPosition);
             }
@@ -168,11 +163,11 @@ namespace UnityEditor.U2D.Animation
             spriteMeshView.EndDrawEdges();
         }
 
-        private bool SkipDrawEdge(int edgeIndex)
+        bool SkipDrawEdge(int edgeIndex)
         {
-            if(GUI.enabled == false)
+            if (GUI.enabled == false)
                 return false;
-                
+
             return edgeIndex == -1 ||
                 spriteMeshView.hoveredEdge == edgeIndex && spriteMeshView.IsActionActive(MeshEditorAction.SelectEdge) ||
                 spriteMeshView.hoveredEdge == edgeIndex && spriteMeshView.IsActionActive(MeshEditorAction.CreateVertex) ||
@@ -180,21 +175,21 @@ namespace UnityEditor.U2D.Animation
                 edgeIndex == m_EdgeIntersectionResult.intersectEdgeIndex && spriteMeshView.IsActionActive(MeshEditorAction.CreateEdge);
         }
 
-        private void PreviewCreateVertex()
+        void PreviewCreateVertex()
         {
             if (spriteMeshView.mode == SpriteMeshViewMode.CreateVertex &&
                 spriteMeshView.IsActionActive(MeshEditorAction.CreateVertex))
             {
-                Vector2 clampedMousePos = ClampToFrame(spriteMeshView.mouseWorldPosition);
+                var clampedMousePos = ClampToFrame(spriteMeshView.mouseWorldPosition);
 
                 if (spriteMeshView.hoveredEdge != -1)
                 {
-                    Edge edge = m_SpriteMeshData.edges[spriteMeshView.hoveredEdge];
+                    var edge = spriteMeshData.edges[spriteMeshView.hoveredEdge];
 
                     spriteMeshView.BeginDrawEdges();
 
-                    spriteMeshView.DrawEdge(m_SpriteMeshData.GetPosition(edge.index1), clampedMousePos);
-                    spriteMeshView.DrawEdge(m_SpriteMeshData.GetPosition(edge.index2), clampedMousePos);
+                    spriteMeshView.DrawEdge(spriteMeshData.vertices[edge.x], clampedMousePos);
+                    spriteMeshView.DrawEdge(spriteMeshData.vertices[edge.y], clampedMousePos);
 
                     spriteMeshView.EndDrawEdges();
                 }
@@ -203,20 +198,20 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void PreviewCreateEdge()
+        void PreviewCreateEdge()
         {
             if (!spriteMeshView.IsActionActive(MeshEditorAction.CreateEdge))
                 return;
 
             spriteMeshView.BeginDrawEdges();
 
-            spriteMeshView.DrawEdge(m_SpriteMeshData.GetPosition(m_EdgeIntersectionResult.startVertexIndex), m_EdgeIntersectionResult.endPosition);
+            spriteMeshView.DrawEdge(spriteMeshData.vertices[m_EdgeIntersectionResult.startVertexIndex], m_EdgeIntersectionResult.endPosition);
 
             if (m_EdgeIntersectionResult.intersectEdgeIndex != -1)
             {
-                Edge intersectingEdge = m_SpriteMeshData.edges[m_EdgeIntersectionResult.intersectEdgeIndex];
-                spriteMeshView.DrawEdge(m_SpriteMeshData.GetPosition(intersectingEdge.index1), m_EdgeIntersectionResult.endPosition);
-                spriteMeshView.DrawEdge(m_SpriteMeshData.GetPosition(intersectingEdge.index2), m_EdgeIntersectionResult.endPosition);
+                var intersectingEdge = spriteMeshData.edges[m_EdgeIntersectionResult.intersectEdgeIndex];
+                spriteMeshView.DrawEdge(spriteMeshData.vertices[intersectingEdge.x], m_EdgeIntersectionResult.endPosition);
+                spriteMeshView.DrawEdge(spriteMeshData.vertices[intersectingEdge.y], m_EdgeIntersectionResult.endPosition);
             }
 
             spriteMeshView.EndDrawEdges();
@@ -225,30 +220,30 @@ namespace UnityEditor.U2D.Animation
                 spriteMeshView.DrawVertex(m_EdgeIntersectionResult.endPosition);
         }
 
-        private void PreviewSplitEdge()
+        void PreviewSplitEdge()
         {
             if (!spriteMeshView.IsActionActive(MeshEditorAction.SplitEdge))
                 return;
 
-            Vector2 clampedMousePos = ClampToFrame(spriteMeshView.mouseWorldPosition);
+            var clampedMousePos = ClampToFrame(spriteMeshView.mouseWorldPosition);
 
-            Edge closestEdge = m_SpriteMeshData.edges[spriteMeshView.closestEdge];
+            var closestEdge = spriteMeshData.edges[spriteMeshView.closestEdge];
 
             spriteMeshView.BeginDrawEdges();
 
-            spriteMeshView.DrawEdge(m_SpriteMeshData.GetPosition(closestEdge.index1), clampedMousePos);
-            spriteMeshView.DrawEdge(m_SpriteMeshData.GetPosition(closestEdge.index2), clampedMousePos);
+            spriteMeshView.DrawEdge(spriteMeshData.vertices[closestEdge.x], clampedMousePos);
+            spriteMeshView.DrawEdge(spriteMeshData.vertices[closestEdge.y], clampedMousePos);
 
             spriteMeshView.EndDrawEdges();
 
             spriteMeshView.DrawVertex(clampedMousePos);
         }
 
-        private void DrawVertices()
+        void DrawVertices()
         {
-            for (int i = 0; i < m_SpriteMeshData.vertexCount; i++)
+            for (var i = 0; i < spriteMeshData.vertexCount; i++)
             {
-                Vector3 position = m_SpriteMeshData.GetPosition(i);
+                var position = spriteMeshData.vertices[i];
 
                 if (selection.Contains(i))
                     spriteMeshView.DrawVertexSelected(position);
@@ -259,34 +254,32 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleSelectVertex()
+        void HandleSelectVertex()
         {
-            bool additive;
-            if (spriteMeshView.DoSelectVertex(out additive))
+            if (spriteMeshView.DoSelectVertex(out var additive))
                 SelectVertex(spriteMeshView.hoveredVertex, additive);
         }
 
-        private void HandleSelectEdge()
+        void HandleSelectEdge()
         {
-            bool additive;
-            if (spriteMeshView.DoSelectEdge(out additive))
+            if (spriteMeshView.DoSelectEdge(out var additive))
                 SelectEdge(spriteMeshView.hoveredEdge, additive);
         }
 
-        private void HandleMoveVertex()
+        void HandleMoveVertex()
         {
-            if(spriteMeshView.IsActionTriggered(MeshEditorAction.MoveVertex))
+            if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveVertex))
                 m_Moved = false;
 
             if (spriteMeshView.DoMoveVertex(out var deltaPosition))
             {
                 deltaPosition = MathUtility.MoveRectInsideFrame(CalculateRectFromSelection(), frame, deltaPosition);
                 CacheMovedVertices(deltaPosition);
-                
-                if(IsMovedSelectionIntersectingWithEdges())
+
+                if (IsMovedSelectionIntersectingWithEdges())
                     return;
-                
-                if(!m_Moved)
+
+                if (!m_Moved)
                 {
                     cacheUndo.BeginUndoOperation(TextContent.moveVertices);
                     m_Moved = true;
@@ -296,38 +289,66 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleCreateVertex()
+        void HandleCreateVertex()
         {
             if (spriteMeshView.DoCreateVertex())
-                CreateVertex(spriteMeshView.mouseWorldPosition, spriteMeshView.hoveredEdge);
+            {
+                var position = ClampToFrame(spriteMeshView.mouseWorldPosition);
+                var edgeIndex = spriteMeshView.hoveredEdge;
+                if (spriteMeshView.hoveredEdge != -1)
+                    CreateVertex(position, edgeIndex);
+                else if (m_SpriteMeshDataController.FindTriangle(position, out var indices, out var barycentricCoords))
+                    CreateVertex(position, indices, barycentricCoords);
+            }
         }
 
-        private void HandleSplitEdge()
+        void HandleSplitEdge()
         {
             if (spriteMeshView.DoSplitEdge())
-                SplitEdge(spriteMeshView.mouseWorldPosition, spriteMeshView.closestEdge);
+                SplitEdge(ClampToFrame(spriteMeshView.mouseWorldPosition), spriteMeshView.closestEdge);
         }
 
-        private void HandleCreateEdge()
+        void HandleCreateEdge()
         {
             if (spriteMeshView.DoCreateEdge())
-                CreateEdge(spriteMeshView.mouseWorldPosition, spriteMeshView.hoveredVertex, spriteMeshView.hoveredEdge);
+            {
+                var clampedMousePosition = ClampToFrame(spriteMeshView.mouseWorldPosition);
+                var edgeIntersectionResult = CalculateEdgeIntersection(selection.activeElement, spriteMeshView.hoveredVertex, spriteMeshView.hoveredEdge, clampedMousePosition);
+
+                if (edgeIntersectionResult.endVertexIndex != -1)
+                {
+                    CreateEdge(selection.activeElement, edgeIntersectionResult.endVertexIndex);
+                }
+                else
+                {
+                    if (edgeIntersectionResult.intersectEdgeIndex != -1)
+                    {
+                        CreateVertex(edgeIntersectionResult.endPosition, edgeIntersectionResult.intersectEdgeIndex);
+                        CreateEdge(selection.activeElement, spriteMeshData.vertexCount - 1);
+                    }
+                    else if (m_SpriteMeshDataController.FindTriangle(edgeIntersectionResult.endPosition, out var indices, out var barycentricCoords))
+                    {
+                        CreateVertex(edgeIntersectionResult.endPosition, indices, barycentricCoords);
+                        CreateEdge(selection.activeElement, spriteMeshData.vertexCount - 1);
+                    }
+                }
+            }
         }
 
-        private void HandleMoveEdge()
+        void HandleMoveEdge()
         {
-            if(spriteMeshView.IsActionTriggered(MeshEditorAction.MoveEdge))
+            if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveEdge))
                 m_Moved = false;
 
             if (spriteMeshView.DoMoveEdge(out var deltaPosition))
             {
                 deltaPosition = MathUtility.MoveRectInsideFrame(CalculateRectFromSelection(), frame, deltaPosition);
                 CacheMovedVertices(deltaPosition);
-                
-                if(IsMovedSelectionIntersectingWithEdges())
+
+                if (IsMovedSelectionIntersectingWithEdges())
                     return;
-                
-                if(!m_Moved)
+
+                if (!m_Moved)
                 {
                     cacheUndo.BeginUndoOperation(TextContent.moveVertices);
                     m_Moved = true;
@@ -337,94 +358,90 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleRemoveVertices()
+        void HandleRemoveVertices()
         {
             if (spriteMeshView.DoRemove())
                 RemoveSelectedVertices();
         }
 
-        private void CreateVertex(Vector2 position, int edgeIndex)
+        void CreateVertex(Vector2 position, Vector3Int indices, Vector3 barycentricCoords)
         {
-            position = MathUtility.ClampPositionToRect(position, frame);
+            var bw1 = spriteMeshData.vertexWeights[indices.x];
+            var bw2 = spriteMeshData.vertexWeights[indices.y];
+            var bw3 = spriteMeshData.vertexWeights[indices.z];
+
+            var result = new EditableBoneWeight();
+
+            foreach (var channel in bw1)
+            {
+                if (!channel.enabled)
+                    continue;
+
+                var weight = channel.weight * barycentricCoords.x;
+                if (weight > 0f)
+                    result.AddChannel(channel.boneIndex, weight, true);
+            }
+
+            foreach (var channel in bw2)
+            {
+                if (!channel.enabled)
+                    continue;
+
+                var weight = channel.weight * barycentricCoords.y;
+                if (weight > 0f)
+                    result.AddChannel(channel.boneIndex, weight, true);
+            }
+
+            foreach (var channel in bw3)
+            {
+                if (!channel.enabled)
+                    continue;
+
+                var weight = channel.weight * barycentricCoords.z;
+                if (weight > 0f)
+                    result.AddChannel(channel.boneIndex, weight, true);
+            }
+
+            result.UnifyChannelsWithSameBoneIndex();
+            result.FilterChannels(0f);
+            result.Clamp(4, true);
+
+            var boneWeight = result.ToBoneWeight(true);
+
             cacheUndo.BeginUndoOperation(TextContent.createVertex);
 
-            BoneWeight boneWeight = new BoneWeight();
-
-            Vector3Int indices;
-            Vector3 barycentricCoords;
-            if (m_SpriteMeshDataController.FindTriangle(position, out indices, out barycentricCoords))
-            {
-                EditableBoneWeight bw1 = m_SpriteMeshData.GetWeight(indices.x);
-                EditableBoneWeight bw2 = m_SpriteMeshData.GetWeight(indices.y);
-                EditableBoneWeight bw3 = m_SpriteMeshData.GetWeight(indices.z);
-
-                EditableBoneWeight result = new EditableBoneWeight();
-
-                foreach (BoneWeightChannel channel in bw1)
-                {
-                    if (!channel.enabled)
-                        continue;
-
-                    var weight = channel.weight * barycentricCoords.x;
-
-                    if (weight > 0f)
-                        result.AddChannel(channel.boneIndex, weight, true);
-                }
-
-                foreach (BoneWeightChannel channel in bw2)
-                {
-                    if (!channel.enabled)
-                        continue;
-
-                    var weight = channel.weight * barycentricCoords.y;
-
-                    if (weight > 0f)
-                        result.AddChannel(channel.boneIndex, weight, true);
-                }
-
-                foreach (BoneWeightChannel channel in bw3)
-                {
-                    if (!channel.enabled)
-                        continue;
-
-                    var weight = channel.weight * barycentricCoords.z;
-
-                    if (weight > 0f)
-                        result.AddChannel(channel.boneIndex, weight, true);
-                }
-
-                result.UnifyChannelsWithSameBoneIndex();
-                result.FilterChannels(0f);
-                result.Clamp(4, true);
-
-                boneWeight = result.ToBoneWeight(true);
-            }
-            else if (edgeIndex != -1)
-            {
-                Edge edge = m_SpriteMeshData.edges[edgeIndex];
-                Vector2 pos1 = m_SpriteMeshData.GetPosition(edge.index1);
-                Vector2 pos2 = m_SpriteMeshData.GetPosition(edge.index2);
-                Vector2 dir1 = (position - pos1);
-                Vector2 dir2 = (pos2 - pos1);
-                float t = Vector2.Dot(dir1, dir2.normalized) / dir2.magnitude;
-                t = Mathf.Clamp01(t);
-                BoneWeight bw1 = m_SpriteMeshData.GetWeight(edge.index1).ToBoneWeight(true);
-                BoneWeight bw2 = m_SpriteMeshData.GetWeight(edge.index2).ToBoneWeight(true);
-
-                boneWeight = EditableBoneWeightUtility.Lerp(bw1, bw2, t);
-            }
-
-            m_SpriteMeshDataController.CreateVertex(position, edgeIndex);
-            m_SpriteMeshData.GetWeight(m_SpriteMeshData.vertexCount - 1).SetFromBoneWeight(boneWeight);
+            m_SpriteMeshDataController.CreateVertex(position, -1);
+            spriteMeshData.vertexWeights[spriteMeshData.vertexCount - 1].SetFromBoneWeight(boneWeight);
             Triangulate();
         }
 
-        private void SelectVertex(int index, bool additiveToggle)
+        void CreateVertex(Vector2 position, int edgeIndex)
+        {
+            var edge = spriteMeshData.edges[edgeIndex];
+            var pos1 = spriteMeshData.vertices[edge.x];
+            var pos2 = spriteMeshData.vertices[edge.y];
+            var dir1 = (position - pos1);
+            var dir2 = (pos2 - pos1);
+            var t = Vector2.Dot(dir1, dir2.normalized) / dir2.magnitude;
+            t = Mathf.Clamp01(t);
+            var bw1 = spriteMeshData.vertexWeights[edge.x].ToBoneWeight(true);
+            var bw2 = spriteMeshData.vertexWeights[edge.y].ToBoneWeight(true);
+
+            var boneWeight = EditableBoneWeightUtility.Lerp(bw1, bw2, t);
+
+            cacheUndo.BeginUndoOperation(TextContent.createVertex);
+
+            m_SpriteMeshDataController.CreateVertex(position, edgeIndex);
+            spriteMeshData.vertexWeights[spriteMeshData.vertexCount - 1].SetFromBoneWeight(boneWeight);
+            Triangulate();
+        }
+
+        void SelectVertex(int index, bool additiveToggle)
         {
             if (index < 0)
                 throw new ArgumentException("Index out of range");
 
-            bool selected = selection.Contains(index);
+            var selected = selection.Contains(index);
             if (selected)
             {
                 if (additiveToggle)
@@ -446,21 +463,21 @@ namespace UnityEditor.U2D.Animation
             cacheUndo.IncrementCurrentGroup();
         }
 
-        private void SelectEdge(int index, bool additiveToggle)
+        void SelectEdge(int index, bool additiveToggle)
         {
             Debug.Assert(index >= 0);
 
-            Edge edge = m_SpriteMeshData.edges[index];
+            var edge = spriteMeshData.edges[index];
 
             cacheUndo.BeginUndoOperation(TextContent.selection);
 
-            bool selected = selection.Contains(edge.index1) && selection.Contains(edge.index2);
+            var selected = selection.Contains(edge.x) && selection.Contains(edge.y);
             if (selected)
             {
                 if (additiveToggle)
                 {
-                    selection.Select(edge.index1, false);
-                    selection.Select(edge.index2, false);
+                    selection.Select(edge.x, false);
+                    selection.Select(edge.y, false);
                 }
             }
             else
@@ -468,67 +485,49 @@ namespace UnityEditor.U2D.Animation
                 if (!additiveToggle)
                     ClearSelection();
 
-                selection.Select(edge.index1, true);
-                selection.Select(edge.index2, true);
+                selection.Select(edge.x, true);
+                selection.Select(edge.y, true);
             }
 
             cacheUndo.IncrementCurrentGroup();
         }
 
-        private void ClearSelection()
+        void ClearSelection()
         {
             cacheUndo.BeginUndoOperation(TextContent.selection);
             selection.Clear();
         }
 
-        private void MoveSelectedVertices()
+        void MoveSelectedVertices()
         {
             foreach (var index in selection.elements)
-                m_SpriteMeshData.SetPosition(index, m_MovedVerticesCache[index]);
+                spriteMeshData.vertices[index] = m_MovedVerticesCache[index];
 
             Triangulate();
         }
 
-        private void CreateEdge(Vector2 position, int hoveredVertexIndex, int hoveredEdgeIndex)
+        void CreateEdge(int fromVertexIndex, int toVertexIndex)
         {
-            position = ClampToFrame(position);
-            EdgeIntersectionResult edgeIntersectionResult = CalculateEdgeIntersection(selection.activeElement, hoveredVertexIndex, hoveredEdgeIndex, position);
-
             cacheUndo.BeginUndoOperation(TextContent.createEdge);
 
-            int selectIndex = -1;
-
-            if (edgeIntersectionResult.endVertexIndex == -1)
-            {
-                CreateVertex(edgeIntersectionResult.endPosition, edgeIntersectionResult.intersectEdgeIndex);
-                m_SpriteMeshDataController.CreateEdge(selection.activeElement, m_SpriteMeshData.vertexCount - 1);
-                selectIndex = m_SpriteMeshData.vertexCount - 1;
-            }
-            else
-            {
-                m_SpriteMeshDataController.CreateEdge(selection.activeElement, edgeIntersectionResult.endVertexIndex);
-                Triangulate();
-                selectIndex = edgeIntersectionResult.endVertexIndex;
-            }
-
+            m_SpriteMeshDataController.CreateEdge(fromVertexIndex, toVertexIndex);
+            Triangulate();
             ClearSelection();
-            selection.Select(selectIndex, true);
+            selection.Select(toVertexIndex, true);
 
             cacheUndo.IncrementCurrentGroup();
         }
 
-        private void SplitEdge(Vector2 position, int edgeIndex)
+        void SplitEdge(Vector2 position, int edgeIndex)
         {
             cacheUndo.BeginUndoOperation(TextContent.splitEdge);
 
-            Vector2 clampedMousePos = ClampToFrame(position);
-
-            CreateVertex(clampedMousePos, edgeIndex);
+            CreateVertex(position, edgeIndex);
 
             cacheUndo.IncrementCurrentGroup();
         }
 
-        private bool IsEdgeSelected()
+        bool IsEdgeSelected()
         {
             if (selection.Count != 2)
                 return false;
@@ -538,16 +537,16 @@ namespace UnityEditor.U2D.Animation
             var index1 = indices[0];
             var index2 = indices[1];
 
-            var edge = new Edge(index1, index2);
-            return m_SpriteMeshData.edges.Contains(edge);
+            var edge = new Vector2Int(index1, index2);
+            return spriteMeshData.edges.ContainsAny(edge);
         }
 
-        private void RemoveSelectedVertices()
+        void RemoveSelectedVertices()
         {
             cacheUndo.BeginUndoOperation(IsEdgeSelected() ? TextContent.removeEdge : TextContent.removeVertices);
 
             var verticesToRemove = selection.elements;
-            
+
             var noOfVertsToDelete = verticesToRemove.Length;
             var noOfVertsInMesh = m_SpriteMeshDataController.spriteMeshData.vertexCount;
             var shouldClearMesh = (noOfVertsInMesh - noOfVertsToDelete) < 3;
@@ -561,33 +560,33 @@ namespace UnityEditor.U2D.Animation
                 m_SpriteMeshDataController.RemoveVertex(verticesToRemove);
 
             Triangulate();
-            
+
             selection.Clear();
         }
 
-        private void Triangulate()
+        void Triangulate()
         {
             m_SpriteMeshDataController.Triangulate(triangulator);
             m_SpriteMeshDataController.SortTrianglesByDepth();
         }
 
-        private Vector2 ClampToFrame(Vector2 position)
+        Vector2 ClampToFrame(Vector2 position)
         {
             return MathUtility.ClampPositionToRect(position, frame);
         }
 
-        private Rect CalculateRectFromSelection()
+        Rect CalculateRectFromSelection()
         {
-            Rect rect = new Rect();
+            var rect = new Rect();
 
-            Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
-            Vector2 max = new Vector2(float.MinValue, float.MinValue);
+            var min = new Vector2(float.MaxValue, float.MaxValue);
+            var max = new Vector2(float.MinValue, float.MinValue);
 
             var indices = selection.elements;
 
-            foreach (int index in indices)
+            foreach (var index in indices)
             {
-                Vector2 v = m_SpriteMeshData.GetPosition(index);
+                var v = spriteMeshData.vertices[index];
 
                 min.x = Mathf.Min(min.x, v.x);
                 min.y = Mathf.Min(min.y, v.y);
@@ -602,27 +601,28 @@ namespace UnityEditor.U2D.Animation
             return rect;
         }
 
-        private void UpdateEdgeInstersection()
+        void UpdateEdgeIntersection()
         {
             if (selection.Count == 1)
                 m_EdgeIntersectionResult = CalculateEdgeIntersection(selection.activeElement, spriteMeshView.hoveredVertex, spriteMeshView.hoveredEdge, ClampToFrame(spriteMeshView.mouseWorldPosition));
         }
 
-        private EdgeIntersectionResult CalculateEdgeIntersection(int vertexIndex, int hoveredVertexIndex, int hoveredEdgeIndex, Vector2 targetPosition)
+        EdgeIntersectionResult CalculateEdgeIntersection(int vertexIndex, int hoveredVertexIndex, int hoveredEdgeIndex, Vector2 targetPosition)
         {
             Debug.Assert(vertexIndex >= 0);
 
-            EdgeIntersectionResult edgeIntersection = new EdgeIntersectionResult();
+            var edgeIntersection = new EdgeIntersectionResult
+            {
+                startVertexIndex = vertexIndex,
+                endVertexIndex = hoveredVertexIndex,
+                endPosition = targetPosition,
+                intersectEdgeIndex = -1
+            };
 
-            edgeIntersection.startVertexIndex = vertexIndex;
-            edgeIntersection.endVertexIndex = hoveredVertexIndex;
-            edgeIntersection.endPosition = targetPosition;
-            edgeIntersection.intersectEdgeIndex = -1;
+            var startPoint = spriteMeshData.vertices[edgeIntersection.startVertexIndex];
 
-            Vector2 startPoint = m_SpriteMeshData.GetPosition(edgeIntersection.startVertexIndex);
-
-            bool intersectsEdge = false;
-            int lastIntersectingEdgeIndex = -1;
+            var intersectsEdge = false;
+            var lastIntersectingEdgeIndex = -1;
 
             do
             {
@@ -630,68 +630,70 @@ namespace UnityEditor.U2D.Animation
 
                 if (intersectsEdge)
                 {
-                    Vector2 dir = edgeIntersection.endPosition - startPoint;
+                    var dir = edgeIntersection.endPosition - startPoint;
                     edgeIntersection.endPosition += dir.normalized * 10f;
                 }
 
                 intersectsEdge = SegmentIntersectsEdge(startPoint, edgeIntersection.endPosition, vertexIndex, ref edgeIntersection.endPosition, out edgeIntersection.intersectEdgeIndex);
 
                 //if we are hovering a vertex and intersect an edge indexing it we forget about the intersection
-                if (intersectsEdge && m_SpriteMeshData.edges[edgeIntersection.intersectEdgeIndex].Contains(edgeIntersection.endVertexIndex))
+                var edges = spriteMeshData.edges;
+                var edge = intersectsEdge ? edges[edgeIntersection.intersectEdgeIndex] : default;
+                if (intersectsEdge && (edge.x == edgeIntersection.endVertexIndex || edge.y == edgeIntersection.endVertexIndex))
                 {
                     edgeIntersection.intersectEdgeIndex = -1;
                     intersectsEdge = false;
-                    edgeIntersection.endPosition = m_SpriteMeshData.GetPosition(edgeIntersection.endVertexIndex);
+                    edgeIntersection.endPosition = spriteMeshData.vertices[edgeIntersection.endVertexIndex];
                 }
 
                 if (intersectsEdge)
                 {
                     edgeIntersection.endVertexIndex = -1;
 
-                    Edge intersectingEdge = m_SpriteMeshData.edges[edgeIntersection.intersectEdgeIndex];
-                    Vector2 newPointScreen = spriteMeshView.WorldToScreen(edgeIntersection.endPosition);
-                    Vector2 edgeV1 = spriteMeshView.WorldToScreen(m_SpriteMeshData.GetPosition(intersectingEdge.index1));
-                    Vector2 edgeV2 = spriteMeshView.WorldToScreen(m_SpriteMeshData.GetPosition(intersectingEdge.index2));
+                    var intersectingEdge = spriteMeshData.edges[edgeIntersection.intersectEdgeIndex];
+                    var newPointScreen = spriteMeshView.WorldToScreen(edgeIntersection.endPosition);
+                    var edgeV1 = spriteMeshView.WorldToScreen(spriteMeshData.vertices[intersectingEdge.x]);
+                    var edgeV2 = spriteMeshView.WorldToScreen(spriteMeshData.vertices[intersectingEdge.y]);
 
-                    if ((newPointScreen - edgeV1).magnitude <= kSnapDistance)
-                        edgeIntersection.endVertexIndex = intersectingEdge.index1;
-                    else if ((newPointScreen - edgeV2).magnitude <= kSnapDistance)
-                        edgeIntersection.endVertexIndex = intersectingEdge.index2;
+                    if ((newPointScreen - edgeV1).magnitude <= k_SnapDistance)
+                        edgeIntersection.endVertexIndex = intersectingEdge.x;
+                    else if ((newPointScreen - edgeV2).magnitude <= k_SnapDistance)
+                        edgeIntersection.endVertexIndex = intersectingEdge.y;
 
                     if (edgeIntersection.endVertexIndex != -1)
                     {
                         edgeIntersection.intersectEdgeIndex = -1;
                         intersectsEdge = false;
-                        edgeIntersection.endPosition = m_SpriteMeshData.GetPosition(edgeIntersection.endVertexIndex);
+                        edgeIntersection.endPosition = spriteMeshData.vertices[edgeIntersection.endVertexIndex];
                     }
                 }
-            }
-            while (intersectsEdge && lastIntersectingEdgeIndex != edgeIntersection.intersectEdgeIndex);
+            } while (intersectsEdge && lastIntersectingEdgeIndex != edgeIntersection.intersectEdgeIndex);
 
             edgeIntersection.intersectEdgeIndex = intersectsEdge ? edgeIntersection.intersectEdgeIndex : hoveredEdgeIndex;
 
             if (edgeIntersection.endVertexIndex != -1 && !intersectsEdge)
-                edgeIntersection.endPosition = m_SpriteMeshData.GetPosition(edgeIntersection.endVertexIndex);
+                edgeIntersection.endPosition = spriteMeshData.vertices[edgeIntersection.endVertexIndex];
 
             return edgeIntersection;
         }
 
-        private bool SegmentIntersectsEdge(Vector2 p1, Vector2 p2, int ignoreIndex, ref Vector2 point, out int intersectingEdgeIndex)
+        bool SegmentIntersectsEdge(Vector2 p1, Vector2 p2, int ignoreIndex, ref Vector2 point, out int intersectingEdgeIndex)
         {
             intersectingEdgeIndex = -1;
 
-            float sqrDistance = float.MaxValue;
+            var sqrDistance = float.MaxValue;
 
-            for (int i = 0; i < m_SpriteMeshData.edges.Count; i++)
+            for (var i = 0; i < spriteMeshData.edges.Length; i++)
             {
-                Edge edge = m_SpriteMeshData.edges[i];
-                Vector2 v1 = m_SpriteMeshData.GetPosition(edge.index1);
-                Vector2 v2 = m_SpriteMeshData.GetPosition(edge.index2);
-                Vector2 pointTmp = Vector2.zero;
+                var edge = spriteMeshData.edges[i];
+                var v1 = spriteMeshData.vertices[edge.x];
+                var v2 = spriteMeshData.vertices[edge.y];
+                var pointTmp = Vector2.zero;
 
-                if (!edge.Contains(ignoreIndex) && MathUtility.SegmentIntersection(p1, p2, v1, v2, ref pointTmp))
+                if (edge.x != ignoreIndex && edge.y != ignoreIndex && 
+                    MathUtility.SegmentIntersection(p1, p2, v1, v2, ref pointTmp))
                 {
-                    float sqrMagnitude = (pointTmp - p1).sqrMagnitude;
+                    var sqrMagnitude = (pointTmp - p1).sqrMagnitude;
                     if (sqrMagnitude < sqrDistance)
                     {
                         sqrDistance = sqrMagnitude;
@@ -707,30 +709,30 @@ namespace UnityEditor.U2D.Animation
 
         void CacheMovedVertices(Vector2 deltaPosition)
         {
-            var vertexCount = m_SpriteMeshData.vertexCount;
+            var vertexCount = spriteMeshData.vertexCount;
             if (m_MovedVerticesCache == null || m_MovedVerticesCache.Length != vertexCount)
                 m_MovedVerticesCache = new Vector2[vertexCount];
 
             for (var v = 0; v < vertexCount; v++)
             {
-                var vPos = m_SpriteMeshData.GetPosition(v);
+                var vPos = spriteMeshData.vertices[v];
                 if (selection.Contains(v))
                     vPos += deltaPosition;
                 m_MovedVerticesCache[v] = vPos;
             }
         }
-        
+
         bool IsMovedSelectionIntersectingWithEdges()
         {
-            var edges = m_SpriteMeshData.edges;
-            var edgeCount = edges.Count;
+            var edges = spriteMeshData.edges;
+            var edgeCount = edges.Length;
             var edgeIntersectionPoint = Vector2.zero;
-            
-            for (var e = 0; e < edges.Count; e++)
+
+            for (var e = 0; e < edges.Length; e++)
             {
                 var edgeInSelection = edges[e];
-                var edgeIndex1 = edgeInSelection.index1;
-                var edgeIndex2 = edgeInSelection.index2;
+                var edgeIndex1 = edgeInSelection.x;
+                var edgeIndex2 = edgeInSelection.y;
                 if (!(selection.Contains(edgeIndex1) || selection.Contains(edgeIndex2)))
                     continue;
 
@@ -743,10 +745,11 @@ namespace UnityEditor.U2D.Animation
                         continue;
 
                     var otherEdge = edges[o];
-                    var otherIndex1 = otherEdge.index1;
-                    var otherIndex2 = otherEdge.index2;
-
-                    if (edgeInSelection.Contains(otherIndex1) || edgeInSelection.Contains(otherIndex2))
+                    var otherIndex1 = otherEdge.x;
+                    var otherIndex2 = otherEdge.y;
+                    
+                    if (edgeInSelection.x == otherIndex1 || edgeInSelection.y == otherIndex1 ||
+                        edgeInSelection.x == otherIndex2 || edgeInSelection.y == otherIndex2)
                         continue;
 
                     if (MathUtility.SegmentIntersection(edgeStart, edgeEnd, m_MovedVerticesCache[otherIndex1], m_MovedVerticesCache[otherIndex2], ref edgeIntersectionPoint))

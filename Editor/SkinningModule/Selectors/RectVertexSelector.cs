@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -11,9 +10,9 @@ namespace UnityEditor.U2D.Animation
 
         public void Select()
         {
-            for (int i = 0; i < spriteMeshData.vertexCount; i++)
+            for (var i = 0; i < spriteMeshData.vertexCount; i++)
             {
-                if (rect.Contains(spriteMeshData.GetPosition(i), true))
+                if (rect.Contains(spriteMeshData.vertices[i], true))
                     selection.Select(i, true);
             }
         }

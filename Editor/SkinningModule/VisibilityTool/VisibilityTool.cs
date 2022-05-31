@@ -1,8 +1,8 @@
 using System;
 using UnityEngine.U2D.Common;
+using UnityEditor.U2D.Common;
 using UnityEditor.U2D.Layout;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
@@ -222,11 +222,11 @@ namespace UnityEditor.U2D.Animation
         {
             get
             {
-                return skinningCache.visibililtyToolIndex;
+                return skinningCache.visibilityToolIndex;
             }
             set
             {
-                skinningCache.visibililtyToolIndex = value;
+                skinningCache.visibilityToolIndex = value;
             }
         }
 

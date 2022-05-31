@@ -18,7 +18,7 @@ namespace UnityEditor.U2D.Animation
 
             for (int i = 0; i < spriteMeshData.vertexCount; i++)
             {
-                if ((spriteMeshData.GetPosition(i) - position).sqrMagnitude <= sqrRadius)
+                if ((spriteMeshData.vertices[i] - position).sqrMagnitude <= sqrRadius)
                 {
                     selection.Select(i, true);
                 }

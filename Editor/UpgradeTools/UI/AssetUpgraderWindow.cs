@@ -1,5 +1,5 @@
-using System;
 using UnityEngine;
+using UnityEditor.U2D.Common;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using System.Collections.Generic;
@@ -43,7 +43,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
         {
             public static readonly string WindowTitle = L10n.Tr("2D Anim Asset Upgrader");
             public static readonly string UnsupportedSerializeMode = L10n.Tr("The project's serialization mode is set to {0}. This upgrading tool only supports ForceText. Update the project's serialization mode under `Edit > Project Settings > Editor > Asset Serialization` to use the upgrading tool.");
-            public static readonly string SpriteLibDesc = L10n.Tr("Use this tool to replace older Sprite Library Assets (.asset) with the latest Sprite Library Assets (.spriteLib). This tool will also update all old Sprite Library Asset references in Scenes and Prefabs.");
+            public static readonly string SpriteLibDesc = L10n.Tr("Use this tool to replace runtime Sprite Library Assets (.asset) with Sprite Library Source Assets (.spriteLib) for increased tooling support. Once replaced, this tool also makes sure all Sprite Library references in Scenes and Prefabs are maintained.");
             public static readonly string AnimClipDesc = L10n.Tr("Use this tool to upgrade animation clips with older Sprite Resolver data format to the latest Sprite Resolver data format.");
             public static readonly string ScanToBegin = L10n.Tr("Press Scan Project to see which assets require upgrading.");
             public static readonly string NoAssetsRequireUpgrade = L10n.Tr("No assets require upgrading.");

@@ -7,7 +7,9 @@ In the following example, there are two Sprites that are variations of the actor
 
 1. Place the Sprites for both scarves into the same [Sprite Library Asset](SLAsset.md), and add them both to the same **Category** (named `Scarf`).
 
-2. Give each of the Sprites a unique __Label__ name (in this case `green scarf` and `blue scarf` respectively).<br/>![](images/2d-anim-change-parts-SLAsset.png)
+2. Give each of the Sprites a unique __Label__ name (in this case `green scarf` and `blue scarf` respectively).
+This and the previous step can be automated by dragging and dropping sprites into the Categories tab empty space.
+<br/>![](images/2d-anim-change-parts-SLAsset.png)
 
 3. In the Scene, select the [Instantiated Prefab](https://docs.unity3d.com/Manual/InstantiatingPrefabs.html) and then select the `Scarf` GameObject in the Hierarchy window.
 

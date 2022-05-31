@@ -69,7 +69,7 @@ namespace UnityEditor.U2D.Animation
             var outlineColor = SelectionOutlineSettings.outlineColor;
             var adjustForGamma = PlayerSettings.colorSpace == ColorSpace.Linear ? 1.0f : 0.0f;
 
-            if (edges != null && edges.Count > 0 && vertices.Length > 0)
+            if (edges != null && edges.Length > 0 && vertices.Length > 0)
             {
                 var finalOutlineSize = outlineSize / spriteEditor.zoomLevel;
                 DrawEdgeOutline(edges, vertices, multMatrix, finalOutlineSize, outlineColor, adjustForGamma);
@@ -83,13 +83,13 @@ namespace UnityEditor.U2D.Animation
             UnityEngine.Profiling.Profiler.EndSample();
         }
 
-        void DrawEdgeOutline(List<Edge> edges, Vector3[] vertices, Matrix4x4 multMatrix, float outlineSize, Color outlineColor, float adjustForGamma)
+        void DrawEdgeOutline(Vector2Int[] edges, Vector3[] vertices, Matrix4x4 multMatrix, float outlineSize, Color outlineColor, float adjustForGamma)
         {
             m_EdgeOutlineMaterial.SetColor(k_OutlineColorProperty, outlineColor);
             m_EdgeOutlineMaterial.SetFloat(k_AdjustLinearForGammaProperty, adjustForGamma);
             m_EdgeOutlineMaterial.SetPass(0);
             
-            var edgeCount = edges.Count;
+            var edgeCount = edges.Length;
             var vertexCount = vertices.Length;
 
             GL.PushMatrix();
@@ -98,11 +98,11 @@ namespace UnityEditor.U2D.Animation
             for (var i = 0; i < edgeCount; i++)
             {
                 var currentEdge = edges[i];
-                if (currentEdge.index1 < 0 || currentEdge.index2 < 0 || currentEdge.index1 >= vertexCount || currentEdge.index2 >= vertexCount)
+                if (currentEdge.x < 0 || currentEdge.y < 0 || currentEdge.x >= vertexCount || currentEdge.y >= vertexCount)
                     continue;
                 
-                var start = vertices[edges[i].index1];
-                var end = vertices[edges[i].index2];
+                var start = vertices[edges[i].x];
+                var end = vertices[edges[i].y];
                 var direction = (end - start).normalized;
                 var right = Vector3.Cross(Vector3.forward, direction) * outlineSize;
 
@@ -117,11 +117,11 @@ namespace UnityEditor.U2D.Animation
             for (var i = 0; i < edgeCount; i++)
             {
                 var currentEdge = edges[i];
-                if (currentEdge.index1 < 0 || currentEdge.index2 < 0 || currentEdge.index1 >= vertexCount || currentEdge.index2 >= vertexCount)
+                if (currentEdge.x < 0 || currentEdge.y < 0 || currentEdge.x >= vertexCount || currentEdge.y >= vertexCount)
                     continue;
                 
-                var start = vertices[edges[i].index1];
-                var end = vertices[edges[i].index2];
+                var start = vertices[edges[i].x];
+                var end = vertices[edges[i].y];
 
                 Graphics.DrawMeshNow(m_CircleMesh, multMatrix * Matrix4x4.TRS(start, Quaternion.identity, Vector3.one * outlineSize));
                 Graphics.DrawMeshNow(m_CircleMesh, multMatrix * Matrix4x4.TRS(end, Quaternion.identity, Vector3.one * outlineSize));

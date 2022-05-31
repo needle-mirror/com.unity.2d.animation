@@ -485,7 +485,7 @@ namespace UnityEditor.U2D.Animation
         private void DoApplyAnalytics()
         {
             var sprites = skinningCache.GetSprites();
-            var spriteBoneCount = sprites.Select(s => s.GetSkeleton().BoneCount).ToArray();
+            var spriteBoneCount = sprites.Select(s => s.GetSkeleton().boneCount).ToArray();
             BoneCache[] bones = null;
 
             if (skinningCache.hasCharacter)
@@ -520,15 +520,17 @@ namespace UnityEditor.U2D.Animation
                 {
                     var mesh = sprite.GetMesh();
                     var guid = new GUID(sprite.id);
-                    meshDataProvider.SetVertices(guid, mesh.vertices.Select(x =>
-                        new Vertex2DMetaData()
-                        {
-                            boneWeight = x.editableBoneWeight.ToBoneWeight(false),
-                            position = x.position
-                        }
-                        ).ToArray());
-                    meshDataProvider.SetIndices(guid, mesh.indices.ToArray());
-                    meshDataProvider.SetEdges(guid, mesh.edges.Select(x => new Vector2Int(x.index1, x.index2)).ToArray());
+
+                    var vertices = new Vertex2DMetaData[mesh.vertexCount];
+                    for (var i = 0; i < vertices.Length; ++i)
+                    {
+                        vertices[i].position = mesh.vertices[i];
+                        vertices[i].boneWeight = mesh.vertexWeights[i].ToBoneWeight(false);
+                    }
+
+                    meshDataProvider.SetVertices(guid, vertices);
+                    meshDataProvider.SetIndices(guid, mesh.indices);
+                    meshDataProvider.SetEdges(guid, mesh.edges.Select(edge => edge).ToArray());
                 }
             }
         }

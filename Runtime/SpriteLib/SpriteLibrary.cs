@@ -135,7 +135,7 @@ namespace UnityEngine.U2D.Animation
             return m_Library[index].categoryList;
         }
 
-        SpriteCategoryEntry GetEntry(List<SpriteCategoryEntry> entries, string entry, bool addIfNotExist)
+        static SpriteCategoryEntry GetEntry(List<SpriteCategoryEntry> entries, string entry, bool addIfNotExist)
         {
             var index = entries.FindIndex(x => x.name == entry);
             if (index < 0)

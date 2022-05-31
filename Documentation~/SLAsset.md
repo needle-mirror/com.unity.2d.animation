@@ -1,82 +1,126 @@
 # Sprite Library Asset
-A Sprite Library Asset groups multiple Sprites into [Categories](#category) and unique [Label](#entry) names. It is used in combination with the [Sprite Library](#sprite-library-component) component and [Sprite Resolver](#sprite-resolver-component) component to swap Sprite graphics at runtime.
+A Sprite Library Asset groups multiple Sprites into [Categories](#Categories) and unique [Label](#Labels) names. It is used in combination with the [Sprite Library](#sprite-library-component) component and [Sprite Resolver](#sprite-resolver-component) component to swap Sprite graphics at runtime.
 
 To create the Asset, go to __Assets__ > __Create__ > **2D** > __Sprite Library Asset__.
 
 ![](images/2D-animation-SLAsset-dropdown.png)
 
+To create the Asset variant that inherits Categories and Labels from a selected Sprite Library Asset, first select the main asset in the Project window, then go to __Assets__ > __Create__ > **2D** > __Sprite Library Asset Variant__.
+
+![](images/2D-animation-SLAssetVariant-dropdown.png)
+
 ## Sprite Library Asset Inspector window
 Once the Sprite Library Asset is created, select the Asset and go to its Inspector window.
 
-![](images/2D-animation-SLAsset-properties.png)<br/>Sprite Library Asset properties
+![](images/2D-animation-SLAsset-properties.png)<br/>Sprite Library Asset Inspector properties
+
 Property  |Function  
 --|--
+**Open in Sprite Library Editor**  |   Select this button to open a [Sprite Library Editor window](#Sprite-Library-Editor-window) where the content of the Asset can be edited.
 **Main Library**  |  Assign another Sprite Library Asset here to make it the main reference for the current Sprite Library Asset. The current Sprite Library Asset becomes a variant of the [Main Library](#main-library), which allows it to access the **Main Library**'s Categories and Entries.
-**List**  |   Lists the [Categories](#category) contained in the Sprite Library Asset. Select **+** to add a new Category or **-** to remove the currently selected Category from the Sprite Library Asset.
-**Revert**  |  This resets all Categories and Entries back to the last saved state. Unsaved changes are removed.
-**Apply**  |  This saves the current state of Categories and Entries in the Sprite Library Asset.
+**Revert**  |  This resets changes in the Inspector back to the last saved state. Unsaved changes are removed.
+**Apply**  |  This saves the current value of Main Library in the Sprite Library Asset.
 
-### Category
-A Category contains selected Sprites that have been grouped together for a common purpose.    
+## Sprite Library Editor window
+Sprite Library Editor window allows editing the content of the Sprite Library Asset. It can be accessed by __double-clicking__ on the selected Sprite Library Asset in Project window, selecting the __Open in Sprite Library Editor__ button in the [Inspector](#Sprite-Library-Asset-Inspector-window), or by selecting it from menu __Window__ > **2D** > __Sprite Library Editor__.
 
-![](images/2D-animation-SLAsset-category.png)<br/>Category window
-Property  |Function  
---|--
-**Category**  |Enter a unique name for this Category.  
-**Entry**  | Displays the currently included Sprites in this Category as thumbnails. Select **+** to add a new Sprite to this Entry, or **-** to remove the currently selected Sprite.
+### Categories
+A Category contains selected Labels that have been grouped together for a common purpose. Make sure that each Category has a unique name.
+To create a new Category, select the '__+__' button, or [drag and drop](#Drag-and-drop) Sprites directly into the Sprite Library Editor window.
 
-### Entry
-The Entry displays the Sprites contained in the selected Category.
+![](images/2D-animation-SLAsset-add-category.png)<br/>Categories tab with the '__+__' button
 
-![](images/2D-animation-SLAsset-category-entry.png)<br/>Selecting **+** adds a blank selection to the Entry.
+The Categories Tab can contain __Local__ and __Inherited__ Categories:
+- Local Categories are Categories created in the Sprite Library Asset currently being edited.
+- Inherited Categories are retrieved from the [Main Library](#main-library). Inherited categories cannot be renamed to ensure that the Main Library and variant Sprite Library Assets contain Categories with exactly the same name. Any inherited Category can be  overridden by adding new Labels or changing the Sprite reference in a inherited Label.
 
-Property  |Function  
---|--
-**Select**  |  Click this to open the object picker window and select a Sprite for this selection.
-**(Label Name)** | The name of this selection within the Entry, also referred to as its **Label**. The default name is 'Entry'.
+![](images/2D-animation-SLAsset-category-local-inherited.png)<br/>Local & Inherited foldout groups in the Categories tab.
 
-![](images/2D-animation-SLAsset-category-entry2.png)<br/>The selection after selecting a Sprite.
+### Labels
+Each Category can contain many Labels and each Label can reference a single Sprite in the project. To create a new Label, select the '__+__' button, or [drag and drop](#Drag-and-drop) Sprite directly into the Sprite Library Editor window.
 
-After selecting the Sprites and entering any changes, select **Apply** to save the changes.
+![](images/2D-animation-SLAsset-add-label.png)Labels tab with the '__+__' button
+
+If the Label exist in the Inherited Category, it cannot be renamed to ensure that the Main Library and Assets that reference that Sprite Library contain the same Categories and Labels. To revert changes in the inherited Category, select the Labels you wish to revert and right-click to open the context menu and select __Revert Selected Overrides__ or __Revert All Overrides__ if you want to make the entire Category the same as it is in the Main Library.  
+
+![](images/2D-animation-SLAsset-labels-revert-overrides.png)<br/>Changes to Labels in inherited Categories can be reverted in the Labels tab.
+
+Sprite Library Editor window allows Labels to be viewed in a list or in a grid. To toggle between these two, use the buttons at the bottom of the window and use the slider to adjust the size of the Label elements.
+
+![](images/2D-animation-SLAsset-labels-view-type.png)
+
+### Search for Categories and Labels
+Categories and Label tabs can be filtered by the search phrase in the search bar in the top-right side of the window.
+
+[comment]: <> (TODO need screenshot)
 
 ### Drag and drop
-You can quickly populate Categories and Entries by dragging Sprites into the Sprite Library Asset’s Inspector window.
+You can quickly populate Categories and Labels by dragging Sprites or [PSD Importer supported file types](#PreparingArtwork.md) into the Sprite Library Editor window.
 
-Dragging Sprites and Texture into an empty space on the Sprite Library's List automatically creates a new Category and Entry for those Sprites or Textures. The Sprite’s name is used as the default name for the Category and Entry created in this way.
+1. Create a new Category with one Label for each Sprite
 
-![](images/2D-animation-SLAsset-category-drapdrop1.png)<br/>An empty List.
+Drag and drop Sprites to an empty space in the Categories tab to create a new Category with one Label for each Sprite in the selection. The Category is be named after the first Sprite in the selection and Labels are named after the Sprite's name. If there are any conflicting name, it will be appended with _X suffix for example ConflictingSpriteName_0.
 
-![](images/2D-animation-SLAsset-category-drapdrop2.png)<br/>The Category and Entry are created and named when the Sprites are dragged into the List.
+<br/>Example: Drag and drop multiple Sprites to an empty space in Categories Tab.
+![](images/2D-animation-SLAsset-drag-n-drop-01.png)
 
-If a Category name matches the name of the Sprite, the Sprite is added to that existing Category instead.
+<br/>Result: One Category with Labels for each Sprite in the Selection
+![](images/2D-animation-SLAsset-drag-n-drop-01-finished.png)
 
-You can also quickly populate a specific Category by dragging Sprites directly into a Category.
+2. Create a new Category for each Layer Group with one Label for each Sprite in a Layer
+
+To create Categories for each Layer Group with Labels that match Layers in that group simply drag and drop [PSD Importer supported file](#PreparingArtwork.md) e.g. .psd or .psb. Make sure that __Use Layer Group__ is checked.
+
+<br/>Result: One Category for each Layer Group and Labels for each Layer.
+![](images/2D-animation-SLAsset-drag-n-drop-02-finished.png)
+
+To replace each Label's Sprite reference with Sprites from a different file, simply drag and drop it to an empty space in the Categories Tab.
+
+<br/>Result: Each Label's Sprite reference is replaced.
+![](images/2D-animation-SLAsset-drag-n-drop-02-replace.png)
+
+3. Replace each Label's Sprite in the Category
+
+Drag and drop Sprites to an existing Category. For each Sprite in the selection, a new Label with the same name will be created. If a Label with the same name already exists, its Sprite reference will be replaced with the first Sprite from the selection.
+
+<br/>Example: Category with several Labels.
+![](images/2D-animation-SLAsset-drag-n-drop-03.png)
+
+<br/>Result: Labels are replaced after drag and drop.
+![](images/2D-animation-SLAsset-drag-n-drop-03-finished.png)
+
+4. Create a new Label for each Sprite in the Category
+
+Drag and drop Sprites to an empty space in the Labels tab. For each Sprite in the selection, a new Label with the same name will be created. If a Label with the same name already exists the _X suffix will be added to the newest Label.
+
+<br/>Example: Category with before dragging and dropping Sprites.
+![](images/2D-animation-SLAsset-drag-n-drop-04.png)
+
+<br/>Result: Additional Cateories created with suffix _0, _1 etc.
+![](images/2D-animation-SLAsset-drag-n-drop-04-finished.png)
+
+5. Replace a Label's Sprite
+
+Drag and drop a Sprite to an existing Label.
+
+<br/>Example: Drag and drop a Sprite on a Label.
+![](images/2D-animation-SLAsset-drag-n-drop-05.png)
+
+<br/>Result: Label's Sprite reference is replaced with the first Sprite in the selection.
+![](images/2D-animation-SLAsset-drag-n-drop-05-finished.png)
 
 ## Main Library
-Assigning another existing Sprite Library Asset to the **Main Library** property of the current Sprite Library Asset allows the current Asset to access all Categories and Entries contained in the assigned Sprite Library Asset.
+Assigning another existing Sprite Library Asset to the **Main Library** property of the current Sprite Library Asset allows the current Asset to access all Categories and Labels contained in the assigned Sprite Library Asset. Categories retrieved from the Main Library Asset are grouped under the **Inherited** foldout group, and all new Categories that exist only in the current Asset are grouped under the **Local** foldout group.
 
-![](images/2D-animation-SLAsset-category-entry3.png)<br/>Example: Sprite Library Asset showing the Categories and Entries retrieved from the **Main Library** property.
+The Labels of the Categories retrieved from the Main Library property can't be renamed or removed. However, you can add new Labels to a Category which was retrieved from the Sprite Library Asset assigned to the **Main Library** property.  
 
-The Labels of the Categories and Entries retrieved from the Main Library property can't be changed or removed. However, you can add new Entries to a Category which was retrieved from the Sprite Library Asset assigned to the **Main Library** property.
+You can also edit a Label to change the Sprite that it refers to by selecting the object picker and choosing a different Sprite. It's also possible to [drag and drop](#Drag-and-drop) a Sprite to a Label to change its Sprite. To revert changes to a Sprite, select the Label, right-click and select **Revert Selected Overrides** to restore it to the original Sprite that was retrieved from the Main Library.
 
-You can also edit an Entry to change the Sprite that it refers to by selecting **Select** and choosing a different Sprite in the Object Picker window. To revert changes to a Sprite, select the inner **-** to restore it to the original Sprite that was retrieved from the Main Library.
+![](images/2D-animation-SLAsset-label-revert.png)
 
-![](images/2D-animation-SLAsset-category-entry4.png)<br/>Sprite Library Asset showing the Sprite of an Entry has been modified.
+Use Sprite Library Editor **breadcrumbs** to navigate between between different Sprite Library Assets that the edited Asset inherits from. After clicking on an Asset in the breadcrums it will be selected in the Project window.
 
-### Modified Sprites
-![](images/2D-animation-SLAsset-category-entry-icon.png)<br/>Example: A Sprite retrieved from the Main Library that has been modified.
-
-The **+** icon appears on a Sprite when:
-
-* The Entry is added to the Sprite Library Asset in a Category retrieved from the **Main Library**.
-   <br/>
-* The Sprite for this Entry that was originally retrieved from the **Main Library** property has been changed.
-
-When assigning a Sprite Library Asset to the **Main Library** property, if the same Category name already exists in the current Sprite Library Asset, then the Entries from both Categories are merged into a single Category.
-
-Similarly, any Entries in the same Category that have the same names are merged. The Entry uses the Sprite that was referred to in the current Sprite Library Asset instead of the one from the **Main Library** if they are merged.
-
-When a Sprite Library Asset is removed from the **Main Library** property, any changes that were made to the current Sprite Library Asset remain.
+![](images/2D-animation-SLAsset-breadcrumbs.png)
 
 ## Sprite Library component
 
@@ -90,7 +134,22 @@ By assigning a Sprite Library Asset, the component’s Inspector shows a preview
 
 ![](images/2D-animation-SLComp-preview.png)
 
-Similar to the [Sprite Library Asset](#sprite-library-asset-inspector-window)’s Inspector window, you can add new Categories, change the Sprite an Entry refers to, and add a new Sprite Entry into the Category in Sprite Library component's Inspector window.
+Similar to the [Sprite Library Editor](#Sprite-Library-Editor-window) window, you can add new Categories, change the Sprite a Label refers to, and add a new Sprite Label into the Category in Sprite Library component's Inspector window.
+
+### Modified Sprites
+![](images/2D-animation-SLAsset-category-entry-icon.png)<br/>Example: A Sprite retrieved from the Main Library that has been modified.
+
+The **+** icon appears on a Sprite when:
+
+* A new Label is added to the Sprite Library Asset in a Category retrieved from the **Sprite Library Asset** property.
+  <br/>
+* A Label retrieved from the **Sprite Library Asset** property has its Sprite reference changed.
+
+When assigning a Sprite Library Asset to the **Sprite Library Asset** property, if the same Category name already exists in the current Sprite Library Asset, then the Labels from both Categories are merged into a single Category.
+
+Similarly, any Labels in the same Category that have the same names are merged. The Label uses the Sprite that was referred to in the current Sprite Library Asset instead of the one from the **Sprite Library Asset** if they are merged.
+
+When a Sprite Library Asset is removed from the **Sprite Library Asset** property, any changes that were made to the current Sprite Library Asset remain.
 
 ## Sprite Resolver component
 The Sprite Resolver component is attached to each GameObject in the Prefab. The component pulls information from the [Sprite Library Asset](SLAsset.md) (assigned to the [Sprite Library component](#sprite-library-component) at the root of the Prefab). The component contains two properties - [Category](#category) and [Label](#entry) - and a visual Variant Selector that displays thumbnails of the Sprites contained in the Sprite Library Asset.

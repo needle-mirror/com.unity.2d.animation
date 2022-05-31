@@ -63,7 +63,11 @@ namespace UnityEditor.U2D.Animation
             var mainLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(mainLibraryAssetAssetPath);
             SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(mainLibraryAsset, library);
             if (so.hasModifiedProperties)
+            {
+                var modHashProperty = so.FindProperty(SpriteLibrarySourceAssetPropertyString.modificationHash);
+                modHashProperty.longValue = mainLibraryAsset != null ? mainLibraryAsset.modificationHash : SpriteLibraryUtility.GenerateHash();
                 so.ApplyModifiedPropertiesWithoutUndo();
+            }
         }
 
         internal static bool HasValidMainLibrary(SpriteLibrarySourceAsset sourceLibraryAsset, string assetPath)

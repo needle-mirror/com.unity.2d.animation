@@ -30,7 +30,7 @@ namespace UnityEngine.U2D.Animation
         {
             m_Library = new List<SpriteLibCategoryOverride>(source.m_Library);
             m_PrimaryLibraryGUID = source.m_PrimaryLibraryGUID;
-            UpdateModificationHash();
+            m_ModificationHash = source.m_ModificationHash;
         }
 
         public void SetLibrary(IList<SpriteLibCategoryOverride> newLibrary)
@@ -44,8 +44,11 @@ namespace UnityEngine.U2D.Animation
 
         public void SetPrimaryLibraryGUID(string newPrimaryLibraryGUID)
         {
-            m_PrimaryLibraryGUID = newPrimaryLibraryGUID;
-            UpdateModificationHash();
+            if (m_PrimaryLibraryGUID != newPrimaryLibraryGUID)
+            {
+                m_PrimaryLibraryGUID = newPrimaryLibraryGUID;
+                UpdateModificationHash();
+            }
         }
 
         public void AddCategory(SpriteLibCategoryOverride newCategory)
@@ -82,8 +85,7 @@ namespace UnityEngine.U2D.Animation
 
         void UpdateModificationHash()
         {
-            var hash = System.DateTime.Now.Ticks;
-            m_ModificationHash = hash;
+            m_ModificationHash = SpriteLibraryUtility.GenerateHash();
         }
     }
 }

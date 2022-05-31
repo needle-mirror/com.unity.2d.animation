@@ -184,8 +184,9 @@ namespace UnityEngine.U2D.Animation
             if (!m_TransformData.IsCreated)
                 return;
             m_JobHandle.Complete();
-            foreach (var id in idsToRemove)
+            for (var i = idsToRemove.Count - 1; i >= 0; --i)
             {
+                var id = idsToRemove[i];
                 if (!m_TransformData.ContainsKey(id))
                 {
                     idsToRemove.Remove(id);

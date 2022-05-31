@@ -96,12 +96,12 @@ namespace UnityEditor.U2D.Animation
             m_SpriteLibSelection.Clear();
             
             var spriteLib = spriteResolver.spriteLibrary;
-            string categoryName ="", labelName ="";
+            string categoryName = "", labelName = "";
             if (spriteLib != null)
             {
                 GetCategoryAndLabelStringValue(out categoryName, out labelName);
                 var enumerator = spriteLib.categoryNames;
-                foreach(var category in spriteLib.categoryNames)
+                foreach(var category in enumerator)
                 {
                     if (!m_SpriteLibSelection.ContainsKey(category))
                     {
@@ -126,7 +126,7 @@ namespace UnityEditor.U2D.Animation
             }
             m_CategorySelection = new string[1 + m_SpriteLibSelection.Keys.Count];
             m_CategorySelection[0] = Style.noCategory.text;
-            for (int i = 0; i < m_SpriteLibSelection.Keys.Count; ++i)
+            for (var i = 0; i < m_SpriteLibSelection.Keys.Count; ++i)
             {
                 var selection = m_SpriteLibSelection[m_SpriteLibSelection.Keys.ElementAt(i)];
                 m_CategorySelection[i + 1] = selection.categoryName;

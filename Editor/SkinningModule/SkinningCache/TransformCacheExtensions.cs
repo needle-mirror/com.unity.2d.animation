@@ -1,6 +1,4 @@
-using System;
 using System.Linq;
-using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -24,7 +22,7 @@ namespace UnityEditor.U2D.Animation
             return false;
         }
 
-        internal static bool IsDescendant<T>(this T transform, T[] ancestors) where T : TransformCache
+        static bool IsDescendant<T>(this T transform, T[] ancestors) where T : TransformCache
         {
             return ancestors.FirstOrDefault( t => transform.IsDescendant<T>(t) ) != null;
         }

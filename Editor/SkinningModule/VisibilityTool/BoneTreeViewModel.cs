@@ -109,7 +109,7 @@ namespace UnityEditor.U2D.Animation
             bone.SetParent(parent, true);
 
             if (insertAtIndex == -1)
-                insertAtIndex = parent.ChildCount;
+                insertAtIndex = parent.childCount;
 
             bone.siblingIndex = insertAtIndex;
             bone.SetDefaultPose();
@@ -160,7 +160,7 @@ namespace UnityEditor.U2D.Animation
 
         private void UpdateVisibilityFromPersistentState()
         {
-            skinningCache.BoneVisibilityChanged(GetSelectedSkeleton());
+            skinningCache.BoneVisibilityChanged();
         }
 
         public bool hasCharacter {get { return skinningCache.hasCharacter; } }

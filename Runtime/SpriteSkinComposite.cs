@@ -466,32 +466,24 @@ namespace UnityEngine.U2D.Animation
             m_SkinBatchArray = new NativeArray<PerSkinJobData>(1, Allocator.Persistent);
 
             Init();
+            InitializeArrays();
             BatchRemoveSpriteSkins();
             BatchAddSpriteSkins();
 
             // Initialise all existing SpriteSkins as execution order is indeterminate
-            var count = m_SpriteSkins.Count; 
-            if (count > 0)
-            {
-                m_IsSpriteSkinActiveForDeform = new NativeArray<bool>(count, Allocator.Persistent);
-                m_PerSkinJobData = new NativeArray<PerSkinJobData>(count, Allocator.Persistent);
-                m_SpriteSkinData = new NativeArray<SpriteSkinData>(count, Allocator.Persistent);
-                m_BoundsData = new NativeArray<Bounds>(count, Allocator.Persistent);
-                m_Buffers = new NativeArray<IntPtr>(count, Allocator.Persistent);
-                m_BufferSizes = new NativeArray<int>(count, Allocator.Persistent);
-                
-                for (var i = 0; i < count; ++i)
-                    CopyToSpriteSkinData(i);
-            }
-            else
-            {
-                m_IsSpriteSkinActiveForDeform = new NativeArray<bool>(1, Allocator.Persistent);
-                m_PerSkinJobData = new NativeArray<PerSkinJobData>(1, Allocator.Persistent);
-                m_SpriteSkinData = new NativeArray<SpriteSkinData>(1, Allocator.Persistent);
-                m_BoundsData = new NativeArray<Bounds>(1, Allocator.Persistent);
-                m_Buffers = new NativeArray<IntPtr>(1, Allocator.Persistent);
-                m_BufferSizes = new NativeArray<int>(1, Allocator.Persistent);
-            }
+            for (var i = 0; i < m_SpriteSkins.Count; ++i)
+                CopyToSpriteSkinData(i);
+        }
+
+        void InitializeArrays()
+        {
+            const int startingCount = 0;
+            m_IsSpriteSkinActiveForDeform = new NativeArray<bool>(startingCount, Allocator.Persistent);
+            m_PerSkinJobData = new NativeArray<PerSkinJobData>(startingCount, Allocator.Persistent);
+            m_SpriteSkinData = new NativeArray<SpriteSkinData>(startingCount, Allocator.Persistent);
+            m_BoundsData = new NativeArray<Bounds>(startingCount, Allocator.Persistent);
+            m_Buffers = new NativeArray<IntPtr>(startingCount, Allocator.Persistent);
+            m_BufferSizes = new NativeArray<int>(startingCount, Allocator.Persistent);            
         }
 
         void OnDisable()
@@ -693,12 +685,7 @@ namespace UnityEngine.U2D.Animation
                 }
                 
                 Array.Resize(ref m_SpriteRenderers, updatedCount);
-                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_IsSpriteSkinActiveForDeform, updatedCount);
-                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_PerSkinJobData, updatedCount);
-                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_SpriteSkinData, updatedCount);
-                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoundsData, updatedCount);
-                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_Buffers, updatedCount);
-                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BufferSizes, updatedCount);                
+                ResizeAndCopyArrays(updatedCount);             
 
                 m_TransformIdsToRemove.Clear();
                 m_SpriteSkinsToRemove.Clear();
@@ -715,15 +702,8 @@ namespace UnityEngine.U2D.Animation
                 var updatedCount = m_SpriteSkins.Count + m_SpriteSkinsToAdd.Count;
                 Array.Resize(ref m_SpriteRenderers, updatedCount);
                 if (m_IsSpriteSkinActiveForDeform.IsCreated)
-                {
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_IsSpriteSkinActiveForDeform, updatedCount);
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_PerSkinJobData, updatedCount);
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_SpriteSkinData, updatedCount);
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoundsData, updatedCount);
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_Buffers, updatedCount);
-                    NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BufferSizes, updatedCount);
-                }
-                
+                    ResizeAndCopyArrays(updatedCount);
+
                 foreach (var spriteSkin in m_SpriteSkinsToAdd)
                 {
                     if (DoesContainSpriteSkin(m_SpriteSkins, spriteSkin))
@@ -743,6 +723,16 @@ namespace UnityEngine.U2D.Animation
 
                 m_SpriteSkinsToAdd.Clear();
             }
+        }
+
+        void ResizeAndCopyArrays(int updatedCount)
+        {
+            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_IsSpriteSkinActiveForDeform, updatedCount);
+            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_PerSkinJobData, updatedCount);
+            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_SpriteSkinData, updatedCount);
+            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoundsData, updatedCount);
+            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_Buffers, updatedCount);
+            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BufferSizes, updatedCount);            
         }
 
         void DeactivateDeformableBuffers()

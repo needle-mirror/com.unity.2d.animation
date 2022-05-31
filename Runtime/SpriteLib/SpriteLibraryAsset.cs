@@ -67,7 +67,7 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        public int hash { get { return m_Hash; } }
+        public int hash => m_Hash;
 
         public List<SpriteCategoryEntry> categoryList
         {
@@ -107,9 +107,9 @@ namespace UnityEngine.U2D.Animation
     public class SpriteLibraryAsset : ScriptableObject
     {
         [SerializeField]
-        private List<SpriteLibCategory> m_Labels = new List<SpriteLibCategory>();
+        List<SpriteLibCategory> m_Labels = new List<SpriteLibCategory>();
         [SerializeField]
-        private long m_ModificationHash;
+        long m_ModificationHash;
         [SerializeField]
         int m_Version;
 

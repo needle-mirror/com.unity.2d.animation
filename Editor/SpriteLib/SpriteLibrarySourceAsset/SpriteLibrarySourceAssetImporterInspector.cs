@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
@@ -7,22 +6,21 @@ using Object = UnityEngine.Object;
 
 namespace UnityEditor.U2D.Animation
 {
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(SpriteLibrarySourceAssetImporter))]
     internal class SpriteLibrarySourceAssetImporterInspector : ScriptedImporterEditor
     {
         static class Contents
         {
-            public static GUIContent openInSpriteLibraryEditor = new(L10n.Tr("Open in Sprite Library Editor"));
+            public static readonly GUIContent openInSpriteLibraryEditor = new(L10n.Tr("Open in Sprite Library Editor"));
         }
 
         static class Style
         {
-            public static GUIContent mainAssetLabel = new("Main Library");
+            public static readonly GUIContent mainAssetLabel = new("Main Library");
         }
 
         SerializedProperty m_PrimaryLibraryGUID;
-        SerializedProperty m_Library;
-        SpriteLibraryAsset m_MainSpriteLibraryAsset;
         SpriteLibraryDataInspector m_SpriteLibraryDataInspector;
 
         public override bool showImportedObject => false;
@@ -31,15 +29,7 @@ namespace UnityEditor.U2D.Animation
         public override void OnEnable()
         {
             base.OnEnable();
-
             m_PrimaryLibraryGUID = extraDataSerializedObject.FindProperty(SpriteLibrarySourceAssetPropertyString.primaryLibraryGUID);
-            if (!m_PrimaryLibraryGUID.hasMultipleDifferentValues && !string.IsNullOrEmpty(m_PrimaryLibraryGUID.stringValue))
-            {
-                var assetPath = AssetDatabase.GUIDToAssetPath(m_PrimaryLibraryGUID.stringValue);
-                m_MainSpriteLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(assetPath);
-            }
-
-            m_Library = extraDataSerializedObject.FindProperty(SpriteLibrarySourceAssetPropertyString.library);
         }
 
         protected override void InitializeExtraDataInstance(Object extraTarget, int targetIndex)
@@ -85,9 +75,7 @@ namespace UnityEditor.U2D.Animation
                 var sourceAsset = (SpriteLibrarySourceAsset)extraDataTargets[i];
                 var savedAsset = SpriteLibrarySourceAssetImporter.LoadSpriteLibrarySourceAsset(path);
                 savedAsset.InitializeWithAsset(sourceAsset);
-                for (var j = 0; j < savedAsset.library.Count; ++j)
-                    savedAsset.library[j].overrideEntries = new List<SpriteCategoryEntryOverride>(sourceAsset.library[j].overrideEntries);
-
+                
                 // Remove entries that come from Main Library Asset before saving.
                 var savedLibrarySerializedObject = new SerializedObject(savedAsset);
                 SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(null, savedLibrarySerializedObject.FindProperty(SpriteLibrarySourceAssetPropertyString.library));
@@ -98,7 +86,7 @@ namespace UnityEditor.U2D.Animation
                 SpriteLibrarySourceAssetImporter.SaveSpriteLibrarySourceAsset(savedAsset, path);
             }
 
-            // Due to https://fogbugz.unity3d.com/f/cases/1418417/ we can't guarantee
+            // Due to case 1418417 we can't guarantee
             // that changes will be propagated to the SpriteLibraryEditor window.
             // Until fixed, keep this line to ensure that SpriteLibraryEditor window reloads.
             SpriteLibraryEditor.SpriteLibraryEditorWindow.TriggerAssetModifiedOnApply();
@@ -109,35 +97,42 @@ namespace UnityEditor.U2D.Animation
             EditorGUI.BeginChangeCheck();
             if (m_PrimaryLibraryGUID.hasMultipleDifferentValues)
                 EditorGUI.showMixedValue = true;
-
             var currentMainSpriteLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(AssetDatabase.GUIDToAssetPath(m_PrimaryLibraryGUID.stringValue));
-            m_MainSpriteLibraryAsset = EditorGUILayout.ObjectField(Style.mainAssetLabel, currentMainSpriteLibraryAsset, typeof(SpriteLibraryAsset), false) as SpriteLibraryAsset;
+            var newMainLibraryAsset = EditorGUILayout.ObjectField(Style.mainAssetLabel, currentMainSpriteLibraryAsset, typeof(SpriteLibraryAsset), false) as SpriteLibraryAsset;
             if (EditorGUI.EndChangeCheck())
             {
-                var isNewMainLibraryValid = true;
-                foreach (var currentTarget in targets)
-                {
-                    var assetPath = ((AssetImporter)currentTarget).assetPath;
-                    var spriteLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(assetPath);
-                    var mainAssetParents = SpriteLibrarySourceAssetImporter.GetAssetParentChain(m_MainSpriteLibraryAsset);
-                    if (spriteLibraryAsset == m_MainSpriteLibraryAsset || mainAssetParents.Contains(spriteLibraryAsset))
-                    {
-                        Debug.LogWarning(TextContent.spriteLibraryCircularDependency);
-                        m_MainSpriteLibraryAsset = currentMainSpriteLibraryAsset;
-                        isNewMainLibraryValid = false;
-                        break;
-                    }
-                }
+                var successfulAssignment = true;
+                for (var i = 0; i < targets.Length; ++i)
+                    successfulAssignment = AssignNewMainLibrary(targets[i], extraDataTargets[i] as SpriteLibrarySourceAsset, newMainLibraryAsset);
 
-                if (isNewMainLibraryValid)
-                {
-                    m_PrimaryLibraryGUID.stringValue = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(m_MainSpriteLibraryAsset));
-                    SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(m_MainSpriteLibraryAsset, m_Library);
-                    serializedObject.ApplyModifiedProperties();
-                }
+                if (successfulAssignment)
+                    m_PrimaryLibraryGUID.stringValue = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(newMainLibraryAsset));
             }
 
             EditorGUI.showMixedValue = false;
+        }
+
+        static bool AssignNewMainLibrary(Object target, SpriteLibrarySourceAsset extraTarget, SpriteLibraryAsset newMainLibrary)
+        {
+            var assetPath = ((AssetImporter)target).assetPath;
+            var spriteLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(assetPath);
+            var parentChain = SpriteLibrarySourceAssetImporter.GetAssetParentChain(newMainLibrary);
+            if (assetPath == AssetDatabase.GetAssetPath(newMainLibrary) || parentChain.Contains(spriteLibraryAsset))
+            {
+                Debug.LogWarning(TextContent.spriteLibraryCircularDependency);
+                return false;
+            }          
+            
+            var path = ((AssetImporter)target).assetPath;
+            var toSavedAsset = SpriteLibrarySourceAssetImporter.LoadSpriteLibrarySourceAsset(path);
+
+            toSavedAsset.InitializeWithAsset(extraTarget);
+            var savedLibrarySerializedObject = new SerializedObject(toSavedAsset);
+            SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(newMainLibrary, savedLibrarySerializedObject.FindProperty(SpriteLibrarySourceAssetPropertyString.library));
+            if (savedLibrarySerializedObject.hasModifiedProperties)
+                savedLibrarySerializedObject.ApplyModifiedPropertiesWithoutUndo();
+
+            return true;
         }
     }
 
@@ -149,14 +144,29 @@ namespace UnityEditor.U2D.Animation
         public override void Action(int instanceId, string pathName, string resourceFile)
         {
             var asset = CreateInstance<SpriteLibrarySourceAsset>();
+            asset.SetPrimaryLibraryGUID(m_MainLibrary);
+            
             UnityEditorInternal.InternalEditorUtility.SaveToSerializedFileAndForget(new Object[] { asset }, pathName, true);
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+
+            m_MainLibrary = string.Empty;
         }
 
         [MenuItem("Assets/Create/2D/Sprite Library Asset", priority = k_SpriteLibraryAssetMenuPriority)]
         static void CreateSpriteLibrarySourceAssetMenu()
         {
             var action = CreateInstance<CreateSpriteLibrarySourceAsset>();
+            var icon = EditorIconUtility.LoadIconResource("Sprite Library", "Icons/Light", "Icons/Dark");
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, action, SpriteLibrarySourceAsset.defaultName + SpriteLibrarySourceAsset.extension, icon, null);
+        }
+        
+        [MenuItem("Assets/Create/2D/Sprite Library Asset Variant", priority = k_SpriteLibraryAssetMenuPriority + 1)]
+        static void CreateSpriteLibrarySourceAssetVariantMenu()
+        {
+            var action = CreateInstance<CreateSpriteLibrarySourceAsset>();
+            var asset = SpriteLibrarySourceAssetImporter.GetAssetFromSelection();
+            if (asset != null)
+                action.m_MainLibrary = AssetDatabase.GUIDFromAssetPath(AssetDatabase.GetAssetPath(asset)).ToString();
             var icon = EditorIconUtility.LoadIconResource("Sprite Library", "Icons/Light", "Icons/Dark");
             ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, action, SpriteLibrarySourceAsset.defaultName + SpriteLibrarySourceAsset.extension, icon, null);
         }

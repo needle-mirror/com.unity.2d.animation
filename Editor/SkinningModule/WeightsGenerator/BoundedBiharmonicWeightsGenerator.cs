@@ -29,7 +29,7 @@ namespace UnityEditor.U2D.Animation
             [In, Out] IntPtr weights
             );
 
-        public BoneWeight[] Calculate(string name, Vector2[] vertices, int[] indices, Edge[] edges, Vector2[] controlPoints, Edge[] bones, int[] pins)
+        public BoneWeight[] Calculate(string name, Vector2[] vertices, int[] indices, Vector2Int[] edges, Vector2[] controlPoints, Vector2Int[] bones, int[] pins)
         {
             edges = SanitizeEdges(edges, vertices.Length);
             
@@ -41,32 +41,31 @@ namespace UnityEditor.U2D.Animation
             return weights;
         }
 
-        private Edge[] SanitizeEdges(Edge[] edges, int noOfVertices)
+        static Vector2Int[] SanitizeEdges(Vector2Int[] edges, int noOfVertices)
         {
-            var tmpEdges = new List<Edge>(edges);
+            var tmpEdges = new List<Vector2Int>(edges);
             for (var i = tmpEdges.Count - 1; i >= 0; i--)
             {
-                if (tmpEdges[i].index1 >= noOfVertices || tmpEdges[i].index2 >= noOfVertices)
+                if (tmpEdges[i].x >= noOfVertices || tmpEdges[i].y >= noOfVertices)
                     tmpEdges.RemoveAt(i);
             }
 
             return tmpEdges.ToArray();
         }
         
-        // Round
-        internal void Round(Vector2[] data)
+        static void Round(Vector2[] data)
         {
-            for (int i = 0; i < data.Length; ++i)
+            for (var i = 0; i < data.Length; ++i)
             {
-                float x = data[i].x;
-                float y = data[i].y;
+                var x = data[i].x;
+                var y = data[i].y;
                 x = (float) Math.Round(x, 8);
                 y = (float) Math.Round(y, 8);
                 data[i] = new Vector2(x, y);
             }        
         }
 
-        internal BoneWeight[] CalculateInternal(string name, Vector2[] vertices, int[] indices, Edge[] edges, Vector2[] controlPoints, Edge[] bones, int[] pins, int numSamples, bool subdivide, ref bool done)
+        BoneWeight[] CalculateInternal(string name, Vector2[] vertices, int[] indices, Vector2Int[] edges, Vector2[] controlPoints, Vector2Int[] bones, int[] pins, int numSamples, bool subdivide, ref bool done)
         {
             done = false;            
             var weights = new BoneWeight[vertices.Length];
@@ -84,12 +83,12 @@ namespace UnityEditor.U2D.Animation
             verticesList.AddRange(controlPoints);
             verticesList.AddRange(boneSamples);
 
-            var utEdges = new List<Edge>(edges);
+            var utEdges = new List<Vector2Int>(edges);
             var utIndices = new List<int>();
             var utVertices = new List<Vector2>(vertices);
             
             // Input Vertices are well refined and smoothed, just triangulate with bones and cages.
-            bool ok = TriangulationUtility.TriangulateSafe(utVertices, utEdges, utIndices);
+            var ok = TriangulationUtility.TriangulateSafe(utVertices, utEdges, utIndices);
             if (!ok || utIndices.Count == 0)
             {
                 utIndices.AddRange(indices);
@@ -108,9 +107,9 @@ namespace UnityEditor.U2D.Animation
             utIndices.Clear();
             for (int i = 0; i < coIndices.Count / 3; ++i)
             {
-                int i1 = coIndices[0 + (i * 3)];
-                int i2 = coIndices[1 + (i * 3)];
-                int i3 = coIndices[2 + (i * 3)];
+                var i1 = coIndices[0 + (i * 3)];
+                var i2 = coIndices[1 + (i * 3)];
+                var i3 = coIndices[2 + (i * 3)];
                 float2 v1 = utVertices[i1];
                 float2 v2 = utVertices[i2];
                 float2 v3 = utVertices[i3];
@@ -125,7 +124,7 @@ namespace UnityEditor.U2D.Animation
             
             // Insert Samplers.
             var internalPoints = new List<int>();
-            for (int i = 0; i < utVertices.Count; ++i)
+            for (var i = 0; i < utVertices.Count; ++i)
                 if (utIndices.Count(x => x == i) == 0)
                     internalPoints.Add(i);
             
@@ -135,14 +134,14 @@ namespace UnityEditor.U2D.Animation
             var tessellatedIndices = utIndices.ToArray();
             var tessellatedVertices = utVertices.ToArray();
             
-            GCHandle verticesHandle = GCHandle.Alloc(tessellatedVertices, GCHandleType.Pinned);
-            GCHandle indicesHandle = GCHandle.Alloc(tessellatedIndices, GCHandleType.Pinned);
-            GCHandle controlPointsHandle = GCHandle.Alloc(controlPoints, GCHandleType.Pinned);
-            GCHandle bonesHandle = GCHandle.Alloc(bones, GCHandleType.Pinned);
-            GCHandle pinsHandle = GCHandle.Alloc(pins, GCHandleType.Pinned);
-            GCHandle weightsHandle = GCHandle.Alloc(weights, GCHandleType.Pinned);
+            var verticesHandle = GCHandle.Alloc(tessellatedVertices, GCHandleType.Pinned);
+            var indicesHandle = GCHandle.Alloc(tessellatedIndices, GCHandleType.Pinned);
+            var controlPointsHandle = GCHandle.Alloc(controlPoints, GCHandleType.Pinned);
+            var bonesHandle = GCHandle.Alloc(bones, GCHandleType.Pinned);
+            var pinsHandle = GCHandle.Alloc(pins, GCHandleType.Pinned);
+            var weightsHandle = GCHandle.Alloc(weights, GCHandleType.Pinned);
 
-            int result = Bbw(kNumIterations,
+            var result = Bbw(kNumIterations,
                 verticesHandle.AddrOfPinnedObject(), tessellatedVertices.Length, vertices.Length,
                 indicesHandle.AddrOfPinnedObject(), tessellatedIndices.Length,
                 controlPointsHandle.AddrOfPinnedObject(), controlPoints.Length,
@@ -184,11 +183,11 @@ namespace UnityEditor.U2D.Animation
             return weights;
         }
 
-        public void DebugMesh(ISpriteMeshData spriteMeshData, Vector2[] vertices, Edge[] edges, Vector2[] controlPoints, Edge[] bones, int[] pins)
+        public void DebugMesh(ISpriteMeshData spriteMeshData, Vector2[] vertices, Vector2Int[] edges, Vector2[] controlPoints, Vector2Int[] bones, int[] pins)
         {
             var boneSamples = SampleBones(controlPoints, bones, kNumSamples);
             var verticesList = new List<Vector2>(vertices.Length + controlPoints.Length + boneSamples.Length);
-            var edgesList = new List<Edge>(edges);
+            var edgesList = new List<Vector2Int>(edges);
             var indicesList = new List<int>();
 
             verticesList.AddRange(vertices);
@@ -200,11 +199,11 @@ namespace UnityEditor.U2D.Animation
             spriteMeshData.Clear();
 
             verticesList.ForEach(v => spriteMeshData.AddVertex(v, new BoneWeight()));
-            spriteMeshData.edges.AddRange(edgesList);
-            spriteMeshData.indices.AddRange(indicesList);
+            spriteMeshData.edges = edgesList.ToArray();
+            spriteMeshData.indices = indicesList.ToArray();
         }
 
-        private Vector2[] SampleBones(Vector2[] points, Edge[] edges, int numSamples)
+        Vector2[] SampleBones(Vector2[] points, Vector2Int[] edges, int numSamples)
         {
             Debug.Assert(numSamples > 0);
 
@@ -213,8 +212,8 @@ namespace UnityEditor.U2D.Animation
             for (var i = 0; i < edges.Length; i++)
             {
                 var edge = edges[i];
-                var tip = points[edge.index1];
-                var tail = points[edge.index2];
+                var tip = points[edge.x];
+                var tail = points[edge.y];
                 var length = (tip - tail).magnitude;
 
                 for (var s = 0; s < numSamples; s++)

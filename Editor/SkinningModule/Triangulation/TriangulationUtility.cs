@@ -150,7 +150,7 @@ namespace UnityEditor.U2D.Animation
             return true;
         }
 
-        internal static void Quad(IList<Vector2> vertices, IList<Edge> edges, IList<int> indices, Allocator allocator)
+        internal static void Quad(IList<Vector2> vertices, IList<Vector2Int> edges, IList<int> indices, Allocator allocator)
         {
             if (vertices.Count < 3)
                 return;
@@ -159,26 +159,26 @@ namespace UnityEditor.U2D.Animation
             for (int i = 0; i < vertices.Count; ++i)
                 points[i] = vertices[i];
 
-            int arrayCount = vertices.Count * vertices.Count * 4;
+            var arrayCount = vertices.Count * vertices.Count * 4;
             int vertexCount = 0, indexCount = 0, edgeCount = 0;
-            NativeArray<int> outputIndices = new NativeArray<int>(arrayCount, allocator);
-            NativeArray<int2> outputEdges = new NativeArray<int2>(arrayCount, allocator);
-            NativeArray<float2> outputVertices = new NativeArray<float2>(arrayCount, allocator);
-            
-            NativeArray<int2> fallback = new NativeArray<int2>(0, allocator);
+            var outputIndices = new NativeArray<int>(arrayCount, allocator);
+            var outputEdges = new NativeArray<int2>(arrayCount, allocator);
+            var outputVertices = new NativeArray<float2>(arrayCount, allocator);
+
+            var fallback = new NativeArray<int2>(0, allocator);
             TessellateSafe(points, fallback, ref outputVertices, ref vertexCount, ref outputIndices,
                 ref indexCount, ref outputEdges, ref edgeCount);
             fallback.Dispose();
 
             vertices.Clear();
-            for (int i = 0; i < vertexCount; ++i)
+            for (var i = 0; i < vertexCount; ++i)
                 vertices.Add(outputVertices[i]);
             indices.Clear();
-            for (int i = 0; i < indexCount; ++i)
+            for (var i = 0; i < indexCount; ++i)
                 indices.Add(outputIndices[i]);
             edges.Clear();
-            for (int i = 0; i < edgeCount; ++i)
-                edges.Add(new Edge(){index1 = outputEdges[i].x, index2 = outputEdges[i].y});
+            for (var i = 0; i < edgeCount; ++i)
+                edges.Add(new Vector2Int(outputEdges[i].x, outputEdges[i].y));
 
             outputEdges.Dispose();
             outputIndices.Dispose();
@@ -186,24 +186,24 @@ namespace UnityEditor.U2D.Animation
             points.Dispose();            
         }
         
-        internal static void Triangulate(IList<Vector2> vertices, IList<Edge> edges, IList<int> indices, Allocator allocator)
+        internal static void Triangulate(IList<Vector2> vertices, IList<Vector2Int> edges, IList<int> indices, Allocator allocator)
         {
             if (vertices.Count < 3)
                 return;
 
-            NativeArray<float2> points = new NativeArray<float2>(vertices.Count, allocator);
-            for (int i = 0; i < vertices.Count; ++i)
+            var points = new NativeArray<float2>(vertices.Count, allocator);
+            for (var i = 0; i < vertices.Count; ++i)
                 points[i] = vertices[i];
-            NativeArray<int2> inputEdges = new NativeArray<int2>(edges.Count, allocator);
-            for (int i = 0; i < edges.Count; ++i)
-                inputEdges[i] = new int2(edges[i].index1, edges[i].index2);
+            var inputEdges = new NativeArray<int2>(edges.Count, allocator);
+            for (var i = 0; i < edges.Count; ++i)
+                inputEdges[i] = new int2(edges[i].x, edges[i].y);
             
-            int arrayCount = vertices.Count * vertices.Count * 4;
+            var arrayCount = vertices.Count * vertices.Count * 4;
             int vertexCount = 0, indexCount = 0, edgeCount = 0;
-            NativeArray<int> outputIndices = new NativeArray<int>(arrayCount, allocator);
-            NativeArray<int2> outputEdges = new NativeArray<int2>(arrayCount, allocator);
-            NativeArray<int3> outputResult = new NativeArray<int3>(1, allocator);
-            NativeArray<float2> outputVertices = new NativeArray<float2>(arrayCount, allocator);
+            var outputIndices = new NativeArray<int>(arrayCount, allocator);
+            var outputEdges = new NativeArray<int2>(arrayCount, allocator);
+            var outputResult = new NativeArray<int3>(1, allocator);
+            var outputVertices = new NativeArray<float2>(arrayCount, allocator);
             
             unsafe
             {
@@ -224,7 +224,7 @@ namespace UnityEditor.U2D.Animation
                 indices.Add(outputIndices[i]);
             edges.Clear();
             for (int i = 0; i < edgeCount; ++i)
-                edges.Add(new Edge(){index1 = outputEdges[i].x, index2 = outputEdges[i].y});
+                edges.Add(new Vector2Int(outputEdges[i].x, outputEdges[i].y));
 
             outputEdges.Dispose();
             outputResult.Dispose();
@@ -234,36 +234,36 @@ namespace UnityEditor.U2D.Animation
             points.Dispose();
         }
         
-        internal static bool TriangulateSafe(IList<Vector2> vertices, IList<Edge> edges, IList<int> indices)
+        internal static bool TriangulateSafe(IList<Vector2> vertices, IList<Vector2Int> edges, IList<int> indices)
         {
             if (vertices.Count < 3)
                 return false;
 
-            NativeArray<float2> points = new NativeArray<float2>(vertices.Count, Allocator.Persistent);
-            for (int i = 0; i < vertices.Count; ++i)
+            var points = new NativeArray<float2>(vertices.Count, Allocator.Persistent);
+            for (var i = 0; i < vertices.Count; ++i)
                 points[i] = vertices[i];
-            NativeArray<int2> inputEdges = new NativeArray<int2>(edges.Count, Allocator.Persistent);
-            for (int i = 0; i < edges.Count; ++i)
-                inputEdges[i] = new int2(edges[i].index1, edges[i].index2);
+            var inputEdges = new NativeArray<int2>(edges.Count, Allocator.Persistent);
+            for (var i = 0; i < edges.Count; ++i)
+                inputEdges[i] = new int2(edges[i].x, edges[i].y);
             
-            int arrayCount = vertices.Count * vertices.Count * 4;
+            var arrayCount = vertices.Count * vertices.Count * 4;
             int vertexCount = 0, indexCount = 0, edgeCount = 0;
-            NativeArray<int> outputIndices = new NativeArray<int>(arrayCount, Allocator.Persistent);
-            NativeArray<int2> outputEdges = new NativeArray<int2>(arrayCount, Allocator.Persistent);
-            NativeArray<float2> outputVertices = new NativeArray<float2>(arrayCount, Allocator.Persistent);
-            bool ok = TessellateSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount);
+            var outputIndices = new NativeArray<int>(arrayCount, Allocator.Persistent);
+            var outputEdges = new NativeArray<int2>(arrayCount, Allocator.Persistent);
+            var outputVertices = new NativeArray<float2>(arrayCount, Allocator.Persistent);
+            var ok = TessellateSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount);
 
             if (ok)
             {
                 vertices.Clear();
-                for (int i = 0; i < vertexCount; ++i)
+                for (var i = 0; i < vertexCount; ++i)
                     vertices.Add(outputVertices[i]);
                 indices.Clear();
-                for (int i = 0; i < indexCount; ++i)
+                for (var i = 0; i < indexCount; ++i)
                     indices.Add(outputIndices[i]);
                 edges.Clear();
-                for (int i = 0; i < edgeCount; ++i)
-                    edges.Add(new Edge() {index1 = outputEdges[i].x, index2 = outputEdges[i].y});
+                for (var i = 0; i < edgeCount; ++i)
+                    edges.Add(new Vector2Int(outputEdges[i].x, outputEdges[i].y));
             }
 
             outputEdges.Dispose();
@@ -274,19 +274,19 @@ namespace UnityEditor.U2D.Animation
             return ok;
         }        
 
-        public static void Tessellate(float minAngle, float maxAngle, float meshAreaFactor, float largestTriangleAreaFactor, float targetArea, int refineIterations, int smoothenIterations, IList<Vector2> vertices, IList<Edge> edges, IList<int> indices, Allocator allocator)
+        public static void Tessellate(float minAngle, float maxAngle, float meshAreaFactor, float largestTriangleAreaFactor, float targetArea, int refineIterations, int smoothenIterations, IList<Vector2> vertices, IList<Vector2Int> edges, IList<int> indices, Allocator allocator)
         {
             if (vertices.Count < 3)
                 return;
 
             largestTriangleAreaFactor = Mathf.Clamp01(largestTriangleAreaFactor);
 
-            NativeArray<float2> points = new NativeArray<float2>(vertices.Count, allocator);
-            for (int i = 0; i < vertices.Count; ++i)
+            var points = new NativeArray<float2>(vertices.Count, allocator);
+            for (var i = 0; i < vertices.Count; ++i)
                 points[i] = vertices[i];
             NativeArray<int2> inputEdges = new NativeArray<int2>(edges.Count, allocator);
             for (int i = 0; i < edges.Count; ++i)
-                inputEdges[i] = new int2(edges[i].index1, edges[i].index2);
+                inputEdges[i] = new int2(edges[i].x, edges[i].y);
             
             int maxDataCount = 65536;
             int vertexCount = 0, indexCount = 0, edgeCount = 0;
@@ -307,14 +307,14 @@ namespace UnityEditor.U2D.Animation
                 SubdivideSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount, largestTriangleAreaFactor, targetArea, refineIterations, smoothenIterations);
 
             vertices.Clear();
-            for (int i = 0; i < vertexCount; ++i)
+            for (var i = 0; i < vertexCount; ++i)
                 vertices.Add(outputVertices[i]);
             indices.Clear();
-            for (int i = 0; i < indexCount; ++i)
+            for (var i = 0; i < indexCount; ++i)
                 indices.Add(outputIndices[i]);
             edges.Clear();
-            for (int i = 0; i < edgeCount; ++i)
-                edges.Add(new Edge(){index1 = outputEdges[i].x, index2 = outputEdges[i].y});
+            for (var i = 0; i < edgeCount; ++i)
+                edges.Add(new Vector2Int(outputEdges[i].x, outputEdges[i].y));
 
             outputEdges.Dispose();
             outputResult.Dispose();
@@ -324,37 +324,37 @@ namespace UnityEditor.U2D.Animation
             points.Dispose();
         }
 
-        public static void TessellateSafe(float minAngle, float maxAngle, float meshAreaFactor, float largestTriangleAreaFactor, float targetArea, int refineIterations, int smoothenIterations, IList<Vector2> vertices, IList<Edge> edges, IList<int> indices)
+        public static void TessellateSafe(float minAngle, float maxAngle, float meshAreaFactor, float largestTriangleAreaFactor, float targetArea, int refineIterations, int smoothenIterations, IList<Vector2> vertices, IList<Vector2Int> edges, IList<int> indices)
         {
             if (vertices.Count < 3)
                 return;
 
             largestTriangleAreaFactor = Mathf.Clamp01(largestTriangleAreaFactor);
 
-            NativeArray<float2> points = new NativeArray<float2>(vertices.Count, Allocator.Persistent);
-            for (int i = 0; i < vertices.Count; ++i)
+            var points = new NativeArray<float2>(vertices.Count, Allocator.Persistent);
+            for (var i = 0; i < vertices.Count; ++i)
                 points[i] = vertices[i];
-            NativeArray<int2> inputEdges = new NativeArray<int2>(edges.Count, Allocator.Persistent);
-            for (int i = 0; i < edges.Count; ++i)
-                inputEdges[i] = new int2(edges[i].index1, edges[i].index2);
+            var inputEdges = new NativeArray<int2>(edges.Count, Allocator.Persistent);
+            for (var i = 0; i < edges.Count; ++i)
+                inputEdges[i] = new int2(edges[i].x, edges[i].y);
             
             int vertexCount = 0, indexCount = 0, edgeCount = 0, maxDataCount = 65536;
-            NativeArray<float2> outputVertices = new NativeArray<float2>(maxDataCount, Allocator.Persistent);
-            NativeArray<int> outputIndices = new NativeArray<int>(maxDataCount, Allocator.Persistent);
-            NativeArray<int2> outputEdges = new NativeArray<int2>(maxDataCount, Allocator.Persistent);
-            bool ok = SubdivideSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount, largestTriangleAreaFactor, targetArea, refineIterations, smoothenIterations) ;
+            var outputVertices = new NativeArray<float2>(maxDataCount, Allocator.Persistent);
+            var outputIndices = new NativeArray<int>(maxDataCount, Allocator.Persistent);
+            var outputEdges = new NativeArray<int2>(maxDataCount, Allocator.Persistent);
+            var ok = SubdivideSafe(points, inputEdges, ref outputVertices, ref vertexCount, ref outputIndices, ref indexCount, ref outputEdges, ref edgeCount, largestTriangleAreaFactor, targetArea, refineIterations, smoothenIterations) ;
 
             if (ok)
             {
                 vertices.Clear();
-                for (int i = 0; i < vertexCount; ++i)
+                for (var i = 0; i < vertexCount; ++i)
                     vertices.Add(outputVertices[i]);
                 indices.Clear();
-                for (int i = 0; i < indexCount; ++i)
+                for (var i = 0; i < indexCount; ++i)
                     indices.Add(outputIndices[i]);
                 edges.Clear();
-                for (int i = 0; i < edgeCount; ++i)
-                    edges.Add(new Edge() {index1 = outputEdges[i].x, index2 = outputEdges[i].y});
+                for (var i = 0; i < edgeCount; ++i)
+                    edges.Add(new Vector2Int(outputEdges[i].x, outputEdges[i].y));
             }
 
             outputEdges.Dispose();

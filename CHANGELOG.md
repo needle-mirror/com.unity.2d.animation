@@ -1,5 +1,20 @@
 # Changelog
 
+## [9.0.0-pre.3] - 2022-05-31
+### Changed
+- Update dependency package version.
+
+## [9.0.0-pre.2] - 2022-05-20
+### Fixed
+- Creating a new vertex or an edge outside of the main geometry is now handled correctly. (case 1398541)
+- Fixed an issue where null reference exceptions would show when the Skinning Editor was open during play mode. (case 1419720)
+- Fixed Sprite Library Asset 'Revert' behavior. (case 1417743)
+- Fixed Sprite Library Asset multi-editing in the Inspector window. (case 1417747)
+- Fixed an issue where Variant Sprite Libraries would not be updated when the Main Library is changed. (case DANB-5)
+
+### Changed
+- Added ability to create Sprite Library Asset variant from the create menu.
+
 ## [9.0.0-pre.1] - 2022-03-21
 ### Added
 - Added the ability to cancel mesh generation in the Skinning Editor.

@@ -3,11 +3,11 @@ Follow the steps below to create a [Sprite Library Asset](SLAsset.md), and choos
 
 1. Select the Sprite Library Asset from the Asset creation menu by going to **Asset > Create > 2D > Sprite Library Asset**<br/>![](images/2D-animation-SLAsset-dropdown.png)
 
-2. Select the new Sprite Library Asset and go to its Inspector window. The window displays the list of [Categories](SLAsset.md#category) and [Labels](SLAsset.md#entry) available in the Asset.<br/>![](images/2D-animation-SLAsset-properties.png)
+2. Select the new Sprite Library Asset and open it in the Sprite Library Editor. The editor displays the list of [Categories](SLAsset.md#Categories) and [Labels](SLAsset.md#Labels) available in the Asset.
 
-3. Select **+** at the lower right of the List to add a new Category. Enter a name into **Category** (the default name is 'New Category'). Each Category in the same Sprite Library Asset must have a unique name.<br/>![](images/2D-animation-SLAsset-category.png)
+3. Select **+** at the lower right of the List to add a new Category. Enter a name into **Category** (the default name is 'New Category'). Each Category in the same Sprite Library Asset must have a unique name.<br/>![](images/2D-animation-SLAsset-add-category.png)
 
-4. Add new Entries into the Category by either selecting **+** and then selecting a Sprite from the Object Picker window; or by [dragging](SLAsset.md#drag-and-drop) a Sprite or Texture onto an empty space within the Entry <br/>![](images/2D-animation-SLAsset-category-entry2.png)
+4. Add new Labels into the Category by either selecting **+** and then selecting a Sprite from the Object Picker window; or by [dragging](SLAsset.md#drag-and-drop) a Sprite, Texture or [PSD Importer supported file type](#PreparingArtwork.md) onto an empty space within the Categories tab <br/>![](images/2D-animation-SLAsset-category-entry2.png)
 
 5. Create an empty GameObject (menu: Right-click on the **Hierarchy window > Create Empty**). Select it and then add the Sprite Renderer component.<br/>![](images/2d-anim-add-sprite-renderer.png)
 

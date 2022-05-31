@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -23,9 +23,10 @@ namespace UnityEditor.U2D.Animation
     {
         public string spriteName;
         public List<SpriteBoneCopyData> spriteBones;
-        public List<Vertex2D> vertices;
-        public List<int> indices;
-        public List<Edge> edges;
+        public Vector2[] vertices;
+        public EditableBoneWeight[] vertexWeights;
+        public int[] indices;
+        public Vector2Int[] edges;
         public List<string> boneWeightGuids;
         public List<string> boneWeightNames;
     }

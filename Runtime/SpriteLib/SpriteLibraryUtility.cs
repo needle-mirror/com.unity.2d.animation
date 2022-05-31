@@ -33,6 +33,12 @@ namespace UnityEngine.U2D.Animation
         {
             const int mask = 0x3FFFFFFF;
             return input & mask;
-        }        
+        }
+
+        internal static long GenerateHash()
+        {
+            var hash = DateTime.Now.Ticks;
+            return hash;
+        }
     }
 }

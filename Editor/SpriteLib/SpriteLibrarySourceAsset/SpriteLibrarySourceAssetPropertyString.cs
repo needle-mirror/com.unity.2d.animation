@@ -4,5 +4,6 @@ namespace UnityEditor.U2D.Animation
     {
         public const string library = "m_Library";
         public const string primaryLibraryGUID = "m_PrimaryLibraryGUID";
+        public const string modificationHash = "m_ModificationHash";
     }
 }

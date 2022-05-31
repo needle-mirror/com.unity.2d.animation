@@ -7,7 +7,6 @@ namespace UnityEditor.U2D.Animation
     [Serializable]
     internal class SpriteBoneData
     {
-        public string name;
         public int parentId = -1;
         public Vector2 localPosition;
         public Quaternion localRotation = Quaternion.identity;
@@ -19,16 +18,15 @@ namespace UnityEditor.U2D.Animation
 
     internal interface ISpriteMeshData
     {
-        Rect frame { get; set; }
-        List<int> indices { get; set; }
-        List<Edge> edges { get; set; }
+        Rect frame { get; }
+        Vector2[] vertices { get; }
+        EditableBoneWeight[] vertexWeights { get; }
+        int[] indices { get; set; }
+        Vector2Int[] edges { get; set; }
         int vertexCount { get; }
         int boneCount { get; }
         string spriteName { get; }
-        Vector2 GetPosition(int index);
-        void SetPosition(int index, Vector2 position);
-        EditableBoneWeight GetWeight(int index);
-        void SetWeight(int index, EditableBoneWeight weight);
+        void SetVertices(Vector2[] newVertices, EditableBoneWeight[] newWeights);
         void AddVertex(Vector2 position, BoneWeight weight);
         void RemoveVertex(int index);
         SpriteBoneData GetBoneData(int index);
@@ -39,81 +37,76 @@ namespace UnityEditor.U2D.Animation
     [Serializable]
     internal class SpriteMeshData : ISpriteMeshData
     {
-        public GUID spriteID = new GUID();
         [SerializeField]
-        private Rect m_Frame;
-        public Vector2 pivot = Vector2.zero;
+        List<SpriteBoneData> m_Bones = new List<SpriteBoneData>();
         [SerializeField]
-        private List<Vertex2D> m_Vertices = new List<Vertex2D>();
-        [SerializeField]
-        private List<int> m_Indices = new List<int>();
-        [SerializeField]
-        public List<SpriteBoneData> m_Bones = new List<SpriteBoneData>();
-        [SerializeField]
-        private List<Edge> m_Edges = new List<Edge>();
+        Rect m_Frame;
+        [SerializeField] 
+        Vector2[] m_Vertices = new Vector2[0];
+        [SerializeField] 
+        EditableBoneWeight[] m_VertexWeights = new EditableBoneWeight[0];
+        [SerializeField] 
+        int[] m_Indices = new int[0];
+        [SerializeField] 
+        Vector2Int[] m_Edges = new Vector2Int[0];
 
         public Rect frame
         {
-            get { return m_Frame; }
-            set { m_Frame = value; }
+            get => m_Frame;
+            set => m_Frame = value;
         }
 
-        public List<Vertex2D> vertices
+        public Vector2[] vertices => m_Vertices;
+        public EditableBoneWeight[] vertexWeights => m_VertexWeights;
+
+        public int[] indices
         {
-            get { return m_Vertices; }
-            set { m_Vertices = value; }
+            get => m_Indices;
+            set => m_Indices = value;
         }
 
-        public List<int> indices
+        public Vector2Int[] edges
         {
-            get { return m_Indices; }
-            set { m_Indices = value; }
-        }
-
-        public List<Edge> edges
-        {
-            get { return m_Edges; }
-            set { m_Edges = value; }
+            get => m_Edges;
+            set => m_Edges = value;
         }
 
         public List<SpriteBoneData> bones
         {
-            get { return m_Bones; }
-            set { m_Bones = value; }
+            get => m_Bones;
+            set => m_Bones = value;
         }
 
-        public string spriteName { get { return ""; } }
-        public int vertexCount { get { return m_Vertices.Count; } }
-        public int boneCount { get { return m_Bones.Count; } }
+        public string spriteName => "";
+        public int vertexCount => m_Vertices.Length;
+        public int boneCount => m_Bones.Count;
 
-        public Vector2 GetPosition(int index)
+        public void SetVertices(Vector2[] newVertices, EditableBoneWeight[] newWeights)
         {
-            return m_Vertices[index].position;
-        }
-
-        public void SetPosition(int index, Vector2 position)
-        {
-            m_Vertices[index].position = position;
-        }
-
-        public EditableBoneWeight GetWeight(int index)
-        {
-            return m_Vertices[index].editableBoneWeight;
-        }
-
-        public void SetWeight(int index, EditableBoneWeight weight)
-        {
-            m_Vertices[index].editableBoneWeight = weight;
+            m_Vertices = newVertices;
+            m_VertexWeights = newWeights;
         }
 
         public void AddVertex(Vector2 position, BoneWeight weight)
         {
-            m_Vertices.Add(new Vertex2D(position, weight));
+            var listOfVertices = new List<Vector2>(m_Vertices);
+            listOfVertices.Add(position);
+            m_Vertices = listOfVertices.ToArray();
+
+            var listOfWeights = new List<EditableBoneWeight>(m_VertexWeights);
+            listOfWeights.Add(EditableBoneWeightUtility.CreateFromBoneWeight(weight));
+            m_VertexWeights = listOfWeights.ToArray();
         }
 
         public void RemoveVertex(int index)
         {
-            m_Vertices.RemoveAt(index);
+            var listOfVertices = new List<Vector2>(m_Vertices);
+            listOfVertices.RemoveAt(index);
+            m_Vertices = listOfVertices.ToArray();
+
+            var listOfWeights = new List<EditableBoneWeight>(m_VertexWeights);
+            listOfWeights.RemoveAt(index);
+            m_VertexWeights = listOfWeights.ToArray();
         }
 
         public SpriteBoneData GetBoneData(int index)
@@ -128,9 +121,10 @@ namespace UnityEditor.U2D.Animation
 
         public void Clear()
         {
-            m_Vertices.Clear();
-            m_Indices.Clear();
-            m_Edges.Clear();
+            m_Indices = new int[0];
+            m_Vertices = new Vector2[0];
+            m_VertexWeights = new EditableBoneWeight[0];
+            m_Edges = new Vector2Int[0];
         }
     }
 }
