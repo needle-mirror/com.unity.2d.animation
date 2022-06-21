@@ -11,6 +11,7 @@ namespace UnityEditor.U2D.Animation
         {
             var cache = CreateInstance<T>();
             cache.hideFlags = HideFlags.DontSave;
+            cache.name = cache.GetType().ToString();
             return cache;
         }
 

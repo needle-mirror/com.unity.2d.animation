@@ -1,11 +1,10 @@
-using System.Collections.Generic;
-using UnityEngine;
+using Unity.Mathematics;
 
 namespace UnityEditor.U2D.Animation
 {
     internal interface ITriangulator
     {
-        void Triangulate(IList<Vector2> vertices, IList<Edge> edges, IList<int> indices);
-        void Tessellate(float minAngle, float maxAngle, float meshAreaFactor, float largestTriangleAreaFactor, float areaThreshold, int smoothIterations, IList<Vector2> vertices, IList<Edge> edges, IList<int> indices);
+        void Triangulate(ref int2[] edges, ref float2[] vertices, out int[] indices);
+        void Tessellate(float minAngle, float maxAngle, float meshAreaFactor, float largestTriangleAreaFactor, float areaThreshold, int smoothIterations, ref float2[] vertices, ref int2[] edges, out int[] indices);
     }
 }

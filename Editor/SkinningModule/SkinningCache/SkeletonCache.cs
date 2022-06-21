@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,25 +7,17 @@ namespace UnityEditor.U2D.Animation
     internal class SkeletonCache : TransformCache
     {
         [SerializeField]
-        private bool m_IsPosePreview = false;
+        bool m_IsPosePreview = false;
         [SerializeField]
-        private List<BoneCache> m_Bones = new List<BoneCache>();
+        List<BoneCache> m_Bones = new List<BoneCache>();
 
-        public bool isPosePreview { get { return m_IsPosePreview; } }
+        public bool isPosePreview => m_IsPosePreview;
 
-        public int BoneCount { get { return m_Bones.Count; } }
+        public int boneCount => m_Bones.Count;
 
-        public virtual BoneCache[] bones
-        {
-            get { return m_Bones.ToArray(); }
-        }
+        public virtual BoneCache[] bones => m_Bones.ToArray();
 
-        public void AddBone(BoneCache bone)
-        {
-            AddBone(bone, true);
-        }
-
-        public void AddBone(BoneCache bone, bool worldPositionStays)
+        public void AddBone(BoneCache bone, bool worldPositionStays = true)
         {
             Debug.Assert(bone != null);
             Debug.Assert(!Contains(bone));
@@ -57,8 +48,8 @@ namespace UnityEditor.U2D.Animation
             
             m_Bones.Remove(bone);
             
-            var children = bone.children;
-            foreach (var child in children)
+            var boneChildren = bone.children;
+            foreach (var child in boneChildren)
                 child.SetParent(bone.parent);
 
             skinningCache.Destroy(bone);
@@ -171,19 +162,15 @@ namespace UnityEditor.U2D.Animation
                 if (names[i].Equals(boneName))
                     ++count;
 
-            if (count == 0)
-                return boneName;
-
-            return string.Format("{0} ({1})", boneName, count + 1);
+            return count == 0 ? boneName : $"{boneName} ({count + 1})";
         }
 
-        private void DestroyHierarchy(TransformCache root)
+        void DestroyHierarchy(TransformCache root)
         {
             Debug.Assert(root != null);
 
-            var children = root.children;
-
-            foreach (var child in children)
+            var rootChildren = root.children;
+            foreach (var child in rootChildren)
                 DestroyHierarchy(child);
 
             skinningCache.Destroy(root);

@@ -1,36 +1,33 @@
 using UnityEngine;
-using System;
 using System.Collections.Generic;
 
 namespace UnityEditor.U2D.Animation
 {
     internal class MeshPreviewCache : SkinningObject
     {
-        private const int kNiceColorCount = 6;
-
         [SerializeField]
-        private SpriteCache m_Sprite;
+        SpriteCache m_Sprite;
         [SerializeField]
-        private Mesh m_Mesh;
+        Mesh m_Mesh;
         [SerializeField]
-        private Mesh m_DefaultMesh;
-        private List<Vector3> m_SkinnedVertices = new List<Vector3>();
-        private List<Vector3> m_Vertices = new List<Vector3>();
-        private List<BoneWeight> m_Weights = new List<BoneWeight>();
-        private List<Vector2> m_TexCoords = new List<Vector2>();
-        private List<Color> m_Colors = new List<Color>();
-        private List<Matrix4x4> m_SkinningMatrices = new List<Matrix4x4>();
-        private bool m_MeshDirty;
-        private bool m_VerticesDirty;
-        private bool m_SkinningDirty;
-        private bool m_WeightsDirty;
-        private bool m_IndicesDirty;
-        private bool m_ColorsDirty;
-        private bool m_EnableSkinning;
+        Mesh m_DefaultMesh;
+        List<Vector3> m_SkinnedVertices = new List<Vector3>();
+        List<Vector3> m_Vertices = new List<Vector3>();
+        List<BoneWeight> m_Weights = new List<BoneWeight>();
+        List<Vector2> m_TexCoords = new List<Vector2>();
+        List<Color> m_Colors = new List<Color>();
+        List<Matrix4x4> m_SkinningMatrices = new List<Matrix4x4>();
+        bool m_MeshDirty;
+        bool m_VerticesDirty;
+        bool m_SkinningDirty;
+        bool m_WeightsDirty;
+        bool m_IndicesDirty;
+        bool m_ColorsDirty;
+        bool m_EnableSkinning;
 
         public SpriteCache sprite
         {
-            get { return m_Sprite; }
+            get => m_Sprite;
             set
             {
                 m_Sprite = value;
@@ -39,15 +36,12 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public Mesh mesh { get { return m_Mesh; } }
-        public Mesh defaultMesh { get { return m_DefaultMesh; } }
+        public Mesh mesh => m_Mesh;
+        public Mesh defaultMesh => m_DefaultMesh;
 
         public bool enableSkinning
         {
-            get
-            {
-                return m_EnableSkinning;
-            }
+            get => m_EnableSkinning;
 
             set
             {
@@ -59,10 +53,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public bool canSkin
-        {
-            get { return CanSkin(); }
-        }
+        public bool canSkin => CanSkin();
 
         public List<Vector3> vertices
         {
@@ -75,7 +66,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private bool CanSkin()
+        bool CanSkin()
         {
             if (m_Vertices.Count == 0 || m_Vertices.Count != m_Weights.Count)
                 return false;
@@ -111,7 +102,7 @@ namespace UnityEditor.U2D.Animation
             DestroyImmediate(m_DefaultMesh);
         }
 
-        private Mesh CreateMesh()
+        static Mesh CreateMesh()
         {
             var mesh = new Mesh();
             mesh.MarkDynamic();
@@ -120,7 +111,7 @@ namespace UnityEditor.U2D.Animation
             return mesh;
         }
 
-        private void InitializeDefaultMesh()
+        void InitializeDefaultMesh()
         {
             Debug.Assert(sprite != null);
             Debug.Assert(m_DefaultMesh != null);
@@ -129,14 +120,13 @@ namespace UnityEditor.U2D.Animation
 
             Debug.Assert(meshCache != null);
 
-            int width, height;
-            meshCache.textureDataProvider.GetTextureActualWidthAndHeight(out width, out height);
+            meshCache.textureDataProvider.GetTextureActualWidthAndHeight(out var width, out var height);
 
             var uvScale = new Vector2(1f / width, 1f / height);
             Vector3 position = sprite.textureRect.position;
             var size = sprite.textureRect.size;
 
-            var vertices = new List<Vector3>()
+            var defaultVerts = new List<Vector3>()
             {
                 Vector3.zero,
                 new Vector3(0f, size.y, 0f),
@@ -146,13 +136,13 @@ namespace UnityEditor.U2D.Animation
 
             var uvs = new List<Vector2>()
             {
-                Vector3.Scale(vertices[0] + position, uvScale),
-                Vector3.Scale(vertices[1] + position, uvScale),
-                Vector3.Scale(vertices[2] + position, uvScale),
-                Vector3.Scale(vertices[3] + position, uvScale),
+                Vector3.Scale(defaultVerts[0] + position, uvScale),
+                Vector3.Scale(defaultVerts[1] + position, uvScale),
+                Vector3.Scale(defaultVerts[2] + position, uvScale),
+                Vector3.Scale(defaultVerts[3] + position, uvScale),
             };
 
-            m_DefaultMesh.SetVertices(vertices);
+            m_DefaultMesh.SetVertices(defaultVerts);
             m_DefaultMesh.SetUVs(0, uvs);
             m_DefaultMesh.SetColors(new List<Color>
             {
@@ -175,11 +165,6 @@ namespace UnityEditor.U2D.Animation
             m_MeshDirty = true;
         }
 
-        public void SetVerticesDirty()
-        {
-            m_VerticesDirty = true;
-        }
-
         public void SetSkinningDirty()
         {
             m_SkinningDirty = true;
@@ -188,11 +173,6 @@ namespace UnityEditor.U2D.Animation
         public void SetWeightsDirty()
         {
             m_WeightsDirty = true;
-        }
-
-        public void SetIndicesDirty()
-        {
-            m_IndicesDirty = true;
         }
 
         public void SetColorsDirty()
@@ -207,7 +187,7 @@ namespace UnityEditor.U2D.Animation
 
             Debug.Assert(meshCache != null);
 
-            m_MeshDirty |= m_Vertices.Count != meshCache.vertices.Count;
+            m_MeshDirty |= m_Vertices.Count != meshCache.vertices.Length;
 
             if (m_MeshDirty)
             {
@@ -224,15 +204,14 @@ namespace UnityEditor.U2D.Animation
                 m_Vertices.Clear();
                 m_TexCoords.Clear();
 
-                int width, height;
-                meshCache.textureDataProvider.GetTextureActualWidthAndHeight(out width, out height);
+                meshCache.textureDataProvider.GetTextureActualWidthAndHeight(out var width, out var height);
 
                 var uvScale = new Vector2(1f / width, 1f / height);
 
                 foreach (var vertex in meshCache.vertices)
                 {
-                    m_Vertices.Add(vertex.position);
-                    m_TexCoords.Add(Vector2.Scale(vertex.position + sprite.textureRect.position, uvScale));
+                    m_Vertices.Add(vertex);
+                    m_TexCoords.Add(Vector2.Scale(vertex + sprite.textureRect.position, uvScale));
                 }
 
                 m_Mesh.SetVertices(m_Vertices);
@@ -245,10 +224,10 @@ namespace UnityEditor.U2D.Animation
             {
                 m_Weights.Clear();
 
-                for (int i = 0; i < meshCache.vertices.Count; ++i)
+                for (var i = 0; i < meshCache.vertexWeights.Length; ++i)
                 {
-                    var vertex = meshCache.vertices[i];
-                    m_Weights.Add(vertex.editableBoneWeight.ToBoneWeight(true));
+                    var weight = meshCache.vertexWeights[i];
+                    m_Weights.Add(weight.ToBoneWeight(true));
                 }
 
                 SetColorsDirty();
@@ -292,7 +271,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void PrepareColors()
+        void PrepareColors()
         {
             var bones = sprite.GetBonesFromMode();
 
@@ -323,7 +302,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void SkinVertices()
+        void SkinVertices()
         {
             Debug.Assert(canSkin);
             Debug.Assert(sprite != null);
@@ -338,14 +317,14 @@ namespace UnityEditor.U2D.Animation
             m_SkinnedVertices.Clear();
             m_SkinningMatrices.Clear();
 
-            for (int i = 0; i < bones.Length; ++i)
+            for (var i = 0; i < bones.Length; ++i)
                 m_SkinningMatrices.Add(spriteMatrixInv * originInverseMatrix * bones[i].localToWorldMatrix * bones[i].bindPose.matrix.inverse * spriteMatrix);
 
-            for (int i = 0; i < m_Vertices.Count; ++i)
+            for (var i = 0; i < m_Vertices.Count; ++i)
             {
                 var position = m_Vertices[i];
-                BoneWeight boneWeight = m_Weights[i];
-                float weightSum = boneWeight.weight0 + boneWeight.weight1 + boneWeight.weight2 + boneWeight.weight3;
+                var boneWeight = m_Weights[i];
+                var weightSum = boneWeight.weight0 + boneWeight.weight1 + boneWeight.weight2 + boneWeight.weight3;
 
                 if (weightSum > 0f)
                 {

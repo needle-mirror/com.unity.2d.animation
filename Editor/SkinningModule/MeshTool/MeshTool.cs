@@ -1,40 +1,35 @@
-using System;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal partial class MeshTool : BaseTool
+    internal class MeshTool : BaseTool
     {
-        private MeshCache m_Mesh;
-        private ISelection<int> m_SelectionOverride;
-        private SpriteMeshController m_SpriteMeshController;
-        private SpriteMeshView m_SpriteMeshView;
-        private RectSelectionTool<int> m_RectSelectionTool = new RectSelectionTool<int>();
-        private RectVertexSelector m_RectVertexSelector = new RectVertexSelector();
-        private UnselectTool<int> m_UnselectTool = new UnselectTool<int>();
-        private ITriangulator m_Triangulator;
+        MeshCache m_Mesh;
+        ISelection<int> m_SelectionOverride;
+        SpriteMeshController m_SpriteMeshController;
+        SpriteMeshView m_SpriteMeshView;
+        RectSelectionTool<int> m_RectSelectionTool = new RectSelectionTool<int>();
+        RectVertexSelector m_RectVertexSelector = new RectVertexSelector();
+        UnselectTool<int> m_UnselectTool = new UnselectTool<int>();
+        ITriangulator m_Triangulator;
+        Vector2[] m_PreviousVertices = new Vector2[0];
 
-        public MeshCache mesh
-        {
-            get { return m_Mesh; }
-        }
+        public MeshCache mesh => m_Mesh;
 
         public SpriteMeshViewMode mode
         {
-            get { return m_SpriteMeshView.mode; }
-            set { m_SpriteMeshView.mode = value; }
+            set => m_SpriteMeshView.mode = value;
         }
 
         public bool disable
         {
-            get { return m_SpriteMeshController.disable; }
-            set { m_SpriteMeshController.disable = value; }
+            set => m_SpriteMeshController.disable = value;
         }
 
         public ISelection<int> selectionOverride
         {
-            get { return m_SelectionOverride; }
-            set { m_SelectionOverride = value; }
+            get => m_SelectionOverride;
+            set => m_SelectionOverride = value;
         }
 
         public override int defaultControlID
@@ -48,11 +43,11 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private ISelection<int> selection
+        ISelection<int> selection
         {
             get
             {
-                if(selectionOverride != null)
+                if (selectionOverride != null)
                     return selectionOverride;
                 return skinningCache.vertexSelection;
             }
@@ -80,7 +75,7 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.selectedSpriteChanged.RemoveListener(OnSelectedSpriteChanged);
         }
 
-        private void OnSelectedSpriteChanged(SpriteCache sprite)
+        void OnSelectedSpriteChanged(SpriteCache sprite)
         {
             SetupSprite(sprite);
         }
@@ -98,7 +93,7 @@ namespace UnityEditor.U2D.Animation
             m_SpriteMeshController.spriteMeshData = m_Mesh;
         }
 
-        private void SetupGUI()
+        void SetupGUI()
         {
             m_SpriteMeshController.spriteMeshView = m_SpriteMeshView;
             m_SpriteMeshController.triangulator = m_Triangulator;
@@ -145,26 +140,31 @@ namespace UnityEditor.U2D.Animation
 
             EndPositionOverride();
         }
-
+        
         public void BeginPositionOverride()
         {
-            if(m_Mesh != null)
+            if (m_Mesh != null)
             {
-                m_Mesh.vertexPositionOverride = null;
-
                 var skeleton = skinningCache.GetEffectiveSkeleton(m_Mesh.sprite);
-
                 Debug.Assert(skeleton != null);
 
                 if (skeleton.isPosePreview)
-                    m_Mesh.vertexPositionOverride = m_Mesh.sprite.GetMeshPreview().vertices;
+                {
+                    m_PreviousVertices = m_Mesh.vertices;
+                    
+                    var overrideVertices = m_Mesh.sprite.GetMeshPreview().vertices;
+                    var convertedVerts = new Vector2[overrideVertices.Count];
+                    for (var i = 0; i < convertedVerts.Length; ++i)
+                        convertedVerts[i] = new Vector2(overrideVertices[i].x, overrideVertices[i].y);
+                    m_Mesh.SetVertices(convertedVerts, m_Mesh.vertexWeights);
+                }
             }
         }
 
         public void EndPositionOverride()
         {
-            if(m_Mesh != null)
-                m_Mesh.vertexPositionOverride = null;
+            if(m_Mesh != null && m_Mesh.vertices.Length == m_PreviousVertices.Length)
+                m_Mesh.SetVertices(m_PreviousVertices, m_Mesh.vertexWeights);
         }
 
         public void UpdateWeights()
@@ -177,7 +177,7 @@ namespace UnityEditor.U2D.Animation
             InvokeMeshChanged();
         }
 
-        private void InvokeMeshChanged()
+        void InvokeMeshChanged()
         {
             if(m_Mesh != null)
                 skinningCache.events.meshChanged.Invoke(m_Mesh);

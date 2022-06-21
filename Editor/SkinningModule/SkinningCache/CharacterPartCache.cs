@@ -10,9 +10,9 @@ namespace UnityEditor.U2D.Animation
         [SerializeField]
         public int parentGroup;
         [SerializeField]
-        private bool m_IsVisible = true;
+        bool m_IsVisible = true;
         [SerializeField]
-        private int m_Order = -1;
+        int m_Order = -1;
 
         public bool isVisible
         {
@@ -34,15 +34,15 @@ namespace UnityEditor.U2D.Animation
     internal class CharacterPartCache : TransformCache, ICharacterOrder
     {
         [SerializeField]
-        private SpriteCache m_Sprite;
+        SpriteCache m_Sprite;
         [SerializeField]
-        private List<BoneCache> m_Bones = new List<BoneCache>();
+        List<BoneCache> m_Bones = new List<BoneCache>();
         [SerializeField]
-        private bool m_IsVisible = true;
+        bool m_IsVisible = true;
         [SerializeField]
-        private int m_ParentGroup = -1;
+        int m_ParentGroup = -1;
         [SerializeField]
-        private int m_Order = -1;
+        int m_Order = -1;
 
         public virtual int order
         {
@@ -52,13 +52,13 @@ namespace UnityEditor.U2D.Animation
         
         public int parentGroup
         {
-            get { return m_ParentGroup; }
-            set { m_ParentGroup = value; }
+            get => m_ParentGroup;
+            set => m_ParentGroup = value;
         }
 
         public virtual bool isVisible
         {
-            get { return m_IsVisible; }
+            get => m_IsVisible;
             set
             {
                 m_IsVisible = value;
@@ -67,18 +67,18 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public int BoneCount { get { return m_Bones.Count; } }
+        public int boneCount => m_Bones.Count;
 
         public virtual SpriteCache sprite
         {
-            get { return m_Sprite; }
-            set { m_Sprite = value; }
+            get => m_Sprite;
+            set => m_Sprite = value;
         }
 
-        public BoneCache[] bones
+        public virtual BoneCache[] bones
         {
-            get { return m_Bones.ToArray(); }
-            set { m_Bones = new List<BoneCache>(value); }
+            get => m_Bones.ToArray();
+            set => m_Bones = new List<BoneCache>(value);
         }
 
         public BoneCache GetBone(int index)

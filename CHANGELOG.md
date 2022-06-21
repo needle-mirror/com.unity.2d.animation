@@ -1,5 +1,14 @@
 # Changelog
 
+## [8.0.3] - 2022-06-21
+### Fixed
+- Creating a new vertex or an edge outside of the main geometry is handled correctly. (case 1398541)
+- When modifying Sprite Library's Category name user presses apply, the changes to the name are saved. (case DANB-85)  
+
+### Changed
+- Added dialog box to the Skinning Editor when entering Play Mode to allow saving unsaved changes.
+- Refactored internal triangulation and tessellation APIs.
+
 ## [8.0.2] - 2022-05-20
 ### Fixed
 - Fixed Sprite Library Asset 'Revert' behavior. (case 1417743)

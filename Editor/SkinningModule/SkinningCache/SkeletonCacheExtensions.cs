@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
@@ -129,7 +127,7 @@ namespace UnityEditor.U2D.Animation
 
             bone.SetParent(parentBone);
             bone.name = name;
-            bone.bindPoseColor = ModuleUtility.CalculateNiceColor(skeleton.BoneCount, 6);
+            bone.bindPoseColor = ModuleUtility.CalculateNiceColor(skeleton.boneCount, 6);
             bone.position = position;
             bone.endPosition = endPosition;
             bone.guid = GUID.Generate().ToString();

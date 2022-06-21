@@ -90,6 +90,7 @@ namespace UnityEditor.U2D.Animation
 
             meshTool.SetupSprite(sprite);
             skinningSpriteData.vertices = meshTool.mesh.vertices;
+            skinningSpriteData.vertexWeights = meshTool.mesh.vertexWeights;
             skinningSpriteData.indices = meshTool.mesh.indices;
             skinningSpriteData.edges = meshTool.mesh.edges;
             skinningSpriteData.boneWeightGuids = new List<string>(meshTool.mesh.bones.Length);
@@ -135,7 +136,7 @@ namespace UnityEditor.U2D.Animation
                 skinningSpriteData.spriteName = sprite.name;
 
                 var skeleton = skinningCache.GetEffectiveSkeleton(sprite);
-                if (skeleton != null && skeleton.BoneCount > 0)
+                if (skeleton != null && skeleton.boneCount > 0)
                 {
                     if (skinningCache.hasCharacter)
                     {
@@ -198,7 +199,7 @@ namespace UnityEditor.U2D.Animation
             else
             {
                 var skeleton = skinningCache.GetEffectiveSkeleton(sprite);
-                if (skeleton != null && skeleton.BoneCount > 0)
+                if (skeleton != null && skeleton.boneCount > 0)
                 {
                     boneCache = skeleton.bones;
                     var bones = boneCache.FindRoots();
@@ -506,20 +507,20 @@ namespace UnityEditor.U2D.Animation
                 return;
 
             meshTool.SetupSprite(sprite);
-            meshTool.mesh.vertices = copySpriteData.vertices;
+            meshTool.mesh.SetVertices(copySpriteData.vertices, copySpriteData.vertexWeights);
             if (!Mathf.Approximately(scale, 1f) || shouldFlipX || shouldFlipY)
             {
                 var spriteRect = sprite.textureRect;
-                foreach (var vertex in meshTool.mesh.vertices)
+                for (var i = 0; i < meshTool.mesh.vertexCount; ++i)
                 {
-                    var position = vertex.position;
+                    var position = meshTool.mesh.vertices[i];
                     if (!Mathf.Approximately(scale, 1f))
                         position *= scale;
                     if (shouldFlipX)
-                        position.x = spriteRect.width - vertex.position.x;
+                        position.x = spriteRect.width - meshTool.mesh.vertices[i].x;
                     if (shouldFlipY)
-                        position.y = spriteRect.height - vertex.position.y;
-                    vertex.position = position;
+                        position.y = spriteRect.height - meshTool.mesh.vertices[i].y;
+                    meshTool.mesh.vertices[i] = position;
                 }
             }
             meshTool.mesh.indices = copySpriteData.indices;
@@ -575,22 +576,22 @@ namespace UnityEditor.U2D.Animation
             }
 
             // Remap new bone indexes from copied bone indexes
-            foreach (var vertex in meshTool.mesh.vertices)
+            for (var i = 0; i < meshTool.mesh.vertexCount; ++i)
             {
-                var editableBoneWeight = vertex.editableBoneWeight;
-
-                for (var i = 0; i < editableBoneWeight.Count; ++i)
+                var weight = meshTool.mesh.vertexWeights[i];
+                for (var m = 0; m < weight.Count; ++m)
                 {
-                    if (!editableBoneWeight[i].enabled)
+                    if (!weight[m].enabled)
                         continue;
 
-                    if (boneIndices.Length > editableBoneWeight[i].boneIndex)
+                    if (boneIndices.Length > weight[m].boneIndex)
                     {
-                        var boneIndex = boneIndices[editableBoneWeight[i].boneIndex];
+                        var boneIndex = boneIndices[weight[m].boneIndex];
                         if (boneIndex != -1)
-                            editableBoneWeight[i].boneIndex = boneIndex;                        
+                            weight[m].boneIndex = boneIndex;                        
                     }
                 }
+                meshTool.mesh.vertexWeights[i] = weight;
             }
 
             // Update associated bones for mesh

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -42,7 +41,7 @@ namespace UnityEditor.U2D.Animation
                 spriteSkeleton.SetDefaultPose();
         }
 
-        public static void DeassociateUnusedBones(this CharacterPartCache characterPart)
+        public static void DissociateUnusedBones(this CharacterPartCache characterPart)
         {
             var skinningCache = characterPart.skinningCache;
             var bones = characterPart.bones;
@@ -56,14 +55,12 @@ namespace UnityEditor.U2D.Animation
 
             Debug.Assert(mesh != null);
 
-            var vertices = mesh.vertices;
+            var weights = mesh.vertexWeights;
             var newBonesSet = new HashSet<BoneCache>();
 
-            foreach (var vertex in vertices)
+            foreach (var weight in weights)
             {
-                var boneWeight = vertex.editableBoneWeight;
-
-                foreach (BoneWeightChannel channel in boneWeight)
+                foreach (var channel in weight)
                     if (channel.enabled)
                         newBonesSet.Add(bones[channel.boneIndex]);
             }
