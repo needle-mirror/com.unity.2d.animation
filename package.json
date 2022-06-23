@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "5.2.1",
+  "version": "5.2.3",
   "unity": "2020.3",
   "unityRelease": "26f1",
   "displayName": "2D Animation",
@@ -18,7 +18,7 @@
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "5.2.1",
+    "com.unity.2d.animation.tests": "5.2.3",
     "com.unity.2d.common.tests": "4.2.0",
     "com.unity.2d.psdimporter": "4.3.0"
   },
@@ -29,15 +29,15 @@
       "path": "Samples~/AnimationSamples"
     }
   ],
-  "upm": {
-    "changelog": "### Fixed\r\n- Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405328)"
+  "_upm": {
+    "changelog": "### Fixed\r\n- Fixed the isolate behavior in the Sprite tab in the Visibility panel. (case DANB-77)"
   },
   "upmCi": {
-    "footprint": "0c8082bfb8221b5ab238df15e8b48d813309c69d"
+    "footprint": "f205d217b2ac9795e597709c73ed932a195d122d"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "7d784133332c132799977c54114a39990bd3a75c"
+    "revision": "4385ec621f62136eca5cf0bcfff8c3d711d7680b"
   }
 }

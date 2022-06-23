@@ -1,4 +1,13 @@
 # Changelog
+
+## [5.2.3] - 2022-06-23
+### Fixed
+- Fixed the isolate behavior in the Sprite tab in the Visibility panel. (case DANB-77)
+
+## [5.2.2] - 2022-05-17
+### Changed
+- Updated Visibility Tab documentation page.
+
 ## [5.2.1] - 2022-03-29
 ### Fixed
 - Fixed an issue when Skinning Editor will lose reference after exiting Play mode. (case 1405328)

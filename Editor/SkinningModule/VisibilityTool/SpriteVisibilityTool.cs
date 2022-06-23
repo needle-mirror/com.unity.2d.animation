@@ -273,16 +273,13 @@ namespace UnityEditor.U2D.Animation
                 {
                     if (isolate)
                     {
-                        foreach (var cpart in character.parts)
-                        {
-                            cpart.isVisible = visible;
-                        }
-                        characterPart.visibility = !visible;
+                        foreach (var characterPartCache in character.parts)
+                            characterPartCache.isVisible = !visible;
+                        foreach (var group in character.groups)
+                            group.isVisible = !visible;
                     }
-                    else
-                    {
-                        characterPart.visibility = visible;
-                    }
+                    
+                    characterPart.visibility = visible;
                 }
             }
         }
