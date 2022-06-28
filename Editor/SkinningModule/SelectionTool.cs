@@ -168,7 +168,7 @@ namespace UnityEditor.U2D.Animation
                 var ray = new Ray((Vector3)mousePosition - spritePosition + Vector3.back, Vector3.forward);
                 var bounds = meshPreview.mesh.bounds;
 
-                if (sprite.GetMesh().indices.Count >= 3)
+                if (sprite.GetMesh().indices.Length >= 3)
                 {
                     if (bounds.IntersectRay(ray))
                     {
@@ -177,7 +177,7 @@ namespace UnityEditor.U2D.Animation
                         Debug.Assert(mesh != null);
 
                         var indices = mesh.indices;
-                        for (var i = 0; i < indices.Count; i += 3)
+                        for (var i = 0; i < indices.Length; i += 3)
                         {
                             var p1 = meshPreview.vertices[indices[i]];
                             var p2 = meshPreview.vertices[indices[i + 1]];

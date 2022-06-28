@@ -6,7 +6,7 @@ namespace UnityEditor.U2D.Animation
     internal class GenericVertexSelector : ISelector<int>
     {
         public ISelection<int> selection { get; set; }
-        public ISpriteMeshData spriteMeshData { get; set; }
+        public BaseSpriteMeshData spriteMeshData { get; set; }
         public Func<int, bool> SelectionCallback;
 
         public void Select()

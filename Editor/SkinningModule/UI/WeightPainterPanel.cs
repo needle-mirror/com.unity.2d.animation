@@ -216,7 +216,7 @@ namespace UnityEditor.U2D.Animation
             });
         }
 
-        public void UpdateWeightInspector(ISpriteMeshData spriteMeshData, string[] boneNames, ISelection<int> selection, ICacheUndo cacheUndo)
+        public void UpdateWeightInspector(BaseSpriteMeshData spriteMeshData, string[] boneNames, ISelection<int> selection, ICacheUndo cacheUndo)
         {
             m_WeightInspectorPanel.weightInspector.spriteMeshData = spriteMeshData;
             m_WeightInspectorPanel.weightInspector.boneNames = ModuleUtility.ToGUIContentArray(boneNames);

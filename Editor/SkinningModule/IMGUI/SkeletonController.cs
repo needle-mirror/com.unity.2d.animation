@@ -131,7 +131,7 @@ namespace UnityEditor.U2D.Animation
 
         private void LayoutBones()
         {
-            for (var i = 0; i < skeleton.BoneCount; ++i)
+            for (var i = 0; i < skeleton.boneCount; ++i)
             {
                 var bone = skeleton.GetBone(i);
 
@@ -422,12 +422,12 @@ namespace UnityEditor.U2D.Animation
                     {
                         var root = rootBone;
                         if (root != null)
-                            view.DrawBoneParentLink(root.position, endPoint, Vector3.forward, style.GetParentLinkPreviewColor(skeleton.BoneCount));
+                            view.DrawBoneParentLink(root.position, endPoint, Vector3.forward, style.GetParentLinkPreviewColor(skeleton.boneCount));
                     }
                 }
             }
 
-            for (var i = 0; i < skeleton.BoneCount; ++i)
+            for (var i = 0; i < skeleton.boneCount; ++i)
             {
                 var bone = skeleton.GetBone(i);
 
@@ -437,7 +437,7 @@ namespace UnityEditor.U2D.Animation
                 view.DrawBoneParentLink(bone.parent.position, bone.position, Vector3.forward, style.GetParentLinkColor(bone));
             }
 
-            for (var i = 0; i < skeleton.BoneCount; ++i)
+            for (var i = 0; i < skeleton.boneCount; ++i)
             {
                 var bone = skeleton.GetBone(i);
 
@@ -450,7 +450,7 @@ namespace UnityEditor.U2D.Animation
                 DrawBoneOutline(bone, style.GetOutlineColor(bone, isSelected, isHovered), style.GetOutlineScale(isSelected));
             }
 
-            for (var i = 0; i < skeleton.BoneCount; ++i)
+            for (var i = 0; i < skeleton.boneCount; ++i)
             {
                 var bone = skeleton.GetBone(i);
 
@@ -498,9 +498,9 @@ namespace UnityEditor.U2D.Animation
                     
                 }
                 {
-                    var color = style.GetPreviewOutlineColor(skeleton.BoneCount);
+                    var color = style.GetPreviewOutlineColor(skeleton.boneCount);
                     if (color.a > 0f)
-                        view.DrawBoneOutline(position, hoveredBone.right, Vector3.forward, length, style.GetPreviewOutlineColor(skeleton.BoneCount), style.GetOutlineScale(false));
+                        view.DrawBoneOutline(position, hoveredBone.right, Vector3.forward, length, style.GetPreviewOutlineColor(skeleton.boneCount), style.GetOutlineScale(false));
                     
                 }
 
@@ -515,7 +515,7 @@ namespace UnityEditor.U2D.Animation
                     hoveredBone.right,
                     Vector3.forward,
                     length,
-                    style.GetPreviewColor(skeleton.BoneCount),
+                    style.GetPreviewColor(skeleton.boneCount),
                     hoveredBone.chainedChild != null,
                     false, false, false, false);
             }
@@ -529,8 +529,8 @@ namespace UnityEditor.U2D.Animation
             if (skinningCache.IsOnVisualElement())
                 return;
 
-            var color = style.GetPreviewColor(skeleton.BoneCount);
-            var outlineColor = style.GetPreviewOutlineColor(skeleton.BoneCount);
+            var color = style.GetPreviewColor(skeleton.boneCount);
+            var outlineColor = style.GetPreviewOutlineColor(skeleton.boneCount);
 
             var startPosition = m_CreateBoneStartPosition;
             var mousePosition = view.GetMouseWorldPosition(Vector3.forward, Vector3.zero);

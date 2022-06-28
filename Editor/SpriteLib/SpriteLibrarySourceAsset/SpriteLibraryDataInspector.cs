@@ -335,7 +335,7 @@ namespace UnityEditor.U2D.Animation
                 EditorGUI.BeginChangeCheck();
                 var oldLabelWidth = EditorGUIUtility.labelWidth;
                 EditorGUIUtility.labelWidth = m_Style.categoryLabelWidth;
-                var newCatName = EditorGUI.DelayedTextField(catRect, m_Style.categoryLabel, categoryName);
+                var newCatName = EditorGUI.TextField(catRect, m_Style.categoryLabel, categoryName);
                 EditorGUIUtility.labelWidth = oldLabelWidth;
                 if (EditorGUI.EndChangeCheck())
                 {
@@ -596,7 +596,7 @@ namespace UnityEditor.U2D.Animation
                     nameRect.width -= 20;
                 }
             
-                var newName = EditorGUI.DelayedTextField(
+                var newName = EditorGUI.TextField(
                     nameRect,
                     GUIContent.none, 
                     oldName);

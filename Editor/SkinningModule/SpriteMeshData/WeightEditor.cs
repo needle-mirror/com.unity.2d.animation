@@ -13,30 +13,28 @@ namespace UnityEditor.U2D.Animation
 
     internal class WeightEditor
     {
-        public ISpriteMeshData spriteMeshData
+        public BaseSpriteMeshData spriteMeshData
         {
-            get { return m_SpriteMeshDataController.spriteMeshData; }
-            set { m_SpriteMeshDataController.spriteMeshData = value; }
+            get => m_SpriteMeshDataController.spriteMeshData;
+            set => m_SpriteMeshDataController.spriteMeshData = value;
         }
 
         public ICacheUndo cacheUndo { get; set; }
         public WeightEditorMode mode { get; set; }
         public int boneIndex { get; set; }
         public ISelection<int> selection { get; set; }
-        public WeightEditorMode currentMode { get; private set; }
-        public bool useRelativeValues { get; private set; }
         public bool emptySelectionEditsAll { get; set; }
         public bool autoNormalize { get; set; }
 
-        private SpriteMeshDataController m_SpriteMeshDataController = new SpriteMeshDataController();
-        private const int maxSmoothIterations = 8;
-        private float[] m_SmoothValues;
-        private readonly List<BoneWeight[]> m_SmoothedBoneWeights = new List<BoneWeight[]>();
-        private readonly List<BoneWeight> m_StoredBoneWeights = new List<BoneWeight>();
-        private int BoneCount
-        {
-            get { return spriteMeshData != null ? spriteMeshData.boneCount : 0; }
-        }
+        WeightEditorMode currentMode { get; set; }
+        bool useRelativeValues { get; set; }
+        
+        SpriteMeshDataController m_SpriteMeshDataController = new SpriteMeshDataController();
+        const int k_MaxSmoothIterations = 8;
+        float[] m_SmoothValues;
+        readonly List<BoneWeight[]> m_SmoothedBoneWeights = new List<BoneWeight[]>();
+        readonly List<BoneWeight> m_StoredBoneWeights = new List<BoneWeight>();
+        int boneCount => spriteMeshData != null ? spriteMeshData.boneCount : 0;
 
         public WeightEditor()
         {
@@ -65,7 +63,7 @@ namespace UnityEditor.U2D.Animation
             if (currentMode == WeightEditorMode.AddAndSubtract)
             {
                 for (int i = 0; i < spriteMeshData.vertexCount; ++i)
-                    spriteMeshData.GetWeight(i).Clamp(4);
+                    spriteMeshData.vertexWeights[i].Clamp(4);
             }
 
             if (autoNormalize)
@@ -89,20 +87,20 @@ namespace UnityEditor.U2D.Animation
                 SmoothWeights(value);
         }
 
-        private void Validate()
+        void Validate()
         {
             if (spriteMeshData == null)
                 throw (new Exception(TextContent.noSpriteSelected));
         }
 
-        private void RegisterUndo()
+        void RegisterUndo()
         {
             Debug.Assert(cacheUndo != null);
 
             cacheUndo.BeginUndoOperation(TextContent.editWeights);
         }
 
-        private void SetWeight(float value, bool createNewChannel = true)
+        void SetWeight(float value, bool createNewChannel = true)
         {
             if (boneIndex == -1 || spriteMeshData == null)
                 return;
@@ -114,9 +112,8 @@ namespace UnityEditor.U2D.Animation
                 if (selection.Count == 0 && emptySelectionEditsAll ||
                     selection.Count > 0 && selection.Contains(i))
                 {
-                    var editableBoneWeight = spriteMeshData.GetWeight(i);
-
-                    int channel = editableBoneWeight.GetChannelFromBoneIndex(boneIndex);
+                    var editableBoneWeight = spriteMeshData.vertexWeights[i];
+                    var channel = editableBoneWeight.GetChannelFromBoneIndex(boneIndex);
 
                     if (channel == -1)
                     {
@@ -141,34 +138,34 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void SmoothWeights(float value)
+        void SmoothWeights(float value)
         {
             Debug.Assert(selection != null);
 
-            for (int i = 0; i < spriteMeshData.vertexCount; ++i)
+            for (var i = 0; i < spriteMeshData.vertexCount; ++i)
             {
                 if (selection.Count == 0 && emptySelectionEditsAll ||
                     selection.Count > 0 && selection.Contains(i))
                 {
                     var smoothValue = m_SmoothValues[i];
 
-                    if (smoothValue >= maxSmoothIterations)
+                    if (smoothValue >= k_MaxSmoothIterations)
                         continue;
 
-                    m_SmoothValues[i] = Mathf.Clamp(smoothValue + value, 0f, maxSmoothIterations);
+                    m_SmoothValues[i] = Mathf.Clamp(smoothValue + value, 0f, k_MaxSmoothIterations);
 
-                    float lerpValue = GetLerpValue(m_SmoothValues[i]);
-                    int lerpIndex = GetLerpIndex(m_SmoothValues[i]);
-                    BoneWeight[] smoothedBoneWeightsFloor = GetSmoothedBoneWeights(lerpIndex - 1);
-                    BoneWeight[] smoothedBoneWeightsCeil = GetSmoothedBoneWeights(lerpIndex);
+                    var lerpValue = GetLerpValue(m_SmoothValues[i]);
+                    var lerpIndex = GetLerpIndex(m_SmoothValues[i]);
+                    var smoothedBoneWeightsFloor = GetSmoothedBoneWeights(lerpIndex - 1);
+                    var smoothedBoneWeightsCeil = GetSmoothedBoneWeights(lerpIndex);
 
-                    BoneWeight boneWeight = EditableBoneWeightUtility.Lerp(smoothedBoneWeightsFloor[i], smoothedBoneWeightsCeil[i], lerpValue);
-                    spriteMeshData.GetWeight(i).SetFromBoneWeight(boneWeight);
+                    var boneWeight = EditableBoneWeightUtility.Lerp(smoothedBoneWeightsFloor[i], smoothedBoneWeightsCeil[i], lerpValue);
+                    spriteMeshData.vertexWeights[i].SetFromBoneWeight(boneWeight);
                 }
             }
         }
 
-        protected void PrepareSmoothingBuffers()
+        void PrepareSmoothingBuffers()
         {
             if (m_SmoothValues == null || m_SmoothValues.Length != spriteMeshData.vertexCount)
                 m_SmoothValues = new float[spriteMeshData.vertexCount];
@@ -177,63 +174,62 @@ namespace UnityEditor.U2D.Animation
 
             m_SmoothedBoneWeights.Clear();
 
-            BoneWeight[] boneWeights = new BoneWeight[spriteMeshData.vertexCount];
+            var boneWeights = new BoneWeight[spriteMeshData.vertexCount];
 
-            for (int i = 0; i < spriteMeshData.vertexCount; i++)
+            for (var i = 0; i < spriteMeshData.vertexCount; i++)
             {
-                EditableBoneWeight editableBoneWeight = spriteMeshData.GetWeight(i);
+                var editableBoneWeight = spriteMeshData.vertexWeights[i];
                 boneWeights[i] = editableBoneWeight.ToBoneWeight(false);
             }
 
             m_SmoothedBoneWeights.Add(boneWeights);
         }
 
-        private BoneWeight[] GetSmoothedBoneWeights(int lerpIndex)
+        BoneWeight[] GetSmoothedBoneWeights(int lerpIndex)
         {
             Debug.Assert(lerpIndex >= 0);
 
-            while (lerpIndex >= m_SmoothedBoneWeights.Count && lerpIndex <= maxSmoothIterations)
+            while (lerpIndex >= m_SmoothedBoneWeights.Count && lerpIndex <= k_MaxSmoothIterations)
             {
-                BoneWeight[] boneWeights;
-                SmoothingUtility.SmoothWeights(m_SmoothedBoneWeights[m_SmoothedBoneWeights.Count - 1], spriteMeshData.indices, BoneCount, out boneWeights);
+                SmoothingUtility.SmoothWeights(m_SmoothedBoneWeights[^1], spriteMeshData.indices, boneCount, out var boneWeights);
                 m_SmoothedBoneWeights.Add(boneWeights);
             }
 
-            return m_SmoothedBoneWeights[Mathf.Min(lerpIndex, maxSmoothIterations)];
+            return m_SmoothedBoneWeights[Mathf.Min(lerpIndex, k_MaxSmoothIterations)];
         }
 
-        private float GetLerpValue(float smoothValue)
+        static float GetLerpValue(float smoothValue)
         {
             Debug.Assert(smoothValue >= 0f);
             return smoothValue - Mathf.Floor(smoothValue);
         }
 
-        private int GetLerpIndex(float smoothValue)
+        static int GetLerpIndex(float smoothValue)
         {
             Debug.Assert(smoothValue >= 0f);
             return Mathf.RoundToInt(Mathf.Floor(smoothValue) + 1);
         }
 
-        private void StoreBoneWeights()
+        void StoreBoneWeights()
         {
             Debug.Assert(selection != null);
 
             m_StoredBoneWeights.Clear();
 
-            for (int i = 0; i < spriteMeshData.vertexCount; i++)
+            for (var i = 0; i < spriteMeshData.vertexCount; i++)
             {
-                EditableBoneWeight editableBoneWeight = spriteMeshData.GetWeight(i);
+                var editableBoneWeight = spriteMeshData.vertexWeights[i];
                 m_StoredBoneWeights.Add(editableBoneWeight.ToBoneWeight(false));
             }
         }
 
-        private void RestoreBoneWeights()
+        void RestoreBoneWeights()
         {
             Debug.Assert(selection != null);
 
-            for (int i = 0; i < spriteMeshData.vertexCount; i++)
+            for (var i = 0; i < spriteMeshData.vertexCount; i++)
             {
-                EditableBoneWeight editableBoneWeight = spriteMeshData.GetWeight(i);
+                var editableBoneWeight = spriteMeshData.vertexWeights[i];
                 editableBoneWeight.SetFromBoneWeight(m_StoredBoneWeights[i]);
             }
 

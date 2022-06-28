@@ -103,7 +103,6 @@ namespace UnityEditor.U2D.Animation
             {
                 spriteBoneDataList.Add(new SpriteBoneData()
                 {
-                    name = spriteBone.name,
                     parentId = spriteBone.parentId,
                     localPosition = spriteBone.position,
                     localRotation = spriteBone.rotation,

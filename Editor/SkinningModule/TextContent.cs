@@ -91,6 +91,10 @@ namespace UnityEditor.U2D.Animation
 
         // Other
         public static string generatingGeometry = L10n.Tr("Generating Geometry");
+        public static string savePopupTitle = L10n.Tr("Unsaved changes");
+        public static string savePopupMessage = L10n.Tr("There are some unsaved changes, would you like to save them?");
+        public static string savePopupOptionYes = L10n.Tr("Yes");
+        public static string savePopupOptionNo = L10n.Tr("No");
         public static string generatingWeights = L10n.Tr("Generating Weights");
         public static string restorePoseLocalized = L10n.Tr("Restore Pose");
         public static string vertexWeight = L10n.Tr("Vertex Weight");

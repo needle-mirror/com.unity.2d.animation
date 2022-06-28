@@ -300,7 +300,7 @@ namespace UnityEditor.U2D.Animation
 
             Debug.Assert(characterPart != null);
 
-            characterPart.DeassociateUnusedBones();
+            characterPart.DisassociateUnusedBones();
         }
 
         public static void DeassociateAllBones(this SpriteCache sprite)

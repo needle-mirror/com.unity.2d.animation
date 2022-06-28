@@ -9,14 +9,13 @@ namespace UnityEditor.U2D.Animation
 {
     internal class MeshVisibilityTool : IVisibilityTool
     {
-        private MeshVisibilityToolView m_View;
-        private MeshVisibilityToolModel m_Model;
-        private SkinningCache m_SkinningCache;
-        public SkinningCache skinningCache { get { return m_SkinningCache; } }
+        MeshVisibilityToolView m_View;
+        MeshVisibilityToolModel m_Model;
+        public SkinningCache skinningCache { get; }
 
         public MeshVisibilityTool(SkinningCache s)
         {
-            m_SkinningCache = s;
+            skinningCache = s;
         }
 
         public void Setup()
@@ -24,29 +23,26 @@ namespace UnityEditor.U2D.Animation
             m_Model = skinningCache.CreateCache<MeshVisibilityToolModel>();
             m_View = new MeshVisibilityToolView(skinningCache)
             {
-                GetModel = () => m_Model,
-                SetAllVisibility = SetAllVisibility,
-                GetAllVisibility = GetAllVisibility
+                getModel = () => m_Model,
+                setAllVisibility = SetAllVisibility,
+                getAllVisibility = GetAllVisibility
             };
         }
 
-        public void Dispose()
-        {
+        public void Dispose() { }
 
-        }
-
-        public VisualElement view { get { return m_View; } }
-        public string name { get { return "Mesh"; } }
+        public VisualElement view => m_View;
+        public string name => "Mesh";
 
         public void Activate()
         {
             skinningCache.events.selectedSpriteChanged.AddListener(OnSelectionChange);
             skinningCache.events.skinningModeChanged.AddListener(OnViewModeChanged);
             OnViewModeChanged(skinningCache.mode);
-            if (m_Model.previousVisiblity != m_Model.allVisibility)
+            if (m_Model.previousVisibility != m_Model.allVisibility)
             {
                 SetAllMeshVisibility();
-                m_Model.previousVisiblity = m_Model.allVisibility;
+                m_Model.previousVisibility = m_Model.allVisibility;
             }
         }
 
@@ -56,15 +52,11 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.skinningModeChanged.RemoveListener(OnViewModeChanged);
         }
 
-        public bool isAvailable
-        {
-            get { return false; }
-        }
+        public bool isAvailable => false;
 
-        public void SetAvailabilityChangeCallback(Action callback)
-        {}
+        public void SetAvailabilityChangeCallback(Action callback) {}
 
-        private void OnViewModeChanged(SkinningMode characterMode)
+        void OnViewModeChanged(SkinningMode characterMode)
         {
             if (characterMode == SkinningMode.Character)
             {
@@ -76,7 +68,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void OnSelectionChange(SpriteCache sprite)
+        void OnSelectionChange(SpriteCache sprite)
         {
             OnViewModeChanged(skinningCache.mode);
             SetAllMeshVisibility();
@@ -102,7 +94,7 @@ namespace UnityEditor.U2D.Animation
             foreach (var spr in sprites)
             {
                 if (spr != null)
-                    m_Model.SetMeshVisibility(spr, m_Model.allVisibility);
+                    MeshVisibilityToolModel.SetMeshVisibility(spr, m_Model.allVisibility);
             }
         }
 
@@ -116,20 +108,16 @@ namespace UnityEditor.U2D.Animation
     {
         [SerializeField]
         bool m_AllVisibility = true;
-        bool m_PreviousVisibility = true;
 
         public bool allVisibility
         {
-            get {return m_AllVisibility; }
-            set { m_AllVisibility = value; }
+            get => m_AllVisibility;
+            set => m_AllVisibility = value;
         }
 
-        public void SetMeshVisibility(SpriteCache sprite, bool visibility)
-        {
+        public static void SetMeshVisibility(SpriteCache sprite, bool visibility) { }
 
-        }
-
-        public bool GetMeshVisibility(SpriteCache sprite)
+        public static bool GetMeshVisibility(SpriteCache sprite)
         {
             return false;
         }
@@ -137,21 +125,17 @@ namespace UnityEditor.U2D.Animation
         public bool ShouldDisable(SpriteCache sprite)
         {
             var mesh = sprite.GetMesh();
-            return mesh == null || mesh.vertices.Count == 0;
+            return mesh == null || mesh.vertices.Length == 0;
         }
 
-        public bool previousVisiblity
-        {
-            get { return m_PreviousVisibility; }
-            set { m_PreviousVisibility = value; }
-        }
+        public bool previousVisibility { get; set; } = true;
     }
 
     internal class MeshVisibilityToolView : VisibilityToolViewBase
     {
-        public Func<MeshVisibilityToolModel> GetModel = () => null;
-        public Action<bool> SetAllVisibility = (b) => {};
-        public Func<bool> GetAllVisibility = () => true;
+        public Func<MeshVisibilityToolModel> getModel = () => null;
+        public Action<bool> setAllVisibility = (b) => {};
+        public Func<bool> getAllVisibility = () => true;
         public SkinningCache skinningCache { get; set; }
 
         public MeshVisibilityToolView(SkinningCache s)
@@ -195,7 +179,7 @@ namespace UnityEditor.U2D.Animation
 
         MeshVisibilityToolModel InternalGetModel()
         {
-            return GetModel();
+            return getModel();
         }
 
         public void Setup(SpriteCache[] sprites)
@@ -206,12 +190,12 @@ namespace UnityEditor.U2D.Animation
 
         bool InternalGetAllVisibility()
         {
-            return GetAllVisibility();
+            return getAllVisibility();
         }
 
         void InternalSetAllVisibility(bool visibility)
         {
-            SetAllVisibility(visibility);
+            setAllVisibility(visibility);
         }
     }
 
@@ -273,10 +257,10 @@ namespace UnityEditor.U2D.Animation
             using (new EditorGUI.DisabledScope(shouldDisable))
             {
                 EditorGUI.BeginChangeCheck();
-                bool visible = GetModel().GetMeshVisibility(itemView.customData);
+                bool visible = MeshVisibilityToolModel.GetMeshVisibility(itemView.customData);
                 visible = GUI.Toggle(cellRect, visible, visible ? VisibilityIconStyle.visibilityOnIcon : VisibilityIconStyle.visibilityOffIcon, style);
                 if (EditorGUI.EndChangeCheck())
-                    GetModel().SetMeshVisibility(itemView.customData, visible);
+                    MeshVisibilityToolModel.SetMeshVisibility(itemView.customData, visible);
             }
         }
 

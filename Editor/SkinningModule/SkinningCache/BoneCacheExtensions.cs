@@ -2,19 +2,18 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace UnityEditor.U2D.Animation
 {
     internal static class BoneCacheExtensions
     {
         public static BoneCache[] ToCharacterIfNeeded(this BoneCache[] bones)
         {
-            return Array.ConvertAll(bones, b => ToCharacterIfNeeded(b));
+            return Array.ConvertAll(bones, ToCharacterIfNeeded);
         }
 
         public static BoneCache[] ToSpriteSheetIfNeeded(this BoneCache[] bones)
         {
-            return Array.ConvertAll(bones, b => ToSpriteSheetIfNeeded(b));
+            return Array.ConvertAll(bones, ToSpriteSheetIfNeeded);
         }
 
         public static BoneCache ToCharacterIfNeeded(this BoneCache bone)
@@ -39,7 +38,7 @@ namespace UnityEditor.U2D.Animation
                     Debug.Assert(skeleton != null);
                     Debug.Assert(characterPart != null);
                     Debug.Assert(bone.skeleton == skeleton);
-                    Debug.Assert(skeleton.BoneCount == characterPart.BoneCount);
+                    Debug.Assert(skeleton.boneCount == characterPart.boneCount);
 
                     var index = skeleton.IndexOf(bone);
 
@@ -76,7 +75,7 @@ namespace UnityEditor.U2D.Animation
 
                 Debug.Assert(skeleton != null);
                 Debug.Assert(characterPart != null);
-                Debug.Assert(skeleton.BoneCount == characterPart.BoneCount);
+                Debug.Assert(skeleton.boneCount == characterPart.boneCount);
 
                 var index = characterPart.IndexOf(bone);
 

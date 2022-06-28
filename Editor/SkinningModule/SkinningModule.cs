@@ -25,6 +25,7 @@ namespace UnityEditor.U2D.Animation
         private ModuleToolGroup m_ModuleToolGroup;
         IMeshPreviewBehaviour m_MeshPreviewBehaviourOverride = null;
         bool m_CollapseToolbar;
+        bool m_HasUnsavedChanges = false;
         Texture2D m_WorkspaceBackgroundTexture;
 
         internal SkinningCache skinningCache
@@ -73,6 +74,7 @@ namespace UnityEditor.U2D.Animation
                 m_SpriteOutlineRenderer = new SpriteOutlineRenderer(skinningCache.events);
 
                 spriteEditor.enableMouseMoveEvent = true;
+                EditorApplication.playModeStateChanged += PlayModeStateChanged;
 
                 Undo.undoRedoPerformed += UndoRedoPerformed;
                 skinningCache.events.skeletonTopologyChanged.AddListener(SkeletonTopologyChanged);
@@ -129,6 +131,7 @@ namespace UnityEditor.U2D.Animation
                 m_SpriteOutlineRenderer.Dispose();
 
             spriteEditor.enableMouseMoveEvent = false;
+            EditorApplication.playModeStateChanged -= PlayModeStateChanged;
 
             Undo.undoRedoPerformed -= UndoRedoPerformed;
             skinningCache.events.skeletonTopologyChanged.RemoveListener(SkeletonTopologyChanged);
@@ -146,9 +149,18 @@ namespace UnityEditor.U2D.Animation
             RestoreSpriteEditor();
             m_Analytics.Dispose();
             m_Analytics = null;
-
+            
             Cache.Destroy(m_SkinningCache);
         }
+        
+        void PlayModeStateChanged(PlayModeStateChange newState)
+        {
+            if (newState == PlayModeStateChange.ExitingEditMode && m_HasUnsavedChanges)
+            {
+                var shouldApply = EditorUtility.DisplayDialog(TextContent.savePopupTitle, TextContent.savePopupMessage, TextContent.savePopupOptionYes, TextContent.savePopupOptionNo);
+                spriteEditor.ApplyOrRevertModification(shouldApply);
+            }
+        }        
 
         private void UpdateCollapseToolbar()
         {
@@ -204,6 +216,7 @@ namespace UnityEditor.U2D.Animation
         private void DataModified()
         {
             spriteEditor.SetDataModified();
+            m_HasUnsavedChanges = true;
         }
 
         private void OnViewModeChanged(SkinningMode mode)
@@ -462,10 +475,12 @@ namespace UnityEditor.U2D.Animation
             }
             else
                 skinningCache.Revert();
+
+            m_HasUnsavedChanges = false;
             return true;
         }
 
-        static internal void ApplyChanges(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
+        internal static void ApplyChanges(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
         {
             skinningCache.applyingChanges = true;
             skinningCache.RestoreBindPose();
@@ -478,7 +493,7 @@ namespace UnityEditor.U2D.Animation
         private void DoApplyAnalytics()
         {
             var sprites = skinningCache.GetSprites();
-            var spriteBoneCount = sprites.Select(s => s.GetSkeleton().BoneCount).ToArray();
+            var spriteBoneCount = sprites.Select(s => s.GetSkeleton().boneCount).ToArray();
             BoneCache[] bones = null;
 
             if (skinningCache.hasCharacter)
@@ -513,15 +528,17 @@ namespace UnityEditor.U2D.Animation
                 {
                     var mesh = sprite.GetMesh();
                     var guid = new GUID(sprite.id);
-                    meshDataProvider.SetVertices(guid, mesh.vertices.Select(x =>
-                        new Vertex2DMetaData()
-                        {
-                            boneWeight = x.editableBoneWeight.ToBoneWeight(false),
-                            position = x.position
-                        }
-                        ).ToArray());
-                    meshDataProvider.SetIndices(guid, mesh.indices.ToArray());
-                    meshDataProvider.SetEdges(guid, mesh.edges.Select(x => new Vector2Int(x.index1, x.index2)).ToArray());
+
+                    var vertices = new Vertex2DMetaData[mesh.vertexCount];
+                    for (var i = 0; i < vertices.Length; ++i)
+                    {
+                        vertices[i].position = mesh.vertices[i];
+                        vertices[i].boneWeight = mesh.vertexWeights[i].ToBoneWeight(false);
+                    }
+
+                    meshDataProvider.SetVertices(guid, vertices);
+                    meshDataProvider.SetIndices(guid, mesh.indices);
+                    meshDataProvider.SetEdges(guid, mesh.edges.Select(edge => edge).ToArray());
                 }
             }
         }

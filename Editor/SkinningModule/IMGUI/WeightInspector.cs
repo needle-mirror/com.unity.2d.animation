@@ -8,7 +8,7 @@ namespace UnityEditor.U2D.Animation
         private SpriteMeshDataController m_SpriteMeshDataController = new SpriteMeshDataController();
         private GUIContent[] m_BoneNameContents;
 
-        public ISpriteMeshData spriteMeshData
+        public BaseSpriteMeshData spriteMeshData
         {
             get { return m_SpriteMeshDataController.spriteMeshData; }
             set

@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.0.7] - 2022-06-28
+### Fixed
+- Fixed the isolate behavior in the Sprite tab in the Visibility panel. (case DANB-72)
+- Creating a new vertex or an edge outside of the main geometry is handled correctly. (case 1398541)
+- When modifying Sprite Library's Category name user presses apply, the changes to the name are saved. (case DANB-86)
+
+### Changed
+- Added dialog box to the Skinning Editor when entering Play Mode to allow saving unsaved changes.
+
+### Changed
+- Refactored internal triangulation and tessellation APIs.
+
 ## [7.0.6] - 2022-05-12
 ### Fixed
 - Fix Sprite Library Asset multi-editing in the Inspector window. (case 1417747)

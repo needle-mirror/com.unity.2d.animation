@@ -8,10 +8,7 @@ namespace UnityEditor.U2D.Animation
     {
         public Vector3 position;
         public Quaternion rotation;
-        public Matrix4x4 matrix
-        {
-            get { return Matrix4x4.TRS(position, rotation, Vector3.one); }
-        }
+        public Matrix4x4 matrix => Matrix4x4.TRS(position, rotation, Vector3.one);
 
         public static Pose Create(Vector3 p, Quaternion r)
         {
@@ -73,7 +70,7 @@ namespace UnityEditor.U2D.Animation
 
         public static bool operator==(BonePose p1, BonePose p2)
         {
-            return p1.pose == p2.pose && p1.length == p2.length;
+            return p1.pose == p2.pose && Mathf.Abs(p1.length - p2.length) < Mathf.Epsilon;
         }
 
         public static bool operator!=(BonePose p1, BonePose p2)
@@ -87,56 +84,49 @@ namespace UnityEditor.U2D.Animation
         [SerializeField]
         Color32 m_BindPoseColor;
         [SerializeField]
-        private Pose m_BindPose;
+        Pose m_BindPose;
         [SerializeField]
-        private BonePose m_DefaultPose;
+        BonePose m_DefaultPose;
         [SerializeField]
-        private BoneCache m_ChainedChild;
+        BoneCache m_ChainedChild;
         [SerializeField]
-        private float m_Depth;
+        float m_Depth;
         [SerializeField]
-        private float m_LocalLength = 1f;
+        float m_LocalLength = 1f;
         [SerializeField]
-        private bool m_IsVisible = true;
+        bool m_IsVisible = true;
         [SerializeField] 
-        private string m_Guid;
+        string m_Guid;
         public bool NotInDefaultPose()
         {
             return localPosition != m_DefaultPose.pose.position
                    || localRotation != m_DefaultPose.pose.rotation
-                   || localLength != m_DefaultPose.length;
+                   || Mathf.Abs(localLength - m_DefaultPose.length) > Mathf.Epsilon;
         }
 
         public bool isVisible
         {
-            get { return m_IsVisible; }
-            set { m_IsVisible = value; }
+            get => m_IsVisible;
+            set => m_IsVisible = value;
         }
 
         public Color bindPoseColor
         {
-            get { return m_BindPoseColor; }
-            set { m_BindPoseColor = value; }
+            get => m_BindPoseColor;
+            set => m_BindPoseColor = value;
         }
 
-        public virtual BoneCache parentBone
-        {
-            get { return parent as BoneCache; }
-        }
+        public virtual BoneCache parentBone => parent as BoneCache;
 
         public SkeletonCache skeleton
         {
             get
             {
-                var skeleton = parent as SkeletonCache;
+                var parentSkeleton = parent as SkeletonCache;
+                if (parentSkeleton != null)
+                    return parentSkeleton;
 
-                if (skeleton != null)
-                    return skeleton;
-
-                if (parentBone != null)
-                    return parentBone.skeleton;
-
-                return null;
+                return parentBone != null ? parentBone.skeleton : null;
             }
         }
 
@@ -163,28 +153,25 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public Vector3 localEndPosition
-        {
-            get { return Vector3.right * localLength; }
-        }
+        Vector3 localEndPosition => Vector3.right * localLength;
 
         public Vector3 endPosition
         {
-            get { return localToWorldMatrix.MultiplyPoint3x4(localEndPosition); }
+            get => localToWorldMatrix.MultiplyPoint3x4(localEndPosition);
             set
             {
-                if (chainedChild == null)
-                {
-                    var direction = value - position;
-                    right = direction;
-                    length = direction.magnitude;
-                }
+                if (chainedChild != null) 
+                    return;
+                
+                var direction = value - position;
+                right = direction;
+                length = direction.magnitude;
             }
         }
 
         public BonePose localPose
         {
-            get { return BonePose.Create(Pose.Create(localPosition, localRotation), localLength); }
+            get => BonePose.Create(Pose.Create(localPosition, localRotation), localLength);
             set
             {
                 localPosition = value.pose.position;
@@ -195,7 +182,7 @@ namespace UnityEditor.U2D.Animation
 
         public BonePose worldPose
         {
-            get { return BonePose.Create(Pose.Create(position, rotation), length); }
+            get => BonePose.Create(Pose.Create(position, rotation), length);
             set
             {
                 position = value.pose.position;
@@ -204,33 +191,29 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public Pose bindPose
-        {
-            get { return m_BindPose; }
-            set { m_BindPose = value; }
-        }
+        public Pose bindPose => m_BindPose;
 
         public string guid
         {
-            get { return m_Guid; }
-            set { m_Guid = value; }
+            get => m_Guid;
+            set => m_Guid = value;
         }        
         
         public float depth
         {
-            get { return m_Depth; }
-            set { m_Depth = value; }
+            get => m_Depth;
+            set => m_Depth = value;
         }
         public float localLength
         {
-            get { return m_LocalLength; }
-            set { m_LocalLength = Mathf.Max(0f, value); }
+            get => m_LocalLength;
+            set => m_LocalLength = Mathf.Max(0f, value);
         }
 
         public float length
         {
-            get { return localToWorldMatrix.MultiplyVector(localEndPosition).magnitude; }
-            set { m_LocalLength = worldToLocalMatrix.MultiplyVector(right * Mathf.Max(0f, value)).magnitude; }
+            get => localToWorldMatrix.MultiplyVector(localEndPosition).magnitude;
+            set => m_LocalLength = worldToLocalMatrix.MultiplyVector(right * Mathf.Max(0f, value)).magnitude;
         }
 
         internal Pose[] GetChildrenWoldPose()
@@ -238,16 +221,16 @@ namespace UnityEditor.U2D.Animation
             return Array.ConvertAll(children, c => Pose.Create(c.position, c.rotation));
         }
 
-        internal void SetChildrenWorldPose(Pose[] worldPose)
+        internal void SetChildrenWorldPose(Pose[] worldPoses)
         {
             var childrenArray = children;
 
-            Debug.Assert(childrenArray.Length == worldPose.Length);
+            Debug.Assert(childrenArray.Length == worldPoses.Length);
 
             for (var i = 0; i < childrenArray.Length; ++i)
             {
                 var child = childrenArray[i];
-                var pose= worldPose[i];
+                var pose= worldPoses[i];
 
                 child.position = pose.position;
                 child.rotation = pose.rotation;
@@ -260,12 +243,7 @@ namespace UnityEditor.U2D.Animation
             m_ChainedChild = null;
         }
 
-        new public void SetParent(TransformCache newParent)
-        {
-            SetParent(newParent, true);
-        }
-
-        new public void SetParent(TransformCache newParent, bool worldPositionStays)
+        public new void SetParent(TransformCache newParent, bool worldPositionStays = true)
         {
             if (parentBone != null && parentBone.chainedChild == this)
                 parentBone.chainedChild = null;
@@ -318,7 +296,7 @@ namespace UnityEditor.U2D.Animation
             localPose = m_DefaultPose;
         }
 
-        private bool IsUnscaled()
+        bool IsUnscaled()
         {
             var currentTransform = this as TransformCache;
 

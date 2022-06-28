@@ -222,11 +222,11 @@ namespace UnityEditor.U2D.Animation
         {
             get
             {
-                return skinningCache.visibililtyToolIndex;
+                return skinningCache.visibilityToolIndex;
             }
             set
             {
-                skinningCache.visibililtyToolIndex = value;
+                skinningCache.visibilityToolIndex = value;
             }
         }
 

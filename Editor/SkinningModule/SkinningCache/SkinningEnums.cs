@@ -1,6 +1,3 @@
-using System;
-using UnityEngine;
-
 namespace UnityEditor.U2D.Animation
 {
     internal enum SkinningMode

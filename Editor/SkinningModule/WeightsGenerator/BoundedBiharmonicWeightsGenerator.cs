@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Unity.Collections;
@@ -13,14 +12,13 @@ namespace UnityEditor.U2D.Animation
     internal class BoundedBiharmonicWeightsGenerator : IWeightsGenerator
     {
         internal static readonly BoneWeight defaultWeight = new BoneWeight() { weight0 = 1 };
-        private const int kNumIterations = 100;
-        private const int kNumSamples = 4;
-        private const float kMinAngle = 20f;
-        private const float kLargestTriangleAreaFactor = 0.4f;
-        private const float kMeshAreaFactor = 0.004f;
+        const int k_NumIterations = 100;
+        const int k_NumSamples = 4;
+        const float k_LargestTriangleAreaFactor = 0.4f;
+        const float k_MeshAreaFactor = 0.004f;
 
         [DllImport("BoundedBiharmonicWeightsModule")]
-        private static extern int Bbw(int iterations,
+        static extern int Bbw(int iterations,
             [In, Out] IntPtr vertices, int vertexCount, int originalVertexCount,
             [In, Out] IntPtr indices, int indexCount,
             [In, Out] IntPtr controlPoints, int controlPointsCount,
@@ -29,125 +27,133 @@ namespace UnityEditor.U2D.Animation
             [In, Out] IntPtr weights
             );
 
-        public BoneWeight[] Calculate(string name, Vector2[] vertices, int[] indices, Edge[] edges, Vector2[] controlPoints, Edge[] bones, int[] pins)
+        public BoneWeight[] Calculate(string name, in float2[] vertices, in int[] indices, in int2[] edges, in float2[] controlPoints, in int2[] bones, in int[] pins)
         {
-            edges = SanitizeEdges(edges, vertices.Length);
+            var sanitizedEdges = SanitizeEdges(edges, vertices.Length);
             
             // In almost all cases subdivided mesh weights fine. Non-subdivide is only a fail-safe.
             bool success = false;
-            var weights = CalculateInternal(name, vertices, indices, edges, controlPoints, bones, pins, kNumSamples, true, ref success);
+            var weights = CalculateInternal(vertices, indices, sanitizedEdges, controlPoints, bones, pins, k_NumSamples, true, ref success);
             if (!success)
-                weights = CalculateInternal(name, vertices, indices, edges, controlPoints, bones, pins, kNumSamples, false, ref success);
+                weights = CalculateInternal(vertices, indices, sanitizedEdges, controlPoints, bones, pins, k_NumSamples, false, ref success);
             return weights;
         }
 
-        private Edge[] SanitizeEdges(Edge[] edges, int noOfVertices)
+        static int2[] SanitizeEdges(in int2[] edges, int noOfVertices)
         {
-            var tmpEdges = new List<Edge>(edges);
+            var tmpEdges = new List<int2>(edges);
             for (var i = tmpEdges.Count - 1; i >= 0; i--)
             {
-                if (tmpEdges[i].index1 >= noOfVertices || tmpEdges[i].index2 >= noOfVertices)
+                if (tmpEdges[i].x >= noOfVertices || tmpEdges[i].y >= noOfVertices)
                     tmpEdges.RemoveAt(i);
             }
 
             return tmpEdges.ToArray();
         }
         
-        // Round
-        internal void Round(Vector2[] data)
+        static void Round(ref float2[] data)
         {
-            for (int i = 0; i < data.Length; ++i)
+            for (var i = 0; i < data.Length; ++i)
             {
-                float x = data[i].x;
-                float y = data[i].y;
+                var x = data[i].x;
+                var y = data[i].y;
                 x = (float) Math.Round(x, 8);
                 y = (float) Math.Round(y, 8);
-                data[i] = new Vector2(x, y);
+                data[i] = new float2(x, y);
             }        
         }
 
-        internal BoneWeight[] CalculateInternal(string name, Vector2[] vertices, int[] indices, Edge[] edges, Vector2[] controlPoints, Edge[] bones, int[] pins, int numSamples, bool subdivide, ref bool done)
+        static BoneWeight[] CalculateInternal(in float2[] inputVertices, in int[] inputIndices, in int2[] inputEdges, in float2[] inputControlPoints, in int2[] inputBones, in int[] inputPins, int numSamples, bool subdivide, ref bool done)
         {
             done = false;            
-            var weights = new BoneWeight[vertices.Length];
+            var weights = new BoneWeight[inputVertices.Length];
             for (var i = 0; i < weights.Length; ++i)
                 weights[i] = defaultWeight;
-            if (vertices.Length < 3)
-                return weights;            
-            
-            var boneSamples = SampleBones(controlPoints, bones, numSamples);
-            var verticesList = new List<Vector2>(vertices.Length + controlPoints.Length + boneSamples.Length);
-            Round(vertices);
-            Round(controlPoints);
-            Round(boneSamples);
-            verticesList.AddRange(vertices);
-            verticesList.AddRange(controlPoints);
-            verticesList.AddRange(boneSamples);
+            if (inputVertices.Length < 3)
+                return weights;
 
-            var utEdges = new List<Edge>(edges);
-            var utIndices = new List<int>();
-            var utVertices = new List<Vector2>(vertices);
-            
+            var edges = EditorUtilities.CreateCopy(inputEdges);
+            var controlPoints = EditorUtilities.CreateCopy(inputControlPoints);
+            var vertices = EditorUtilities.CreateCopy(inputVertices);
+
+            var boneSamples = SampleBones(in inputControlPoints, in inputBones, numSamples);
+            Round(ref vertices);
+            Round(ref controlPoints);
+            Round(ref boneSamples);
+
             // Input Vertices are well refined and smoothed, just triangulate with bones and cages.
-            bool ok = TriangulationUtility.TriangulateSafe(utVertices, utEdges, utIndices);
-            if (!ok || utIndices.Count == 0)
+            var ok = TriangulationUtility.TriangulateSafe(ref vertices, ref edges, out var indices);
+            if (!ok || indices.Length == 0)
             {
-                utIndices.AddRange(indices);
-                utVertices.AddRange(vertices);
+                indices = EditorUtilities.CreateCopy(inputIndices);
+                vertices = EditorUtilities.CreateCopy(inputVertices);
+                Round(ref vertices);
             }
             else if(subdivide)
             {
-                var targetArea = TriangulationUtility.FindTargetAreaForWeightMesh(utVertices, utIndices, kMeshAreaFactor, kLargestTriangleAreaFactor);
-                TriangulationUtility.TessellateSafe(0, 0, 0, 0, targetArea, 1, 0, utVertices, utEdges, utIndices);
+                var targetArea = TriangulationUtility.FindTargetAreaForWeightMesh(in vertices, in indices, k_MeshAreaFactor, k_LargestTriangleAreaFactor);
+                TriangulationUtility.TessellateSafe(0, targetArea, 1, 0, ref vertices, ref edges, out indices);
             }
-            if (utIndices.Count == 0)
+            if (indices.Length == 0)
                 return weights;
 
             // Copy Original Indices.
-            var coIndices = new List<int>(utIndices);
-            utIndices.Clear();
-            for (int i = 0; i < coIndices.Count / 3; ++i)
+            var coIndices = EditorUtilities.CreateCopy(indices);
+            var tmpIndices = new List<int>(indices.Length);
+            for (var i = 0; i < coIndices.Length / 3; ++i)
             {
-                int i1 = coIndices[0 + (i * 3)];
-                int i2 = coIndices[1 + (i * 3)];
-                int i3 = coIndices[2 + (i * 3)];
-                float2 v1 = utVertices[i1];
-                float2 v2 = utVertices[i2];
-                float2 v3 = utVertices[i3];
+                var i1 = coIndices[0 + (i * 3)];
+                var i2 = coIndices[1 + (i * 3)];
+                var i3 = coIndices[2 + (i * 3)];
+                var v1 = vertices[i1];
+                var v2 = vertices[i2];
+                var v3 = vertices[i3];
                 var rt = (float)Math.Round(ModuleHandle.OrientFast(v1, v2, v3), 2);
                 if (rt != 0)
                 {
-                    utIndices.Add(i1);
-                    utIndices.Add(i2);
-                    utIndices.Add(i3);
+                    tmpIndices.Add(i1);
+                    tmpIndices.Add(i2);
+                    tmpIndices.Add(i3);
                 }
             }
+            indices = tmpIndices.ToArray();
             
             // Insert Samplers.
             var internalPoints = new List<int>();
-            for (int i = 0; i < utVertices.Count; ++i)
-                if (utIndices.Count(x => x == i) == 0)
+            for (var i = 0; i < vertices.Length; ++i)
+            {
+                var counter = 0;
+                for (var m = 0; m < indices.Length; ++m)
+                {
+                    if (indices[m] == i)
+                        counter++;
+                }
+                if (counter == 0)
                     internalPoints.Add(i);
-            
-            TriangulationUtility.TriangulateInternal(internalPoints.ToArray(), utVertices, utIndices);
-            TriangulationUtility.TriangulateSamplers(boneSamples, utVertices, utIndices);
-            TriangulationUtility.TriangulateSamplers(controlPoints, utVertices, utIndices);
-            var tessellatedIndices = utIndices.ToArray();
-            var tessellatedVertices = utVertices.ToArray();
-            
-            GCHandle verticesHandle = GCHandle.Alloc(tessellatedVertices, GCHandleType.Pinned);
-            GCHandle indicesHandle = GCHandle.Alloc(tessellatedIndices, GCHandleType.Pinned);
-            GCHandle controlPointsHandle = GCHandle.Alloc(controlPoints, GCHandleType.Pinned);
-            GCHandle bonesHandle = GCHandle.Alloc(bones, GCHandleType.Pinned);
-            GCHandle pinsHandle = GCHandle.Alloc(pins, GCHandleType.Pinned);
-            GCHandle weightsHandle = GCHandle.Alloc(weights, GCHandleType.Pinned);
+            }
 
-            int result = Bbw(kNumIterations,
-                verticesHandle.AddrOfPinnedObject(), tessellatedVertices.Length, vertices.Length,
-                indicesHandle.AddrOfPinnedObject(), tessellatedIndices.Length,
+            tmpIndices = new List<int>(indices);
+            TriangulationUtility.TriangulateInternal(internalPoints.ToArray(), in vertices, ref tmpIndices);
+            
+            var tmpVertices = new List<float2>(vertices);
+            TriangulationUtility.TriangulateSamplers(boneSamples, ref tmpVertices, ref tmpIndices);
+            TriangulationUtility.TriangulateSamplers(controlPoints, ref tmpVertices, ref tmpIndices);
+            vertices = tmpVertices.ToArray();
+            indices = tmpIndices.ToArray();
+            
+            var verticesHandle = GCHandle.Alloc(vertices, GCHandleType.Pinned);
+            var indicesHandle = GCHandle.Alloc(indices, GCHandleType.Pinned);
+            var controlPointsHandle = GCHandle.Alloc(controlPoints, GCHandleType.Pinned);
+            var bonesHandle = GCHandle.Alloc(inputBones, GCHandleType.Pinned);
+            var pinsHandle = GCHandle.Alloc(inputPins, GCHandleType.Pinned);
+            var weightsHandle = GCHandle.Alloc(weights, GCHandleType.Pinned);
+
+            var result = Bbw(k_NumIterations,
+                verticesHandle.AddrOfPinnedObject(), vertices.Length, inputVertices.Length,
+                indicesHandle.AddrOfPinnedObject(), indices.Length,
                 controlPointsHandle.AddrOfPinnedObject(), controlPoints.Length,
-                bonesHandle.AddrOfPinnedObject(), bones.Length,
-                pinsHandle.AddrOfPinnedObject(), pins.Length,
+                bonesHandle.AddrOfPinnedObject(), inputBones.Length,
+                pinsHandle.AddrOfPinnedObject(), inputPins.Length,
                 weightsHandle.AddrOfPinnedObject());
             
             switch (result)
@@ -168,9 +174,7 @@ namespace UnityEditor.U2D.Animation
             bonesHandle.Free();
             pinsHandle.Free();
             weightsHandle.Free();
-            
-            // OhmDebugger.WriteStatisticsText(verticesList.ToArray(), edges, bones, boneSamples, weights, tessellatedVertices, tessellatedIndices, vertices.Length, controlPoints.Length, boneSamples.Length, "UTess", 1000);
-            
+
             for (var i = 0; i < weights.Length; ++i)
             {
                 var weight = weights[i];
@@ -184,38 +188,42 @@ namespace UnityEditor.U2D.Animation
             return weights;
         }
 
-        public void DebugMesh(ISpriteMeshData spriteMeshData, Vector2[] vertices, Edge[] edges, Vector2[] controlPoints, Edge[] bones, int[] pins)
+        public void DebugMesh(BaseSpriteMeshData spriteMeshData, float2[] vertices, int2[] edges, float2[] controlPoints, int2[] bones, int[] pins)
         {
-            var boneSamples = SampleBones(controlPoints, bones, kNumSamples);
-            var verticesList = new List<Vector2>(vertices.Length + controlPoints.Length + boneSamples.Length);
-            var edgesList = new List<Edge>(edges);
-            var indicesList = new List<int>();
+            var boneSamples = SampleBones(controlPoints, bones, k_NumSamples);
+            var testVertices = new float2[vertices.Length + controlPoints.Length + boneSamples.Length];
 
-            verticesList.AddRange(vertices);
-            verticesList.AddRange(controlPoints);
-            verticesList.AddRange(boneSamples);
+            var headIndex = 0;
+            Array.Copy(vertices, 0, testVertices, headIndex, vertices.Length);
+            headIndex = vertices.Length;
+            Array.Copy(controlPoints, 0, testVertices, headIndex, controlPoints.Length);
+            headIndex += controlPoints.Length;
+            Array.Copy(boneSamples, 0, testVertices, headIndex, boneSamples.Length);
+            
+            TriangulationUtility.Triangulate(ref edges, ref testVertices, out var indices, Allocator.Temp);
 
-            TriangulationUtility.Triangulate(verticesList, edgesList, indicesList, Allocator.Temp);
 
             spriteMeshData.Clear();
 
-            verticesList.ForEach(v => spriteMeshData.AddVertex(v, new BoneWeight()));
-            spriteMeshData.edges.AddRange(edgesList);
-            spriteMeshData.indices.AddRange(indicesList);
+            for (var i = 0; i < testVertices.Length; ++i)
+                spriteMeshData.AddVertex(testVertices[i], new BoneWeight());
+
+            var convertedEdges = new Vector2Int[edges.Length];
+            Array.Copy(edges, convertedEdges, edges.Length);
+            spriteMeshData.edges = convertedEdges;
+            spriteMeshData.indices = indices;
         }
 
-        private Vector2[] SampleBones(Vector2[] points, Edge[] edges, int numSamples)
+        static float2[] SampleBones(in float2[] points, in int2[] edges, int numSamples)
         {
             Debug.Assert(numSamples > 0);
 
-            var sampledEdges = new List<Vector2>();
-
+            var sampledEdges = new List<float2>(edges.Length * numSamples);
             for (var i = 0; i < edges.Length; i++)
             {
                 var edge = edges[i];
-                var tip = points[edge.index1];
-                var tail = points[edge.index2];
-                var length = (tip - tail).magnitude;
+                var tip = points[edge.x];
+                var tail = points[edge.y];
 
                 for (var s = 0; s < numSamples; s++)
                 {
