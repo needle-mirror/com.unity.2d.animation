@@ -25,6 +25,7 @@ namespace UnityEditor.U2D.Animation
         private ModuleToolGroup m_ModuleToolGroup;
         IMeshPreviewBehaviour m_MeshPreviewBehaviourOverride = null;
         bool m_CollapseToolbar;
+        bool m_HasUnsavedChanges = false;
         Texture2D m_WorkspaceBackgroundTexture;
 
         internal SkinningCache skinningCache
@@ -73,6 +74,7 @@ namespace UnityEditor.U2D.Animation
                 m_SpriteOutlineRenderer = new SpriteOutlineRenderer(skinningCache.events);
 
                 spriteEditor.enableMouseMoveEvent = true;
+                EditorApplication.playModeStateChanged += PlayModeStateChanged;
 
                 Undo.undoRedoPerformed += UndoRedoPerformed;
                 skinningCache.events.skeletonTopologyChanged.AddListener(SkeletonTopologyChanged);
@@ -130,6 +132,7 @@ namespace UnityEditor.U2D.Animation
                 m_SpriteOutlineRenderer.Dispose();
 
             spriteEditor.enableMouseMoveEvent = false;
+            EditorApplication.playModeStateChanged -= PlayModeStateChanged;
 
             Undo.undoRedoPerformed -= UndoRedoPerformed;
             skinningCache.events.skeletonTopologyChanged.RemoveListener(SkeletonTopologyChanged);
@@ -148,9 +151,18 @@ namespace UnityEditor.U2D.Animation
             RestoreSpriteEditor();
             m_Analytics.Dispose();
             m_Analytics = null;
-
+            
             Cache.Destroy(m_SkinningCache);
         }
+        
+        void PlayModeStateChanged(PlayModeStateChange newState)
+        {
+            if (newState == PlayModeStateChange.ExitingEditMode && m_HasUnsavedChanges)
+            {
+                var shouldApply = EditorUtility.DisplayDialog(TextContent.savePopupTitle, TextContent.savePopupMessage, TextContent.savePopupOptionYes, TextContent.savePopupOptionNo);
+                spriteEditor.ApplyOrRevertModification(shouldApply);
+            }
+        }        
 
         private void UpdateCollapseToolbar()
         {
@@ -208,9 +220,10 @@ namespace UnityEditor.U2D.Animation
             DataModified();
         }
         
-        private void DataModified()
+        void DataModified()
         {
             spriteEditor.SetDataModified();
+            m_HasUnsavedChanges = true;
         }
 
         private void OnViewModeChanged(SkinningMode mode)
@@ -469,10 +482,12 @@ namespace UnityEditor.U2D.Animation
             }
             else
                 skinningCache.Revert();
+
+            m_HasUnsavedChanges = false;
             return true;
         }
 
-        static internal void ApplyChanges(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
+        internal static void ApplyChanges(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
         {
             skinningCache.applyingChanges = true;
             skinningCache.RestoreBindPose();
@@ -530,7 +545,9 @@ namespace UnityEditor.U2D.Animation
 
                     meshDataProvider.SetVertices(guid, vertices);
                     meshDataProvider.SetIndices(guid, mesh.indices);
-                    meshDataProvider.SetEdges(guid, mesh.edges.Select(edge => edge).ToArray());
+
+                    var edgeVectArr = EditorUtilities.ToVector2Int(mesh.edges);
+                    meshDataProvider.SetEdges(guid, edgeVectArr);
                 }
             }
         }

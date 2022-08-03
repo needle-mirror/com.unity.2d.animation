@@ -524,8 +524,9 @@ namespace UnityEditor.U2D.Animation
                     meshTool.mesh.vertices[i] = position;
                 }
             }
-            meshTool.mesh.indices = copySpriteData.indices;
-            meshTool.mesh.edges = copySpriteData.edges;
+            
+            meshTool.mesh.SetIndices(copySpriteData.indices);
+            meshTool.mesh.SetEdges(copySpriteData.edges);
 
             var boneIndices = new int[copySpriteData.boneWeightGuids.Count];
             BoneCache[] newBones = null;

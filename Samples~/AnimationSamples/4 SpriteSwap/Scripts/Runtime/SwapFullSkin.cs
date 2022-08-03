@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
+
+#if UGUI_ENABLED
 using UnityEngine.UI;
+#endif
 
 namespace Unity.U2D.Animation.Sample
 {
@@ -9,7 +12,10 @@ namespace Unity.U2D.Animation.Sample
     {
         public SpriteLibraryAsset[] spriteLibraries;
         public SpriteLibrary spriteLibraryTarget;
+        
+#if UGUI_ENABLED        
         public Dropdown dropDownSelection;
+#endif
 
         // Start is called before the first frame update
         void Start()
@@ -24,6 +30,7 @@ namespace Unity.U2D.Animation.Sample
 
         internal void UpdateSelectionChoice()
         {
+#if UGUI_ENABLED            
             dropDownSelection.ClearOptions();
             var options = new List<Dropdown.OptionData>(spriteLibraries.Length);
             for (int i = 0; i < spriteLibraries.Length; ++i)
@@ -32,6 +39,7 @@ namespace Unity.U2D.Animation.Sample
             }
             dropDownSelection.options = options;
             dropDownSelection.onValueChanged.AddListener(OnDropDownValueChanged);
+#endif
         }
     }
 

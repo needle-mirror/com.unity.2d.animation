@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.U2D.Animation;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -16,70 +19,49 @@ namespace UnityEditor.U2D.Animation
         public float length;
     }
 
-    internal interface ISpriteMeshData
-    {
-        Rect frame { get; }
-        Vector2[] vertices { get; }
-        EditableBoneWeight[] vertexWeights { get; }
-        int[] indices { get; set; }
-        Vector2Int[] edges { get; set; }
-        int vertexCount { get; }
-        int boneCount { get; }
-        string spriteName { get; }
-        void SetVertices(Vector2[] newVertices, EditableBoneWeight[] newWeights);
-        void AddVertex(Vector2 position, BoneWeight weight);
-        void RemoveVertex(int index);
-        SpriteBoneData GetBoneData(int index);
-        float GetBoneDepth(int index);
-        void Clear();
-    }
-
     [Serializable]
-    internal class SpriteMeshData : ISpriteMeshData
+    internal abstract class BaseSpriteMeshData
     {
-        [SerializeField]
-        List<SpriteBoneData> m_Bones = new List<SpriteBoneData>();
-        [SerializeField]
-        Rect m_Frame;
         [SerializeField] 
         Vector2[] m_Vertices = new Vector2[0];
         [SerializeField] 
         EditableBoneWeight[] m_VertexWeights = new EditableBoneWeight[0];
         [SerializeField] 
         int[] m_Indices = new int[0];
-        [SerializeField] 
-        Vector2Int[] m_Edges = new Vector2Int[0];
-
-        public Rect frame
-        {
-            get => m_Frame;
-            set => m_Frame = value;
-        }
-
+        [SerializeField]
+        int2[] m_Edges = new int2[0];
+        [SerializeField]
+        int2[] m_OutlineEdges = new int2[0];
+        
+        public abstract Rect frame { get; }
+        
         public Vector2[] vertices => m_Vertices;
         public EditableBoneWeight[] vertexWeights => m_VertexWeights;
+        
+        public int[] indices => m_Indices;
 
-        public int[] indices
-        {
-            get => m_Indices;
-            set => m_Indices = value;
-        }
+        public int2[] edges => m_Edges;
+        public int2[] outlineEdges => m_OutlineEdges;
 
-        public Vector2Int[] edges
-        {
-            get => m_Edges;
-            set => m_Edges = value;
-        }
-
-        public List<SpriteBoneData> bones
-        {
-            get => m_Bones;
-            set => m_Bones = value;
-        }
-
-        public string spriteName => "";
         public int vertexCount => m_Vertices.Length;
-        public int boneCount => m_Bones.Count;
+        public virtual int boneCount => 0;
+        public virtual string spriteName => "";
+
+        public void SetIndices(int[] newIndices)
+        {
+            m_Indices = newIndices;
+            UpdateOutlineEdges();
+        }
+
+        void UpdateOutlineEdges()
+        {
+            m_OutlineEdges = MeshUtilities.GetOutlineEdges(m_Indices);
+        }
+        
+        public void SetEdges(int2[] newEdges)
+        {
+            m_Edges = newEdges;
+        }
 
         public void SetVertices(Vector2[] newVertices, EditableBoneWeight[] newWeights)
         {
@@ -109,22 +91,51 @@ namespace UnityEditor.U2D.Animation
             m_VertexWeights = listOfWeights.ToArray();
         }
 
-        public SpriteBoneData GetBoneData(int index)
-        {
-            return m_Bones[index];
-        }
+        public abstract SpriteBoneData GetBoneData(int index);
 
-        public float GetBoneDepth(int index)
-        {
-            return m_Bones[index].depth;
-        }
+        public abstract float GetBoneDepth(int index);
 
         public void Clear()
         {
             m_Indices = new int[0];
             m_Vertices = new Vector2[0];
             m_VertexWeights = new EditableBoneWeight[0];
-            m_Edges = new Vector2Int[0];
+            m_Edges = new int2[0];
+            m_OutlineEdges = new int2[0];
+        }
+    }
+
+    [Serializable]
+    internal class SpriteMeshData : BaseSpriteMeshData
+    {
+        [SerializeField]
+        List<SpriteBoneData> m_Bones = new List<SpriteBoneData>();
+        
+        [SerializeField]
+        Rect m_Frame;
+
+        public override Rect frame => m_Frame;
+        public override int boneCount => m_Bones.Count;
+
+        public List<SpriteBoneData> bones
+        {
+            get => m_Bones;
+            set => m_Bones = value;
+        }
+
+        public override SpriteBoneData GetBoneData(int index)
+        {
+            return m_Bones[index];
+        }
+
+        public override float GetBoneDepth(int index)
+        {
+            return m_Bones[index].depth;
+        }
+
+        public void SetFrame(Rect newFrame)
+        {
+            m_Frame = newFrame;
         }
     }
 }

@@ -16,10 +16,7 @@ namespace UnityEngine.U2D.IK
         /// <summary>
         /// Menu path.
         /// </summary>
-        public string menuPath
-        {
-            get { return m_MenuPath; }
-        }
+        public string menuPath => m_MenuPath;
 
         /// <summary>
         /// Constructor

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
@@ -10,11 +9,12 @@ namespace UnityEditor.U2D.Animation
             var cacheObject = CreateInstance<T>();
             cacheObject.hideFlags = HideFlags.HideAndDontSave;
             cacheObject.owner = owner;
+            cacheObject.name = cacheObject.GetType().ToString();
             return cacheObject;
         }
 
         [SerializeField]
-        private Cache m_Owner;
+        Cache m_Owner;
 
         public Cache owner
         {

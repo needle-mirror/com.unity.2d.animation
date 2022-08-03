@@ -12,21 +12,22 @@ namespace UnityEngine.U2D.IK
     public sealed class LimbSolver2D : Solver2D
     {
         [SerializeField]
-        private IKChain2D m_Chain = new IKChain2D();
+        IKChain2D m_Chain = new IKChain2D();
 
         [SerializeField]
-        private bool m_Flip;
-        private Vector3[] m_Positions = new Vector3[3];
-        private float[] m_Lengths = new float[2];
-        private float[] m_Angles = new float[2];
+        bool m_Flip;
+
+        Vector3[] m_Positions = new Vector3[3];
+        float[] m_Lengths = new float[2];
+        float[] m_Angles = new float[2];
 
         /// <summary>
         /// Get Set for flip property.
         /// </summary>
         public bool flip
         {
-            get { return m_Flip; }
-            set { m_Flip = value; }
+            get => m_Flip;
+            set => m_Flip = value;
         }
 
         /// <summary>
@@ -42,20 +43,14 @@ namespace UnityEngine.U2D.IK
         /// Override base class GetChainCount.
         /// </summary>
         /// <returns>Always returns 1.</returns>
-        protected override int GetChainCount()
-        {
-            return 1;
-        }
+        protected override int GetChainCount() => 1;
 
         /// <summary>
         /// Override base class GetChain.
         /// </summary>
         /// <param name="index">Index to query.</param>
         /// <returns>Returns IKChain2D for the Solver.</returns>
-        public override IKChain2D GetChain(int index)
-        {
-            return m_Chain;
-        }
+        public override IKChain2D GetChain(int index) => m_Chain;
 
         /// <summary>
         /// Override base class DoPrepare.
@@ -71,18 +66,18 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// OVerride base class DoUpdateIK.
+        /// Override base class DoUpdateIK.
         /// </summary>
         /// <param name="effectorPositions">List of effector positions.</param>
         protected override void DoUpdateIK(List<Vector3> effectorPositions)
         {
-            Vector3 effectorPosition = effectorPositions[0];
-            Vector2 effectorLocalPosition2D = m_Chain.transforms[0].InverseTransformPoint(effectorPosition);
+            var effectorPosition = effectorPositions[0];
+            var effectorLocalPosition2D = m_Chain.transforms[0].InverseTransformPoint(effectorPosition);
             effectorPosition = m_Chain.transforms[0].TransformPoint(effectorLocalPosition2D);
 
             if (effectorLocalPosition2D.sqrMagnitude > 0f && Limb.Solve(effectorPosition, m_Lengths, m_Positions, ref m_Angles))
             {
-                float flipSign = flip ? -1f : 1f;
+                var flipSign = flip ? -1f : 1f;
                 m_Chain.transforms[0].localRotation *= Quaternion.FromToRotation(Vector3.right, effectorLocalPosition2D) * Quaternion.FromToRotation(m_Chain.transforms[1].localPosition, Vector3.right);
                 m_Chain.transforms[0].localRotation *= Quaternion.AngleAxis(flipSign * m_Angles[0], Vector3.forward);
                 m_Chain.transforms[1].localRotation *= Quaternion.FromToRotation(Vector3.right, m_Chain.transforms[1].InverseTransformPoint(effectorPosition)) * Quaternion.FromToRotation(m_Chain.transforms[2].localPosition, Vector3.right);

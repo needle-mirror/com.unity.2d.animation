@@ -5,7 +5,7 @@ namespace UnityEditor.U2D.Animation
     internal class CircleVertexSelector : ICircleSelector<int>
     {
         public ISelection<int> selection { get; set; }
-        public ISpriteMeshData spriteMeshData { get; set; }
+        public BaseSpriteMeshData spriteMeshData { get; set; }
         public Vector2 position { get; set; }
         public float radius { get; set; }
 

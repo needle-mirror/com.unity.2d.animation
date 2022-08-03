@@ -75,7 +75,7 @@ namespace UnityEditor.U2D.Animation
             set => m_Sprite = value;
         }
 
-        public BoneCache[] bones
+        public virtual BoneCache[] bones
         {
             get => m_Bones.ToArray();
             set => m_Bones = new List<BoneCache>(value);

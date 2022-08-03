@@ -1,23 +1,41 @@
-# Sprite Swapping
-__Sprite Swap__ is a feature that enables you to change a GameObject’s rendered Sprite at runtime. This has a number of uses, such as easily creating multiple characters which [share a skeleton](ex-skeleton-sharing.md) (requires the [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest)) or [reuse existing bone and Mesh data](SkinEdToolsShortcuts.md#copy-and-paste-behavior) while looking visually different.
+# Introduction to Sprite Swap
+This page introduces what's Sprite Swap, its different uses and its limitations. **Sprite Swap** refers to changing the rendered Sprite of a GameObject at runtime, which is useful when animating the Sprites that make up a 2D actor or other GameObjects.
 
-The 2D Animation package comes with several Sample projects of different ways you can use Sprite Swap to achieve different effects and features, refer to the [Sample documentation here](ex-sprite-swap.md) for more information about these examples.
+For example, you can [swap the individual Sprites](ex-sprite-swap.md#part-swap) that make up an animated actor to create multiple actors that [share the same skeleton](ex-skeleton-sharing.md) (requires the [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest); or [create animation clips](ex-sprite-swap.md#animated-swap) by swapping the Sprites at runtime.
 
-## Sprite Swap Assets and components
-Sprite Swap requires the following Assets and components, which are all included with the 2D Animation package:
+You can import [sample projects](Examples.md) for the 2D Animation package by selecting the option in the 2D Animation package window. Refer to the individual [Sprite Swap examples](ex-sprite-swap.md) pages for more information about these samples.
 
-- The [Sprite Library Asset](SLAsset.md) that contains a set of selected Sprites which are assigned to different [Categories](SLAsset.md#category) and [Entries or Labels](SLAsset.md#entry).
+## Required assets and components
 
-- Attach the [Sprite Library component](SLAsset.html#sprite-library-component) to a GameObject to assign or change which __Sprite Library Asset__ the GameObject refers to.
+Sprite Swap requires the following Assets and component, which are available with the 2D Animation package:
 
-- The [Sprite Resolver component](SLAsset.html#sprite-resolver-component) is used to request a Sprite registered to the Sprite Library Asset by referring to the __Category__ and __Label__ value of the desired Sprite.
+* [Sprite Library Asset](SL-Asset.md):  The Sprite Library Asset contains a set of selected Sprites which are assigned to different [Categories](SL-Editor.md#categories) and [Labels](SL-Editor.md#labels).
+<br/>
 
-## Skeletal animation limitations
-To ensure Sprite Swap works correctly with skeletal animation, the skeleton must be identical between the Sprites being swapped. Use the [Copy and Paste tools](SkinEdToolsShortcuts.md#copy-and-paste-behavior) to duplicate the bone and skeleton data from one Sprite to another to ensure they can be swapped correctly.
+* [Sprite Library component](SL-component.md): The Sprite Library component determines which Sprite Library Asset a GameObject refers to.
+<br/>
 
-## Animator limitations
-In a single [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html), you cannot have one [Animation Clip](https://docs.unity3d.com/Manual/AnimationClips.html) animating the [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) assigned Sprite while another [Animation Clip](https://docs.unity3d.com/Manual/AnimationClips.html) animates the [Sprite Resolver’s](SLAsset.html#sprite-resolver-component) Sprite Hash. If these two clips are in the same [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html), they will conflict with each other causing unwanted playback results.
+* [Sprite Resolver component](SL-Resolver.md): The Sprite Resolver component requests a Sprite registered to the Sprite Library Asset by referring to the **Category** and **Label** value of the desired Sprite.
 
-To resolve this issue, we advise the following solutions. The first solution is to separate the [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) into separate [Animator Controllers](https://docs.unity3d.com/Manual/AnimatorControllers.html) that contain only clips that animate either a [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) Sprite or the [Sprite Resolver’s](SLAsset.html#sprite-resolver-component) Sprite Hash; but not both types in the same [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html).
+## Technical limitations
 
-The second solution is to update all [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) to the same type so that they can all remain in a single [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html), by converting all clips animating a [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) Sprite to animating a [Sprite Resolver’s](SLAsset.html#sprite-resolver-component) Sprite Hash, or vice versa.
+The following are technical limitations which you should keep in mind when using Sprite Swap.
+
+### Skeletal animation limitations
+
+If you want to [animate your actor](Animating-actor.md) and use Sprite Swap with skeletal animation, both sprites that are swapped must have an identical skeleton. Use the [Copy and Paste tools of the Skinning Editor](SkinEdToolsShortcuts.md#copy-and-paste-behavior) to duplicate the bone and skeleton data from one sprite to another to ensure they will swap correctly.
+
+### Animator limitations
+In a single [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html), you can't have one [Animation Clip](https://docs.unity3d.com/Manual/AnimationClips.html) animating the [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) assigned sprite while another [Animation Clip](https://docs.unity3d.com/Manual/AnimationClips.html) animates the [Sprite Resolver’s](SLAsset.html#sprite-resolver-component) sprite hash. If these two clips are in the same [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html), they will conflict with each other and cause unwanted playback results.
+
+Use the following recommended methods to resolve this issue. 
+
+1. The first method is to separate the [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) into separate [Animator Controllers](https://docs.unity3d.com/Manual/AnimatorControllers.html) that contain only clips that animate either a [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) sprite or the [Sprite Resolver’s](SLAsset.html#sprite-resolver-component) sprite hash but not both types in the same [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html).
+<br/>
+
+2. The second method is to update all [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) to the same type so that they can all remain in a single [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html). To do so, convert all clips animating a [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) sprite to animating a [Sprite Resolver’s](SLAsset.html#sprite-resolver-component) sprite hash, or vice versa.
+
+## Additional resources
+- [Animation](https://docs.unity3d.com/Manual/AnimationSection.html)
+- [Skinning Editor](SkinningEditor.md)
+- [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest)

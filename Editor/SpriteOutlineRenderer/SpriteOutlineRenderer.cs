@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEditor.U2D.Sprites;
 using UnityEngine;
 
@@ -83,7 +84,7 @@ namespace UnityEditor.U2D.Animation
             UnityEngine.Profiling.Profiler.EndSample();
         }
 
-        void DrawEdgeOutline(Vector2Int[] edges, Vector3[] vertices, Matrix4x4 multMatrix, float outlineSize, Color outlineColor, float adjustForGamma)
+        void DrawEdgeOutline(int2[] edges, Vector3[] vertices, Matrix4x4 multMatrix, float outlineSize, Color outlineColor, float adjustForGamma)
         {
             m_EdgeOutlineMaterial.SetColor(k_OutlineColorProperty, outlineColor);
             m_EdgeOutlineMaterial.SetFloat(k_AdjustLinearForGammaProperty, adjustForGamma);

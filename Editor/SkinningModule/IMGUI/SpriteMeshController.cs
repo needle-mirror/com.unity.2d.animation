@@ -1,4 +1,5 @@
 using System;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
@@ -19,17 +20,13 @@ namespace UnityEditor.U2D.Animation
         EdgeIntersectionResult m_EdgeIntersectionResult;
 
         public ISpriteMeshView spriteMeshView { get; set; }
-        public ISpriteMeshData spriteMeshData { get; set; }
+        public BaseSpriteMeshData spriteMeshData { get; set; }
         public ISelection<int> selection { get; set; }
         public ICacheUndo cacheUndo { get; set; }
         public ITriangulator triangulator { get; set; }
 
         public bool disable { get; set; }
         public Rect frame { get; set; }
-
-        bool m_Moved;
-
-        Vector2[] m_MovedVerticesCache;
 
         public void OnGUI()
         {
@@ -79,18 +76,16 @@ namespace UnityEditor.U2D.Animation
             EditorGUI.EndDisabledGroup();
 
             HandleSelectVertex();
-
-            EditorGUI.BeginDisabledGroup(disable);
-
-            HandleMoveVertex();
-
-            EditorGUI.EndDisabledGroup();
-
             HandleSelectEdge();
 
             EditorGUI.BeginDisabledGroup(disable);
 
-            HandleMoveEdge();
+            HandleMoveVertexAndEdge();
+
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUI.BeginDisabledGroup(disable);
+
             HandleRemoveVertices();
 
             spriteMeshView.DoRepaint();
@@ -266,26 +261,25 @@ namespace UnityEditor.U2D.Animation
                 SelectEdge(spriteMeshView.hoveredEdge, additive);
         }
 
-        void HandleMoveVertex()
+        void HandleMoveVertexAndEdge()
         {
-            if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveVertex))
-                m_Moved = false;
-
-            if (spriteMeshView.DoMoveVertex(out var deltaPosition))
+            if (selection.Count == 0)
+                return;
+            
+            if (spriteMeshView.DoMoveVertex(out var finalDeltaPos) || spriteMeshView.DoMoveEdge(out finalDeltaPos))
             {
-                deltaPosition = MathUtility.MoveRectInsideFrame(CalculateRectFromSelection(), frame, deltaPosition);
-                CacheMovedVertices(deltaPosition);
+                var selectionArray = selection.elements;
 
-                if (IsMovedSelectionIntersectingWithEdges())
+                finalDeltaPos = MathUtility.MoveRectInsideFrame(CalculateRectFromSelection(), frame, finalDeltaPos);
+                var movedVertexSelection = GetMovedVertexSelection(in selectionArray, spriteMeshData.vertices, finalDeltaPos);
+
+                if (IsMovedEdgeIntersectingWithOtherEdge(in selectionArray, in movedVertexSelection, spriteMeshData.edges, spriteMeshData.vertices))
+                    return;
+                if (IsMovedVertexIntersectingWithOutline(in selectionArray, in movedVertexSelection, spriteMeshData.outlineEdges, spriteMeshData.vertices))
                     return;
 
-                if (!m_Moved)
-                {
-                    cacheUndo.BeginUndoOperation(TextContent.moveVertices);
-                    m_Moved = true;
-                }
-
-                MoveSelectedVertices();
+                cacheUndo.BeginUndoOperation(TextContent.moveVertices);
+                MoveSelectedVertices(in movedVertexSelection);
             }
         }
 
@@ -332,29 +326,6 @@ namespace UnityEditor.U2D.Animation
                         CreateEdge(selection.activeElement, spriteMeshData.vertexCount - 1);
                     }
                 }
-            }
-        }
-
-        void HandleMoveEdge()
-        {
-            if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveEdge))
-                m_Moved = false;
-
-            if (spriteMeshView.DoMoveEdge(out var deltaPosition))
-            {
-                deltaPosition = MathUtility.MoveRectInsideFrame(CalculateRectFromSelection(), frame, deltaPosition);
-                CacheMovedVertices(deltaPosition);
-
-                if (IsMovedSelectionIntersectingWithEdges())
-                    return;
-
-                if (!m_Moved)
-                {
-                    cacheUndo.BeginUndoOperation(TextContent.moveVertices);
-                    m_Moved = true;
-                }
-
-                MoveSelectedVertices();
             }
         }
 
@@ -498,11 +469,14 @@ namespace UnityEditor.U2D.Animation
             selection.Clear();
         }
 
-        void MoveSelectedVertices()
+        void MoveSelectedVertices(in Vector2[] movedVertices)
         {
-            foreach (var index in selection.elements)
-                spriteMeshData.vertices[index] = m_MovedVerticesCache[index];
-
+            for (var i = 0; i < selection.Count; ++i)
+            {
+                var index = selection.elements[i];
+                spriteMeshData.vertices[index] = movedVertices[i];
+            }
+            
             Triangulate();
         }
 
@@ -537,7 +511,7 @@ namespace UnityEditor.U2D.Animation
             var index1 = indices[0];
             var index2 = indices[1];
 
-            var edge = new Vector2Int(index1, index2);
+            var edge = new int2(index1, index2);
             return spriteMeshData.edges.ContainsAny(edge);
         }
 
@@ -707,52 +681,91 @@ namespace UnityEditor.U2D.Animation
         }
 
 
-        void CacheMovedVertices(Vector2 deltaPosition)
+        static Vector2[] GetMovedVertexSelection(in int[] selection, in Vector2[] vertices, Vector2 deltaPosition)
         {
-            var vertexCount = spriteMeshData.vertexCount;
-            if (m_MovedVerticesCache == null || m_MovedVerticesCache.Length != vertexCount)
-                m_MovedVerticesCache = new Vector2[vertexCount];
-
-            for (var v = 0; v < vertexCount; v++)
+            var movedVertices = new Vector2[selection.Length];
+            for (var i = 0; i < selection.Length; i++)
             {
-                var vPos = spriteMeshData.vertices[v];
-                if (selection.Contains(v))
-                    vPos += deltaPosition;
-                m_MovedVerticesCache[v] = vPos;
+                var index = selection[i];
+                movedVertices[i] = vertices[index] + deltaPosition;
             }
+            return movedVertices;
         }
 
-        bool IsMovedSelectionIntersectingWithEdges()
+        static bool IsMovedEdgeIntersectingWithOtherEdge(in int[] selection, in Vector2[] movedVertices, in int2[] meshEdges, in Vector2[] meshVertices)
         {
-            var edges = spriteMeshData.edges;
-            var edgeCount = edges.Length;
+            var edgeCount = meshEdges.Length;
             var edgeIntersectionPoint = Vector2.zero;
 
-            for (var e = 0; e < edges.Length; e++)
+            for (var i = 0; i < edgeCount; i++)
             {
-                var edgeInSelection = edges[e];
-                var edgeIndex1 = edgeInSelection.x;
-                var edgeIndex2 = edgeInSelection.y;
-                if (!(selection.Contains(edgeIndex1) || selection.Contains(edgeIndex2)))
+                var selectionIndex = FindSelectionIndexFromEdge(selection, meshEdges[i]);
+                if (selectionIndex.x == -1 && selectionIndex.y == -1)
                     continue;
 
-                var edgeStart = m_MovedVerticesCache[edgeIndex1];
-                var edgeEnd = m_MovedVerticesCache[edgeIndex2];
+                var edgeStart = selectionIndex.x != -1 ? movedVertices[selectionIndex.x] : meshVertices[meshEdges[i].x];
+                var edgeEnd = selectionIndex.y != -1 ? movedVertices[selectionIndex.y] : meshVertices[meshEdges[i].y];
 
                 for (var o = 0; o < edgeCount; o++)
                 {
-                    if (o == e)
+                    if (o == i)
                         continue;
 
-                    var otherEdge = edges[o];
-                    var otherIndex1 = otherEdge.x;
-                    var otherIndex2 = otherEdge.y;
+                    if (meshEdges[i].x == meshEdges[o].x || meshEdges[i].y == meshEdges[o].x || 
+                        meshEdges[i].x == meshEdges[o].y || meshEdges[i].y == meshEdges[o].y)
+                        continue;
+
+                    var otherSelectionIndex = FindSelectionIndexFromEdge(in selection, meshEdges[o]);
+                    var otherEdgeStart = otherSelectionIndex.x != -1 ? movedVertices[otherSelectionIndex.x] : meshVertices[meshEdges[o].x];
+                    var otherEdgeEnd = otherSelectionIndex.y != -1 ? movedVertices[otherSelectionIndex.y] : meshVertices[meshEdges[o].y];
                     
-                    if (edgeInSelection.x == otherIndex1 || edgeInSelection.y == otherIndex1 ||
-                        edgeInSelection.x == otherIndex2 || edgeInSelection.y == otherIndex2)
-                        continue;
+                    if (MathUtility.SegmentIntersection(edgeStart, edgeEnd, otherEdgeStart, otherEdgeEnd, ref edgeIntersectionPoint))
+                        return true;
+                }
+            }
 
-                    if (MathUtility.SegmentIntersection(edgeStart, edgeEnd, m_MovedVerticesCache[otherIndex1], m_MovedVerticesCache[otherIndex2], ref edgeIntersectionPoint))
+            return false;
+        }
+
+        static int2 FindSelectionIndexFromEdge(in int[] selection, int2 edge)
+        {
+            var selectionIndex = new int2(-1, -1);
+            for (var m = 0; m < selection.Length; ++m)
+            {
+                if (selection[m] == edge.x)
+                {
+                    selectionIndex.x = m;
+                    break;
+                }
+                if (selection[m] == edge.y)
+                {
+                    selectionIndex.y = m;
+                    break;
+                }
+            }
+
+            return selectionIndex;
+        }
+
+        static bool IsMovedVertexIntersectingWithOutline(in int[] selection, in Vector2[] movedVertices, in int2[] outlineEdges, in Vector2[] meshVertices)
+        {
+            var edgeIntersectionPoint = Vector2.zero;
+            
+            for (var i = 0; i < selection.Length; ++i)
+            {
+                var edgeStart = meshVertices[selection[i]];
+                var edgeEnd = movedVertices[i];
+                
+                for (var m = 0; m < outlineEdges.Length; ++m)
+                {
+                    if (selection[i] == outlineEdges[m].x || selection[i] == outlineEdges[m].y)
+                        continue;
+                    
+                    var otherSelectionIndex = FindSelectionIndexFromEdge(in selection, outlineEdges[m]);
+                    var otherEdgeStart = otherSelectionIndex.x != -1 ? movedVertices[otherSelectionIndex.x] : meshVertices[outlineEdges[m].x];
+                    var otherEdgeEnd = otherSelectionIndex.y != -1 ? movedVertices[otherSelectionIndex.y] : meshVertices[outlineEdges[m].y];
+                    
+                    if (MathUtility.SegmentIntersection(edgeStart, edgeEnd, otherEdgeStart, otherEdgeEnd, ref edgeIntersectionPoint))
                         return true;
                 }
             }

@@ -66,7 +66,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         void InitializeWindow()
         {
             titleContent = new GUIContent(k_WindowTitle, EditorIconUtility.LoadIconResource("Animation.SpriteLibraryManager", "ComponentIcons", "ComponentIcons"));
-            saveChangesMessage = TextContent.spriteLibrarySaveMessage;
+            saveChangesMessage = TextContent.savePopupMessage;
 
             m_ControllerEvents = new ControllerEvents();
             m_ViewEvents = new ViewEvents();
@@ -153,10 +153,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         public void HandleUnsavedChanges()
         {
             if (EditorUtility.DisplayDialog(
-                TextContent.spriteLibrarySaveTitle,
-                TextContent.spriteLibrarySaveMessage,
-                TextContent.spriteLibrarySaveYes,
-                TextContent.spriteLibrarySaveNo))
+                TextContent.savePopupTitle,
+                TextContent.savePopupMessage,
+                TextContent.savePopupOptionYes,
+                TextContent.savePopupOptionNo))
                 SaveChanges();
             else
                 DiscardChanges();
@@ -165,10 +165,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         public void HandleRevertChanges()
         {
             if (EditorUtility.DisplayDialog(
-                TextContent.spriteLibrarySaveTitle,
+                TextContent.savePopupTitle,
                 TextContent.spriteLibraryRevertMessage,
-                TextContent.spriteLibrarySaveYes,
-                TextContent.spriteLibrarySaveNo))
+                TextContent.savePopupOptionYes,
+                TextContent.savePopupOptionNo))
                 m_Controller.RevertChanges();
         }
 

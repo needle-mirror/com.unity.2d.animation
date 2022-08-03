@@ -1,5 +1,16 @@
 # Changelog
 
+## [9.0.0] - 2022-08-03
+### Added
+- Added bone weight index validation in SpriteSkin's validate method, to ensure valid data before continuing with deformation.
+
+### Fixed
+- Fixed a case where moving vertices forcefully in the Skinning editor could cause a quad reset of the mesh. (case DANB-7)
+- Fixed a case where multi selecting Sprite Skins would cause a null reference exception to be thrown. (case DANB-126)
+
+### Changed
+- Refactored internal triangulation and tessellation APIs.
+
 ## [9.0.0-pre.3] - 2022-05-31
 ### Changed
 - Update dependency package version.
@@ -14,6 +25,7 @@
 
 ### Changed
 - Added ability to create Sprite Library Asset variant from the create menu.
+- Added dialog box to the Skinning Editor when entering Play Mode to allow saving unsaved changes.
 
 ## [9.0.0-pre.1] - 2022-03-21
 ### Added

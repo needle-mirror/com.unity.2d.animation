@@ -88,11 +88,7 @@ namespace UnityEditor.U2D.Animation
         public static string spriteLabelColumnEmpty = L10n.Tr("To start creating labels drag and drop Sprites or Sprite Texture or select the '+' button.");
         public static string spriteCategoryMultiSelect = L10n.Tr("Multiple Categories selected.");
         public static string spriteCategoryNoSelection = L10n.Tr("No Categories selected.");
-        public static string spriteLibrarySaveTitle = L10n.Tr("Unsaved changes");
-        public static string spriteLibrarySaveMessage = L10n.Tr("There are some unsaved changes, would you like to save them?");
         public static string spriteLibraryRevertMessage = L10n.Tr("There are some unsaved changes, are you sure you want to revert them?");
-        public static string spriteLibrarySaveYes = L10n.Tr("Yes");
-        public static string spriteLibrarySaveNo = L10n.Tr("No");
         public static string spriteLibraryMainLibraryTooltip = L10n.Tr("This field is optional. By linking a Main Library, this Sprite Library becomes a Variant of the Main Library allowing it to reference all the Main Library’s Categories.");
         public static string spriteLibraryCategoriesTooltip = L10n.Tr("A container to organize the Labels. The Category must be unique from other Categories in the same Sprite Library or Sprite Library hierarchy.");
         public static string spriteLibraryLabelsTooltip = L10n.Tr("Label contains a Sprite reference. Name has to be unique.");
@@ -124,6 +120,10 @@ namespace UnityEditor.U2D.Animation
         public static string spriteLibraryCreateMessage = L10n.Tr("Create a new Sprite Library Asset");
 
         // Other
+        public static string savePopupTitle = L10n.Tr("Unsaved changes");
+        public static string savePopupMessage = L10n.Tr("There are some unsaved changes, would you like to save them?");
+        public static string savePopupOptionYes = L10n.Tr("Yes");
+        public static string savePopupOptionNo = L10n.Tr("No");
         public static string generatingOutline = L10n.Tr("Generating Outline");
         public static string triangulatingGeometry = L10n.Tr("Triangulating Geometry");
         public static string subdividingGeometry = L10n.Tr("Subdividing Geometry");

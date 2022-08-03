@@ -13,7 +13,7 @@ namespace UnityEditor.U2D.Animation
 
     internal class WeightEditor
     {
-        public ISpriteMeshData spriteMeshData
+        public BaseSpriteMeshData spriteMeshData
         {
             get => m_SpriteMeshDataController.spriteMeshData;
             set => m_SpriteMeshDataController.spriteMeshData = value;

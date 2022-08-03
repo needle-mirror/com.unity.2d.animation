@@ -145,6 +145,16 @@ namespace UnityEditor.U2D.Animation
             m_VertexSelection = new IndexedSelection();
         }
 
+        void OnEnable()
+        {
+            name = GetType().ToString();
+        }
+
+        void OnDisable()
+        {
+            Undo.ClearUndo(this);
+        }
+
         public void SetDefault()
         {
             m_LastUsedTool = Tools.EditPose;

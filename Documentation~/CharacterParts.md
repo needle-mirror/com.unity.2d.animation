@@ -5,7 +5,7 @@ In the following example, there are two Sprites that are variations of the actor
 
 ![](images/bothscarves.PNG)<br/>__Left:__ The original `green scarf` Sprite. __Right:__ An alternate `blue scarf` Sprite.
 
-1. Place the Sprites for both scarves into the same [Sprite Library Asset](SLAsset.md), and add them both to the same **Category** (named `Scarf`).
+1. Place the Sprites for both scarves into the same [Sprite Library Asset](SL-Asset.md), and add them both to the same **Category** (named `Scarf`).
 
 2. Give each of the Sprites a unique __Label__ name (in this case `green scarf` and `blue scarf` respectively).
 This and the previous step can be automated by dragging and dropping sprites into the Categories tab empty space.
@@ -13,7 +13,7 @@ This and the previous step can be automated by dragging and dropping sprites int
 
 3. In the Scene, select the [Instantiated Prefab](https://docs.unity3d.com/Manual/InstantiatingPrefabs.html) and then select the `Scarf` GameObject in the Hierarchy window.
 
-4. Go to the [Sprite Resolver component](SLAsset.md#sprite-resolver-component) of the `Scarf` GameObject. The Sprite Resolver‘s visual selector displays the two Sprites available in the `Scarf` Category.<br/>![](images/2d-anim-change-parts-select-green.png)
+4. Go to the [Sprite Resolver component](SL-Resolver.md) of the `Scarf` GameObject. The Sprite Resolver‘s visual selector displays the two Sprites available in the `Scarf` Category.<br/>![](images/2d-anim-change-parts-select-green.png)
 
 5. Select the `blue scarf` to switch the Sprite rendered by the `Scarf` GameObject to it instead.<br/>![](images/2d-anim-change-parts-select-blue.png)<br/>The Sprite Resolver's Label is set to `blue scarf`.
 

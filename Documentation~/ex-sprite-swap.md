@@ -13,13 +13,13 @@ The Scenes for the following samples can be all found in `Assets/Samples/2D Anim
 - [Runtime Swap](ex-runtime-swap.md)
 
 ## Animated Swap
-This sample demonstrates how to use Sprite Swap to create a reusable Animation Clip for animations that include both Sprite swapping and [deformation](SpriteSkin.md) of the Sprites. Note that the following example requires the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) to be installed.
+This sample demonstrates how to use Sprite Swap to create a reusable Animation Clip for animations that include both Sprite swapping and [deformation](SpriteSkin.md) of the Sprites. **Note:** Install the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) package to use this sample.
 
 Open the Scene file `1 Animated Swap.unity` to see the sample in action.
 
 ![](images/2D-animation-samples-spriteswap-animated1.png)<br/>Initial frame with the hands in thumbs-up position.
 
-This sample builds on the reusable Animation Clip example from the [Flipbook Animation Swap](#flipbook-animation-swap) sample. This sample uses two different source files located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`. The Assets used are:
+This sample uses two different source files located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`. The Assets used are:
 
 - `dialog.psb`
 - `dialog gray.psb`
@@ -28,7 +28,7 @@ These Assets are imported with the PSD Importer with its **Character Rig** prope
 
 ![](images/2D-animation-samples-spriteswap-animated2.png)<br/>Swapped to a frame with the hands open.
 
-Two Sprite Library Assets are created using the same steps demonstrated in the [Flipbook Animation Swap](#flipbook-animation-swap) sample. They are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 Sprite Swap/Sprite Library` and are:
+They are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 Sprite Swap/Sprite Library` and are:
 
 - `dialog.spriteLib`
    ![](images/2D-animation-samples-spriteswap-animated-spritelib1.png)
@@ -40,13 +40,13 @@ Follow the steps below to reconstruct the sample Scene:
 
 1. Drag both `dialog.psb` and `dialog gray.psb` Prefabs from the Project window into the Scene.
 
-2. Add the [Sprite Library component](SLAsset.md#sprite-library-component) to `dialog` GameObject, then assign the `dialog.spriteLib` Asset to its **Sprite Library Asset** property.
+2. Add the [Sprite Library component](SL-component.md) to `dialog` GameObject, then assign the `dialog.spriteLib` Asset to its **Sprite Library Asset** property.
 
-3. Add the [Sprite Library component](SLAsset.md#sprite-library-component) to `dialog gray` GameObject, then assign the `dialog gray.spriteLib` Asset to its **Sprite Library Asset** property.
+3. Add the [Sprite Library component](SL-component.md) to `dialog gray` GameObject, then assign the `dialog gray.spriteLib` Asset to its **Sprite Library Asset** property.
 
 4. Expand the `dialog` GameObject's hierarchy and disable the `R_arm_2` child GameObject. This Asset is not required as it is swapped in during the animation.
 
-5. Go to the `R_arm_1` GameObject, and add the [Sprite Resolver component](SLAsset.md#sprite-resolver-component). Select the `R_arm_2` graphic from the **Label** drop-down menu or from its thumbnail.<br/>![](images/2D-animation-samples-spriteswap-animated-spritelib3.png)
+5. Go to the `R_arm_1` GameObject, and add the [Sprite Resolver component](SL-Resolver.md). Select the `R_arm_2` graphic from the **Label** drop-down menu or from its thumbnail.<br/>![](images/2D-animation-samples-spriteswap-animated-spritelib3.png)
 
 6. Repeat steps 4 to 5 with the `dialog gray` GameObject.
 
@@ -65,7 +65,7 @@ In the Scene, each part has three different visual options that can be swapped. 
 - `Skeleton.psb`
 - `Witch.psb`
 
-A [Sprite Library Asset](SLAsset.md) containing Sprites made from all three graphic Assets above is created. A Category is created for each body part of the actor, with three Entries derived from the three different versions of the character. The Asset is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprite Library/Part Swap.spriteLib`.
+A [Sprite Library Asset](SL-Asset.md) containing Sprites made from all three graphic Assets above is created. A Category is created for each body part of the actor, with three Entries derived from the three different versions of the character. The Asset is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprite Library/Part Swap.spriteLib`.
 
 ![](images/2D-animation-samples-partswap-SLasset.png)Corresponding parts from each of the three versions of the actor, and named accordingly.
 
@@ -103,7 +103,7 @@ swapOption.spriteResolver.SetCategoryAndLabel(swapOption.category, swapOption.dr
 ```
 
 ## Full Skin Swap
-This sample demonstrates how to swap Sprite visuals using the provided API by changing the [Sprite Library Asset](SLAsset.md) referenced by the Sprite Library component. Open the `3 Full Swap.unity` Scene to see the sample in action.
+This sample demonstrates how to swap Sprite visuals using the provided API by changing the [Sprite Library Asset](SL-Asset.md) referenced by the Sprite Library component. Open the `3 Full Swap.unity` Scene to see the sample in action.
 
 ![](images/2D-animation-samples-fullswap-scene.png)
 
