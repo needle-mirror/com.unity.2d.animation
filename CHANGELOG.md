@@ -1,4 +1,12 @@
 # Changelog
+## [5.2.4] - 2022-08-26
+### Fixed
+- Fixed a case where multi selecting Sprite Skins would cause a null reference exception to be thrown. (case DANB-126)
+- Fixed an issue where selecting bones in the Skinning Editor after removing any bone in the skeleton will throw an exception. (case DANB-192)
+- Fixed a case where setting IKManager2D's or Solver2D's weight to '0' doesn't update solver's effector position. (case DANB-193)
+
+### Added
+- Added bone weight index validation in SpriteSkin's validate method, to ensure valid data before continuing with deformation.
 
 ## [5.2.3] - 2022-06-23
 ### Fixed

@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "5.2.3",
+  "version": "5.2.4",
   "unity": "2020.3",
   "unityRelease": "26f1",
   "displayName": "2D Animation",
@@ -11,16 +11,16 @@
   ],
   "category": "2D",
   "dependencies": {
-    "com.unity.2d.common": "4.2.0",
+    "com.unity.2d.common": "4.2.1",
     "com.unity.mathematics": "1.1.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "5.2.3",
-    "com.unity.2d.common.tests": "4.2.0",
-    "com.unity.2d.psdimporter": "4.3.0"
+    "com.unity.2d.animation.tests": "5.2.4",
+    "com.unity.2d.common.tests": "4.2.1",
+    "com.unity.2d.psdimporter": "4.3.1"
   },
   "samples": [
     {
@@ -29,15 +29,12 @@
       "path": "Samples~/AnimationSamples"
     }
   ],
-  "_upm": {
-    "changelog": "### Fixed\r\n- Fixed the isolate behavior in the Sprite tab in the Visibility panel. (case DANB-77)"
-  },
   "upmCi": {
-    "footprint": "f205d217b2ac9795e597709c73ed932a195d122d"
+    "footprint": "c3357b668b0016920c60c662dd4298e594f1d279"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "4385ec621f62136eca5cf0bcfff8c3d711d7680b"
+    "revision": "c016f0f10972606d85ccfbf9de2033ad5384d6c4"
   }
 }

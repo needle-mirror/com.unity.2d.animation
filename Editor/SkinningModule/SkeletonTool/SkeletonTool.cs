@@ -82,6 +82,7 @@ namespace UnityEditor.U2D.Animation
         {
             SetupSkeleton(skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite));
             UpdateBoneInspector();
+            skinningCache.events.skeletonTopologyChanged.AddListener(SkeletonTopologyChanged);
             skinningCache.events.boneSelectionChanged.AddListener(BoneSelectionChanged);
             skinningCache.events.selectedSpriteChanged.AddListener(SelectedSpriteChanged);
             skinningCache.events.skinningModeChanged.AddListener(SkinningModeChanged);
@@ -94,12 +95,19 @@ namespace UnityEditor.U2D.Animation
         {
             m_SkeletonToolView.Hide();
             m_SkeletonController.Reset();
+            skinningCache.events.skeletonTopologyChanged.RemoveListener(SkeletonTopologyChanged);
             skinningCache.events.boneSelectionChanged.RemoveListener(BoneSelectionChanged);
             skinningCache.events.selectedSpriteChanged.RemoveListener(SelectedSpriteChanged);
             skinningCache.events.skinningModeChanged.RemoveListener(SkinningModeChanged);
             skinningCache.events.boneDepthChanged.RemoveListener(BoneDataChanged);
             skinningCache.events.boneNameChanged.RemoveListener(BoneDataChanged);
             skeletonStyle = null;
+        }
+
+        void SkeletonTopologyChanged(SkeletonCache skeletonCache)
+        {
+            if (skeleton == skeletonCache && skeleton != null)
+                m_RectBoneSelector.bones = skeleton.bones;
         }
 
         void BoneDataChanged(BoneCache bone)

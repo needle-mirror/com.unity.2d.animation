@@ -20,10 +20,10 @@ namespace UnityEngine.U2D.IK
         /// <returns>Returns true if solver successfully completes within iteration limit. False otherwise.</returns>
         public static bool Solve(Vector3 targetPosition, Vector3 forward, int solverLimit, float tolerance, float velocity, ref Vector3[] positions)
         {
-            int last = positions.Length - 1;
-            int iterations = 0;
-            float sqrTolerance = tolerance * tolerance;
-            float sqrDistanceToTarget = (targetPosition - positions[last]).sqrMagnitude;
+            var last = positions.Length - 1;
+            var iterations = 0;
+            var sqrTolerance = tolerance * tolerance;
+            var sqrDistanceToTarget = (targetPosition - positions[last]).sqrMagnitude;
             while (sqrDistanceToTarget > sqrTolerance)
             {
                 DoIteration(targetPosition, forward, last, velocity, ref positions);
@@ -31,28 +31,29 @@ namespace UnityEngine.U2D.IK
                 if (++iterations >= solverLimit)
                     break;
             }
+
             return iterations != 0;
         }
 
         static void DoIteration(Vector3 targetPosition, Vector3 forward, int last, float velocity, ref Vector3[] positions)
         {
-            for (int i = last - 1; i >= 0; --i)
+            for (var i = last - 1; i >= 0; --i)
             {
-                Vector3 toTarget = targetPosition - positions[i];
-                Vector3 toLast = positions[last] - positions[i];
+                var toTarget = targetPosition - positions[i];
+                var toLast = positions[last] - positions[i];
 
-                float angle = Vector3.SignedAngle(toLast, toTarget, forward);
+                var angle = Vector3.SignedAngle(toLast, toTarget, forward);
                 angle = Mathf.Lerp(0f, angle, velocity);
 
-                Quaternion deltaRotation = Quaternion.AngleAxis(angle, forward);
-                for (int j = last; j > i; --j)
+                var deltaRotation = Quaternion.AngleAxis(angle, forward);
+                for (var j = last; j > i; --j)
                     positions[j] = RotatePositionFrom(positions[j], positions[i], deltaRotation);
             }
         }
 
         static Vector3 RotatePositionFrom(Vector3 position, Vector3 pivot, Quaternion rotation)
         {
-            Vector3 v = position - pivot;
+            var v = position - pivot;
             v = rotation * v;
             return pivot + v;
         }

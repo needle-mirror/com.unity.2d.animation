@@ -24,17 +24,17 @@ namespace UnityEngine.U2D.IK
             if (lengths[0] == 0f || lengths[1] == 0f)
                 return false;
 
-            Vector3 startToEnd = targetPosition - positions[0];
-            float distanceMagnitude = startToEnd.magnitude;
-            float sqrDistance = startToEnd.sqrMagnitude;
+            var startToEnd = targetPosition - positions[0];
+            var distanceMagnitude = startToEnd.magnitude;
+            var sqrDistance = startToEnd.sqrMagnitude;
 
-            float sqrParentLength = (lengths[0] * lengths[0]);
-            float sqrTargetLength = (lengths[1] * lengths[1]);
+            var sqrParentLength = (lengths[0] * lengths[0]);
+            var sqrTargetLength = (lengths[1] * lengths[1]);
 
-            float angle0Cos = (sqrDistance + sqrParentLength - sqrTargetLength) / (2f * lengths[0] * distanceMagnitude);
-            float angle1Cos = (sqrDistance - sqrParentLength - sqrTargetLength) / (2f * lengths[0] * lengths[1]);
+            var angle0Cos = (sqrDistance + sqrParentLength - sqrTargetLength) / (2f * lengths[0] * distanceMagnitude);
+            var angle1Cos = (sqrDistance - sqrParentLength - sqrTargetLength) / (2f * lengths[0] * lengths[1]);
 
-            if ((angle0Cos >= -1f && angle0Cos <= 1f) && (angle1Cos >= -1f && angle1Cos <= 1f))
+            if (angle0Cos >= -1f && angle0Cos <= 1f && angle1Cos >= -1f && angle1Cos <= 1f)
             {
                 outAngles[0] = Mathf.Acos(angle0Cos) * Mathf.Rad2Deg;
                 outAngles[1] = Mathf.Acos(angle1Cos) * Mathf.Rad2Deg;

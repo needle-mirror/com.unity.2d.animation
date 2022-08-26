@@ -11,13 +11,7 @@ namespace UnityEngine.U2D.IK
         {
             public Color color;
             public bool showGizmo;
-            public static SolverEditorData defaultValue
-            {
-                get
-                {
-                    return new SolverEditorData(){ color = Color.green, showGizmo = true};
-                }
-            }
+            public static SolverEditorData defaultValue => new SolverEditorData() { color = Color.green, showGizmo = true };
         }
 
         [SerializeField]
@@ -26,7 +20,7 @@ namespace UnityEngine.U2D.IK
         void OnEditorDataValidate()
         {
             var solverDataLength = m_SolverEditorData.Count;
-            for (int i = solverDataLength; i < m_Solvers.Count; ++i)
+            for (var i = solverDataLength; i < m_Solvers.Count; ++i)
             {
                 AddSolverEditorData();
             }
@@ -37,11 +31,11 @@ namespace UnityEngine.U2D.IK
             var index = m_Solvers.FindIndex(x => x == solver);
             if (index >= 0)
             {
-                if(index >= m_SolverEditorData.Count)
+                if (index >= m_SolverEditorData.Count)
                     OnEditorDataValidate();
                 return m_SolverEditorData[index];
             }
-                
+
             return SolverEditorData.defaultValue;
         }
 
@@ -57,14 +51,14 @@ namespace UnityEngine.U2D.IK
         void RemoveSolverEditorData(Solver2D solver)
         {
             var index = m_Solvers.FindIndex(x => x == solver);
-            if(index >= 0)
+            if (index >= 0)
                 m_SolverEditorData.RemoveAt(index);
         }
+
 #else
-        void OnEditorDataValidate(){}
-        void AddSolverEditorData(){}
-        void RemoveSolverEditorData(Solver2D solver){}
+        void OnEditorDataValidate() { }
+        void AddSolverEditorData() { }
+        void RemoveSolverEditorData(Solver2D solver) { }
 #endif
     }
 }
-

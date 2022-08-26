@@ -18,7 +18,7 @@ namespace UnityEngine.U2D.IK
         {
             Debug.Assert(transform != null, "Transform is null");
 
-            Transform currentParent = transform.parent;
+            var currentParent = transform.parent;
 
             while (currentParent)
             {
@@ -40,7 +40,7 @@ namespace UnityEngine.U2D.IK
         {
             Debug.Assert(transform != null, "Transform is null");
 
-            int ancestorCount = 0;
+            var ancestorCount = 0;
 
             while (transform.parent)
             {
@@ -59,7 +59,7 @@ namespace UnityEngine.U2D.IK
         /// <returns>Integer value for the maximum chain count.</returns>
         public static int GetMaxChainCount(IKChain2D chain)
         {
-            int maxChainCount = 0;
+            var maxChainCount = 0;
 
             if (chain.effector)
                 maxChainCount = GetAncestorCount(chain.effector) + 1;

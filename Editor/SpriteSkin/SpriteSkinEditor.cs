@@ -2,10 +2,10 @@
 #define ENABLE_ANIMATION_PERFORMANCE
 #endif
 
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditorInternal;
 using UnityEngine.U2D.Animation;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine.U2D;
 using UnityEngine.U2D.Common;
 
@@ -15,7 +15,7 @@ namespace UnityEditor.U2D.Animation
     [CanEditMultipleObjects]
     class SpriteSkinEditor : Editor
     {
-        private static class Contents
+        static class Contents
         {
             public static readonly GUIContent listHeaderLabel = new GUIContent("Bones", "GameObject Transform to represent the Bones defined by the Sprite that is currently used for deformation.");
             public static readonly GUIContent rootBoneLabel = new GUIContent("Root Bone", "GameObject Transform to represent the Root Bone.");
@@ -27,31 +27,40 @@ namespace UnityEditor.U2D.Animation
             public static readonly string invalidTransformArray = L10n.Tr("Bone list is invalid");
             public static readonly string transformArrayContainsNull = L10n.Tr("Bone list contains unassigned references");
             public static readonly string invalidTransformArrayLength = L10n.Tr("The number of Sprite's Bind Poses and the number of Transforms should match");
+            public static readonly string invalidBoneWeights = L10n.Tr("Bone weights are invalid");
             public static readonly GUIContent useManager = new GUIContent("Enable batching", "When enabled, SpriteSkin deformation will be done in batch to improve performance.");
             public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update", "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
             public static readonly string experimental = L10n.Tr("Experimental");
         }
 
-        private static Color s_BoundingBoxHandleColor = new Color(255, 255, 255, 150) / 255;
+        SerializedProperty m_RootBoneProperty;
+        SerializedProperty m_BoneTransformsProperty;
+        SerializedProperty m_AlwaysUpdateProperty;
 
-        private SerializedProperty m_RootBoneProperty;
-        private SerializedProperty m_BoneTransformsProperty;
-        private SerializedProperty m_AlwaysUpdateProperty;
-        private SpriteSkin m_SpriteSkin;
-        private ReorderableList m_ReorderableList;
-        private Sprite m_CurrentSprite;
-        private BoxBoundsHandle m_BoundsHandle = new BoxBoundsHandle();
-        private bool m_NeedsRebind = false;
+        SpriteSkin[] m_SpriteSkins;
+        Sprite[] m_CurrentSprites;
+        ReorderableList m_ReorderableList;
+        
+        bool m_NeedsRebind = false;
+        bool m_BoneFold = true;
+        
 #if ENABLE_ANIMATION_PERFORMANCE
-        private SerializedProperty m_UseBatching;
-        private bool m_ExperimentalFold;
-#endif
-        private bool m_BoneFold = true;
+        SerializedProperty m_UseBatching;
+        bool m_ExperimentalFold;
+#endif        
 
-        private void OnEnable()
+        void OnEnable()
         {
-            m_SpriteSkin = (SpriteSkin)target;
-            m_SpriteSkin.OnEditorEnable();
+            var listOfSkins = new List<SpriteSkin>(targets.Length);
+            foreach (var obj in targets)
+            {
+                if (obj is SpriteSkin skin)
+                {
+                    listOfSkins.Add(skin);
+                    skin.OnEditorEnable();
+                }
+            }
+            m_SpriteSkins = listOfSkins.ToArray();
 
             m_RootBoneProperty = serializedObject.FindProperty("m_RootBone");
 #if ENABLE_ANIMATION_PERFORMANCE
@@ -60,84 +69,37 @@ namespace UnityEditor.U2D.Animation
             m_BoneTransformsProperty = serializedObject.FindProperty("m_BoneTransforms");
             m_AlwaysUpdateProperty = serializedObject.FindProperty("m_AlwaysUpdate");
 
-            m_CurrentSprite = m_SpriteSkin.spriteRenderer.sprite;
-            m_BoundsHandle.axes = BoxBoundsHandle.Axes.X | BoxBoundsHandle.Axes.Y;
-            m_BoundsHandle.SetColor(s_BoundingBoxHandleColor);
-
+            m_CurrentSprites = new Sprite[m_SpriteSkins.Length];
+            
+            UpdateSpriteCache();
             SetupReorderableList();
 
             Undo.undoRedoPerformed += UndoRedoPerformed;
         }
 
-        private void OnDestroy()
+        void OnDestroy()
         {
             Undo.undoRedoPerformed -= UndoRedoPerformed;
         }
 
-        private void UndoRedoPerformed()
+        void UndoRedoPerformed()
         {
-            m_CurrentSprite = m_SpriteSkin.spriteRenderer.sprite;
+            UpdateSpriteCache();
         }
-
-        private void SetupReorderableList()
+        
+        void UpdateSpriteCache()
         {
-            m_ReorderableList = new ReorderableList(serializedObject, m_BoneTransformsProperty, false, true, false, false);
-            m_ReorderableList.headerHeight = 1.0f;
-            m_ReorderableList.elementHeightCallback = (int index) =>
-                {
-                    return EditorGUIUtility.singleLineHeight + 6;
-                };
-            m_ReorderableList.drawElementCallback = (Rect rect, int index, bool isactive, bool isfocused) =>
-                {
-                    var content = GUIContent.none;
-
-                    if (m_CurrentSprite != null)
-                    {
-                        var bones = m_CurrentSprite.GetBones();
-                        if (index < bones.Length)
-                            content = new GUIContent(bones[index].name);
-                    }
-
-                    rect.y += 2f;
-                    rect.height = EditorGUIUtility.singleLineHeight;
-                    SerializedProperty element = m_BoneTransformsProperty.GetArrayElementAtIndex(index);
-                    EditorGUI.PropertyField(rect, element, content);
-                };
-        }
-
-        private void InitializeBoneTransformArray()
-        {
-            if (m_CurrentSprite)
+            for (var i = 0; i < m_SpriteSkins.Length; ++i)
             {
-                var elementCount = m_BoneTransformsProperty.arraySize;
-                var bindPoses = m_CurrentSprite.GetBindPoses();
-
-                if (elementCount != bindPoses.Length)
-                {
-                    m_BoneTransformsProperty.arraySize = bindPoses.Length;
-
-                    for (int i = elementCount; i < m_BoneTransformsProperty.arraySize; ++i)
-                        m_BoneTransformsProperty.GetArrayElementAtIndex(i).objectReferenceValue = null;
-
-                    m_NeedsRebind = true;
-                }
-            }
+                m_CurrentSprites[i] = m_SpriteSkins[i].sprite;
+            }   
         }
-
+        
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+            
             EditorGUILayout.PropertyField(m_AlwaysUpdateProperty, Contents.alwaysUpdate);
-
-            var sprite = m_SpriteSkin.spriteRenderer.sprite;
-            var spriteChanged = m_CurrentSprite != sprite;
-
-            if (m_ReorderableList == null || spriteChanged)
-            {
-                m_CurrentSprite = sprite;
-                InitializeBoneTransformArray();
-                SetupReorderableList();
-            }
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(m_RootBoneProperty, Contents.rootBoneLabel);
@@ -146,17 +108,15 @@ namespace UnityEditor.U2D.Animation
                 m_NeedsRebind = true;
             }
 
-            m_BoneFold = EditorGUILayout.Foldout(m_BoneFold, Contents.listHeaderLabel, true);
-            if (m_BoneFold)
+            var hasSpriteChanged = HasAnySpriteChanged();
+            if (m_ReorderableList == null || hasSpriteChanged)
             {
-                EditorGUILayout.Space();
-                if (!serializedObject.isEditingMultipleObjects)
-                {
-                    EditorGUI.BeginDisabledGroup(m_SpriteSkin.rootBone == null);
-                    m_ReorderableList.DoLayoutList();
-                    EditorGUI.EndDisabledGroup();
-                }
+                UpdateSpriteCache();
+                InitializeBoneTransformArray();
+                SetupReorderableList();
             }
+            
+            DoBoneFoldout();
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
@@ -181,9 +141,9 @@ namespace UnityEditor.U2D.Animation
                 EditorGUILayout.PropertyField(m_UseBatching, Contents.useManager);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    foreach (var obj in targets)
+                    foreach (var skin in m_SpriteSkins)
                     {
-                        ((SpriteSkin)obj).UseBatching(m_UseBatching.boolValue);
+                        skin.UseBatching(m_UseBatching.boolValue);
                     }
                 }
                 EditorGUI.indentLevel--;
@@ -195,21 +155,103 @@ namespace UnityEditor.U2D.Animation
             if (m_NeedsRebind)
                 Rebind();
 
-            if (spriteChanged && !m_SpriteSkin.ignoreNextSpriteChange)
+            if (hasSpriteChanged && !m_SpriteSkins[0].ignoreNextSpriteChange)
             {
                 ResetBounds(Undo.GetCurrentGroupName());
-                m_SpriteSkin.ignoreNextSpriteChange = false;
+                m_SpriteSkins[0].ignoreNextSpriteChange = false;
             }
 
             DoValidationWarnings();
         }
 
-        private void Rebind()
+        bool HasAnySpriteChanged()
         {
-            foreach (var t in targets)
+            for (var i = 0; i < m_SpriteSkins.Length; ++i)
             {
-                var spriteSkin = t as SpriteSkin;
+                var sprite = m_SpriteSkins[i].sprite;
+                if (m_CurrentSprites[i] != sprite)
+                    return true;
+            }
 
+            return false;
+        }
+
+        void DoBoneFoldout()
+        {
+            EditorGUILayout.Space();
+            
+            m_BoneFold = EditorGUILayout.Foldout(m_BoneFold, Contents.listHeaderLabel, true);
+            if (m_BoneFold)
+            {
+                EditorGUI.BeginDisabledGroup(m_SpriteSkins[0].rootBone == null || m_BoneTransformsProperty.hasMultipleDifferentValues);
+                m_ReorderableList.DoLayoutList();
+                EditorGUI.EndDisabledGroup();
+            }
+        }
+        
+        void InitializeBoneTransformArray()
+        {
+            var hasSameNumberOfBones = true;
+            var noOfBones = -1;
+            for (var i = 0; i < m_SpriteSkins.Length; ++i)
+            {
+                if (m_SpriteSkins[i] == null)
+                    continue;
+                if (i == 0)
+                    noOfBones = m_CurrentSprites[i].GetBones().Length;
+                else if (m_CurrentSprites[i].GetBones().Length != noOfBones)
+                {
+                    hasSameNumberOfBones = false;
+                    break;
+                }
+            }
+
+            if (hasSameNumberOfBones)
+            {
+                var elementCount = m_BoneTransformsProperty.arraySize;
+                var bones = m_CurrentSprites[0].GetBones();
+
+                if (elementCount != bones.Length)
+                {
+                    m_BoneTransformsProperty.arraySize = bones.Length;
+
+                    for (var i = elementCount; i < m_BoneTransformsProperty.arraySize; ++i)
+                        m_BoneTransformsProperty.GetArrayElementAtIndex(i).objectReferenceValue = null;
+
+                    m_NeedsRebind = true;
+                }                
+            }
+        }  
+        
+        void SetupReorderableList()
+        {
+            m_ReorderableList = new ReorderableList(serializedObject, m_BoneTransformsProperty, false, true, false, false);
+            m_ReorderableList.headerHeight = 1.0f;
+            m_ReorderableList.elementHeightCallback = _ => EditorGUIUtility.singleLineHeight + 6;
+            m_ReorderableList.drawElementCallback = (Rect rect, int index, bool isactive, bool isfocused) =>
+            {
+                var content = GUIContent.none;
+
+                if (m_CurrentSprites[0] != null)
+                {
+                    var bones = m_CurrentSprites[0].GetBones();
+                    if (index < bones.Length)
+                        content = new GUIContent(bones[index].name);
+                }
+
+                rect.y += 2f;
+                rect.height = EditorGUIUtility.singleLineHeight;
+                var element = m_BoneTransformsProperty.GetArrayElementAtIndex(index);
+                
+                EditorGUI.showMixedValue = m_BoneTransformsProperty.hasMultipleDifferentValues;
+                EditorGUI.PropertyField(rect, element, content);
+            };
+        }
+
+        void Rebind()
+        {
+            foreach (var spriteSkin in m_SpriteSkins)
+            {
                 if(spriteSkin.spriteRenderer.sprite == null || spriteSkin.rootBone == null)
                     continue;
 
@@ -219,120 +261,108 @@ namespace UnityEditor.U2D.Animation
 
             m_NeedsRebind = false;
         }
-
-        private void ResetBounds(string undoName = "Reset Bounds")
+        
+        void ResetBounds(string undoName = "Reset Bounds")
         {
-            foreach (var t in targets)
+            foreach (var skin in m_SpriteSkins)
             {
-                var spriteSkin = t as SpriteSkin;
-
-                if (!spriteSkin.isValid)
+                if (!skin.isValid)
                     continue;
 
-                Undo.RegisterCompleteObjectUndo(spriteSkin, undoName);
-                spriteSkin.CalculateBounds();
+                Undo.RegisterCompleteObjectUndo(skin, undoName);
+                skin.CalculateBounds();
 
-                EditorUtility.SetDirty(spriteSkin);
+                EditorUtility.SetDirty(skin);
             }
         }
 
-        private void ResetBoundsIfNeeded(SpriteSkin spriteSkin)
+        static void ResetBoundsIfNeeded(SpriteSkin spriteSkin)
         {
             if (spriteSkin.isValid && spriteSkin.bounds == new Bounds())
                 spriteSkin.CalculateBounds();
         }
 
-        private bool EnableCreateBones()
+        bool EnableCreateBones()
         {
-            foreach (var t in targets)
+            foreach (var skin in m_SpriteSkins)
             {
-                var spriteSkin = t as SpriteSkin;
-                var sprite = spriteSkin.spriteRenderer.sprite;
-
-                if (sprite != null && spriteSkin.rootBone == null)
+                var sprite = skin.sprite;
+                if (sprite != null && skin.rootBone == null)
                     return true;
             }
             return false;
         }
 
-        private bool EnableSetBindPose()
+        bool EnableSetBindPose()
         {
             return IsAnyTargetValid();
         }
 
-        private bool IsAnyTargetValid()
+        bool IsAnyTargetValid()
         {
-            foreach (var t in targets)
+            foreach (var skin in m_SpriteSkins)
             {
-                var spriteSkin = t as SpriteSkin;
-
-                if (spriteSkin.isValid)
+                if (skin.isValid)
                     return true;
             }
             return false;
         }
 
-        private void DoGenerateBonesButton()
+        void DoGenerateBonesButton()
         {
             if (GUILayout.Button("Create Bones", GUILayout.MaxWidth(125f)))
             {
-                foreach (var t in targets)
+                foreach (var skin in m_SpriteSkins)
                 {
-                    var spriteSkin = t as SpriteSkin;
-                    var sprite = spriteSkin.spriteRenderer.sprite;
-
-                    if (sprite == null || spriteSkin.rootBone != null)
+                    var sprite = skin.sprite;
+                    if (sprite == null || skin.rootBone != null)
                         continue;
 
-                    Undo.RegisterCompleteObjectUndo(spriteSkin, "Create Bones");
+                    Undo.RegisterCompleteObjectUndo(skin, "Create Bones");
 
-                    spriteSkin.CreateBoneHierarchy();
+                    skin.CreateBoneHierarchy();
 
-                    foreach (var transform in spriteSkin.boneTransforms)
+                    foreach (var transform in skin.boneTransforms)
                         Undo.RegisterCreatedObjectUndo(transform.gameObject, "Create Bones");
 
-                    ResetBoundsIfNeeded(spriteSkin);
+                    ResetBoundsIfNeeded(skin);
 
-                    EditorUtility.SetDirty(spriteSkin);
+                    EditorUtility.SetDirty(skin);
                 }
+                
+                serializedObject.SetIsDifferentCacheDirty();
                 BoneGizmo.instance.boneGizmoController.OnSelectionChanged();
             }
         }
 
-        private void DoResetBindPoseButton()
+        void DoResetBindPoseButton()
         {
             if (GUILayout.Button("Reset Bind Pose", GUILayout.MaxWidth(125f)))
             {
-                foreach (var t in targets)
+                foreach (var skin in m_SpriteSkins)
                 {
-                    var spriteSkin = t as SpriteSkin;
-
-                    if (!spriteSkin.isValid)
+                    if (!skin.isValid)
                         continue;
 
-                    Undo.RecordObjects(spriteSkin.boneTransforms, "Reset Bind Pose");
-                    spriteSkin.ResetBindPose();
+                    Undo.RecordObjects(skin.boneTransforms, "Reset Bind Pose");
+                    skin.ResetBindPose();
                 }
             }
         }
 
-        private void DoValidationWarnings()
+        void DoValidationWarnings()
         {
             EditorGUILayout.Space();
 
-            bool preAppendObjectName = targets.Length > 1;
+            var preAppendObjectName = targets.Length > 1;
 
-            foreach (var t in targets)
+            foreach (var skin in m_SpriteSkins)
             {
-                var spriteSkin = t as SpriteSkin;
-
-                var validationResult = spriteSkin.Validate();
-
+                var validationResult = skin.Validate();
                 if (validationResult == SpriteSkinValidationResult.Ready)
                     continue;
 
                 var text = "";
-
                 switch (validationResult)
                 {
                     case SpriteSkinValidationResult.SpriteNotFound:
@@ -359,10 +389,13 @@ namespace UnityEditor.U2D.Animation
                     case SpriteSkinValidationResult.TransformArrayContainsNull:
                         text = Contents.transformArrayContainsNull;
                         break;
+                    case SpriteSkinValidationResult.InvalidBoneWeights:
+                        text = Contents.invalidBoneWeights;
+                        break;
                 }
 
                 if (preAppendObjectName)
-                    text = spriteSkin.name + ": " + text;
+                    text = $"{skin.name}:{text}";
 
                 EditorGUILayout.HelpBox(text, MessageType.Warning);
             }
