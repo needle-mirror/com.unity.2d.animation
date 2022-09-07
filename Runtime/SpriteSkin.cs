@@ -345,9 +345,10 @@ namespace UnityEngine.U2D.Animation
         internal SpriteRenderer spriteRenderer => m_SpriteRenderer;
 
         /// <summary>
-        /// Returns the Transform Components that is used for deformation
+        /// Returns the Transform Components that is used for deformation.
+        /// Do not modify elements of the returned array.
         /// </summary>
-        /// <returns>An array of Transform Components</returns>
+        /// <returns>An array of Transform Components.</returns>
         public Transform[] boneTransforms
         {
             get { return m_BoneTransforms; }

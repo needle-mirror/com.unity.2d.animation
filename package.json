@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "7.0.7",
+  "version": "7.0.8",
   "unity": "2021.2",
   "unityRelease": "7f1",
   "displayName": "2D Animation",
@@ -11,15 +11,15 @@
   ],
   "category": "2D",
   "dependencies": {
-    "com.unity.2d.common": "6.0.4",
+    "com.unity.2d.common": "6.0.5",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "7.0.7",
-    "com.unity.2d.common.tests": "6.0.4",
-    "com.unity.2d.psdimporter": "6.0.4"
+    "com.unity.2d.animation.tests": "7.0.8",
+    "com.unity.2d.common.tests": "6.0.5",
+    "com.unity.2d.psdimporter": "6.0.6"
   },
   "samples": [
     {
@@ -28,15 +28,12 @@
       "path": "Samples~/AnimationSamples"
     }
   ],
-  "_upm": {
-    "changelog": "### Fixed\n- Fixed the isolate behavior in the Sprite tab in the Visibility panel. (case DANB-72)\n- Creating a new vertex or an edge outside of the main geometry is handled correctly. (case 1398541)\n- When modifying Sprite Library's Category name user presses apply, the changes to the name are saved. (case DANB-86)\n\n### Changed\n- Added dialog box to the Skinning Editor when entering Play Mode to allow saving unsaved changes.\n\n### Changed\n- Refactored internal triangulation and tessellation APIs."
-  },
   "upmCi": {
-    "footprint": "89ff61acdd3894b48be6c1a885d055e1208bc41a"
+    "footprint": "d7a616d016743a24fe1eb2deb5c951cd74eac79e"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "6b783c5dfb5a72d73e2b0a70d1caf4a367c58805"
+    "revision": "d1ad42baef5a9bf44369c855eb89f86d6cd3c744"
   }
 }

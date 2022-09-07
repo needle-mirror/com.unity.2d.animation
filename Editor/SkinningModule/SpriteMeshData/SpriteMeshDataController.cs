@@ -54,14 +54,14 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(index2 < spriteMeshData.vertexCount, $"Assert failed. Expected: index2 < spriteMeshData.vertexCount. Actual: index2 == {index2} spriteMeshData.vertexCount == {spriteMeshData.vertexCount}");
             Debug.Assert(index1 != index2, $"Assert failed. Expected: index1 != index2. Actual: index1 == {index1} index2 == {index2}");
 
-            var newEdge = new Vector2Int(index1, index2);
+            var newEdge = new int2(index1, index2);
             if (!spriteMeshData.edges.ContainsAny(newEdge))
             {
-                var listOfEdges = new List<Vector2Int>(spriteMeshData.edges)
+                var listOfEdges = new List<int2>(spriteMeshData.edges)
                 {
                     newEdge
                 };
-                spriteMeshData.edges = listOfEdges.ToArray();
+                spriteMeshData.SetEdges(listOfEdges.ToArray());
             }
         }
 
@@ -70,8 +70,7 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(spriteMeshData != null);
 
             //We need to delete the edges that reference the index
-            List<Vector2Int> edgesWithIndex;
-            if (FindEdgesContainsIndex(index, out edgesWithIndex))
+            if (FindEdgesContainsIndex(index, out var edgesWithIndex))
             {
                 //If there are 2 edges referencing the same index we are removing, we can create a new one that connects the endpoints ("Unsplit").
                 if (edgesWithIndex.Count == 2)
@@ -123,21 +122,21 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        void RemoveEdge(Vector2Int edge)
+        void RemoveEdge(int2 edge)
         {
             Debug.Assert(spriteMeshData != null);
-            var listOfEdges = new List<Vector2Int>(spriteMeshData.edges);
+            var listOfEdges = new List<int2>(spriteMeshData.edges);
             listOfEdges.Remove(edge);
-            spriteMeshData.edges = listOfEdges.ToArray();
+            spriteMeshData.SetEdges(listOfEdges.ToArray());
         }
 
-        bool FindEdgesContainsIndex(int index, out List<Vector2Int> result)
+        bool FindEdgesContainsIndex(int index, out List<int2> result)
         {
             Debug.Assert(spriteMeshData != null);
 
             bool found = false;
 
-            result = new List<Vector2Int>();
+            result = new List<int2>();
 
             for (int i = 0; i < spriteMeshData.edges.Length; ++i)
             {
@@ -196,8 +195,8 @@ namespace UnityEditor.U2D.Animation
             }
             
             spriteMeshData.Clear();
-            spriteMeshData.edges = EditorUtilities.ToVector2Int(m_EdgesTemp);
-            spriteMeshData.indices = indices;
+            spriteMeshData.SetIndices(indices);
+            spriteMeshData.SetEdges(m_EdgesTemp);
 
             var hasNewVertices = m_VerticesTemp.Length != weightData.Length;
             for (var i = 0; i < m_VerticesTemp.Length; ++i)
@@ -214,7 +213,7 @@ namespace UnityEditor.U2D.Animation
 
         void FillMeshDataContainers(out float2[] vertices, out int2[] edges, out EditableBoneWeight[] weightData, out bool hasWeightData)
         {
-            edges = EditorUtilities.ToInt2(spriteMeshData.edges);
+            edges = spriteMeshData.edges;
             vertices = EditorUtilities.ToFloat2(spriteMeshData.vertices);
 
             weightData = new EditableBoneWeight[spriteMeshData.vertexWeights.Length];
@@ -230,7 +229,7 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(spriteMeshData != null);
             Debug.Assert(triangulator != null);
 
-            m_EdgesTemp = EditorUtilities.ToInt2(spriteMeshData.edges);
+            m_EdgesTemp = spriteMeshData.edges;
             m_VerticesTemp = EditorUtilities.ToFloat2(spriteMeshData.vertices);
 
             try
@@ -242,8 +241,8 @@ namespace UnityEditor.U2D.Animation
                 for (var i = 0; i < m_VerticesTemp.Length; ++i)
                     spriteMeshData.AddVertex(m_VerticesTemp[i], default(BoneWeight));
                 
-                spriteMeshData.edges = EditorUtilities.ToVector2Int(m_EdgesTemp);
-                spriteMeshData.indices = indices;
+                spriteMeshData.SetIndices(indices);
+                spriteMeshData.SetEdges(m_EdgesTemp);
             }
             catch (Exception) { }
         }
@@ -279,6 +278,9 @@ namespace UnityEditor.U2D.Animation
             outlineGenerator.GenerateOutline(textureDataProvider, scaledRect, outlineDetail, alphaTolerance, false, out var paths);
 
             var vertexIndexBase = 0;
+
+            var vertices = new List<Vector2>(spriteMeshData.vertices);
+            var edges = new List<int2>(spriteMeshData.edges);
             for (var i = 0; i < paths.Length; ++i)
             {
                 var numPathVertices = paths[i].Length;
@@ -286,18 +288,20 @@ namespace UnityEditor.U2D.Animation
                 for (var j = 0; j <= numPathVertices; j++)
                 {
                     if (j < numPathVertices)
-                        spriteMeshData.AddVertex(Vector2.Scale(paths[i][j], scaleInv) + rectOffset, default(BoneWeight));
-
+                        vertices.Add(Vector2.Scale(paths[i][j], scaleInv) + rectOffset);
                     if (j > 0)
-                    {
-                        var listOfEdges = new List<Vector2Int>(spriteMeshData.edges);
-                        listOfEdges.Add(new Vector2Int(vertexIndexBase + j - 1, vertexIndexBase + j % numPathVertices));
-                        spriteMeshData.edges = listOfEdges.ToArray();
-                    }
+                        edges.Add(new int2(vertexIndexBase + j - 1, vertexIndexBase + j % numPathVertices));
                 }
 
                 vertexIndexBase += numPathVertices;
             }
+            
+            var vertexWeights = new EditableBoneWeight[vertices.Count];
+            for (var i = 0; i < vertexWeights.Length; ++i)
+                vertexWeights[i] = new EditableBoneWeight();
+            
+            spriteMeshData.SetVertices(vertices.ToArray(), vertexWeights);
+            spriteMeshData.SetEdges(edges.ToArray());
         }
 
         public void NormalizeWeights(ISelection<int> selection)
@@ -317,7 +321,7 @@ namespace UnityEditor.U2D.Animation
             
             var vertices = EditorUtilities.ToFloat2(spriteMeshData.vertices);
             var indices = spriteMeshData.indices;
-            var edges = EditorUtilities.ToInt2(spriteMeshData.edges);
+            var edges = spriteMeshData.edges;
 
             var boneWeights = weightsGenerator.Calculate(spriteMeshData.spriteName, in vertices, in indices, in edges, in controlPoints, in bones, in pins);
 
@@ -447,7 +451,7 @@ namespace UnityEditor.U2D.Animation
                 newIndices[indexCount + 1] = triangle.p2;
                 newIndices[indexCount + 2] = triangle.p3;
             }
-            spriteMeshData.indices = newIndices;
+            spriteMeshData.SetIndices(newIndices);
         }
 
         public void GetMultiEditChannelData(ISelection<int> selection, int channel,

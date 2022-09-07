@@ -208,10 +208,11 @@ namespace UnityEditor.U2D.Animation
             for (var i = 0; i < testVertices.Length; ++i)
                 spriteMeshData.AddVertex(testVertices[i], new BoneWeight());
 
-            var convertedEdges = new Vector2Int[edges.Length];
+            spriteMeshData.SetIndices(indices);
+            
+            var convertedEdges = new int2[edges.Length];
             Array.Copy(edges, convertedEdges, edges.Length);
-            spriteMeshData.edges = convertedEdges;
-            spriteMeshData.indices = indices;
+            spriteMeshData.SetEdges(convertedEdges);
         }
 
         static float2[] SampleBones(in float2[] points, in int2[] edges, int numSamples)

@@ -1,4 +1,5 @@
 using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Collections.LowLevel.Unsafe;
@@ -16,6 +17,7 @@ namespace UnityEngine.U2D.Animation
         InvalidTransformArrayLength,
         TransformArrayContainsNull,
         RootNotFoundInTransformArray,
+        InvalidBoneWeights,
 
         Ready
     }
@@ -45,8 +47,9 @@ namespace UnityEngine.U2D.Animation
                 return SpriteSkinValidationResult.SpriteNotFound;
 
             var bindPoses = spriteSkin.spriteRenderer.sprite.GetBindPoses();
+            var bindPoseCount = bindPoses.Length;
 
-            if (bindPoses.Length == 0)
+            if (bindPoseCount == 0)
                 return SpriteSkinValidationResult.SpriteHasNoSkinningInformation;
 
             if (spriteSkin.rootBone == null)
@@ -55,7 +58,7 @@ namespace UnityEngine.U2D.Animation
             if (spriteSkin.boneTransforms == null)
                 return SpriteSkinValidationResult.InvalidTransformArray;
 
-            if (bindPoses.Length != spriteSkin.boneTransforms.Length)
+            if (bindPoseCount != spriteSkin.boneTransforms.Length)
                 return SpriteSkinValidationResult.InvalidTransformArrayLength;
 
             var rootFound = false;
@@ -70,7 +73,11 @@ namespace UnityEngine.U2D.Animation
 
             if (!rootFound)
                 return SpriteSkinValidationResult.RootNotFoundInTransformArray;
-
+            
+            var boneWeights = spriteSkin.sprite.GetVertexAttribute<BoneWeight>(UnityEngine.Rendering.VertexAttribute.BlendWeight);
+            if (!BurstedSpriteSkinUtilities.ValidateBoneWeights(in boneWeights, bindPoseCount))
+                return SpriteSkinValidationResult.InvalidBoneWeights;
+            
             return SpriteSkinValidationResult.Ready;
         }
 
@@ -405,4 +412,30 @@ namespace UnityEngine.U2D.Animation
             InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, spriteSkin.bounds);
         }
     }
+    
+    [BurstCompile]
+    internal static class BurstedSpriteSkinUtilities
+    {
+        [BurstCompile]
+        internal static bool ValidateBoneWeights(in NativeSlice<BoneWeight> boneWeights, int bindPoseCount)
+        {
+            var boneWeightCount = boneWeights.Length; 
+            for (var i = 0; i < boneWeightCount; ++i)
+            {
+                var boneWeight = boneWeights[i];
+                var idx0 = boneWeight.boneIndex0;
+                var idx1 = boneWeight.boneIndex1;
+                var idx2 = boneWeight.boneIndex2;
+                var idx3 = boneWeight.boneIndex3;
+                
+                if ((idx0 < 0 || idx0 >= bindPoseCount) ||
+                    (idx1 < 0 || idx1 >= bindPoseCount) ||
+                    (idx2 < 0 || idx2 >= bindPoseCount) ||
+                    (idx3 < 0 || idx3 >= bindPoseCount))
+                    return false;
+            }
+
+            return true;
+        }        
+    }    
 }

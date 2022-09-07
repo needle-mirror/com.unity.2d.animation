@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEditor.U2D.Layout;
 using UnityEditor.U2D.Sprites;
@@ -767,8 +768,8 @@ namespace UnityEditor.U2D.Animation
                 }
 
                 mesh.SetVertices(vertices, weights);
-                mesh.indices = meshProvider.GetIndices(guid);
-                mesh.edges = meshProvider.GetEdges(guid);
+                mesh.SetIndices(meshProvider.GetIndices(guid));
+                mesh.SetEdges(EditorUtilities.ToInt2(meshProvider.GetEdges(guid)));
             }
             else
             {
@@ -779,8 +780,8 @@ namespace UnityEditor.U2D.Animation
                     vertexWeights[i] = new EditableBoneWeight();
                 
                 mesh.SetVertices(vertices, vertexWeights);
-                mesh.indices = indices;
-                mesh.edges = edges.ToArray();
+                mesh.SetIndices(indices);
+                mesh.SetEdges(edges);
             }
 
             mesh.textureDataProvider = textureDataProvider;
@@ -789,14 +790,14 @@ namespace UnityEditor.U2D.Animation
         }
 
         static void GenerateOutline(SpriteCache sprite, ITextureDataProvider textureDataProvider, 
-            out Vector2[] vertices, out int[] indices, out Vector2Int[] edges)
+            out Vector2[] vertices, out int[] indices, out int2[] edges)
         {
             if (textureDataProvider == null ||
                 textureDataProvider.texture == null)
             {
                 vertices = new Vector2[0];
                 indices = new int[0];
-                edges = new Vector2Int[0];
+                edges = new int2[0];
                 return;
             }
 

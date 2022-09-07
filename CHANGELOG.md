@@ -1,5 +1,19 @@
 # Changelog
 
+## [7.0.8] - 2022-09-07
+### Added
+- Added bone weight index validation in SpriteSkin's validate method, to ensure valid data before continuing with deformation.
+
+### Fixed
+- Fixed a case where moving vertices forcefully in the Skinning editor could cause a quad reset of the mesh. (case DANB-7)
+- Fixed a case where multi selecting Sprite Skins would cause a null reference exception to be thrown. (case DANB-126)
+- Fixed a case where pasting bones in the Skinning Editor would move bones rather than copy them. (case DANB-181) 
+- Fixed an issue where selecting bones in the Skinning Editor after removing any bone in the skeleton will throw an exception. (case DANB-188)
+- Fixed a case where setting IKManager2D's or Solver2D's weight to '0' doesn't update solver's effector position. (case DANB-189)
+
+### Changed
+- Updated Toolbar and Visibility tab buttons' selection color.
+
 ## [7.0.7] - 2022-06-28
 ### Fixed
 - Fixed the isolate behavior in the Sprite tab in the Visibility panel. (case DANB-72)
@@ -8,8 +22,6 @@
 
 ### Changed
 - Added dialog box to the Skinning Editor when entering Play Mode to allow saving unsaved changes.
-
-### Changed
 - Refactored internal triangulation and tessellation APIs.
 
 ## [7.0.6] - 2022-05-12

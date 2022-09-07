@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
@@ -26,7 +27,7 @@ namespace UnityEditor.U2D.Animation
         public Vector2[] vertices;
         public EditableBoneWeight[] vertexWeights;
         public int[] indices;
-        public Vector2Int[] edges;
+        public int2[] edges;
         public List<string> boneWeightGuids;
         public List<string> boneWeightNames;
     }
@@ -36,5 +37,7 @@ namespace UnityEditor.U2D.Animation
     {
         public float pixelsPerUnit;
         public List<SkinningCopySpriteData> copyData = new List<SkinningCopySpriteData>();
+        public UnityEngine.U2D.SpriteBone[] characterBones;
+        public bool isCharacterData = false;
     }
 }

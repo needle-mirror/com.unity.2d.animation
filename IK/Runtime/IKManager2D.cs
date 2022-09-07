@@ -13,51 +13,45 @@ namespace UnityEngine.U2D.IK
     public partial class IKManager2D : MonoBehaviour
     {
         [SerializeField]
-        private List<Solver2D> m_Solvers = new List<Solver2D>();
-        [SerializeField][Range(0f, 1f)]
-        private float m_Weight = 1f;
+        List<Solver2D> m_Solvers = new List<Solver2D>();
+        [SerializeField]
+        [Range(0f, 1f)]
+        float m_Weight = 1f;
 
         /// <summary>
         /// Get and Set the weight for solvers.
         /// </summary>
         public float weight
         {
-            get { return m_Weight; }
-            set { m_Weight = Mathf.Clamp01(value); }
+            get => m_Weight;
+            set => m_Weight = Mathf.Clamp01(value);
         }
 
         /// <summary>
         /// Get the Solvers that are managed by this manager.
         /// </summary>
-        public List<Solver2D> solvers
-        {
-            get { return m_Solvers; }
-        }
+        public List<Solver2D> solvers => m_Solvers;
 
-        private void OnValidate()
+        void OnValidate()
         {
             m_Weight = Mathf.Clamp01(m_Weight);
             OnEditorDataValidate();
         }
 
-        private void OnEnable()
-        {
-        }
-
-        private void Reset()
+        void Reset()
         {
             FindChildSolvers();
             OnEditorDataValidate();
         }
 
-        private void FindChildSolvers()
+        void FindChildSolvers()
         {
             m_Solvers.Clear();
 
-            List<Solver2D> solvers = new List<Solver2D>();
+            var solvers = new List<Solver2D>();
             transform.GetComponentsInChildren<Solver2D>(true, solvers);
 
-            foreach (Solver2D solver in solvers)
+            foreach (var solver in solvers)
             {
                 if (solver.GetComponentInParent<IKManager2D>() == this)
                     AddSolver(solver);
@@ -111,7 +105,10 @@ namespace UnityEngine.U2D.IK
         
 #if UNITY_EDITOR
         internal static Events.UnityEvent onDrawGizmos = new Events.UnityEvent();
-        private void OnDrawGizmos() { onDrawGizmos.Invoke(); }
+        void OnDrawGizmos()
+        {
+            onDrawGizmos.Invoke();
+        }
 #endif
     }
 }

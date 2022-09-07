@@ -9,7 +9,7 @@ namespace UnityEditor.U2D.Animation
         /// <summary>
         /// Checks if element exists in array independent of the order of X & Y. 
         /// </summary>
-        public static bool ContainsAny(this Vector2Int[] array, Vector2Int element)
+        public static bool ContainsAny(this int2[] array, int2 element)
         {
             return Array.FindIndex(array, e =>
                 (e.x == element.x && e.y == element.y) ||
