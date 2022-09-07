@@ -1,5 +1,16 @@
 # Changelog
 
+## [8.0.4] - 2022-09-07
+### Added
+- Added bone weight index validation in SpriteSkin's validate method, to ensure valid data before continuing with deformation.
+
+### Fixed
+- Fixed a case where moving vertices forcefully in the Skinning editor could cause a quad reset of the mesh. (case DANB-7)
+- Fixed a case where pasting bones in the Skinning Editor would move bones rather than copy them. (case DANB-180) 
+- Fixed an issue where selecting bones in the Skinning Editor after removing any bone in the skeleton will throw an exception. (case DANB-187)
+- Fixed a case where setting IKManager2D's or Solver2D's weight to '0' doesn't update solver's effector position. (case DANB-190)
+- Fixed a case where multi selecting Sprite Skins would cause a null reference exception to be thrown. (case DANB-126)
+
 ## [8.0.3] - 2022-06-21
 ### Fixed
 - Creating a new vertex or an edge outside of the main geometry is handled correctly. (case 1398541)

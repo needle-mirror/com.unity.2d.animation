@@ -545,7 +545,9 @@ namespace UnityEditor.U2D.Animation
 
                     meshDataProvider.SetVertices(guid, vertices);
                     meshDataProvider.SetIndices(guid, mesh.indices);
-                    meshDataProvider.SetEdges(guid, mesh.edges.Select(edge => edge).ToArray());
+
+                    var edgeVectArr = EditorUtilities.ToVector2Int(mesh.edges);
+                    meshDataProvider.SetEdges(guid, edgeVectArr);
                 }
             }
         }

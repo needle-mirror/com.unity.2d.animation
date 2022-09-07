@@ -378,6 +378,7 @@ namespace UnityEngine.U2D.Animation
 
         /// <summary>
         /// Returns the Transform Components that is used for deformation.
+        /// Do not modify elements of the returned array.
         /// </summary>
         /// <returns>An array of Transform Components.</returns>
         public Transform[] boneTransforms

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.U2D.Animation;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -25,29 +28,40 @@ namespace UnityEditor.U2D.Animation
         EditableBoneWeight[] m_VertexWeights = new EditableBoneWeight[0];
         [SerializeField] 
         int[] m_Indices = new int[0];
-        [SerializeField] 
-        Vector2Int[] m_Edges = new Vector2Int[0];
-
+        [SerializeField]
+        int2[] m_Edges = new int2[0];
+        [SerializeField]
+        int2[] m_OutlineEdges = new int2[0];
+        
         public abstract Rect frame { get; }
         
         public Vector2[] vertices => m_Vertices;
         public EditableBoneWeight[] vertexWeights => m_VertexWeights;
         
-        public int[] indices
-        {
-            get => m_Indices;
-            set => m_Indices = value;
-        }
-        
-        public Vector2Int[] edges
-        {
-            get => m_Edges;
-            set => m_Edges = value;
-        }
+        public int[] indices => m_Indices;
+
+        public int2[] edges => m_Edges;
+        public int2[] outlineEdges => m_OutlineEdges;
 
         public int vertexCount => m_Vertices.Length;
         public virtual int boneCount => 0;
         public virtual string spriteName => "";
+
+        public void SetIndices(int[] newIndices)
+        {
+            m_Indices = newIndices;
+            UpdateOutlineEdges();
+        }
+
+        void UpdateOutlineEdges()
+        {
+            m_OutlineEdges = MeshUtilities.GetOutlineEdges(m_Indices);
+        }
+        
+        public void SetEdges(int2[] newEdges)
+        {
+            m_Edges = newEdges;
+        }
 
         public void SetVertices(Vector2[] newVertices, EditableBoneWeight[] newWeights)
         {
@@ -86,7 +100,8 @@ namespace UnityEditor.U2D.Animation
             m_Indices = new int[0];
             m_Vertices = new Vector2[0];
             m_VertexWeights = new EditableBoneWeight[0];
-            m_Edges = new Vector2Int[0];
+            m_Edges = new int2[0];
+            m_OutlineEdges = new int2[0];
         }
     }
 

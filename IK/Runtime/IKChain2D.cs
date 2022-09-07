@@ -11,18 +11,25 @@ namespace UnityEngine.U2D.IK
     [Serializable]
     public class IKChain2D
     {
-        [SerializeField][FormerlySerializedAs("m_Target")]
-        private Transform m_EffectorTransform;
-        [SerializeField][FormerlySerializedAs("m_Effector")]
-        private Transform m_TargetTransform;
         [SerializeField]
-        private int m_TransformCount;
+        [FormerlySerializedAs("m_Target")]
+        Transform m_EffectorTransform;
+
         [SerializeField]
-        private Transform[] m_Transforms;
+        [FormerlySerializedAs("m_Effector")]
+        Transform m_TargetTransform;
+
         [SerializeField]
-        private Quaternion[] m_DefaultLocalRotations;
+        int m_TransformCount;
+
         [SerializeField]
-        private Quaternion[] m_StoredLocalRotations;
+        Transform[] m_Transforms;
+
+        [SerializeField]
+        Quaternion[] m_DefaultLocalRotations;
+
+        [SerializeField]
+        Quaternion[] m_StoredLocalRotations;
 
         /// <summary>
         /// Lengths of IK Chain.
@@ -35,8 +42,8 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         public Transform effector
         {
-            get { return m_EffectorTransform; }
-            set { m_EffectorTransform = value; }
+            get => m_EffectorTransform;
+            set => m_EffectorTransform = value;
         }
 
         /// <summary>
@@ -44,17 +51,14 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         public Transform target
         {
-            get { return m_TargetTransform; }
-            set { m_TargetTransform = value; }
+            get => m_TargetTransform;
+            set => m_TargetTransform = value;
         }
 
         /// <summary>
         /// Get the Unity Transforms that are in the IK Chain.
         /// </summary>
-        public Transform[] transforms
-        {
-            get { return m_Transforms; }
-        }
+        public Transform[] transforms => m_Transforms;
 
         /// <summary>
         /// Get the root Unity Transform for the IK Chain.
@@ -68,8 +72,8 @@ namespace UnityEngine.U2D.IK
                 return null;
             }
         }
-        
-        private Transform lastTransform
+
+        Transform lastTransform
         {
             get
             {
@@ -84,17 +88,14 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         public int transformCount
         {
-            get { return m_TransformCount; }
-            set { m_TransformCount = Mathf.Max(0, value); }
+            get => m_TransformCount;
+            set => m_TransformCount = Mathf.Max(0, value);
         }
 
         /// <summary>
         /// Returns true if the IK Chain is valid. False otherwise.
         /// </summary>
-        public bool isValid
-        {
-            get { return Validate(); }
-        }
+        public bool isValid => Validate();
 
         /// <summary>
         /// Gets the length of the IK Chain.
@@ -103,7 +104,7 @@ namespace UnityEngine.U2D.IK
         {
             get
             {
-                if(isValid)
+                if (isValid)
                 {
                     PrepareLengths();
                     return m_Lengths;
@@ -113,7 +114,7 @@ namespace UnityEngine.U2D.IK
             }
         }
 
-        private bool Validate()
+        bool Validate()
         {
             if (effector == null)
                 return false;
@@ -123,15 +124,13 @@ namespace UnityEngine.U2D.IK
                 return false;
             if (m_DefaultLocalRotations == null || m_DefaultLocalRotations.Length != transformCount)
                 return false;
-            if (m_StoredLocalRotations ==  null || m_StoredLocalRotations.Length != transformCount)
+            if (m_StoredLocalRotations == null || m_StoredLocalRotations.Length != transformCount)
                 return false;
             if (rootTransform == null)
                 return false;
             if (lastTransform != effector)
                 return false;
-            if (target && IKUtility.IsDescendentOf(target, rootTransform))
-                return false;
-            return true;
+            return !target || !IKUtility.IsDescendentOf(target, rootTransform);
         }
 
         /// <summary>
@@ -147,7 +146,7 @@ namespace UnityEngine.U2D.IK
             m_StoredLocalRotations = new Quaternion[transformCount];
 
             var currentTransform = effector;
-            int index = transformCount - 1;
+            var index = transformCount - 1;
 
             while (currentTransform && index >= 0)
             {
@@ -159,10 +158,10 @@ namespace UnityEngine.U2D.IK
             }
         }
 
-        private void PrepareLengths()
+        void PrepareLengths()
         {
             var currentTransform = effector;
-            int index = transformCount - 1;
+            var index = transformCount - 1;
 
             if (m_Lengths == null || m_Lengths.Length != transformCount - 1)
                 m_Lengths = new float[transformCount - 1];
@@ -183,8 +182,8 @@ namespace UnityEngine.U2D.IK
         /// <param name="targetRotationIsConstrained">True to constrain the target rotation. False otherwise.</param>
         public void RestoreDefaultPose(bool targetRotationIsConstrained)
         {
-            var count = targetRotationIsConstrained ? transformCount : transformCount-1;
-            for (int i = 0; i < count; ++i)
+            var count = targetRotationIsConstrained ? transformCount : transformCount - 1;
+            for (var i = 0; i < count; ++i)
                 m_Transforms[i].localRotation = m_DefaultLocalRotations[i];
         }
 
@@ -193,7 +192,7 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         public void StoreLocalRotations()
         {
-            for (int i = 0; i < m_Transforms.Length; ++i)
+            for (var i = 0; i < m_Transforms.Length; ++i)
                 m_StoredLocalRotations[i] = m_Transforms[i].localRotation;
         }
 
@@ -204,8 +203,8 @@ namespace UnityEngine.U2D.IK
         /// <param name="targetRotationIsConstrained">True to constrain target rotation. False otherwise.</param>
         public void BlendFkToIk(float finalWeight, bool targetRotationIsConstrained)
         {
-            var count = targetRotationIsConstrained ? transformCount : transformCount-1;
-            for (int i = 0; i < count; ++i)
+            var count = targetRotationIsConstrained ? transformCount : transformCount - 1;
+            for (var i = 0; i < count; ++i)
                 m_Transforms[i].localRotation = Quaternion.Slerp(m_StoredLocalRotations[i], m_Transforms[i].localRotation, finalWeight);
         }
     }
