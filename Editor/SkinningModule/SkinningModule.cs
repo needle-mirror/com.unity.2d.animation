@@ -568,7 +568,7 @@ namespace UnityEditor.U2D.Animation
                     {
                         spriteId = x.sprite.id,
                         spritePosition = new RectInt((int)x.position.x, (int)x.position.y, (int)x.sprite.textureRect.width, (int)x.sprite.textureRect.height),
-                        bones = x.bones.Select(bone => Array.IndexOf(characterBones, bone)).ToArray()
+                        bones = x.bones.Select(bone => Array.IndexOf(characterBones, bone)).Where(bone => bone != -1).ToArray()
                     }
                     ).ToArray();
 

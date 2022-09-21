@@ -55,7 +55,15 @@ namespace UnityEditor.U2D.Animation
 
         void UpdateOutlineEdges()
         {
-            m_OutlineEdges = MeshUtilities.GetOutlineEdges(m_Indices);
+            var indicesNativeArr = new NativeArray<ushort>(m_Indices.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            for (var i = 0; i < indicesNativeArr.Length; ++i)
+                indicesNativeArr[i] = (ushort)m_Indices[i];
+            
+            var outlineNativeArr = MeshUtilities.GetOutlineEdges(indicesNativeArr);
+            m_OutlineEdges = outlineNativeArr.Length > 0 ? outlineNativeArr.ToArray() : new int2[0];
+            
+            outlineNativeArr.Dispose();
+            indicesNativeArr.Dispose();
         }
         
         public void SetEdges(int2[] newEdges)

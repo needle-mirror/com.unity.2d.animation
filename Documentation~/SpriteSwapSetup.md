@@ -12,7 +12,7 @@ Follow the steps below to create a [Sprite Library Asset](SL-Asset.md), and choo
 
 5. Create an empty GameObject (menu: Right-click on the **Hierarchy window > Create Empty**). Select it and then add the Sprite Renderer component.<br/>![](images/2d-anim-add-sprite-renderer.png)
 
-6. Add the [Sprite Library](SL-component.md) component to the same GameObject. Assign the Sprite Library Asset created in step 3 to **Sprite Library Asset**.<br/>![](images/2D-animation-SLComp-properties.png)
+6. Add the [Sprite Library](SL-component.md) component to the same GameObject. Assign the Sprite Library Asset created in step 3 to **Sprite Library Asset**.<br/>![](images/2D-animation-SLComp-Open.png)
 
 7. Add the [Sprite Resolver](SL-Resolver.md) component to the same GameObject.<br/>![](images/2d-anim-add-sprite-resolver-comp-step.png)
 

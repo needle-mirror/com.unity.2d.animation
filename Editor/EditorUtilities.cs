@@ -7,7 +7,7 @@ namespace UnityEditor.U2D.Animation
     internal static class EditorUtilities
     {
         /// <summary>
-        /// Checks if element exists in array independent of the order of X & Y. 
+        /// Checks if element exists in array independent of the order of X and Y.
         /// </summary>
         public static bool ContainsAny(this int2[] array, int2 element)
         {

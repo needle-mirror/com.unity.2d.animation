@@ -1,8 +1,9 @@
-# What's new in version 9.0
+# What's new in version 10.0
 
 ## Added
-- Added a new **Sprite Library Editor** to make authoring and editing of Sprite Libraries easier.
+- [Shadow Caster 2D](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@15.0/manual/2DShadows.html) support for [Sprite Skins](SpriteSkin.md) in URP projects.
+- Optional [Sprite Skin](SpriteSkin.md) GPU deformation in URP projects.
+- Frustum culling for [IK Solvers](2DIK.md#ik-solvers).
 
 ## Updated
-- 2D Animation now depends on the [Collections package](https://docs.unity3d.com/Packages/com.unity.collections@latest), which enables bursted and multithreaded Sprite deformation by default. 
-- Sprite Skin's [Auto Rebind](SpriteSkin.md#auto-rebind) can now swap between all bones underneath the rootBone.
+- Simplified [Sprite Library Component](SL-component.md) inspector.

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Profiling;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.U2D.Common;
@@ -19,6 +20,10 @@ namespace UnityEngine.U2D.IK
         [SerializeField]
         [Range(0f, 1f)]
         float m_Weight = 1f;
+        [SerializeField]
+        bool m_AlwaysUpdate = true;
+        [SerializeField]
+        BaseCullingStrategy m_CullingStrategy;
 
         /// <summary>
         /// Get and Set the weight for solvers.
@@ -33,6 +38,52 @@ namespace UnityEngine.U2D.IK
         /// Get the Solvers that are managed by this manager.
         /// </summary>
         public List<Solver2D> solvers => m_Solvers;
+        
+        int[] m_TransformIdCache;
+
+        /// <summary>
+        /// Solvers are always updated even if the underlying Sprite Skins are not visible.
+        /// </summary>
+        public bool alwaysUpdate
+        {
+            get => m_AlwaysUpdate;
+            set
+            {
+                m_AlwaysUpdate = value;
+                ToggleCulling(!m_AlwaysUpdate);
+            }
+        }
+
+        void OnEnable()
+        {
+            ToggleCulling(!m_AlwaysUpdate);
+        }
+
+        void OnDisable()
+        {
+            m_CullingStrategy?.Disable();
+        }
+
+        void ToggleCulling(bool enableCulling)
+        {
+            BaseCullingStrategy newCullingStrategy = enableCulling ?
+                new SpriteSkinVisibilityCullingStrategy() : 
+                new DisabledCullingStrategy();
+
+            SetCullingStrategy(newCullingStrategy);
+        }
+
+        void SetCullingStrategy(BaseCullingStrategy newCullingStrategy)
+        {
+            if(newCullingStrategy == null || newCullingStrategy == m_CullingStrategy)
+                return;
+
+            m_CullingStrategy?.Disable();
+
+            m_CullingStrategy = newCullingStrategy;
+
+            m_CullingStrategy.Initialize(this);
+        }
 
         void OnValidate()
         {
@@ -88,20 +139,72 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         public void UpdateManager()
         {
+            if(m_Solvers.Count == 0)
+                return;
+
             var profilerMarker = new ProfilerMarker("IKManager2D.UpdateManager");
             profilerMarker.Begin();
-            foreach (var solver in m_Solvers)
+
+            var cullingEnabled = !m_AlwaysUpdate;
+            
+            var solverInitialized = false;
+            for (var i = 0; i < m_Solvers.Count; i++)
             {
+                var solver = m_Solvers[i];
                 if (solver == null || !solver.isActiveAndEnabled)
                     continue;
 
                 if (!solver.isValid)
+                {
                     solver.Initialize();
+                    solverInitialized = true;    
+                }
 
-                solver.UpdateIK(weight);
+                if(!cullingEnabled)
+                    solver.UpdateIK(m_Weight);
+            }
+
+            if (cullingEnabled)
+            {
+                if (solverInitialized || m_TransformIdCache == null)
+                    CacheSolversTransformIds();
+
+                var canUpdate = m_CullingStrategy == null || !m_CullingStrategy.Culled(m_TransformIdCache);
+                if (canUpdate)
+                {
+                    for (var i = 0; i < m_Solvers.Count; i++)
+                    {
+                        var solver = m_Solvers[i];
+                        if (solver == null || !solver.isActiveAndEnabled)
+                            continue;
+
+                        solver.UpdateIK(weight);
+                    }
+                }
             }
 
             profilerMarker.End();
+        }
+
+        void CacheSolversTransformIds()
+        {
+            var transformCache = new HashSet<int>();
+            for (var s = 0; s < solvers.Count; s++)
+            {
+                var solver = solvers[s];
+                for (var c = 0; c < solver.chainCount; c++)
+                {
+                    var chain = solver.GetChain(c);
+                    for (var b = 0; b < chain.transformCount; b++)
+                    {
+                        var boneTransform = chain.transforms[b];
+                        if(boneTransform != null)
+                            transformCache.Add(boneTransform.GetInstanceID());
+                    }
+                }
+            }
+
+            m_TransformIdCache = transformCache.ToArray();
         }
 
         /// <summary>

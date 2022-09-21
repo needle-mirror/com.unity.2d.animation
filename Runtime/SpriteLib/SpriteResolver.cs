@@ -50,6 +50,10 @@ namespace UnityEngine.U2D.Animation
 
 #if UNITY_EDITOR
         bool m_SpriteLibChanged;
+        
+        /// <summary>
+        /// Raised when object is deserialized in the Editor.
+        /// </summary>
         public event Action onDeserializedCallback = () => { };
 #endif
 
@@ -179,12 +183,14 @@ namespace UnityEngine.U2D.Animation
 
         void ResolveUpdatedValue()
         {
+            var isSpriteHashUsed = m_SpriteHash != 0;
+
             if (m_SpriteHash != m_PreviousSpriteHash)
             {
                 m_PreviousSpriteHash = m_SpriteHash;
                 ResolveSpriteToSpriteRenderer();
             }
-            else
+            else if(!isSpriteHashUsed)
             {
                 var spriteKeyInt = InternalEngineBridge.ConvertFloatToInt(m_SpriteKey);
                 if (spriteKeyInt != m_PreviousSpriteKeyInt)

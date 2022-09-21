@@ -19,6 +19,7 @@ namespace UnityEditor.U2D.IK
         {
             public static readonly GUIContent findAllSolversLabel = new GUIContent("Find Solvers", "Find all applicable solvers handled by this manager");
             public static readonly GUIContent weightLabel = new GUIContent("Weight", "Blend between Forward and Inverse Kinematics");
+            public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update", "Solvers are being updated even if Sprites driven by bones in the chain are not visible.");
             public static readonly string listHeaderLabel = "IK Solvers";
             public static readonly string createSolverString = "Create Solver";
             public static readonly string restoreDefaultPoseString = "Restore Default Pose";
@@ -46,6 +47,7 @@ namespace UnityEditor.U2D.IK
         SerializedProperty m_SolversProperty;
         SerializedProperty m_SolverEditorDataProperty;
         SerializedProperty m_WeightProperty;
+        SerializedProperty m_AlwaysUpdate;
         List<Type> m_SolverTypes;
         IKManager2D m_Manager;
 
@@ -56,6 +58,7 @@ namespace UnityEditor.U2D.IK
             m_SolversProperty = serializedObject.FindProperty("m_Solvers");
             m_SolverEditorDataProperty = serializedObject.FindProperty("m_SolverEditorData");
             m_WeightProperty = serializedObject.FindProperty("m_Weight");
+            m_AlwaysUpdate = serializedObject.FindProperty("m_AlwaysUpdate");
             SetupReorderableList();
         }
 
@@ -168,6 +171,8 @@ namespace UnityEditor.U2D.IK
 
             EditorGUILayout.PropertyField(m_WeightProperty, Contents.weightLabel);
             
+            EditorGUILayout.PropertyField(m_AlwaysUpdate, Contents.alwaysUpdate);
+
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 

@@ -61,7 +61,7 @@ namespace UnityEditor.U2D.Animation
             var library = so.FindProperty(SpriteLibrarySourceAssetPropertyString.library);
             var mainLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryGUID);
             var mainLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(mainLibraryAssetAssetPath);
-            SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(mainLibraryAsset, library);
+            SpriteLibraryUtilitiesEditor.UpdateLibraryWithNewMainLibrary(mainLibraryAsset, library);
             if (so.hasModifiedProperties)
             {
                 var modHashProperty = so.FindProperty(SpriteLibrarySourceAssetPropertyString.modificationHash);

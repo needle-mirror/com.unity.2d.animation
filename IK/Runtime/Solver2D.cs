@@ -27,6 +27,11 @@ namespace UnityEngine.U2D.IK
         List<Vector3> m_TargetPositions = new List<Vector3>();
 
         /// <summary>
+        /// Used to evaluate if Solver2D needs to be updated.
+        /// </summary>
+        float m_LastFinalWeight;
+
+        /// <summary>
         /// Returns the number of IKChain2D in the solver.
         /// </summary>
         public int chainCount => GetChainCount();
@@ -69,14 +74,11 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Validate and initialize the Solver.
+        /// Validate new values set from the Inspector.
         /// </summary>
         protected virtual void OnValidate()
         {
             m_Weight = Mathf.Clamp01(m_Weight);
-
-            if (!isValid)
-                Initialize();
         }
 
         bool Validate()
@@ -175,7 +177,10 @@ namespace UnityEngine.U2D.IK
                 return;
 
             var finalWeight = globalWeight * weight;
-            if (finalWeight == 0f)
+            var weightValueChanged = Math.Abs(finalWeight - m_LastFinalWeight) > 0.0001f;
+            m_LastFinalWeight = finalWeight;
+            
+            if (finalWeight == 0f && !weightValueChanged)
                 return;
 
             if (!isValid)

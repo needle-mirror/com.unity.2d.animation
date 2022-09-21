@@ -11,4 +11,10 @@ namespace UnityEditor.U2D.Animation
         public const string hash = "m_Hash";
         public const string categoryList = "m_CategoryList";
     }
+
+    internal static class SpriteLibraryComponentPropertyString
+    {
+        public const string spriteLibraryAsset = "m_SpriteLibraryAsset";
+        public const string library = "m_Library";
+    }
 }

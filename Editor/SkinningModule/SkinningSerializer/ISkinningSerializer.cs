@@ -37,5 +37,7 @@ namespace UnityEditor.U2D.Animation
     {
         public float pixelsPerUnit;
         public List<SkinningCopySpriteData> copyData = new List<SkinningCopySpriteData>();
+        public UnityEngine.U2D.SpriteBone[] characterBones;
+        public bool isCharacterData = false;
     }
 }

@@ -154,8 +154,6 @@ namespace UnityEditor.U2D.Animation
 
         // Error messages
         public static string smoothMeshError = "Generated mesh could not be smoothed. Please try using different parameters";
-        public static string copyError1 = "Unable to convert copied data to Skinning Module paste data.";
-        public static string copyError2 = "There is no copied data to paste.";
-        public static string copyError3 = "Target has a different number of Sprites ({0}) compared to copied source ({1}) for Mesh copy.";
+        public static string copyIncorrectNumberOfSprites = "Cannot paste Sprites ({0}) from the source, because the target has a different number of Sprites ({1}).";
     }
 }

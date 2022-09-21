@@ -1,15 +1,28 @@
 # Changelog
 
-## [9.0.0] - 2022-08-03
+## [10.0.0-pre.1] - 2022-09-21
 ### Added
 - Added bone weight index validation in SpriteSkin's validate method, to ensure valid data before continuing with deformation.
+- IK Manger 2D now supports camera frustum culling.
+- Added internal properties to Sprite Skin to get outline data of an assigned mesh.
 
 ### Fixed
 - Fixed a case where moving vertices forcefully in the Skinning editor could cause a quad reset of the mesh. (case DANB-7)
+- Fixed a case where pasting bones in the Skinning Editor would move bones rather than copy them. (case DANB-99) 
+- Fixed an issue where selecting bones in the Skinning Editor after removing any bone in the skeleton will throw an exception. (Case DANB-124)
+- Fixed a case where setting IKManager2D's or Solver2D's weight to '0' doesn't update solver's effector position. (DANB-139)
 - Fixed a case where multi selecting Sprite Skins would cause a null reference exception to be thrown. (case DANB-126)
+- Fixed an issue where undo the addition of a Sprite Skin component would crash the editor. (DANB-201)
+- Fixed an issue where the Sprite Skin editor would throw an exception if Sprite Renderer doesn't have a Sprite assigned to it.
+- Fixed a case where new bones are not selected after pasting them in the Skinning Editor and an exception is thrown. (DANB-208)
+- Fixed IK Manager 2D's inspector slow downs. (case DANB-214)
+- Fixed a case where a .psd/.psb with a Main Skeleton assigned would generate incorrect bind poses. (Case DANB-225)
 
 ### Changed
 - Refactored internal triangulation and tessellation APIs.
+- Disabled Sprite Library modification in the Component's Inspector and added a button to export changes to an Asset.
+- Pasting unassociated data to Skinning Editor doesn't throw console errors. 
+- Expand and frame on bone selection.
 
 ## [9.0.0-pre.3] - 2022-05-31
 ### Changed

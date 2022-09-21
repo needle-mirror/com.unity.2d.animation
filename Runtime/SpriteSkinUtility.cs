@@ -427,6 +427,21 @@ namespace UnityEngine.U2D.Animation
             }
 
             return true;
+        } 
+        
+        [BurstCompile]
+        internal static void SetVertexPositionFromByteBuffer(in NativeArray<byte> buffer, in NativeArray<int> indices, ref NativeArray<Vector3> vertices, int stride)
+        {
+            unsafe
+            {
+                var bufferPtr = (byte*)buffer.GetUnsafeReadOnlyPtr();
+                for (var i = 0; i < indices.Length; ++i)
+                {
+                    var index = indices[i];
+                    var vertexPtr = (Vector3*)(bufferPtr + (index * stride));
+                    vertices[index] = *vertexPtr;
+                }
+            }
         }        
     }    
 }

@@ -584,6 +584,17 @@ namespace UnityEditor.U2D.Animation
 
             return String.Format("{0}_{1}", inheritedName, ++nameCounter);
         }
+        
+        public static string AutoNameBoneCopy(string originalBoneName, IEnumerable<BoneCache> bones)
+        {
+            DissectBoneName(originalBoneName, out var inheritedName, out _);
+            int nameCounter = FindBiggestNameCounterForBone(inheritedName, bones);
+
+            if (inheritedName == k_DefaultRootName)
+                inheritedName = k_DefaultBoneName;
+
+            return String.Format("{0}_{1}", inheritedName, ++nameCounter);
+        }
 
         private static int FindBiggestNameCounter(IEnumerable<BoneCache> bones)
         {
@@ -595,6 +606,23 @@ namespace UnityEditor.U2D.Animation
                 DissectBoneName(bone.name, out inheritedName, out counter);
                 if (counter > autoNameCounter)
                     autoNameCounter = counter;
+            }
+            return autoNameCounter;
+        }
+        
+        static int FindBiggestNameCounterForBone(string boneName, IEnumerable<BoneCache> bones)
+        {
+            var autoNameCounter = 0;
+            foreach (var bone in bones)
+            {
+                DissectBoneName(bone.name, out var inheritedName, out var counter);
+                {
+                    if (inheritedName == boneName)
+                    {
+                        if (counter > autoNameCounter)
+                            autoNameCounter = counter;
+                    }
+                }
             }
             return autoNameCounter;
         }

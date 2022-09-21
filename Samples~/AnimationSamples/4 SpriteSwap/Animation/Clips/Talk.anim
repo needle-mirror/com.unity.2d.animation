@@ -6225,7 +6225,8 @@ AnimationClip:
       m_RotationOrder: 4
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_49
   m_FloatCurves:
-  - curve:
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -6244,7 +6245,9 @@ AnimationClip:
     path: R_forearm
     classID: 212
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -6263,20 +6266,13 @@ AnimationClip:
     path: L_hand
     classID: 212
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1.5231952e-34
-        inSlope: Infinity
-        outSlope: Infinity
-        tangentMode: 103
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 3.3833334
         value: 1.0331095e-20
         inSlope: Infinity
         outSlope: Infinity
@@ -6285,8 +6281,17 @@ AnimationClip:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 4.983333
+        time: 3.7166667
         value: 1.5231952e-34
+        inSlope: Infinity
+        outSlope: Infinity
+        tangentMode: 103
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 5.8166666
+        value: 1.0331095e-20
         inSlope: Infinity
         outSlope: Infinity
         tangentMode: 103
@@ -6300,6 +6305,7 @@ AnimationClip:
     path: R_arm_1
     classID: 114
     script: {fileID: 11500000, guid: ed8b1ae4e4e52b34ea557c1c11e076fc, type: 3}
+    flags: 16
   m_PPtrCurves: []
   m_SampleRate: 60
   m_WrapMode: 0
@@ -6316,6 +6322,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2002190183
       attribute: 1
@@ -6324,6 +6331,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3277312572
       attribute: 1
@@ -6332,6 +6340,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2854623218
       attribute: 1
@@ -6340,6 +6349,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 858736200
       attribute: 1
@@ -6348,6 +6358,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3124268227
       attribute: 1
@@ -6356,6 +6367,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 590470521
       attribute: 1
@@ -6364,6 +6376,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 135361571
       attribute: 4
@@ -6372,6 +6385,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1812249389
       attribute: 4
@@ -6380,6 +6394,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 316223114
       attribute: 4
@@ -6388,6 +6403,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 4031040483
       attribute: 4
@@ -6396,6 +6412,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2439893969
       attribute: 4
@@ -6404,6 +6421,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 4079847138
       attribute: 4
@@ -6412,6 +6430,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 313411240
       attribute: 4
@@ -6420,6 +6439,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2740706159
       attribute: 4
@@ -6428,6 +6448,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2715654280
       attribute: 4
@@ -6436,6 +6457,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 4042596338
       attribute: 4
@@ -6444,6 +6466,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2280796004
       attribute: 4
@@ -6452,6 +6475,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2002190183
       attribute: 4
@@ -6460,6 +6484,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3550456584
       attribute: 4
@@ -6468,6 +6493,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 358506173
       attribute: 4
@@ -6476,6 +6502,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1425382171
       attribute: 4
@@ -6484,6 +6511,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1922296265
       attribute: 4
@@ -6492,6 +6520,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1813710963
       attribute: 4
@@ -6500,6 +6529,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 435250266
       attribute: 4
@@ -6508,6 +6538,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 4212225133
       attribute: 4
@@ -6516,6 +6547,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1241661669
       attribute: 4
@@ -6524,6 +6556,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3621900723
       attribute: 4
@@ -6532,6 +6565,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1081161213
       attribute: 4
@@ -6540,6 +6574,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2561104172
       attribute: 4
@@ -6548,6 +6583,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3854190960
       attribute: 4
@@ -6556,6 +6592,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2629515665
       attribute: 4
@@ -6564,6 +6601,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3778841201
       attribute: 4
@@ -6572,6 +6610,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 517666725
       attribute: 4
@@ -6580,6 +6619,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1519295010
       attribute: 4
@@ -6588,6 +6628,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2420189936
       attribute: 4
@@ -6596,6 +6637,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2087637135
       attribute: 4
@@ -6604,6 +6646,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 185375464
       attribute: 4
@@ -6612,6 +6655,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3334627773
       attribute: 4
@@ -6620,6 +6664,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 54671436
       attribute: 4
@@ -6628,6 +6673,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3345029154
       attribute: 4
@@ -6636,6 +6682,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2031458777
       attribute: 4
@@ -6644,6 +6691,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1146116982
       attribute: 4
@@ -6652,6 +6700,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3374782191
       attribute: 4
@@ -6660,6 +6709,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1651019812
       attribute: 4
@@ -6668,6 +6718,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2693121221
       attribute: 4
@@ -6676,6 +6727,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3403783703
       attribute: 3
@@ -6684,6 +6736,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3186011777
       attribute: 3
@@ -6692,6 +6745,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3482995580
       attribute: 3305885265
@@ -6700,6 +6754,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1966976573
       attribute: 3305885265
@@ -6708,6 +6763,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2640884474
       attribute: 3843704414
@@ -6716,6 +6772,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 1
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2280796004
       attribute: 1
@@ -6724,6 +6781,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 4031040483
       attribute: 1
@@ -6732,6 +6790,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2357843972
       attribute: 1
@@ -6740,6 +6799,7 @@ AnimationClip:
       customType: 0
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1756657396
       attribute: 4
@@ -6748,6 +6808,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2314238377
       attribute: 4
@@ -6756,6 +6817,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3727437610
       attribute: 4
@@ -6764,6 +6826,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 2357843972
       attribute: 4
@@ -6772,6 +6835,7 @@ AnimationClip:
       customType: 4
       isPPtrCurve: 0
       isIntCurve: 0
+      isSerializeReferenceCurve: 0
     pptrCurveMapping: []
   m_AnimationClipSettings:
     serializedVersion: 2
@@ -6794,7 +6858,8 @@ AnimationClip:
     m_HeightFromFeet: 0
     m_Mirror: 0
   m_EditorCurves:
-  - curve:
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -6903,7 +6968,9 @@ AnimationClip:
     path: bone_1/bone_50
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -7012,7 +7079,9 @@ AnimationClip:
     path: bone_1/bone_50
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -7121,7 +7190,9 @@ AnimationClip:
     path: bone_1/bone_50
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -7230,7 +7301,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -7339,7 +7412,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -7448,7 +7523,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -7719,7 +7796,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_45
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -7990,7 +8069,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_45
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8261,7 +8342,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_45
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8316,7 +8399,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8371,7 +8456,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8426,7 +8513,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8490,7 +8579,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9/bone_10
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8554,7 +8645,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9/bone_10
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8618,7 +8711,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9/bone_10
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8682,7 +8777,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8746,7 +8843,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8810,7 +8909,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8874,7 +8975,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -8938,7 +9041,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -9002,7 +9107,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -9174,7 +9281,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -9346,7 +9455,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -9518,7 +9629,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -9690,7 +9803,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -9862,7 +9977,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -10034,7 +10151,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -10197,7 +10316,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -10360,7 +10481,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -10523,7 +10646,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -10659,7 +10784,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54/bone_56
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -10795,7 +10922,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54/bone_56
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -10931,7 +11060,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54/bone_56
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11067,7 +11198,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11203,7 +11336,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11339,7 +11474,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11412,7 +11549,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_55
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11485,7 +11624,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_55
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11558,7 +11699,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_55
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11586,7 +11729,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_46
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11614,7 +11759,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_46
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11642,7 +11789,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_46
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11661,7 +11810,9 @@ AnimationClip:
     path: R_forearm
     classID: 212
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11680,7 +11831,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_55
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11699,7 +11852,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_55
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11718,7 +11873,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_55
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11737,7 +11894,9 @@ AnimationClip:
     path: L_hand
     classID: 212
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11765,7 +11924,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11793,7 +11954,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11821,7 +11984,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11849,7 +12014,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11877,7 +12044,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11905,7 +12074,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11933,7 +12104,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11961,7 +12134,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -11989,7 +12164,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12008,7 +12185,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42/bone_43
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12027,7 +12206,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42/bone_43
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12046,7 +12227,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42/bone_43
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12065,7 +12248,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42/bone_43
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12084,7 +12269,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42/bone_43
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12103,7 +12290,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42/bone_43
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12194,7 +12383,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12285,7 +12476,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12376,7 +12569,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12485,7 +12680,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12594,7 +12791,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12703,7 +12902,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12821,7 +13022,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -12939,7 +13142,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -13057,7 +13262,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -13175,7 +13382,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39/bone_40
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -13293,7 +13502,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39/bone_40
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -13411,7 +13622,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39/bone_40
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -13538,7 +13751,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -13665,7 +13880,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -13792,7 +14009,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -13910,7 +14129,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -14028,7 +14249,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -14146,7 +14369,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -14273,7 +14498,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -14400,7 +14627,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -14527,7 +14756,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -14654,7 +14885,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -14781,7 +15014,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -14908,7 +15143,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -15035,7 +15272,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -15162,7 +15401,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -15289,7 +15530,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -15407,7 +15650,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -15525,7 +15770,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -15643,7 +15890,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -15761,7 +16010,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -15879,7 +16130,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -15997,7 +16250,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -16115,7 +16370,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33/bone_34
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -16233,7 +16490,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33/bone_34
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -16351,7 +16610,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33/bone_34
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -16478,7 +16739,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -16605,7 +16868,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -16732,7 +16997,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -16859,7 +17126,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -16986,7 +17255,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -17113,7 +17384,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -17240,7 +17513,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -17367,7 +17642,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -17494,7 +17771,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -17621,7 +17900,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26/bone_27
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -17748,7 +18029,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26/bone_27
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -17875,7 +18158,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26/bone_27
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -18002,7 +18287,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -18129,7 +18416,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -18256,7 +18545,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -18383,7 +18674,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -18510,7 +18803,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -18637,7 +18932,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -18764,7 +19061,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -18891,7 +19190,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -19018,7 +19319,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -19136,7 +19439,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20/bone_21
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -19254,7 +19559,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20/bone_21
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -19372,7 +19679,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20/bone_21
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -19499,7 +19808,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -19626,7 +19937,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -19753,7 +20066,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -19880,7 +20195,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -20007,7 +20324,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -20134,7 +20453,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -20261,7 +20582,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -20388,7 +20711,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -20515,7 +20840,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -20642,7 +20969,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -20769,7 +21098,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -20896,7 +21227,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -21023,7 +21356,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -21150,7 +21485,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -21277,7 +21614,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -21404,7 +21743,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -21531,7 +21872,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -21658,7 +22001,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -21785,7 +22130,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -21912,7 +22259,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -22039,7 +22388,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -22166,7 +22517,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -22293,7 +22646,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -22420,7 +22775,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -22691,7 +23048,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_44
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -22962,7 +23321,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_44
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -23233,7 +23594,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_44
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -23486,7 +23849,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_51
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -23739,7 +24104,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_51
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -23992,7 +24359,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_51
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -24245,7 +24614,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_52
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -24498,7 +24869,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_52
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -24751,7 +25124,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_52
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -24851,7 +25226,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_48
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -24951,7 +25328,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_48
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -25051,7 +25430,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_48
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -25151,7 +25532,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_49
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -25251,7 +25634,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_49
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -25351,7 +25736,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_49
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -25406,7 +25793,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_6
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -25461,7 +25850,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_6
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -25516,7 +25907,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_6
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -25661,7 +26054,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_5
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -25806,7 +26201,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_5
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -25951,20 +26348,13 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_5
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1.5231952e-34
-        inSlope: Infinity
-        outSlope: Infinity
-        tangentMode: 103
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 3.3833334
         value: 1.0331095e-20
         inSlope: Infinity
         outSlope: Infinity
@@ -25973,8 +26363,17 @@ AnimationClip:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 4.983333
+        time: 3.7166667
         value: 1.5231952e-34
+        inSlope: Infinity
+        outSlope: Infinity
+        tangentMode: 103
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 5.8166666
+        value: 1.0331095e-20
         inSlope: Infinity
         outSlope: Infinity
         tangentMode: 103
@@ -25988,8 +26387,10 @@ AnimationClip:
     path: R_arm_1
     classID: 114
     script: {fileID: 11500000, guid: ed8b1ae4e4e52b34ea557c1c11e076fc, type: 3}
+    flags: 16
   m_EulerEditorCurves:
-  - curve:
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -25999,7 +26400,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26009,7 +26412,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26019,7 +26424,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26029,7 +26436,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26039,7 +26448,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26049,7 +26460,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26059,7 +26472,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54/bone_56
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26069,7 +26484,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54/bone_56
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26079,7 +26496,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54/bone_56
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26089,7 +26508,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26099,7 +26520,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26109,7 +26532,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26119,7 +26544,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26129,7 +26556,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26139,7 +26568,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26149,7 +26580,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26159,7 +26592,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26169,7 +26604,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26179,7 +26616,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26189,7 +26628,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26199,7 +26640,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26209,7 +26652,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26219,7 +26664,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26229,7 +26676,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26239,7 +26688,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26249,7 +26700,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26259,7 +26712,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_54
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26269,7 +26724,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26279,7 +26736,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26289,7 +26748,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26299,7 +26760,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42/bone_43
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26309,7 +26772,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42/bone_43
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26319,7 +26784,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41/bone_42/bone_43
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26329,7 +26796,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26339,7 +26808,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26349,7 +26820,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_41
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26359,7 +26832,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26369,7 +26844,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26379,7 +26856,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26389,7 +26868,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33/bone_34
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26399,7 +26880,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33/bone_34
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26409,7 +26892,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33/bone_34
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26419,7 +26904,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26429,7 +26916,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26439,7 +26928,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26449,7 +26940,9 @@ AnimationClip:
     path: bone_1/bone_50
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26459,7 +26952,9 @@ AnimationClip:
     path: bone_1/bone_50
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26469,7 +26964,9 @@ AnimationClip:
     path: bone_1/bone_50
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26479,7 +26976,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26489,7 +26988,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26499,7 +27000,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26509,7 +27012,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26519,7 +27024,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26529,7 +27036,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26539,7 +27048,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26549,7 +27060,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26559,7 +27072,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26569,7 +27084,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26579,7 +27096,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26589,7 +27108,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26599,7 +27120,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26609,7 +27132,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26619,7 +27144,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26629,7 +27156,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39/bone_40
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26639,7 +27168,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39/bone_40
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26649,7 +27180,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37/bone_38/bone_39/bone_40
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26659,7 +27192,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26669,7 +27204,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26679,7 +27216,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26689,7 +27228,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26699,7 +27240,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26709,7 +27252,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26719,7 +27264,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26729,7 +27276,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26739,7 +27288,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26749,7 +27300,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26759,7 +27312,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26769,7 +27324,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32/bone_33
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26779,7 +27336,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26/bone_27
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26789,7 +27348,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26/bone_27
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26799,7 +27360,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23/bone_24/bone_25/bone_26/bone_27
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26809,7 +27372,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26819,7 +27384,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26829,7 +27396,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_28/bone_29/bone_30/bone_31/bone_32
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26839,7 +27408,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26849,7 +27420,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26859,7 +27432,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35/bone_36/bone_37
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26869,7 +27444,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26879,7 +27456,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26889,7 +27468,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_35
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26899,7 +27480,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26909,7 +27492,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26919,7 +27504,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26929,7 +27516,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26939,7 +27528,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26949,7 +27540,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22/bone_23
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26959,7 +27552,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9/bone_10
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26969,7 +27564,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9/bone_10
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26979,7 +27576,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_8/bone_9/bone_10
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26989,7 +27588,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_46
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -26999,7 +27600,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_46
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27009,7 +27612,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_46
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27019,7 +27624,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20/bone_21
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27029,7 +27636,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20/bone_21
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27039,7 +27648,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20/bone_21
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27049,7 +27660,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_55
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27059,7 +27672,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_55
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27069,7 +27684,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13/bone_55
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27079,7 +27696,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27089,7 +27708,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27099,7 +27720,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_22
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27109,7 +27732,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27119,7 +27744,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27129,7 +27756,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27139,7 +27768,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27149,7 +27780,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27159,7 +27792,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27169,7 +27804,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27179,7 +27816,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27189,7 +27828,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27199,7 +27840,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27209,7 +27852,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27219,7 +27864,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27229,7 +27876,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27239,7 +27888,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27249,7 +27900,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_3/bone_4/bone_15/bone_16/bone_17/bone_18/bone_19/bone_20
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27259,7 +27912,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27269,7 +27924,9 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13
     classID: 4
     script: {fileID: 0}
-  - curve:
+    flags: 16
+  - serializedVersion: 2
+    curve:
       serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
@@ -27279,6 +27936,7 @@ AnimationClip:
     path: bone_1/bone_50/bone_2/bone_53/bone_11/bone_12/bone_13
     classID: 4
     script: {fileID: 0}
+    flags: 16
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events: []

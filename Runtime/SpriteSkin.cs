@@ -57,6 +57,8 @@ namespace UnityEngine.U2D.Animation
         {
             public static readonly ProfilerMarker cacheCurrentSprite = new ProfilerMarker("SpriteSkin.CacheCurrentSprite");
             public static readonly ProfilerMarker cacheHierarchy = new ProfilerMarker("SpriteSkin.CacheHierarchy");
+            public static readonly ProfilerMarker cacheOutline = new ProfilerMarker("SpriteSkin.CacheOutline");
+            public static readonly ProfilerMarker updateCachedVertexOutline = new ProfilerMarker("SpriteSkin.UpdateCachedOutlineVertices");
             public static readonly ProfilerMarker getSpriteBonesTransformFromGuid = new ProfilerMarker("SpriteSkin.GetSpriteBoneTransformsFromGuid");
             public static readonly ProfilerMarker getSpriteBonesTransformFromPath = new ProfilerMarker("SpriteSkin.GetSpriteBoneTransformsFromPath");
         }
@@ -102,9 +104,30 @@ namespace UnityEngine.U2D.Animation
         int m_SpriteVertexCount;
         int m_SpriteTangentVertexOffset;
         int m_DataIndex = -1;
-        bool m_BoneCacheUpdateToDate = false;        
+        bool m_BoneCacheUpdateToDate = false;
         
         Dictionary<int, List<TransformData>> m_HierarchyCache = new Dictionary<int, List<TransformData>>();
+
+        NativeArray<int> m_OutlineIndicesCache;
+        NativeArray<Vector3> m_OutlineVerticesCache;
+        int m_VertexDeformationHash = 0;
+
+#if ENABLE_URP
+        /// <summary>
+        /// Returns an array of the outline indices.
+        /// The indices are sorted and laid out with line topology.
+        /// </summary>
+        internal NativeArray<int> outlineIndices => m_OutlineIndicesCache;
+        /// <summary>
+        /// Returns an array of the outline vertices.
+        /// </summary>
+        internal NativeArray<Vector3> outlineVertices => m_OutlineVerticesCache;
+#endif
+        
+        /// <summary>
+        /// Returns a hash which is updated every time the mesh is deformed. 
+        /// </summary>
+        internal int vertexDeformationHash => m_VertexDeformationHash;
         
         internal Sprite sprite => spriteRenderer.sprite;
         internal SpriteRenderer spriteRenderer => m_SpriteRenderer;
@@ -123,6 +146,7 @@ namespace UnityEngine.U2D.Animation
         
         /// <summary>
         /// Returns the Transform Components that is used for deformation.
+        /// Do not modify elements of the returned array.
         /// </summary>
         /// <returns>An array of Transform Components.</returns>
         public Transform[] boneTransforms
@@ -197,13 +221,24 @@ namespace UnityEngine.U2D.Animation
             Awake();
             m_TransformsHash = 0;
             CacheCurrentSprite(false);
-            
+
             if (m_HierarchyCache.Count == 0)
                 CacheHierarchy();
             
             OnEnableBatch();
+            SpriteSkinVisibilityCulling.instance.RegisterSpriteSkin(this);
+
+#if ENABLE_URP            
+            if (SpriteSkinComposite.instance.isSRPBatcherSet)
+            {
+                spriteRenderer.sharedMaterial.EnableKeyword("SKINNED_SPRITE");
+                Debug.AssertFormat(spriteRenderer.sharedMaterial.IsKeywordEnabled("SKINNED_SPRITE"), "{0} does not have a valid material with URP gpu sprite skinning", spriteRenderer.gameObject.name);
+            }
+            else
+                spriteRenderer.sharedMaterial.DisableKeyword("SKINNED_SPRITE");
+#endif
         }
-        
+
         void OnEnableBatch()
         {
             m_TransformId = gameObject.transform.GetInstanceID();
@@ -223,8 +258,18 @@ namespace UnityEngine.U2D.Animation
         {
             RemoveTransformFromSpriteSkinComposite();
             SpriteSkinComposite.instance.RemoveSpriteSkin(this);
-        }    
-        
+        }
+
+        void OnBecameVisible()
+        {
+            SpriteSkinVisibilityCulling.instance.UpdateSpriteSkinVisibility(this);
+        }
+
+        void OnBecameInvisible()
+        {
+            SpriteSkinVisibilityCulling.instance.UpdateSpriteSkinVisibility(this);
+        }
+
         void OnBoneTransformChanged()
         {
             if (enabled)
@@ -237,11 +282,6 @@ namespace UnityEngine.U2D.Animation
                 CacheBoneTransformIds(true);
         }
 
-        void OnDestroy()
-        {
-            DeactivateSkinning();
-        }
-        
         /// <summary>
         /// Called before object is serialized.
         /// </summary>
@@ -283,7 +323,8 @@ namespace UnityEngine.U2D.Animation
         {
             CacheBoneTransformIds();
             CacheCurrentSprite(m_AutoRebind);
-            return (m_IsValid && spriteRenderer.enabled && (alwaysUpdate || spriteRenderer.isVisible));
+            var hasSprite = m_CurrentDeformSprite != 0;
+            return (m_IsValid && hasSprite && spriteRenderer.enabled && (alwaysUpdate || spriteRenderer.isVisible));
         }
 
         void Reset()
@@ -354,6 +395,8 @@ namespace UnityEngine.U2D.Animation
                 CacheValidFlag();
                 m_BoneCacheUpdateToDate = true;
                 SpriteSkinComposite.instance.CopyToSpriteSkinData(this);
+                
+                SpriteSkinVisibilityCulling.instance.RefreshBoneMapping(this);
             }
         }
         
@@ -402,10 +445,13 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Gets a byte array to the currently deformed vertices for this SpriteSkin.
+        /// Gets a byte array to the currently deformed vertices for this SpriteSkin. 
         /// </summary>
         /// <returns>Returns a reference to the currently deformed vertices. This is valid only for this calling frame.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when there are no currently deformed vertices.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when there are no currently deformed vertices.
+        /// HasCurrentDeformedVertices can be used to verify if there are any deformed vertices available.
+        /// </exception>
         internal NativeArray<byte> GetCurrentDeformedVertices()
         {
             if (!m_IsValid)
@@ -424,10 +470,13 @@ namespace UnityEngine.U2D.Animation
         /// <returns>Returns a reference to the currently deformed vertices. This is valid only for this calling frame.</returns>
         /// <exception cref="InvalidOperationException">
         /// Thrown when there are no currently deformed vertices or if the deformed vertices does not contain only
-        /// position data.
+        /// position data. HasCurrentDeformedVertices can be used to verify if there are any deformed vertices available.
         /// </exception>
         internal NativeSlice<PositionVertex> GetCurrentDeformedVertexPositions()
         {
+            if (!m_IsValid)
+                throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
+            
             if (sprite.HasVertexAttribute(VertexAttribute.Tangent))
                 throw new InvalidOperationException("This SpriteSkin has deformed tangents");
             if (!sprite.HasVertexAttribute(VertexAttribute.Position))
@@ -445,10 +494,13 @@ namespace UnityEngine.U2D.Animation
         /// </returns>
         /// <exception cref="InvalidOperationException">
         /// Thrown when there are no currently deformed vertices or if the deformed vertices does not contain only
-        /// position and tangent data.
+        /// position and tangent data. HasCurrentDeformedVertices can be used to verify if there are any deformed vertices available.
         /// </exception>
         internal NativeSlice<PositionTangentVertex> GetCurrentDeformedVertexPositionsAndTangents()
         {
+            if (!m_IsValid)
+                throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
+            
             if (!sprite.HasVertexAttribute(VertexAttribute.Tangent))
                 throw new InvalidOperationException("This SpriteSkin does not have deformed tangents");
             if (!sprite.HasVertexAttribute(VertexAttribute.Position))
@@ -462,9 +514,15 @@ namespace UnityEngine.U2D.Animation
         /// Gets an enumerable to iterate through all deformed vertex positions of this SpriteSkin.
         /// </summary>
         /// <returns>Returns an IEnumerable to deformed vertex positions.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when there is no vertex positions or deformed vertices.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when there is no vertex positions or deformed vertices.
+        /// HasCurrentDeformedVertices can be used to verify if there are any deformed vertices available.
+        /// </exception>
         public IEnumerable<Vector3> GetDeformedVertexPositionData()
         {
+            if (!m_IsValid)
+                throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
+            
             var hasPosition = sprite.HasVertexAttribute(VertexAttribute.Position);
             if (!hasPosition)
                 throw new InvalidOperationException("Sprite does not have vertex position data.");
@@ -478,9 +536,15 @@ namespace UnityEngine.U2D.Animation
         /// Gets an enumerable to iterate through all deformed vertex tangents of this SpriteSkin. 
         /// </summary>
         /// <returns>Returns an IEnumerable to deformed vertex tangents.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when there is no vertex tangents or deformed vertices.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when there is no vertex tangents or deformed vertices.
+        /// HasCurrentDeformedVertices can be used to verify if there are any deformed vertices available.
+        /// </exception>
         public IEnumerable<Vector4> GetDeformedVertexTangentData()
         {
+            if (!m_IsValid)
+                throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
+            
             var hasTangent = sprite.HasVertexAttribute(VertexAttribute.Tangent);
             if (!hasTangent)
                 throw new InvalidOperationException("Sprite does not have vertex tangent data.");
@@ -495,6 +559,18 @@ namespace UnityEngine.U2D.Animation
             DeactivateSkinning();
             BufferManager.instance.ReturnBuffer(GetInstanceID());
             OnDisableBatch();
+            DisposeOutlineCaches();
+            
+            SpriteSkinVisibilityCulling.instance.UnregisterSpriteSkin(this);
+        }
+
+        void DisposeOutlineCaches()
+        {
+            m_OutlineIndicesCache.DisposeIfCreated();
+            m_OutlineVerticesCache.DisposeIfCreated();
+
+            m_OutlineIndicesCache = default;
+            m_OutlineVerticesCache = default;
         }
 
         /// <summary>
@@ -526,11 +602,22 @@ namespace UnityEngine.U2D.Animation
                     InternalEngineBridge.SetDeformableBuffer(spriteRenderer, inputVertices.array);
                     m_TransformsHash = transformHash;
                     m_CurrentDeformSprite = GetSpriteInstanceID();
+
+                    PostDeform(true);
                 }
             }
             else if(!InternalEngineBridge.IsUsingDeformableBuffer(spriteRenderer, IntPtr.Zero))
             {
                 DeactivateSkinning();
+            }
+        }
+
+        internal void PostDeform(bool didDeform)
+        {
+            if (didDeform)
+            {
+                UpdateCachedOutlineVertices();
+                m_VertexDeformationHash = Time.timeSinceLevelLoad.GetHashCode();
             }
         }
 
@@ -554,7 +641,7 @@ namespace UnityEngine.U2D.Animation
                 }
             }
         }
-        
+
         void UpdateSpriteDeform()
         {
             if (sprite == null)
@@ -581,8 +668,80 @@ namespace UnityEngine.U2D.Animation
                 m_SpriteVertexCount = sprite.GetVertexCount();
                 m_SpriteTangentVertexOffset = sprite.GetVertexStreamOffset(VertexAttribute.Tangent);
             }
+            
+            CacheSpriteOutline();
             SpriteSkinComposite.instance.CopyToSpriteSkinData(this);
         }  
+        
+        void CacheSpriteOutline()
+        {
+#if ENABLE_URP            
+            using (Profiling.cacheOutline.Auto())
+            {
+                DisposeOutlineCaches();
+
+                if (sprite == null)
+                    return;
+
+                var indices = sprite.GetIndices();
+                var edgeNativeArr = MeshUtilities.GetOutlineEdges(in indices);
+
+                m_OutlineIndicesCache = new NativeArray<int>(edgeNativeArr.Length * 2, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+
+                var maxIndex = 0;
+                for (var i = 0; i < edgeNativeArr.Length; ++i)
+                {
+                    var indexX = edgeNativeArr[i].x;
+                    var indexY = edgeNativeArr[i].y;
+                    m_OutlineIndicesCache[i * 2] = indexX;
+                    m_OutlineIndicesCache[(i * 2) + 1] = indexY;
+
+                    if (indexX > maxIndex)
+                        maxIndex = indexX;
+                    if (indexY > maxIndex)
+                        maxIndex = indexY;
+                }
+                
+                m_OutlineVerticesCache = new NativeArray<Vector3>(maxIndex + 1, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                UpdateCachedOutlineVertices();
+                edgeNativeArr.Dispose();
+            }
+#endif
+        }
+
+        void UpdateCachedOutlineVertices()
+        {
+#if ENABLE_URP            
+            if (sprite == null)
+                return;
+            if (!m_OutlineIndicesCache.IsCreated || !m_OutlineVerticesCache.IsCreated)
+                return;
+
+            using (Profiling.updateCachedVertexOutline.Auto())
+            {
+                if (HasCurrentDeformedVertices())
+                {
+                    var buffer = GetCurrentDeformedVertices();
+                    var indexCache = m_OutlineIndicesCache;
+                    var vertexCache = m_OutlineVerticesCache;
+                    BurstedSpriteSkinUtilities.SetVertexPositionFromByteBuffer(in buffer, in indexCache, ref vertexCache, m_SpriteVertexStreamSize);
+                    m_OutlineVerticesCache = vertexCache;
+                }
+                else
+                {
+                    var vertices = sprite.GetVertexAttribute<Vector3>(VertexAttribute.Position);
+                    var vertexCache = m_OutlineVerticesCache;
+                    for (var i = 0; i < m_OutlineIndicesCache.Length; ++i)
+                    {
+                        var index = m_OutlineIndicesCache[i];
+                        vertexCache[index] = vertices[index];
+                    }
+
+                    m_OutlineVerticesCache = vertexCache;
+                }
+            }
+#endif
+        }        
         
         internal void CopyToSpriteSkinData(ref SpriteSkinData data, int spriteSkinIndex)
         {
@@ -782,6 +941,9 @@ namespace UnityEngine.U2D.Animation
                 InternalEngineBridge.SetLocalAABB(spriteRenderer, currentSprite.bounds);
 
             spriteRenderer.DeactivateDeformableBuffer();
+
+            m_DataIndex = -1;
+            m_TransformsHash = 0;
         }
 
         internal void ResetSprite()

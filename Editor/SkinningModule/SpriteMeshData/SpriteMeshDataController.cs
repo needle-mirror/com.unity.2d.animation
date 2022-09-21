@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEditor.U2D.Sprites;
+using Unity.Jobs;
+using Unity.Collections;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -18,6 +20,16 @@ namespace UnityEditor.U2D.Animation
             return weight.CompareTo(other.weight);
         }
     }
+
+    internal struct SpriteJobData
+    {
+        public BaseSpriteMeshData spriteMesh;
+        public NativeArray<float2> vertices;
+        public NativeArray<int2> edges;
+        public NativeArray<int> indices;
+        public NativeArray<BoneWeight> weights;
+        public NativeArray<int4> result;
+    };
 
     internal class SpriteMeshDataController
     {
@@ -161,10 +173,10 @@ namespace UnityEditor.U2D.Animation
                 new Vector2(frame.xMin, frame.yMax),
                 new Vector2(frame.xMax, frame.yMax)
             };
-            
+
             for(var i = 0; i < verts.Length; ++i)
                 CreateVertex(verts[i]);
-            
+
             var tris = new int[]
             {
                 0, 2, 3, 1
@@ -177,11 +189,20 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
+        public JobHandle TriangulateJob(ITriangulator triangulator, SpriteJobData spriteData)
+        {
+            Debug.Assert(spriteMeshData != null);
+            Debug.Assert(triangulator != null);
+
+            FillMeshDataContainers(out m_VerticesTemp, out m_EdgesTemp, out var weightData, out var hasWeightData);
+            return triangulator.ScheduleTriangulate(in m_VerticesTemp, in m_EdgesTemp, ref spriteData.vertices, ref spriteData.indices, ref spriteData.edges, ref spriteData.result);
+        }
+
         public void Triangulate(ITriangulator triangulator)
         {
             Debug.Assert(spriteMeshData != null);
             Debug.Assert(triangulator != null);
-            
+
             FillMeshDataContainers(out m_VerticesTemp, out m_EdgesTemp, out var weightData, out var hasWeightData);
             triangulator.Triangulate(ref m_EdgesTemp, ref m_VerticesTemp, out var indices);
 
@@ -189,11 +210,11 @@ namespace UnityEditor.U2D.Animation
             {
                 spriteMeshData.Clear();
                 CreateQuad();
-                
+
                 FillMeshDataContainers(out m_VerticesTemp, out m_EdgesTemp, out weightData, out hasWeightData);
                 triangulator.Triangulate(ref m_EdgesTemp, ref m_VerticesTemp, out indices);
             }
-            
+
             spriteMeshData.Clear();
             spriteMeshData.SetIndices(indices);
             spriteMeshData.SetEdges(m_EdgesTemp);
@@ -224,7 +245,7 @@ namespace UnityEditor.U2D.Animation
                 hasWeightData = true;
         }
 
-        public void Subdivide(ITriangulator triangulator, float largestAreaFactor, float areaThreshold)
+        public JobHandle Subdivide(ITriangulator triangulator, SpriteJobData spriteData, float largestAreaFactor, float areaThreshold)
         {
             Debug.Assert(spriteMeshData != null);
             Debug.Assert(triangulator != null);
@@ -245,6 +266,7 @@ namespace UnityEditor.U2D.Animation
                 spriteMeshData.SetEdges(m_EdgesTemp);
             }
             catch (Exception) { }
+            return default(JobHandle);
         }
 
         public void ClearWeights(ISelection<int> selection)
@@ -313,12 +335,25 @@ namespace UnityEditor.U2D.Animation
                     spriteMeshData.vertexWeights[i].Normalize();
         }
 
+        public JobHandle CalculateWeightsJob(IWeightsGenerator weightsGenerator, ISelection<int> selection, float filterTolerance, SpriteJobData sd)
+        {
+            Debug.Assert(spriteMeshData != null);
+
+            GetControlPoints(out var controlPoints, out var bones, out var pins);
+
+            var vertices = EditorUtilities.ToFloat2(spriteMeshData.vertices);
+            var indices = spriteMeshData.indices;
+            var edges = spriteMeshData.edges;
+
+            return weightsGenerator.CalculateJob(spriteMeshData.spriteName, in vertices, in indices, in edges, in controlPoints, in bones, in pins, sd);
+        }
+
         public void CalculateWeights(IWeightsGenerator weightsGenerator, ISelection<int> selection, float filterTolerance)
         {
             Debug.Assert(spriteMeshData != null);
 
             GetControlPoints(out var controlPoints, out var bones, out var pins);
-            
+
             var vertices = EditorUtilities.ToFloat2(spriteMeshData.vertices);
             var indices = spriteMeshData.indices;
             var edges = spriteMeshData.edges;
@@ -507,7 +542,7 @@ namespace UnityEditor.U2D.Animation
                 }
             }
         }
-        
+
         public void SetMultiEditChannelData(ISelection<int> selection, int channel,
             bool oldEnabled, bool newEnabled,  int oldBoneIndex, int newBoneIndex, float oldWeight, float newWeight)
         {
@@ -588,7 +623,7 @@ namespace UnityEditor.U2D.Animation
             points = new float2[pointList.Count];
             for (var i = 0; i < pointList.Count; ++i)
                 points[i] = pointList[i];
-            
+
             edges = edgeList.ToArray();
             pins = pinList.ToArray();
         }

@@ -3,13 +3,11 @@ The 2D Animation package includes features and tools that allow you to quickly r
 
 Package version  | Unity Editor version
 --|--
+10.x.x |  2023.1
 9.x.x  |  2022.2
 8.x.x  |  2022.1
-7.x.x  |  2021.2
-6.x.x  |  2021.1
+7.x.x  |  2021.2 or 2021.3
 5.x.x  |  2020.2 or 2020.3
-4.x.x  |  2020.1
-3.x.x  |  2019.3 or 2019.4
 
 ## 2D Animation and PSD Importer package integration
 Use the 2D Animation package with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) package to easily import character artwork created in Photoshop into Unity, and prepare it for animation with the 2D Animation package. The PSD Importer is an [Asset importer](https://docs.unity3d.com/Manual/ImportingAssets.html) that supports Adobe Photoshop .psb files, and generates a Prefab made of Sprites based on the source file and its [layers](https://helpx.adobe.com/photoshop/using/layer-basics.html). The generated Prefab of a character or prop to be animated with the 2D Animation package is called an 'actor'.

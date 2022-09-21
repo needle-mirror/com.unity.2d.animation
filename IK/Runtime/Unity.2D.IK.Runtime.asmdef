@@ -1,7 +1,8 @@
 {
     "name": "Unity.2D.IK.Runtime",
     "references": [
-        "Unity.InternalAPIEngineBridge.001"
+        "Unity.InternalAPIEngineBridge.001",
+        "Unity.2D.Animation.Runtime"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

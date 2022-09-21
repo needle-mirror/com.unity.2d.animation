@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.U2D.Animation;
@@ -12,115 +13,102 @@ namespace UnityEditor.U2D.Animation
     {
         static class Style
         {
-            public static string libraryDifferentValue = L10n.Tr("Sprite Library has different values.");
+            public static readonly string createNew = L10n.Tr("New");
+            public static readonly string exportToAssetInfo = L10n.Tr("Editing Sprite Library in this Component is no longer supported. Select ‘Export to Sprite Library Asset’ to save your data.");
+            public static readonly string exportToAsset = L10n.Tr("Export to Sprite Library Asset");
+            public static readonly string selectSaveLocation = L10n.Tr("Select save location");
+            public static readonly string selectSaveLocationMessage = L10n.Tr("Select save location for the Sprite Library Asset in your project.");
+            public static readonly string openInSpriteLibraryEditor = L10n.Tr("Open Sprite Library Editor");
+            public static readonly string exportIncorrectSavePath = L10n.Tr("Asset save path must be inside the Assets folder.");
         }
-        
-        SpriteLibCombineCache m_OverrideLibraryObject;
-        SerializedObject m_OverrideLibraryCache;
+
         SerializedProperty m_MasterLibraryProperty;
         SpriteLibraryAsset m_MasterLibraryObject;
-        SerializedProperty m_MasterLibraryCategories;
-        SerializedProperty m_OverrideLibraryCategories;
-        SpriteLibraryDataInspector m_SpriteLibraryDataInspector;
-        long m_PreviousModificationHash;
 
-        List<SpriteLibrary> m_CachedLibraryTargets = new List<SpriteLibrary>();
-        List<SpriteResolver> m_CachedResolvers = new List<SpriteResolver>();
+        Dictionary<Object, SerializedObject> m_CachedSerializedObjects;
+        List<SpriteResolver> m_CachedResolvers;
+
+        const string k_RootFolderName = "Assets";
 
         public void OnEnable()
         {
-            m_OverrideLibraryObject = ScriptableObject.CreateInstance<SpriteLibCombineCache>();
-            m_OverrideLibraryCache = new SerializedObject(m_OverrideLibraryObject);
-            m_OverrideLibraryCategories = m_OverrideLibraryCache.FindProperty("m_Library");
-            
-            m_MasterLibraryProperty = serializedObject.FindProperty("m_SpriteLibraryAsset");
-            m_MasterLibraryCategories = serializedObject.FindProperty("m_Library");
+            m_MasterLibraryProperty = serializedObject.FindProperty(SpriteLibraryComponentPropertyString.spriteLibraryAsset);
 
-            UpdateMasterLibraryObject();
-            CacheTargets();
-            UpdateSpriteLibraryDataCache();
+            UpdateMasterLibraryReference();
+            CacheSerializedObjects();
+            CacheResolvers();
         }
 
-        void UpdateMasterLibraryObject()
+        public override void OnInspectorGUI()
         {
-            m_MasterLibraryObject = (SpriteLibraryAsset)m_MasterLibraryProperty.objectReferenceValue;
-        }
+            serializedObject.Update();
+            UpdateMasterLibraryReference();
 
-        void CacheTargets()
-        {
-            m_CachedLibraryTargets.Clear();
-            foreach(var t in targets)
-                m_CachedLibraryTargets.Add(t as SpriteLibrary);
+            EditorGUILayout.BeginHorizontal();
 
-            m_CachedResolvers.Clear();
-            foreach (var sl in m_CachedLibraryTargets)
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(m_MasterLibraryProperty);
+            if (EditorGUI.EndChangeCheck())
             {
+                serializedObject.ApplyModifiedProperties();
+
+                UpdateMasterLibraryReference();
+                UpdateSpriteResolvers();
+            }
+
+            if (m_MasterLibraryObject == null && !m_MasterLibraryProperty.hasMultipleDifferentValues)
+            {
+                if (GUILayout.Button(Style.createNew) && HandleCreateNewAsset())
+                {
+                    UpdateMasterLibraryReference();
+                    UpdateSpriteResolvers();
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUI.BeginDisabledGroup(m_MasterLibraryObject == null || m_MasterLibraryProperty.hasMultipleDifferentValues);
+            if (GUILayout.Button(Style.openInSpriteLibraryEditor))
+            {
+                Selection.objects = new Object[] { m_MasterLibraryObject };
+                SpriteLibraryEditor.SpriteLibraryEditorWindow.OpenWindow();
+            }
+
+            EditorGUI.EndDisabledGroup();
+
+            if (targets.Any(t => HasLocalOverride(m_CachedSerializedObjects[t])))
+            {
+                EditorGUILayout.HelpBox(Style.exportToAssetInfo, MessageType.Warning);
+                if (GUILayout.Button(Style.exportToAsset) && HandleExportOverrides())
+                {
+                    UpdateMasterLibraryReference();
+                    UpdateSpriteResolvers();
+                }
+            }
+        }
+
+        void CacheSerializedObjects()
+        {
+            m_CachedSerializedObjects = new Dictionary<Object, SerializedObject>();
+            foreach (var t in targets)
+                m_CachedSerializedObjects[t] = new SerializedObject(t);
+        }
+
+        void CacheResolvers()
+        {
+            m_CachedResolvers = new List<SpriteResolver>();
+            foreach (var t in targets)
+            {
+                var sl = (SpriteLibrary)t;
                 var resolvers = sl.GetComponentsInChildren<SpriteResolver>();
                 m_CachedResolvers.AddRange(resolvers);
             }
         }
 
-        void UpdateSpriteLibraryDataCache()
+        void UpdateMasterLibraryReference()
         {
-            if(m_MasterLibraryCategories.hasMultipleDifferentValues)
-                return;
-            if (m_MasterLibraryProperty.hasMultipleDifferentValues)
-                return;
-            
-            CopySpriteLibraryToOverride(m_OverrideLibraryObject.library, m_MasterLibraryCategories);
-            m_OverrideLibraryCache.Update();
-            SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(m_MasterLibraryObject, m_OverrideLibraryCategories);
-            m_SpriteLibraryDataInspector = new SpriteLibraryDataInspector(serializedObject, m_OverrideLibraryCategories);
-            m_OverrideLibraryCache.ApplyModifiedPropertiesWithoutUndo();
-        }
-        
-        public override void OnInspectorGUI()
-        {
-            RefreshMasterLibraryAssetData();
-            
             serializedObject.Update();
-            m_OverrideLibraryCache.Update();
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(m_MasterLibraryProperty);
-            if (EditorGUI.EndChangeCheck())
-            {
-                UpdateMasterLibraryObject();
-                UpdateSpriteLibraryDataCache();
-                serializedObject.ApplyModifiedProperties();
-                UpdateSpriteResolvers();
-            }
-
-            if (m_SpriteLibraryDataInspector != null)
-            {
-                EditorGUI.BeginChangeCheck();
-                m_SpriteLibraryDataInspector.OnGUI();
-                if (EditorGUI.EndChangeCheck())
-                {
-                    m_OverrideLibraryCache.ApplyModifiedProperties();
-                    CopyOverrideToSpriteLibrary(m_OverrideLibraryObject.library, m_MasterLibraryCategories);
-                    serializedObject.ApplyModifiedProperties();
-
-                    foreach(var spriteLib in m_CachedLibraryTargets)
-                        spriteLib.CacheOverrides();
-
-                    UpdateSpriteResolvers();
-                }
-            }
-            else
-            {
-                EditorGUILayout.HelpBox(Style.libraryDifferentValue, MessageType.Info);
-            }
-        }
-
-        void RefreshMasterLibraryAssetData()
-        {
-            var modificationHash = m_MasterLibraryObject ? m_MasterLibraryObject.modificationHash : 0;
-            if (m_PreviousModificationHash != modificationHash)
-            {
-                UpdateSpriteLibraryDataCache();
-                UpdateSpriteResolvers();
-                m_PreviousModificationHash = modificationHash;
-            }            
+            m_MasterLibraryObject = (SpriteLibraryAsset)m_MasterLibraryProperty.objectReferenceValue;
         }
 
         void UpdateSpriteResolvers()
@@ -129,82 +117,104 @@ namespace UnityEditor.U2D.Animation
             {
                 resolver.ResolveSpriteToSpriteRenderer();
                 resolver.spriteLibChanged = true;
-            } 
+            }
         }
 
-        static void CopySpriteLibraryToOverride(List<SpriteLibCategoryOverride> libOverride, SerializedProperty lib)
+        bool HandleCreateNewAsset()
         {
-            libOverride.Clear();
-            if (lib.arraySize == 0)
-                return;
-            
-            var categoryEntries = lib.GetArrayElementAtIndex(0);
-            for (var i = 0; i < lib.arraySize; ++i)
+            var createPath = GetFileSavePath(target.name);
+            if (!string.IsNullOrEmpty(createPath))
             {
-                var overrideCategory = new SpriteLibCategoryOverride()
+                var emptyLibrary = CreateInstance<SpriteLibrarySourceAsset>();
+                SpriteLibrarySourceAssetImporter.SaveSpriteLibrarySourceAsset(emptyLibrary, createPath);
+                DestroyImmediate(emptyLibrary);
+
+                AssetDatabase.ImportAsset(createPath);
+                var newLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(createPath);
+                if (newLibraryAsset != null)
                 {
-                    categoryList = new List<SpriteCategoryEntry>(),
-                    entryOverrideCount = 0,
-                    fromMain = false,
-                    name = categoryEntries.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue,
-                    overrideEntries = new List<SpriteCategoryEntryOverride>()
-                };
-                var entries = categoryEntries.FindPropertyRelative(SpriteLibraryPropertyString.categoryList);
-                var overrideCategoryEntries = overrideCategory.overrideEntries;
-                if (entries.arraySize > 0)
-                {
-                    var entry = entries.GetArrayElementAtIndex(0); 
-                    for (var j = 0; j < entries.arraySize; ++j)
-                    {
-                        overrideCategoryEntries.Add(new SpriteCategoryEntryOverride()
-                        {
-                            fromMain = false,
-                            name = entry.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue,
-                            sprite = (Sprite)entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite).objectReferenceValue,
-                            spriteOverride = (Sprite)entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite).objectReferenceValue
-                        });
-                        entry.Next(false);
-                    }
+                    m_MasterLibraryProperty.objectReferenceValue = newLibraryAsset;
+                    serializedObject.ApplyModifiedProperties();
+
+                    return true;
                 }
-                libOverride.Add(overrideCategory);
-                categoryEntries.Next(false);
             }
+
+            return false;
         }
-        
-        static void CopyOverrideToSpriteLibrary(List<SpriteLibCategoryOverride> libOverride, SerializedProperty lib)
+
+        bool HandleExportOverrides()
         {
-            lib.arraySize = 0;
-            if (libOverride.Count == 0)
-                return;
-            
-            for (var i = 0; i < libOverride.Count; ++i)
+            if (targets.Length == 1)
             {
-                var libOverrideElement = libOverride[i];
-                if (!libOverrideElement.fromMain || libOverrideElement.entryOverrideCount > 0)
+                var exportPath = GetFileSavePath(target.name);
+                if (!string.IsNullOrEmpty(exportPath))
                 {
-                    lib.arraySize += 1;
-                    var libElement = lib.GetArrayElementAtIndex(lib.arraySize - 1);
-                    libElement.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = libOverrideElement.name;
-                    var overrideEntries = libOverrideElement.overrideEntries;
-                    var entries = libElement.FindPropertyRelative(SpriteLibraryPropertyString.categoryList);
-                    entries.arraySize = 0;
-                    if (overrideEntries.Count > 0)
+                    SpriteLibraryUtilitiesEditor.ExportSpriteLibraryToAssetFile(target as SpriteLibrary, exportPath);
+                    return true;
+                }
+            }
+            else
+            {
+                var exportDirectory = GetSaveDirectory();
+                if (!string.IsNullOrEmpty(exportDirectory))
+                {
+                    foreach (var t in targets)
                     {
-                        for (var j = 0; j < overrideEntries.Count; ++j)
+                        if (HasLocalOverride(m_CachedSerializedObjects[t]))
                         {
-                            var overrideEntry = overrideEntries[j];
-                            if (!overrideEntry.fromMain ||
-                                overrideEntry.sprite != overrideEntry.spriteOverride)
-                            {
-                                entries.arraySize += 1;
-                                var entry = entries.GetArrayElementAtIndex(entries.arraySize - 1);
-                                entry.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = overrideEntry.name;
-                                entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite).objectReferenceValue = overrideEntry.spriteOverride;
-                            }
+                            var exportPath = $"{exportDirectory}/{t.name}{SpriteLibrarySourceAsset.extension}";
+                            exportPath = AssetDatabase.GenerateUniqueAssetPath(exportPath);
+                            SpriteLibraryUtilitiesEditor.ExportSpriteLibraryToAssetFile(t as SpriteLibrary, exportPath);
                         }
                     }
+
+                    return true;
                 }
             }
+
+            return false;
+        }
+
+        static string GetFileSavePath(string suggestedFileName)
+        {
+            var title = $"{Style.selectSaveLocation} ({suggestedFileName})";
+            var defaultName = suggestedFileName + SpriteLibrarySourceAsset.extension;
+            var extension = SpriteLibrarySourceAsset.extension.Substring(1);
+            var path = EditorUtility.SaveFilePanelInProject(title, defaultName, extension, Style.selectSaveLocationMessage);
+            return path;
+        }
+
+        static string GetSaveDirectory()
+        {
+            var saveDirectory = EditorUtility.SaveFolderPanel(Style.selectSaveLocation, k_RootFolderName, "");
+            if (string.IsNullOrEmpty(saveDirectory))
+                return string.Empty;
+
+            saveDirectory = GetPathRelativeToAssetsRoot(saveDirectory);
+            if (string.IsNullOrEmpty(saveDirectory))
+            {
+                Debug.Log(Style.exportIncorrectSavePath);
+                return string.Empty;
+            }
+
+            return saveDirectory;
+        }
+
+        static string GetPathRelativeToAssetsRoot(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || !path.StartsWith(Application.dataPath))
+                return string.Empty;
+
+            var pathStartIndex = path.IndexOf(k_RootFolderName);
+            return pathStartIndex == -1 ? string.Empty : path.Substring(pathStartIndex);
+        }
+
+        static bool HasLocalOverride(SerializedObject serializedObject)
+        {
+            serializedObject.Update();
+            var library = serializedObject.FindProperty(SpriteLibraryComponentPropertyString.library);
+            return library != null && library.arraySize > 0;
         }
     }
 }

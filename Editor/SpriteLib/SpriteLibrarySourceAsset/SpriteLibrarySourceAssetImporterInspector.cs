@@ -21,7 +21,6 @@ namespace UnityEditor.U2D.Animation
         }
 
         SerializedProperty m_PrimaryLibraryGUID;
-        SpriteLibraryDataInspector m_SpriteLibraryDataInspector;
 
         public override bool showImportedObject => false;
         protected override Type extraDataType => typeof(SpriteLibrarySourceAsset);
@@ -78,7 +77,7 @@ namespace UnityEditor.U2D.Animation
                 
                 // Remove entries that come from Main Library Asset before saving.
                 var savedLibrarySerializedObject = new SerializedObject(savedAsset);
-                SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(null, savedLibrarySerializedObject.FindProperty(SpriteLibrarySourceAssetPropertyString.library));
+                SpriteLibraryUtilitiesEditor.UpdateLibraryWithNewMainLibrary(null, savedLibrarySerializedObject.FindProperty(SpriteLibrarySourceAssetPropertyString.library));
                 if (savedLibrarySerializedObject.hasModifiedProperties)
                     savedLibrarySerializedObject.ApplyModifiedPropertiesWithoutUndo();
 
@@ -128,7 +127,7 @@ namespace UnityEditor.U2D.Animation
 
             toSavedAsset.InitializeWithAsset(extraTarget);
             var savedLibrarySerializedObject = new SerializedObject(toSavedAsset);
-            SpriteLibraryDataInspector.UpdateLibraryWithNewMainLibrary(newMainLibrary, savedLibrarySerializedObject.FindProperty(SpriteLibrarySourceAssetPropertyString.library));
+            SpriteLibraryUtilitiesEditor.UpdateLibraryWithNewMainLibrary(newMainLibrary, savedLibrarySerializedObject.FindProperty(SpriteLibrarySourceAssetPropertyString.library));
             if (savedLibrarySerializedObject.hasModifiedProperties)
                 savedLibrarySerializedObject.ApplyModifiedPropertiesWithoutUndo();
 

@@ -19,9 +19,9 @@ namespace UnityEditor.U2D.Animation
             public static readonly string spriteHasNoWeights = L10n.Tr("Sprite has no weights");
             public static readonly string rootTransformNotFound = L10n.Tr("Root Bone not set");
             public static readonly string invalidTransformArray = L10n.Tr("Bone list is invalid");
-            public static readonly string invalidBoneWeights = L10n.Tr("Bone weights are invalid");
             public static readonly string transformArrayContainsNull = L10n.Tr("Bone list contains unassigned references");
             public static readonly string invalidTransformArrayLength = L10n.Tr("The number of Sprite's Bind Poses and the number of Transforms should match");
+            public static readonly string invalidBoneWeights = L10n.Tr("Bone weights are invalid");
             public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update", "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
             public static readonly GUIContent autoRebind = new GUIContent("Auto Rebind", "When the Sprite in SpriteRenderer is changed, SpriteSkin will try to look for the Transforms that is needed for the Sprite using the Root Bone Tranform as parent.");
         }
@@ -172,7 +172,7 @@ namespace UnityEditor.U2D.Animation
             var noOfBones = -1;
             for (var i = 0; i < m_SpriteSkins.Length; ++i)
             {
-                if (m_SpriteSkins[i] == null)
+                if (m_SpriteSkins[i] == null || m_CurrentSprites[i] == null)
                     continue;
                 if (i == 0)
                     noOfBones = m_CurrentSprites[i].GetBones().Length;
@@ -186,7 +186,7 @@ namespace UnityEditor.U2D.Animation
             if (hasSameNumberOfBones)
             {
                 var elementCount = m_BoneTransformsProperty.arraySize;
-                var bones = m_CurrentSprites[0].GetBones();
+                var bones = m_CurrentSprites[0] != null ? m_CurrentSprites[0].GetBones() : new SpriteBone[0];
 
                 if (elementCount != bones.Length)
                 {

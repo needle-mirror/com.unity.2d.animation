@@ -124,32 +124,11 @@ Use Sprite Library Editor **breadcrumbs** to navigate between between different 
 
 ## Sprite Library component
 
-The Sprite Library component defines which Sprite Library Asset a GameObject refers to at runtime. Attach this component to a GameObject or any parent GameObject of a Sprite Resolver component to allow the [Sprite Resolver](#sprite-resolver-component) to change the Sprite that is being used by a [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer).
+The [Sprite Library component](SL-component.md) defines which Sprite Library Asset a GameObject refers to at runtime. Attach this component to a GameObject or any parent GameObject of a Sprite Resolver component to allow the [Sprite Resolver](#sprite-resolver-component) to change the Sprite that is being used by a [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer).
 
-In the Sprite Library component’s inspector, you can assign the desired Sprite Library Asset to use.
+In the Sprite Library component’s Inspector window, assign the desired Sprite Library Asset to the **Sprite Library Asset** property. Alternatively, select the **New** button to create and save a new Sprite Library Asset which is automatically assigned to the Sprite Library Asset field.
 
-![](images/2D-animation-SLComp-properties.png)
-
-By assigning a Sprite Library Asset, the component’s Inspector shows a preview of the content in the Sprite Library Asset
-
-![](images/2D-animation-SLComp-preview.png)
-
-Similar to the [Sprite Library Editor](#Sprite-Library-Editor-window) window, you can add new Categories, change the Sprite a Label refers to, and add a new Sprite Label into the Category in Sprite Library component's Inspector window.
-
-### Modified Sprites
-![](images/2D-animation-SLAsset-category-entry-icon.png)<br/>Example: A Sprite retrieved from the Main Library that has been modified.
-
-The **+** icon appears on a Sprite when:
-
-* A new Label is added to the Sprite Library Asset in a Category retrieved from the **Sprite Library Asset** property.
-  <br/>
-* A Label retrieved from the **Sprite Library Asset** property has its Sprite reference changed.
-
-When assigning a Sprite Library Asset to the **Sprite Library Asset** property, if the same Category name already exists in the current Sprite Library Asset, then the Labels from both Categories are merged into a single Category.
-
-Similarly, any Labels in the same Category that have the same names are merged. The Label uses the Sprite that was referred to in the current Sprite Library Asset instead of the one from the **Sprite Library Asset** if they are merged.
-
-When a Sprite Library Asset is removed from the **Sprite Library Asset** property, any changes that were made to the current Sprite Library Asset remain.
+![](images/2D-animation-SLComp-Open.png)
 
 ## Sprite Resolver component
 The Sprite Resolver component is attached to each GameObject in the Prefab. The component pulls information from the [Sprite Library Asset](SLAsset.md) (assigned to the [Sprite Library component](#sprite-library-component) at the root of the Prefab). The component contains two properties - [Category](#category) and [Label](#entry) - and a visual Variant Selector that displays thumbnails of the Sprites contained in the Sprite Library Asset.

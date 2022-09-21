@@ -39,6 +39,9 @@ For example, if the arm bone is the child of the torso bone,   then the torso's 
 ### Weight
 Weight measures the degree that a Solver’s solution affects the positions of the bones/Transforms in the chain. The __IK Manager 2D__ has a master Weight property that affects all Solvers it controls. It is applied in addition to the Solver’s individual Weight settings.
 
+### Always Update
+Used for performance optimization. When checked, IK Manager 2D will always update its solvers. When unchecked, it will only update solvers if any of the [Sprite Skins](#SpriteSkin) that are driven by bones from all IK Solvers' chains are visible. 
+
 ### Restore Default Pose
 Select this to reset all bones and Transforms back to their original positions.
 

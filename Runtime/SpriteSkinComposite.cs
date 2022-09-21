@@ -8,6 +8,10 @@ using UnityEngine.U2D.Common;
 using Unity.Burst;
 using Unity.Profiling;
 using UnityEngine.Assertions;
+using UnityEngine.Rendering;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace UnityEngine.U2D.Animation
 {
@@ -256,7 +260,41 @@ namespace UnityEngine.U2D.Animation
             buffers[i] = startVertices;
             bufferSizes[i] = vertexBufferLength;
         }
-    }    
+    }
+
+    [BurstCompile]
+    internal struct CopySpriteRendererBoneTransformBuffersJob : IJobParallelFor
+    {
+        [ReadOnly]
+        public NativeArray<bool> isSpriteSkinValidForDeformArray;
+        [ReadOnly]
+        public NativeArray<SpriteSkinData> spriteSkinData;
+        [ReadOnly]
+        public NativeArray<PerSkinJobData> perSkinJobData;
+
+        [ReadOnly, NativeDisableUnsafePtrRestriction]
+        public IntPtr ptrBoneTransforms;
+
+        [WriteOnly]
+        public NativeArray<IntPtr> buffers;
+        [WriteOnly]
+        public NativeArray<int> bufferSizes;
+
+        public void Execute(int i)
+        {
+            var skinData = spriteSkinData[i];
+            var skinJobData = perSkinJobData[i];
+            var startMatrix = default(IntPtr);
+            var matrixLength = 0;
+            if (isSpriteSkinValidForDeformArray[i])
+            {
+                startMatrix = ptrBoneTransforms + (skinJobData.bindPosesIndex.x * 64);
+                matrixLength = skinData.boneTransformId.Length;
+            }
+            buffers[i] = startMatrix;
+            bufferSizes[i] = matrixLength;
+        }
+    }
 
     internal class SpriteSkinComposite : ScriptableObject
     {
@@ -272,6 +310,7 @@ namespace UnityEngine.U2D.Animation
             public static readonly ProfilerMarker prepare = new ProfilerMarker("SpriteSkinComposite.Prepare");
             public static readonly ProfilerMarker scheduleJobs = new ProfilerMarker("SpriteSkinComposite.ScheduleJobs");
             public static readonly ProfilerMarker setBatchDeformableBufferAndLocalAABB = new ProfilerMarker("SpriteSkinComposite.SetBatchDeformableBufferAndLocalAABB");
+            public static readonly ProfilerMarker SetBoneTransformsArray = new ProfilerMarker("SpriteSkinComposite.SetBoneTransformsArray");
             public static readonly ProfilerMarker deactivateDeformableBuffer = new ProfilerMarker("SpriteSkinComposite.DeactivateDeformableBuffer");
         }
 
@@ -310,6 +349,9 @@ namespace UnityEngine.U2D.Animation
         NativeArray<Bounds> m_BoundsData;
         NativeArray<IntPtr> m_Buffers;
         NativeArray<int> m_BufferSizes;
+        NativeArray<IntPtr> m_BoneTransformBuffers;
+        NativeArray<int> m_BoneTransformBufferSizes;
+        ComputeBuffer m_BoneTransformsComputeBuffer;
 
         NativeArray<int2> m_BoneLookupData;
         NativeArray<int2> m_VertexLookupData;
@@ -319,10 +361,15 @@ namespace UnityEngine.U2D.Animation
         JobHandle m_BoundJobHandle;
         JobHandle m_DeformJobHandle;
         JobHandle m_CopyJobHandle;
+        bool m_SRPBatcherActive;
 
         [SerializeField]
         GameObject m_Helper;
 
+        internal NativeByteArray deformedVertices => m_DeformedVerticesBuffer;
+        internal bool isSRPBatcherSet => m_SRPBatcherActive;
+        internal bool supportsCompute => (SystemInfo.supportsComputeShaders);
+        internal bool isBufferCreated => (null != m_BoneTransformsComputeBuffer && m_BoneTransformsComputeBuffer.IsValid());
         internal GameObject helperGameObject => m_Helper;
 
         internal void RemoveTransformById(int transformId)
@@ -459,11 +506,16 @@ namespace UnityEngine.U2D.Animation
         public void OnEnable()
         {
             s_Instance = this;
-
+            m_SRPBatcherActive = true;
             m_FinalBoneTransforms = new NativeArray<float4x4>(1, Allocator.Persistent);
             m_BoneLookupData = new NativeArray<int2>(1, Allocator.Persistent);
             m_VertexLookupData = new NativeArray<int2>(1, Allocator.Persistent);
             m_SkinBatchArray = new NativeArray<PerSkinJobData>(1, Allocator.Persistent);
+
+            if (supportsCompute)
+                m_BoneTransformsComputeBuffer = new ComputeBuffer(128, UnsafeUtility.SizeOf<float4x4>(), ComputeBufferType.Default);
+            // Test for validity of Runtime GPU Support.
+            m_SRPBatcherActive = (GraphicsSettings.currentRenderPipeline != null) && (supportsCompute && isBufferCreated && InternalEngineBridge.IsGPUSkinningEnabled());
 
             Init();
             InitializeArrays();
@@ -475,6 +527,7 @@ namespace UnityEngine.U2D.Animation
                 CopyToSpriteSkinData(i);
         }
 
+
         void InitializeArrays()
         {
             const int startingCount = 0;
@@ -483,7 +536,12 @@ namespace UnityEngine.U2D.Animation
             m_SpriteSkinData = new NativeArray<SpriteSkinData>(startingCount, Allocator.Persistent);
             m_BoundsData = new NativeArray<Bounds>(startingCount, Allocator.Persistent);
             m_Buffers = new NativeArray<IntPtr>(startingCount, Allocator.Persistent);
-            m_BufferSizes = new NativeArray<int>(startingCount, Allocator.Persistent);            
+            m_BufferSizes = new NativeArray<int>(startingCount, Allocator.Persistent);
+            if (m_SRPBatcherActive)
+            {
+                m_BoneTransformBuffers = new NativeArray<IntPtr>(startingCount, Allocator.Persistent);
+                m_BoneTransformBufferSizes = new NativeArray<int>(startingCount, Allocator.Persistent);
+            }
         }
 
         void OnDisable()
@@ -504,7 +562,14 @@ namespace UnityEngine.U2D.Animation
             m_SkinBatchArray.DisposeIfCreated();
             m_FinalBoneTransforms.DisposeIfCreated();
             m_BoundsData.DisposeIfCreated();
-            
+            if (m_SRPBatcherActive)
+            {
+                m_BoneTransformBuffers.DisposeIfCreated();
+                m_BoneTransformBufferSizes.DisposeIfCreated();
+            }
+            if (isBufferCreated)
+                m_BoneTransformsComputeBuffer.Dispose();
+
             if (m_Helper != null)
             {
                 m_Helper.GetComponent<SpriteSkinUpdateHelper>().onDestroyingComponent -= OnHelperDestroyed;
@@ -531,8 +596,13 @@ namespace UnityEngine.U2D.Animation
             Assert.AreEqual(m_BoundsData.Length, count);
             Assert.AreEqual(m_Buffers.Length, count);
             Assert.AreEqual(m_BufferSizes.Length, count);
+            if (m_SRPBatcherActive)
+            {
+                Assert.AreEqual(m_BoneTransformBuffers.Length, count);
+                Assert.AreEqual(m_BoneTransformBufferSizes.Length, count);
+            }
             Assert.AreEqual(m_SpriteRenderers.Length, count);
-            
+
             using (Profiling.validateSpriteSkinData.Auto())
             {
                 for (var i = 0; i < m_SpriteSkins.Count; ++i)
@@ -576,12 +646,18 @@ namespace UnityEngine.U2D.Animation
                 return;
             }
 
+            // Check m_SRPBatcherActive
             using (Profiling.resizeBuffers.Auto())
             {
                 m_DeformedVerticesBuffer = BufferManager.instance.GetBuffer(GetInstanceID(), vertexBufferSize);
                 NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, skinBatch.bindPosesIndex.y);
                 NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, skinBatch.bindPosesIndex.y);
                 NativeArrayHelpers.ResizeIfNeeded(ref m_VertexLookupData, skinBatch.verticesIndex.y);
+                if (isBufferCreated && m_BoneTransformsComputeBuffer.count < skinBatch.bindPosesIndex.y)
+                {
+                    m_BoneTransformsComputeBuffer.Dispose();
+                    m_BoneTransformsComputeBuffer = new ComputeBuffer(skinBatch.bindPosesIndex.y, UnsafeUtility.SizeOf<float4x4>(), ComputeBufferType.Default);
+                }
             }
             
             Profiling.prepare.Begin();
@@ -609,43 +685,77 @@ namespace UnityEngine.U2D.Animation
             jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle, jobHandle);
             jobHandle = boneJobBatched.Schedule(skinBatch.bindPosesIndex.y, 8, jobHandle);
 
-            var skinJobBatched = new SkinDeformBatchedJob()
+            if (m_SRPBatcherActive)
             {
-                vertices = m_DeformedVerticesBuffer.array,
-                vertexLookupData = m_VertexLookupData,
-                spriteSkinData = m_SpriteSkinData,
-                perSkinJobData = m_PerSkinJobData,
-                finalBoneTransforms = m_FinalBoneTransforms,
-            };
-            m_DeformJobHandle = skinJobBatched.Schedule(skinBatch.verticesIndex.y, 16, jobHandle);
+                Profiling.scheduleJobs.End();
+                jobHandle.Complete();
+                var copySpriteRendererBoneTransformBuffersJob = new CopySpriteRendererBoneTransformBuffersJob()
+                {
+                    isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
+                    spriteSkinData = m_SpriteSkinData,
+                    ptrBoneTransforms = (IntPtr)NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(m_FinalBoneTransforms),
+                    perSkinJobData = m_PerSkinJobData,
+                    buffers = m_BoneTransformBuffers,
+                    bufferSizes = m_BoneTransformBufferSizes,
+                };
+                jobHandle = copySpriteRendererBoneTransformBuffersJob.Schedule(batchCount, 16, jobHandle);
+                jobHandle.Complete();
 
-            var copySpriteRendererBuffersJob = new CopySpriteRendererBuffersJob()
+                using (Profiling.SetBoneTransformsArray.Auto())
+                {
+                    // This now only requires setting offsets for transforms. Keeping it for now.
+                    InternalEngineBridge.SetBatchBoneTransformsAABBArray(m_SpriteRenderers, m_BoneTransformBuffers, m_BoneTransformBufferSizes, m_BoundsData);
+                }
+
+                m_BoneTransformsComputeBuffer.SetData(m_FinalBoneTransforms, 0, 0, m_FinalBoneTransforms.Length);
+                Shader.SetGlobalBuffer("_SpriteBoneTransforms", m_BoneTransformsComputeBuffer);
+            }
+            else
             {
-                isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
-                spriteSkinData = m_SpriteSkinData,
-                ptrVertices = (IntPtr) NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(m_DeformedVerticesBuffer.array),
-                buffers = m_Buffers,
-                bufferSizes = m_BufferSizes,
-            };
-            m_CopyJobHandle = copySpriteRendererBuffersJob.Schedule(batchCount, 16, jobHandle);
+                var skinJobBatched = new SkinDeformBatchedJob()
+                {
+                    vertices = m_DeformedVerticesBuffer.array,
+                    vertexLookupData = m_VertexLookupData,
+                    spriteSkinData = m_SpriteSkinData,
+                    perSkinJobData = m_PerSkinJobData,
+                    finalBoneTransforms = m_FinalBoneTransforms,
+                };
+                m_DeformJobHandle = skinJobBatched.Schedule(skinBatch.verticesIndex.y, 16, jobHandle);
 
-            var updateBoundJob = new CalculateSpriteSkinAABBJob
+                var copySpriteRendererBuffersJob = new CopySpriteRendererBuffersJob()
+                {
+                    isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
+                    spriteSkinData = m_SpriteSkinData,
+                    ptrVertices = (IntPtr)NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(m_DeformedVerticesBuffer.array),
+                    buffers = m_Buffers,
+                    bufferSizes = m_BufferSizes,
+                };
+                m_CopyJobHandle = copySpriteRendererBuffersJob.Schedule(batchCount, 16, jobHandle);
+
+                var updateBoundJob = new CalculateSpriteSkinAABBJob
+                {
+                    vertices = m_DeformedVerticesBuffer.array,
+                    isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
+                    spriteSkinData = m_SpriteSkinData,
+                    bounds = m_BoundsData,
+                };
+                m_BoundJobHandle = updateBoundJob.Schedule(batchCount, 4, m_DeformJobHandle);
+                Profiling.scheduleJobs.End();
+
+                JobHandle.ScheduleBatchedJobs();
+                jobHandle = JobHandle.CombineDependencies(m_BoundJobHandle, m_CopyJobHandle);
+                jobHandle.Complete();
+
+                using (Profiling.setBatchDeformableBufferAndLocalAABB.Auto())
+                {
+                    InternalEngineBridge.SetBatchDeformableBufferAndLocalAABBArray(m_SpriteRenderers, m_Buffers, m_BufferSizes, m_BoundsData);
+                }
+            }
+
+            for (var i = 0; i < m_SpriteSkins.Count; ++i)
             {
-                vertices = m_DeformedVerticesBuffer.array,
-                isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
-                spriteSkinData = m_SpriteSkinData,
-                bounds = m_BoundsData,
-            };
-            m_BoundJobHandle = updateBoundJob.Schedule(batchCount, 4, m_DeformJobHandle);
-            Profiling.scheduleJobs.End();
-
-            JobHandle.ScheduleBatchedJobs();
-            jobHandle = JobHandle.CombineDependencies(m_BoundJobHandle, m_CopyJobHandle);
-            jobHandle.Complete();
-
-            using (Profiling.setBatchDeformableBufferAndLocalAABB.Auto())
-            {
-                InternalEngineBridge.SetBatchDeformableBufferAndLocalAABBArray(m_SpriteRenderers, m_Buffers, m_BufferSizes, m_BoundsData);
+                var didDeform = m_IsSpriteSkinActiveForDeform[i];
+                m_SpriteSkins[i].PostDeform(didDeform);
             }
 
             DeactivateDeformableBuffers();
@@ -732,7 +842,12 @@ namespace UnityEngine.U2D.Animation
             NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_SpriteSkinData, updatedCount);
             NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoundsData, updatedCount);
             NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_Buffers, updatedCount);
-            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BufferSizes, updatedCount);            
+            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BufferSizes, updatedCount);
+            if (m_SRPBatcherActive)
+            {
+                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoneTransformBuffers, updatedCount);
+                NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoneTransformBufferSizes, updatedCount);
+            }
         }
 
         void DeactivateDeformableBuffers()

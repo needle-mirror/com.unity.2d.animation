@@ -24,6 +24,11 @@ namespace UnityEngine.U2D.IK
             {
                 AddSolverEditorData();
             }
+
+            if(!m_AlwaysUpdate && m_CullingStrategy is not SpriteSkinVisibilityCullingStrategy)
+                ToggleCulling(true);
+            else if(m_AlwaysUpdate && m_CullingStrategy is not DisabledCullingStrategy)
+                ToggleCulling(false);
         }
 
         internal SolverEditorData GetSolverEditorData(Solver2D solver)
