@@ -14,23 +14,9 @@ namespace UnityEditor.U2D.Animation
     {
         void OnPreprocessAsset()
         {
-            var ai = GetSpriteEditorDataProvider(assetPath);
-            var characterDataProvider = ai?.GetDataProvider<ICharacterDataProvider>();
-
-            if (characterDataProvider != null)
-            {
-                var mainSkeletonBonesDataProvider = ai?.GetDataProvider<IMainSkeletonDataProvider>();
-                if (mainSkeletonBonesDataProvider != null)
-                {
-                    var skinningCache = Cache.Create<SkinningCache>();
-                    skinningCache.Create(ai, new SkinningCachePersistentStateTemp());
-
-                    var skeletonBones = mainSkeletonBonesDataProvider.GetMainSkeletonData().bones ?? new SpriteBone[0];
-                    RemapCharacterPartsToNewBones(skinningCache, skeletonBones);
-
-                    SkinningModule.ApplyChanges(skinningCache, ai);
-                }
-            }
+            var dataProvider = GetSpriteEditorDataProvider(assetPath);
+            if (dataProvider != null)
+                InjectMainSkeletonBones(dataProvider);
         }
 
         void OnPostprocessSprites(Texture2D texture, Sprite[] sprites)
@@ -38,6 +24,10 @@ namespace UnityEditor.U2D.Animation
             var ai = GetSpriteEditorDataProvider(assetPath);
             if (ai != null)
             {
+                // Injecting these bones a second time, because the Sprite Rect positions
+                // might have updated between OnPreprocessAsset and OnPostprocessSprites.
+                InjectMainSkeletonBones(ai);
+                
                 var definitionScale = CalculateDefinitionScale(texture, ai.GetDataProvider<ITextureDataProvider>());
                 ai.InitSpriteEditorDataProvider();
                 PostProcessBoneData(ai, definitionScale, sprites);
@@ -47,6 +37,22 @@ namespace UnityEditor.U2D.Animation
 
             // Get all SpriteSkin in scene and inform them to refresh their cache
             RefreshSpriteSkinCache();
+        }
+        
+        static void InjectMainSkeletonBones(ISpriteEditorDataProvider dataProvider)
+        {
+            var characterDataProvider = dataProvider.GetDataProvider<ICharacterDataProvider>();
+            var mainSkeletonBonesDataProvider = dataProvider.GetDataProvider<IMainSkeletonDataProvider>();
+            if (characterDataProvider == null || mainSkeletonBonesDataProvider == null)
+                return;
+            
+            var skinningCache = Cache.Create<SkinningCache>();
+            skinningCache.Create(dataProvider, new SkinningCachePersistentStateTemp());
+
+            var skeletonBones = mainSkeletonBonesDataProvider.GetMainSkeletonData().bones ?? new SpriteBone[0];
+            RemapCharacterPartsToNewBones(skinningCache, skeletonBones);
+
+            SkinningModule.ApplyChanges(skinningCache, dataProvider);
         }
 
         static void RemapCharacterPartsToNewBones(SkinningCache skinningCache, SpriteBone[] newBones)

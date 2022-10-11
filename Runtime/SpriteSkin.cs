@@ -123,6 +123,7 @@ namespace UnityEngine.U2D.Animation
         
         /// <summary>
         /// Returns the Transform Components that is used for deformation.
+        /// Do not modify elements of the returned array.
         /// </summary>
         /// <returns>An array of Transform Components.</returns>
         public Transform[] boneTransforms
@@ -237,11 +238,6 @@ namespace UnityEngine.U2D.Animation
                 CacheBoneTransformIds(true);
         }
 
-        void OnDestroy()
-        {
-            DeactivateSkinning();
-        }
-        
         /// <summary>
         /// Called before object is serialized.
         /// </summary>
@@ -283,7 +279,8 @@ namespace UnityEngine.U2D.Animation
         {
             CacheBoneTransformIds();
             CacheCurrentSprite(m_AutoRebind);
-            return (m_IsValid && spriteRenderer.enabled && (alwaysUpdate || spriteRenderer.isVisible));
+            var hasSprite = m_CurrentDeformSprite != 0;
+            return (m_IsValid && hasSprite && spriteRenderer.enabled && (alwaysUpdate || spriteRenderer.isVisible));
         }
 
         void Reset()
@@ -402,10 +399,13 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Gets a byte array to the currently deformed vertices for this SpriteSkin.
+        /// Gets a byte array to the currently deformed vertices for this SpriteSkin. 
         /// </summary>
         /// <returns>Returns a reference to the currently deformed vertices. This is valid only for this calling frame.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when there are no currently deformed vertices.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when there are no currently deformed vertices.
+        /// HasCurrentDeformedVertices can be used to verify if there are any deformed vertices available.
+        /// </exception>
         internal NativeArray<byte> GetCurrentDeformedVertices()
         {
             if (!m_IsValid)
@@ -424,10 +424,13 @@ namespace UnityEngine.U2D.Animation
         /// <returns>Returns a reference to the currently deformed vertices. This is valid only for this calling frame.</returns>
         /// <exception cref="InvalidOperationException">
         /// Thrown when there are no currently deformed vertices or if the deformed vertices does not contain only
-        /// position data.
+        /// position data. HasCurrentDeformedVertices can be used to verify if there are any deformed vertices available.
         /// </exception>
         internal NativeSlice<PositionVertex> GetCurrentDeformedVertexPositions()
         {
+            if (!m_IsValid)
+                throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
+            
             if (sprite.HasVertexAttribute(VertexAttribute.Tangent))
                 throw new InvalidOperationException("This SpriteSkin has deformed tangents");
             if (!sprite.HasVertexAttribute(VertexAttribute.Position))
@@ -445,10 +448,13 @@ namespace UnityEngine.U2D.Animation
         /// </returns>
         /// <exception cref="InvalidOperationException">
         /// Thrown when there are no currently deformed vertices or if the deformed vertices does not contain only
-        /// position and tangent data.
+        /// position and tangent data. HasCurrentDeformedVertices can be used to verify if there are any deformed vertices available.
         /// </exception>
         internal NativeSlice<PositionTangentVertex> GetCurrentDeformedVertexPositionsAndTangents()
         {
+            if (!m_IsValid)
+                throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
+            
             if (!sprite.HasVertexAttribute(VertexAttribute.Tangent))
                 throw new InvalidOperationException("This SpriteSkin does not have deformed tangents");
             if (!sprite.HasVertexAttribute(VertexAttribute.Position))
@@ -462,9 +468,15 @@ namespace UnityEngine.U2D.Animation
         /// Gets an enumerable to iterate through all deformed vertex positions of this SpriteSkin.
         /// </summary>
         /// <returns>Returns an IEnumerable to deformed vertex positions.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when there is no vertex positions or deformed vertices.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when there is no vertex positions or deformed vertices.
+        /// HasCurrentDeformedVertices can be used to verify if there are any deformed vertices available.
+        /// </exception>
         public IEnumerable<Vector3> GetDeformedVertexPositionData()
         {
+            if (!m_IsValid)
+                throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
+            
             var hasPosition = sprite.HasVertexAttribute(VertexAttribute.Position);
             if (!hasPosition)
                 throw new InvalidOperationException("Sprite does not have vertex position data.");
@@ -478,9 +490,15 @@ namespace UnityEngine.U2D.Animation
         /// Gets an enumerable to iterate through all deformed vertex tangents of this SpriteSkin. 
         /// </summary>
         /// <returns>Returns an IEnumerable to deformed vertex tangents.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when there is no vertex tangents or deformed vertices.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when there is no vertex tangents or deformed vertices.
+        /// HasCurrentDeformedVertices can be used to verify if there are any deformed vertices available.
+        /// </exception>
         public IEnumerable<Vector4> GetDeformedVertexTangentData()
         {
+            if (!m_IsValid)
+                throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
+            
             var hasTangent = sprite.HasVertexAttribute(VertexAttribute.Tangent);
             if (!hasTangent)
                 throw new InvalidOperationException("Sprite does not have vertex tangent data.");
@@ -782,6 +800,7 @@ namespace UnityEngine.U2D.Animation
                 InternalEngineBridge.SetLocalAABB(spriteRenderer, currentSprite.bounds);
 
             spriteRenderer.DeactivateDeformableBuffer();
+            m_TransformsHash = 0;
         }
 
         internal void ResetSprite()

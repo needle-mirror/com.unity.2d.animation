@@ -50,6 +50,10 @@ namespace UnityEngine.U2D.Animation
 
 #if UNITY_EDITOR
         bool m_SpriteLibChanged;
+        
+        /// <summary>
+        /// Raised when object is deserialized in the Editor.
+        /// </summary>
         public event Action onDeserializedCallback = () => { };
 #endif
 

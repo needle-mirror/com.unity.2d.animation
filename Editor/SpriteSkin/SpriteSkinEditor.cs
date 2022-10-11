@@ -172,7 +172,7 @@ namespace UnityEditor.U2D.Animation
             var noOfBones = -1;
             for (var i = 0; i < m_SpriteSkins.Length; ++i)
             {
-                if (m_SpriteSkins[i] == null)
+                if (m_SpriteSkins[i] == null || m_CurrentSprites[i] == null)
                     continue;
                 if (i == 0)
                     noOfBones = m_CurrentSprites[i].GetBones().Length;
@@ -186,7 +186,7 @@ namespace UnityEditor.U2D.Animation
             if (hasSameNumberOfBones)
             {
                 var elementCount = m_BoneTransformsProperty.arraySize;
-                var bones = m_CurrentSprites[0].GetBones();
+                var bones = m_CurrentSprites[0] != null ? m_CurrentSprites[0].GetBones() : new SpriteBone[0];
 
                 if (elementCount != bones.Length)
                 {
