@@ -1,4 +1,15 @@
 # Changelog
+## [8.0.5] - 2022-10-18
+### Changed
+- Expand and frame on bone selection.
+
+### Fixed
+- Fixed IK Manager 2D's inspector slow downs. (case DANB-216)
+- Fixed an issue where the Sprite Skin editor would throw an exception if Sprite Renderer doesn't have a Sprite assigned to it.
+- Fixed a case where the auto weight generation would associate incorrect bones to vertices. (case DANB-22)
+- Improved the Auto Geometry generation speed.
+- Fixed a case where a .psd/.psb with a Main Skeleton assigned would generate incorrect bind poses. (Case DANB-225)
+- Fixed an issue where Sprite Skins would no longer deform when re-entering the camera frustum. (case DANB-223)
 
 ## [8.0.4] - 2022-09-07
 ### Added
@@ -10,6 +21,7 @@
 - Fixed an issue where selecting bones in the Skinning Editor after removing any bone in the skeleton will throw an exception. (case DANB-187)
 - Fixed a case where setting IKManager2D's or Solver2D's weight to '0' doesn't update solver's effector position. (case DANB-190)
 - Fixed a case where multi selecting Sprite Skins would cause a null reference exception to be thrown. (case DANB-126)
+- Fixed a case where new bones are not selected after pasting them in the Skinning Editor and an exception is thrown. (DANB-210)
 
 ## [8.0.3] - 2022-06-21
 ### Fixed

@@ -511,6 +511,7 @@ namespace UnityEngine.U2D.Animation
                 InternalEngineBridge.SetLocalAABB(spriteRenderer, currentSprite.bounds);
 
             spriteRenderer.DeactivateDeformableBuffer();
+            m_TransformsHash = 0;
         }
 
         internal void ResetSprite()
