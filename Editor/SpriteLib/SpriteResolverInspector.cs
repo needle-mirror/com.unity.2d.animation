@@ -68,14 +68,14 @@ namespace UnityEditor.U2D.Animation
             var spriteLib = spriteResolver.spriteLibrary;
             if (spriteLib != null)
             {
-                int entryHash = SpriteResolver.ConvertFloatToInt(m_SpriteKey.floatValue);
+                int entryHash = SpriteLibraryUtility.Convert32BitTo30BitHash(SpriteResolver.ConvertFloatToInt(m_SpriteKey.floatValue));
                 spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
                 if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName))
                 {
-                    int labelHash = SpriteResolver.ConvertFloatToInt(m_LabelHash.floatValue);
-                    int categoryHash = SpriteResolver.ConvertFloatToInt(m_CategoryHash.floatValue);
+                    int labelHash = SpriteLibraryUtility.Convert32BitTo30BitHash(SpriteResolver.ConvertFloatToInt(m_LabelHash.floatValue));
+                    int categoryHash = SpriteLibraryUtility.Convert32BitTo30BitHash(SpriteResolver.ConvertFloatToInt(m_CategoryHash.floatValue));
                     m_SpriteKey.floatValue = SpriteResolver.ConvertCategoryLabelHashToSpriteKey(spriteLib, categoryHash, labelHash);
-                    entryHash = SpriteResolver.ConvertFloatToInt(m_SpriteKey.floatValue);
+                    entryHash = SpriteLibraryUtility.Convert32BitTo30BitHash(SpriteResolver.ConvertFloatToInt(m_SpriteKey.floatValue));
                     spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
                 }
             }

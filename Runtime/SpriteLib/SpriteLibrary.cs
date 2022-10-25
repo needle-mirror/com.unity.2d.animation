@@ -95,7 +95,7 @@ namespace UnityEngine.U2D.Animation
 
         internal static int GetHashForCategoryAndEntry(string category, string entry)
         {
-            return SpriteLibraryAsset.GetStringHash($"{category}_{entry}");
+            return SpriteLibraryUtility.GetStringHash($"{category}_{entry}");
         }
 
         internal Sprite GetSpriteFromCategoryAndEntryHash(int hash, out bool validEntry)
@@ -167,7 +167,7 @@ namespace UnityEngine.U2D.Animation
         /// <param name="category">Category name from the Sprite Library Asset to add override</param>
         public void AddOverride(SpriteLibraryAsset spriteLib, string category)
         {
-            var categoryHash = SpriteLibraryAsset.GetStringHash(category);
+            var categoryHash = SpriteLibraryUtility.GetStringHash(category);
             var cat = spriteLib.categories.FirstOrDefault(x => x.hash == categoryHash);
             if (cat != null)
             {

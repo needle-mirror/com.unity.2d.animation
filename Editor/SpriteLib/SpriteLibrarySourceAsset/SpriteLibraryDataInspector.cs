@@ -302,12 +302,12 @@ namespace UnityEditor.U2D.Animation
         {
             if (m_Library.arraySize == 0)
                 return null;
-            var nameHash = SpriteLibraryAsset.GetStringHash(name);
+            var nameHash = SpriteLibraryUtility.GetStringHash(name);
             var sp = m_Library.GetArrayElementAtIndex(0);
             for (int i = 0; i < m_Library.arraySize; ++i)
             {
                 var nameProperty = sp.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
-                var hash = SpriteLibraryAsset.GetStringHash(nameProperty);
+                var hash = SpriteLibraryUtility.GetStringHash(nameProperty);
                 if (nameProperty == name || nameHash == hash)
                     return sp;
                 sp.Next(false);
@@ -620,12 +620,12 @@ namespace UnityEditor.U2D.Animation
             if (spriteList.arraySize == 0)
                 return false;
             var sp = spriteList.GetArrayElementAtIndex(0);
-            var nameHash = SpriteLibraryAsset.GetStringHash(name);
+            var nameHash = SpriteLibraryUtility.GetStringHash(name);
             int count = 0;
             for (int i = 0; i < spriteList.arraySize; ++i, sp.Next(false))
             {
                 var stringValue = sp.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
-                var hash = SpriteLibraryAsset.GetStringHash(stringValue);
+                var hash = SpriteLibraryUtility.GetStringHash(stringValue);
                 if (stringValue == name || hash == nameHash)
                 {
                     ++count;
@@ -711,7 +711,7 @@ namespace UnityEditor.U2D.Animation
         static void SetPropertyName(SerializedProperty sp, string newName)
         {
             sp.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue = newName;
-            sp.FindPropertyRelative(SpriteLibraryPropertyString.hash).intValue = SpriteLibraryAsset.GetStringHash(newName);
+            sp.FindPropertyRelative(SpriteLibraryPropertyString.hash).intValue = SpriteLibraryUtility.GetStringHash(newName);
         }
         
         bool OnCanRemoveCallback(ReorderableList list)

@@ -44,6 +44,10 @@ namespace UnityEngine.U2D.Animation
 
 #if UNITY_EDITOR
         bool m_SpriteLibChanged;
+        
+        /// <summary>
+        /// Raised when object is deserialized in the Editor.
+        /// </summary>
         public event Action onDeserializedCallback = () => { };
 #endif
 
@@ -77,16 +81,16 @@ namespace UnityEngine.U2D.Animation
         
         void OnEnable()
         {
-            m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
+            m_CategoryHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_CategoryHash));
             m_PreviousCategoryHash = m_CategoryHashInt;
-            m_LabelHashInt = ConvertFloatToInt(m_labelHash);
+            m_LabelHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_labelHash));
             m_PreviousLabelHash = m_LabelHashInt;
             
-            m_SpriteKeyInt = ConvertFloatToInt(m_SpriteKey);
+            m_SpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_SpriteKey));
             if (m_SpriteKeyInt == 0)
             {
                 m_SpriteKey = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, m_CategoryHashInt, m_LabelHashInt);
-                m_SpriteKeyInt = ConvertFloatToInt(m_SpriteKey);
+                m_SpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_SpriteKey));
             }
             m_PreviousSpriteKeyInt = m_SpriteKeyInt;
             ResolveSpriteToSpriteRenderer();
@@ -143,7 +147,7 @@ namespace UnityEngine.U2D.Animation
 
         void LateUpdate()
         {
-            m_SpriteKeyInt = ConvertFloatToInt(m_SpriteKey);
+            m_SpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_SpriteKey));
             if (m_SpriteKeyInt != m_PreviousSpriteKeyInt)
             {
                 m_PreviousSpriteKeyInt = m_SpriteKeyInt;
@@ -151,8 +155,8 @@ namespace UnityEngine.U2D.Animation
             }
             else
             {
-                m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
-                m_LabelHashInt = ConvertFloatToInt(m_labelHash);
+                m_CategoryHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_CategoryHash));
+                m_LabelHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_labelHash));
                 if (m_LabelHashInt != m_PreviousLabelHash || m_CategoryHashInt != m_PreviousCategoryHash)
                 {
                     if (spriteLibrary != null)
@@ -160,7 +164,7 @@ namespace UnityEngine.U2D.Animation
                         m_PreviousCategoryHash = m_CategoryHashInt;
                         m_PreviousLabelHash = m_LabelHashInt;
                         m_SpriteKey = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, m_CategoryHashInt, m_LabelHashInt);
-                        m_SpriteKeyInt = ConvertFloatToInt(m_SpriteKey);
+                        m_SpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_SpriteKey));
                         m_PreviousSpriteKeyInt = m_SpriteKeyInt;
                         ResolveSpriteToSpriteRenderer();
                     }
@@ -174,14 +178,14 @@ namespace UnityEngine.U2D.Animation
             {
                 foreach(var category in library.categoryNames)
                 {
-                    if (categoryHash == SpriteLibraryAsset.GetStringHash(category))
+                    if (categoryHash == SpriteLibraryUtility.GetStringHash(category))
                     {
                         var entries = library.GetEntryNames(category);
                         if (entries != null)
                         {
                             foreach (var entry in entries)
                             {
-                                if (labelHash == SpriteLibraryAsset.GetStringHash(entry))
+                                if (labelHash == SpriteLibraryUtility.GetStringHash(entry))
                                 {
                                     var spriteKey = SpriteLibrary.GetHashForCategoryAndEntry(category, entry); 
                                     return ConvertIntToFloat(spriteKey);

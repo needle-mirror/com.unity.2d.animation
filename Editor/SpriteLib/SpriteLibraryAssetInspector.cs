@@ -161,12 +161,12 @@ namespace UnityEditor.U2D.Animation
         bool IsNameInUsed(string name, SerializedProperty property, string propertyField, int threshold)
         {
             int count = 0;
-            var nameHash = SpriteLibraryAsset.GetStringHash(name);
+            var nameHash = SpriteLibraryUtility.GetStringHash(name);
             for (int i = 0; i < property.arraySize; ++i)
             {
                 var sp = property.GetArrayElementAtIndex(i);
                 var otherName = sp.FindPropertyRelative(propertyField).stringValue;
-                var otherNameHash = SpriteLibraryAsset.GetStringHash(otherName);
+                var otherNameHash = SpriteLibraryUtility.GetStringHash(otherName);
                 if (otherName == name || nameHash == otherNameHash)
                 {
                     count++;
@@ -195,7 +195,7 @@ namespace UnityEditor.U2D.Animation
 
             var sp = m_Labels.GetArrayElementAtIndex(oldSize);
             sp.FindPropertyRelative("m_Name").stringValue = newCatName;
-            sp.FindPropertyRelative("m_Hash").intValue = SpriteLibraryAsset.GetStringHash(newCatName);
+            sp.FindPropertyRelative("m_Hash").intValue = SpriteLibraryUtility.GetStringHash(newCatName);
         }
 
         private void SetupOrderList()
