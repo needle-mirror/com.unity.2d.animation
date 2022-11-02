@@ -220,7 +220,8 @@ namespace UnityEngine.U2D.Animation
         {
             CacheBoneTransformIds();
             CacheCurrentSprite();
-            return (m_IsValid && spriteRenderer.enabled && (alwaysUpdate || spriteRenderer.isVisible));
+            var hasSprite = m_CurrentDeformSprite != 0;
+            return (m_IsValid && hasSprite && spriteRenderer.enabled && (alwaysUpdate || spriteRenderer.isVisible));
         }
 
         void OnBoneTransformChanged()

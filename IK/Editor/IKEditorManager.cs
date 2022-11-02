@@ -19,11 +19,8 @@ namespace UnityEditor.U2D.IK
 
         GameObject m_Helper;
         GameObject[] m_SelectedGameobjects;
-        bool m_IgnorePostProcessModifications = false;
-        HashSet<Transform> m_IgnoreTransformsOnUndo = new HashSet<Transform>();
         
         internal bool isDraggingATool { get; private set; }
-        internal bool isDragging { get { return IKGizmos.instance.isDragging || isDraggingATool; } }
 
         [InitializeOnLoadMethod]
         static void CreateInstance()
@@ -66,7 +63,6 @@ namespace UnityEditor.U2D.IK
         private void RegisterCallbacks()
         {
             EditorApplication.hierarchyChanged += Initialize;
-            Undo.postprocessModifications += OnPostProcessModifications;
 #if UNITY_2019_1_OR_NEWER
             SceneView.duringSceneGui += OnSceneGUI;
 #else
@@ -78,7 +74,6 @@ namespace UnityEditor.U2D.IK
         private void UnregisterCallbacks()
         {
             EditorApplication.hierarchyChanged -= Initialize;
-            Undo.postprocessModifications -= OnPostProcessModifications;
 #if UNITY_2019_1_OR_NEWER
             SceneView.duringSceneGui -= OnSceneGUI;
 #else
@@ -205,33 +200,20 @@ namespace UnityEditor.U2D.IK
                     if (record)
                     {
                         foreach(var t in chain.transforms)
-                        {
-                            if(m_IgnoreTransformsOnUndo.Contains(t))
-                                continue;
-
                             Undo.RecordObject(t, undoName);
-                        }
-                        
 
-                        if(chain.target && !m_IgnoreTransformsOnUndo.Contains(chain.target))
+                        if(chain.target)
                             Undo.RecordObject(chain.target, undoName);
                     }
                     else
                     {
                         foreach(var t in chain.transforms)
-                        {
-                            if(m_IgnoreTransformsOnUndo.Contains(t))
-                                continue;
-
                             Undo.RegisterCompleteObjectUndo(t, undoName);
-                        }
 
-                        if(chain.target && !m_IgnoreTransformsOnUndo.Contains(chain.target))
+                        if(chain.target)
                             Undo.RegisterCompleteObjectUndo(chain.target, undoName);
                     }
                 }
-
-                m_IgnorePostProcessModifications = true;
             }
         }
 
@@ -244,12 +226,6 @@ namespace UnityEditor.U2D.IK
         public void UpdateSolverImmediate(Solver2D solver, bool recordRootLoops)
         {
             SetSolverDirty(solver);
-            UpdateDirtyManagers(recordRootLoops);
-        }
-
-        public void UpdateHierarchyImmediate(Transform hierarchyRoot, bool recordRootLoops)
-        {
-            SetDirtyUnderHierarchy(hierarchyRoot);
             UpdateDirtyManagers(recordRootLoops);
         }
 
@@ -304,75 +280,6 @@ namespace UnityEditor.U2D.IK
                 isDraggingATool = false;
         }
 
-        private bool ProcessTransformPropertyModification(UndoPropertyModification modification, out Transform transform)
-        {
-            transform = null;
-            var targetType = modification.currentValue.target.GetType();
-            if ((targetType == typeof(Transform) || targetType.IsSubclassOf(typeof(Transform))))
-            {
-                transform = (Transform)modification.currentValue.target;
-                return true;
-            }
-
-            return false;
-        }
-
-        private UndoPropertyModification[] OnPostProcessModifications(UndoPropertyModification[] modifications)
-        {
-            if(!m_IgnorePostProcessModifications && !isDragging)
-            {
-                //Prepare transforms that already have an undo modification
-                foreach (var modification in modifications)
-                {
-                    if (modification.currentValue == null)
-                        continue;
-                    Transform transform;
-                    if (ProcessTransformPropertyModification(modification, out transform))
-                        m_IgnoreTransformsOnUndo.Add(transform);
-                }
-
-                var processedObjectList = new HashSet<Object>();
-
-                foreach (var modification in modifications)
-                {
-                    if (modification.currentValue == null)
-                        continue;
-                    var target = modification.currentValue.target;
-
-                    if(processedObjectList.Contains(target))
-                        continue;
-
-                    processedObjectList.Add(target);
-
-                    var targetType = target.GetType();
-                    Transform transform;
-                    if (ProcessTransformPropertyModification(modification, out transform))
-                    {
-                        SetDirtySolversAffectedByTransform(transform);
-                        RegisterUndoForDirtyManagers();
-                    }
-                    if (targetType == typeof(Solver2D) || targetType.IsSubclassOf(typeof(Solver2D)))
-                    {
-                        var solver = (Solver2D)modification.currentValue.target;
-                        SetSolverDirty(solver);
-                        RegisterUndoForDirtyManagers();
-                    }
-                    if (targetType == typeof(IKManager2D))
-                    {
-                        var dirtyManager = (IKManager2D)modification.currentValue.target;
-                        SetManagerDirty(dirtyManager);
-                        RegisterUndoForDirtyManagers();
-                    }
-                }
-
-                m_IgnoreTransformsOnUndo.Clear();
-            }
-
-            m_IgnorePostProcessModifications = false;
-
-            return modifications;
-        }
-
         private void SetSolverDirty(Solver2D solver)
         {
             if (solver && solver.isValid && solver.isActiveAndEnabled)
@@ -383,42 +290,6 @@ namespace UnityEditor.U2D.IK
         {
             if (manager && manager.isActiveAndEnabled)
                 m_DirtyManagers.Add(manager);
-        }
-
-        private void SetAllManagersDirty()
-        {
-            m_DirtyManagers.Clear();
-
-            foreach (IKManager2D manager in m_IKManagers)
-                SetManagerDirty(manager);
-        }
-
-        private void SetDirtyUnderHierarchy(Transform hierarchyRoot)
-        {
-            if (hierarchyRoot == null)
-                return;
-
-            foreach (Solver2D solver in m_IKSolvers)
-            {
-                if (solver.isValid)
-                {
-                    for (int i = 0; i < solver.chainCount; ++i)
-                    {
-                        var chain = solver.GetChain(i);
-
-                        if(chain.target == null)
-                            continue;
-
-                        if (hierarchyRoot == chain.target ||
-                            IKUtility.IsDescendentOf(chain.target, hierarchyRoot) ||
-                            IKUtility.IsDescendentOf(chain.effector, hierarchyRoot))
-                        {
-                            SetSolverDirty(solver);
-                            break;
-                        }
-                    }
-                }
-            }
         }
 
         private void SetDirtySolversAffectedByTransform(Transform transform)

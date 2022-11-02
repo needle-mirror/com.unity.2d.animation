@@ -1,4 +1,21 @@
 # Changelog
+
+## [5.2.6] - 2022-11-02
+### Fixed
+- Removed ValidationExceptions.json from the package.
+
+## [5.2.5] - 2022-10-18
+### Fixed
+- Fixed an issue where the Sprite Skin editor would throw an exception if Sprite Renderer doesn't have a Sprite assigned to it.
+Fixed IK Manager 2D's inspector slow downs. (case DANB-218)
+
+### Changed
+- Updated Toolbar and Visibility tab buttons' selection color.
+- Expand and frame on bone selection.
+
+### Fixed
+- Fixed an issue where Sprite Skins would no longer deform when re-entering the camera frustum. (case DANB-223)
+
 ## [5.2.4] - 2022-08-26
 ### Fixed
 - Fixed a case where multi selecting Sprite Skins would cause a null reference exception to be thrown. (case DANB-126)

@@ -56,7 +56,15 @@ Button > .unity-label {
 }
 
 .unity-button:checked {
-    background-color: #747474;
+    background-color: var(--unity-colors-button-background-pressed);
+}
+
+.unity-button:active {
+    background-color: var(--unity-colors-button-background-pressed);
+}
+
+.unity-button:active:hover {
+    background-color: var(--unity-colors-button-background-pressed);
 }
 
 PopupWindow {

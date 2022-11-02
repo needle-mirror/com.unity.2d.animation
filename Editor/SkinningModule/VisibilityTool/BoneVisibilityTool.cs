@@ -170,13 +170,8 @@ namespace UnityEditor.U2D.Animation
         {
             var bones = boneSelection.elements.ToSpriteSheetIfNeeded();
             var ids = GetController().GetIDsToSelect(bones);
-            var result = GetController().GetIDsToExpand(bones);
-            var expandIds = GetExpanded().ToList();
 
-            if (result.Count > 0)
-                expandIds = expandIds.Union(result).ToList();
-            SetExpanded(expandIds);
-            SetSelection(ids);
+            SetSelection(ids, TreeViewSelectionOptions.RevealAndFrame);
         }
 
         public void OnBoneExpandedChanged(BoneCache[] bones)
