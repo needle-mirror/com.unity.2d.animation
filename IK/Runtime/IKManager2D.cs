@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Profiling;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.U2D.Animation;
 using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.IK
@@ -9,7 +10,7 @@ namespace UnityEngine.U2D.IK
     /// <summary>
     /// Component to manager 2D IK Solvers.
     /// </summary>
-    [DefaultExecutionOrder(-2)]
+    [DefaultExecutionOrder(UpdateOrder.ikUpdateOrder)]
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [IconAttribute(IconUtility.IconPath + "Animation.IKManager.png")]
     [ExecuteInEditMode]
@@ -22,8 +23,10 @@ namespace UnityEngine.U2D.IK
         float m_Weight = 1f;
         [SerializeField]
         bool m_AlwaysUpdate = true;
-        [SerializeField]
+
+        bool m_CullingEnabled;
         BaseCullingStrategy m_CullingStrategy;
+        internal BaseCullingStrategy GetCullingStrategy() => m_CullingStrategy;
 
         /// <summary>
         /// Get and Set the weight for solvers.
@@ -61,28 +64,23 @@ namespace UnityEngine.U2D.IK
 
         void OnDisable()
         {
-            m_CullingStrategy?.Disable();
+            ToggleCulling(false);
         }
 
         void ToggleCulling(bool enableCulling)
         {
-            BaseCullingStrategy newCullingStrategy = enableCulling ?
-                new SpriteSkinVisibilityCullingStrategy() : 
-                new DisabledCullingStrategy();
-
-            SetCullingStrategy(newCullingStrategy);
-        }
-
-        void SetCullingStrategy(BaseCullingStrategy newCullingStrategy)
-        {
-            if(newCullingStrategy == null || newCullingStrategy == m_CullingStrategy)
+            if(m_CullingStrategy != null && m_CullingEnabled == enableCulling)
                 return;
 
-            m_CullingStrategy?.Disable();
+            m_CullingEnabled = enableCulling;
+            m_CullingStrategy?.RemoveRequestingObject(this);
 
-            m_CullingStrategy = newCullingStrategy;
+            if (m_CullingEnabled)
+                m_CullingStrategy = CullingManager.instance.GetCullingStrategy<SpriteSkinVisibilityCullingStrategy>();
+            else
+                m_CullingStrategy = CullingManager.instance.GetCullingStrategy<AlwaysUpdateCullingStrategy>();
 
-            m_CullingStrategy.Initialize(this);
+            m_CullingStrategy.AddRequestingObject(this);
         }
 
         void OnValidate()
@@ -145,7 +143,7 @@ namespace UnityEngine.U2D.IK
             var profilerMarker = new ProfilerMarker("IKManager2D.UpdateManager");
             profilerMarker.Begin();
 
-            var cullingEnabled = !m_AlwaysUpdate;
+            ToggleCulling(!m_AlwaysUpdate);
             
             var solverInitialized = false;
             for (var i = 0; i < m_Solvers.Count; i++)
@@ -160,16 +158,16 @@ namespace UnityEngine.U2D.IK
                     solverInitialized = true;    
                 }
 
-                if(!cullingEnabled)
+                if(!m_CullingEnabled)
                     solver.UpdateIK(m_Weight);
             }
 
-            if (cullingEnabled)
+            if (m_CullingEnabled)
             {
                 if (solverInitialized || m_TransformIdCache == null)
                     CacheSolversTransformIds();
 
-                var canUpdate = m_CullingStrategy == null || !m_CullingStrategy.Culled(m_TransformIdCache);
+                var canUpdate = m_AlwaysUpdate || m_CullingStrategy.AreBonesVisible(m_TransformIdCache);
                 if (canUpdate)
                 {
                     for (var i = 0; i < m_Solvers.Count; i++)

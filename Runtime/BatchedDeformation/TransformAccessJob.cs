@@ -50,15 +50,9 @@ namespace UnityEngine.U2D.Animation
                 m_TransformData.Dispose();
         }
 
-        public NativeHashMap<int, TransformData> transformData
-        {
-            get { return m_TransformData; }
-        }
+        public NativeHashMap<int, TransformData> transformData => m_TransformData;
 
-        public NativeArray<float4x4> transformMatrix
-        {
-            get { return m_TransformMatrix; }
-        }
+        public NativeArray<float4x4> transformMatrix => m_TransformMatrix;
 
         public void AddTransform(Transform t)
         {

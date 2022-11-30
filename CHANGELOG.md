@@ -1,5 +1,19 @@
 # Changelog
 
+## [10.0.0-pre.2] - 2022-11-30
+### Fixed
+- Fixed an issue where body parts could not be selected from UI dropdowns in a sample scene '2 Part Swap'. (case DANB-262)
+- Fixed case where IndexOutOfRangeException occurs when auto-generating mesh with a specific settings and bones. (Case DANB-244)
+- Split the batch deformation into two, GPU & CPU deformation, which allows renderers to be placed into the deformation system most suitable for the renderer. 
+- Optimized the bone gizmo rendering in the scene view.
+- Replace obsolete API calls.
+
+### Changed
+- Changed the default script execution order for of Sprite Resolvers, IK Managers and Sprite Skins.
+
+### Added
+- Sprite Library Assets can now be dragged and dropped into the scene, hierarchy, and inspector.
+
 ## [10.0.0-pre.1] - 2022-09-21
 ### Added
 - Added bone weight index validation in SpriteSkin's validate method, to ensure valid data before continuing with deformation.

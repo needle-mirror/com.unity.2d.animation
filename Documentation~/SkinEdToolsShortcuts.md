@@ -23,7 +23,7 @@ This toolbar lets you toggle between __Character__ and __Sprite Sheet__ modes. I
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
 | ![Toggle View Mode](images/icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the __Character__ and __Sprite Sheet__ view modes. |
-| ![Visibility eyecon](images/icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite Meshes and bones in the editor window. |
+| ![Visibility eyecon](images/icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite meshes and bones in the editor window. |
 | __Toggle Tool Text__                                         | Shift + `            | Show or hide text on tool buttons.                           |
 
 ## Pose tools
@@ -59,7 +59,7 @@ Use the __Bone Tools__ to create and edit the bones of your character and their 
 
 ### Bone panel
 
-The __Bone panel__ appears at the bottom right of the editor window when you select a bone with one of the **Bone Tools** active.
+The __Bone panel__ appears at the lower right of the editor window when you select a bone with one of the **Bone Tools** active.
 
 ![](images/2D-animation-v6-bone-panel.png)
 
@@ -69,7 +69,7 @@ The __Bone panel__ appears at the bottom right of the editor window when you sel
 | **Position**   | The world position of the bone.                              |
 | **Rotation**   | The world rotation value of the bone.                        |
 | **Bone Color** | The color of the bone.                                       |
-| __Depth__      | Displays the Z-value of the selected bone that determines the render order of the vertices under its influence (refer to the examples below). Enter a new value (which can be negative) to change the render order of the affected vertices. Refer to the [bone tab and hierarchy tree](SpriteVis.html#bone-tab-and-hierarchy-tree) documentation for more information on how the **Depth** value affects the way the Sprite Mesh is rendered and deformed. |
+| __Depth__      | Displays the Z-value of the selected bone that determines the render order of the vertices under its influence (refer to the examples below). Enter a new value (which can be negative) to change the render order of the affected vertices. Refer to the [bone tab and hierarchy tree](SpriteVis.html#bone-tab-and-hierarchy-tree) documentation for more information on how the **Depth** value affects the way the Sprite mesh is rendered and deformed. |
 
 ### Setting the Depth value
 The following examples show how the **Depth** value of a selected bone affects the render order of the mesh vertices it influences. In this example, the selected bone (orange) and has an intitial **Depth** value of 1.
@@ -88,8 +88,8 @@ Use the __Geometry tools__ to generate and edit the meshes of the different Spri
 
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
-| ![Auto Geometry](images/icon_GenGeo.png)<br/>__Auto Geometry__ | Shift + A            | Select to auto-generate Meshes for Sprites. When this tool is selected, the [Geometry panel](#geometry-panel) becomes available at the bottom-right of the __Skinning Editor__. |
-| ![Edit Geometry](images/icon_EditGeo.png)<br/>__Edit Geometry__ | Shift + S            | Edit generated Meshes by repositioning vertices.             |
+| ![Auto Geometry](images/icon_GenGeo.png)<br/>__Auto Geometry__ | Shift + A            | Select to auto-generate meshes for Sprites. When this tool is selected, the [Geometry panel](#geometry-panel) becomes available at the lower right of the __Skinning Editor__. |
+| ![Edit Geometry](images/icon_EditGeo.png)<br/>__Edit Geometry__ | Shift + S            | Edit generated meshes by repositioning vertices.             |
 | ![Create Vertex](images/icon_CreateVertex.png)<br/>__Create Vertex__ | Shift + D            | Create new vertices to create geometry.                      |
 | ![Create Edge](images/icon_CreateEdge.png)<br/>__Create Edge__ | Shift + G            | Create new edges to create geometry.                         |
 | ![Split Edge](images/icon_SplitEdge.png)<br/>__Split Edge__  | Shift + H            | Split an existing edge into two.                             |
@@ -104,9 +104,9 @@ The __Geometry panel__ is only visible when __Auto Geometry__ is enabled. It con
 | -------------------------------------------------- | ------------------------------------------------------------ |
 | __Outline Detail__                                 | Use the slider to adjust the accuracy of the generated geometry’s outline to the outline of the Sprite. Smaller values create simpler outlines, while larger values create denser outlines that fit to the Sprite’s outline more accurately. |
 | __Alpha Tolerance__                                | Use the slider to set the alpha value threshold to consider when generating geometry. Pixels with an alpha value lower than the set tolerance value are considered transparent during outline detection when the geometry is generated. |
-| __Subdivide__                                      | Use the slider to adjust the tessellation of the Sprite Mesh by adding or decreasing the number of vertices inside the generated Mesh. |
-| __Weights__                                        | Enable to automatically assign weights between the generated geometry Mesh and nearby bones. |
-| __Generate For Selected/Generate For All Visible__ | Select this button to generate a geometry Mesh for selected Sprites based on the property settings above. To generate geometry for all Sprites in the Skinning Editor, do not have any Sprite selected when you select this button. |
+| __Subdivide__                                      | Use the slider to adjust the tessellation of the Sprite mesh by adding or decreasing the number of vertices inside the generated mesh. |
+| __Weights__                                        | Enable to automatically assign weights between the generated geometry mesh and nearby bones. |
+| __Generate For Selected/Generate For All Visible__ | Select this button to generate a geometry mesh for selected Sprites based on the property settings above. To generate geometry for all Sprites in the Skinning Editor, do not have any Sprite selected when you select this button. |
 
 ## Weight tools
 
@@ -116,7 +116,7 @@ To add weights to your Sprites, you can first ensure that there are [bones](#bon
 
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
-| ![Auto Weights](images/icon_GenWeights.png)<br/>__Auto Weights__ | Shift + Z            | Auto-generate weights between the geometry and bones. When this tool is selected, the [Weights panel](#weights-panel) becomes available at the bottom-right of the __Skinning Editor__ that displays the available settings and the option to generate weights for. |
+| ![Auto Weights](images/icon_GenWeights.png)<br/>__Auto Weights__ | Shift + Z            | Auto-generate weights between the geometry and bones. When this tool is selected, the [Weights panel](#weights-panel) becomes available at the lower right of the __Skinning Editor__ that displays the available settings and the option to generate weights for. |
 | ![Weight Slider](images/icon_WeightSlider.png)<br/>__Weight Slider__ | Shift + X            | Use the slider to adjust weights.                            |
 | ![Weight Brush](images/icon_WeightPaint.png)<br/>__Weight Brush__ | Shift + N            | Adjust weights by painting with a brush.                     |
 | ![Bone Influence](images/icon_BoneInfluence.png)<br/>__Bone Influence__ | Shift + V            | Select which bones influence a Sprite.                       |
@@ -126,7 +126,7 @@ To add weights to your Sprites, you can first ensure that there are [bones](#bon
 
 ![](images/Weights_panel.png)
 
-The Weights panel appears at the lower-right of the Sprite Editor window when __Auto Weights__ under the Weight tools is selected.
+The Weights panel appears at the lower right of the Sprite Editor window when __Auto Weights__ under the Weight tools is selected.
 
 | __Property__              | __Function__                                                 |
 | ------------------------- | ------------------------------------------------------------ |
@@ -168,13 +168,13 @@ The Weights panel appears at the lower-right of the Sprite Editor window when __
 
 ### Bone Influences panel
 
-The __Bone Influences panel__ displays a list of bones that are currently influencing the selected Sprite Mesh.
+The __Bone Influences panel__ displays a list of bones that are currently influencing the selected Sprite mesh.
 
 ![](images/BoneInfluencesExample.png)
 
 When the Skinning Editor is set to [Character mode](#editor-toolbar), the Bone Influences panel allows you to add a bone to the list which includes its influence in the deformation of the selected Sprite’s mesh, or remove a bone from the list which removes its influence instead.
 
-To add a bone to the list, select the bone in the __Skinning Editor__ window and then select __Add (+)__ at the bottom-right of the panel. To remove a bone from the list, select the bone in the list or in the editor window and then select __Remove (-)__.
+To add a bone to the list, select the bone in the __Skinning Editor__ window and then select __Add (+)__ at the lower right of the panel. To remove a bone from the list, select the bone in the list or in the editor window and then select __Remove (-)__.
 
 #### Rearranging bone order
 
@@ -188,13 +188,13 @@ The order of the bones in the Bone Influences panel determines the order of the 
 
 ### Sprite Influences panel
 
- The __Sprite Influences panel__ displays a list of Sprite Meshes that are currently being influenced by the selected bone.
+ The __Sprite Influences panel__ displays a list of Sprite meshes that are currently being influenced by the selected bone.
 
  ![](images/SpriteInfluencesExample.png)
 
- When the __Skinning Editor__ is set to [Character mode](#editor-toolbar), the Sprite Influences panel allows you to remove an unwanted Sprite Mesh from the list so that it’s not influenced by the selected bone. It’s also possible to add a selected Sprite to the list which will include the selected bone’s influence in its deformation.
+ When the __Skinning Editor__ is set to [Character mode](#editor-toolbar), the Sprite Influences panel allows you to remove an unwanted Sprite mesh from the list so that it’s not influenced by the selected bone. It’s also possible to add a selected Sprite to the list which will include the selected bone’s influence in its deformation.
 
- To add a Sprite Mesh to the list, select the bone in the Skinning Editor window as well as the Sprite you want to add, and then select __Add (+)__ at the bottom-right of the panel. To remove a Sprite from the list, select it  in the list or in the editor window and then select __Remove (-)__.
+ To add a Sprite mesh to the list, select the bone in the Skinning Editor window as well as the Sprite you want to add, and then select __Add (+)__ at the lower right of the panel. To remove a Sprite from the list, select it  in the list or in the editor window and then select __Remove (-)__.
 
 ## Rig tools
 
@@ -206,7 +206,7 @@ The __Rig tools__ contain the option to __Copy__ and __Paste__ bones from and in
 | ![Paste](images/icon_Paste.png)<br/>__Paste__                | Ctrl + V             | Pastes the copied bone and mesh data to the current selection. |
 | ![Paste](images/icon_Paste.png)<br/>__Paste__                | Shift + B            | Use this shortcut to show additional pasting options.        |
 
-### Copy and Paste behavior
+## Copy and Paste behavior
 Once you have [rigged the skeleton and bone weights](CharacterRig.md) of your actor, you can reuse the same rigged skeleton with other Model Prefabs by using the **Copy** and **Paste** options on the [Rig tools](SkinEdToolsShortcuts.md#rig-tools). This is useful if you need to quickly create characters that share the same build and animations.
 
 You can only Copy and Paste if the source and destination Model Prefabs have the same number of Sprites and Sprite names. When you Copy and Paste the bone and mesh data, the following occurs:
@@ -215,23 +215,19 @@ You can only Copy and Paste if the source and destination Model Prefabs have the
 2. Mesh, weights, and bone association of source Sprite(s) are pasted to destination Sprite(s) with the same names.
 
 ### Copy behavior
-To copy a Sprite's data, select a Sprite and then select the __Copy__ button to copy the Mesh and bone data associated with that Sprite. If no Sprite is selected, the data of all the Sprites' currently in the [Skinning Editor](SkinningEditor.md) window is copied.
+To copy sprite data, select a sprite and then select __Copy__. This copies the mesh and bone data associated with that sprite. If no sprite is selected, then this copies the data of all sprites' currently in the [Skinning Editor](SkinningEditor.md) window instead.
 
 ### Paste behavior
-To paste Sprite data to another Sprite, select the Sprite that should receive the paste data and then select __Paste__. This will bring up the Paste panel at the bottom right of the editor window:
+To paste copied sprite data, select the __Paste__ button. This opens the Paste panel at the lower right of the editor window which contains the following data options. Select which data you want to paste from the copied sprite data.
+
 
 ![](images/PasteDialog.png)<br/>Paste dialog box.
 
 | __Option__ | Function                                      |
 | ---------- | --------------------------------------------- |
 | __Bones__  | Paste bone data.                              |
-| __Mesh__   | Paste Mesh data.                              |
+| __Mesh__   | Paste mesh data.                              |
 | __Flip X__ | Paste the data but mirrored along the X-axis. |
 | __Flip Y__ | Paste the data but mirrored along the Y-axis. |
 
-The __Copy__ and __Paste__ tools behave in the following ways depending on these factors:
-
-|                                   | Copy from a selected Sprite                                  | Copy with no Sprite selected                                 |
-| --------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| __Paste with a Sprite selected__  | Data from the source Sprite will be copied to the selected destination Sprite. | Data is pasted to all Sprites at the destination with the same name(s) as the respective source Sprites. |
-| __Paste with no Sprite selected__ | No data is pasted.                                           | Data is pasted to all Sprites at the destination with the same name(s) as the respective source Sprites. |
+To paste copied sprite data, select a sprite and then select __Paste__. This pastes the selected data to a selected sprite. If no sprite is selected, then this pastes the data to all sprites’ currently in the [Skinning Editor](SkinningEditor.md) window with the same name as the copied sprite.

@@ -80,7 +80,7 @@ namespace UnityEditor.U2D.Animation
 
         static void RefreshSpriteSkinCache()
         {
-            var spriteSkins = GameObject.FindObjectsOfType<SpriteSkin>();
+            var spriteSkins = GameObject.FindObjectsByType<SpriteSkin>(FindObjectsSortMode.None);
             foreach (var ss in spriteSkins)
             {
                 ss.ResetSprite();

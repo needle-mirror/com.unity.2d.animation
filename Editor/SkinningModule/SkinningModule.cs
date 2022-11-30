@@ -382,7 +382,7 @@ namespace UnityEditor.U2D.Animation
                     var color = unselectedRectColor;
 
                     if (sprite == selectedSprite)
-                        color = DrawingUtility.kSpriteBorderColor;
+                        color = DrawingUtility.spriteBorderColor;
 
                     if (skinningCache.mode == SkinningMode.Character
                         && sprite != selectedSprite)

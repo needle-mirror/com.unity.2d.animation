@@ -1,4 +1,3 @@
-using System;
 using UnityEditor.U2D.Layout;
 using UnityEngine;
 
@@ -7,46 +6,40 @@ namespace UnityEditor.U2D.Animation
     internal class SkeletonTool : BaseTool
     {
         [SerializeField]
-        private SkeletonController m_SkeletonController;
-        private SkeletonToolView m_SkeletonToolView;
-        private RectBoneSelector m_RectBoneSelector = new RectBoneSelector();
-        private RectSelectionTool<BoneCache> m_RectSelectionTool = new RectSelectionTool<BoneCache>();
-        private UnselectTool<BoneCache> m_UnselectTool = new UnselectTool<BoneCache>();
+        SkeletonController m_SkeletonController;
+        SkeletonToolView m_SkeletonToolView;
+        RectBoneSelector m_RectBoneSelector = new RectBoneSelector();
+        RectSelectionTool<BoneCache> m_RectSelectionTool = new RectSelectionTool<BoneCache>();
+        UnselectTool<BoneCache> m_UnselectTool = new UnselectTool<BoneCache>();
 
         public bool enableBoneInspector { get; set; }
 
         public SkeletonMode mode
         {
-            get { return m_SkeletonController.view.mode; }
-            set { m_SkeletonController.view.mode = value; }
+            get => m_SkeletonController.view.mode;
+            set => m_SkeletonController.view.mode = value;
         }
 
         public bool editBindPose
         {
-            get { return m_SkeletonController.editBindPose; }
-            set { m_SkeletonController.editBindPose = value; }
+            get => m_SkeletonController.editBindPose;
+            set => m_SkeletonController.editBindPose = value;
         }
 
         public ISkeletonStyle skeletonStyle
         {
-            get { return m_SkeletonController.styleOverride; }
-            set { m_SkeletonController.styleOverride = value; }
+            get => m_SkeletonController.styleOverride;
+            set => m_SkeletonController.styleOverride = value;
         }
 
-        public override int defaultControlID
-        {
-            get { return 0; }
-        }
+        public override int defaultControlID => 0;
 
-        public BoneCache hoveredBone
-        {
-            get { return m_SkeletonController.hoveredBone; }
-        }
+        public BoneCache hoveredBone => m_SkeletonController.hoveredBone;
 
         public SkeletonCache skeleton
         {
-            get { return m_SkeletonController.skeleton; }
-            private set { m_SkeletonController.skeleton = value; }
+            get => m_SkeletonController.skeleton;
+            private set => m_SkeletonController.skeleton = value;
         }
 
         internal override void OnCreate()
@@ -121,17 +114,17 @@ namespace UnityEditor.U2D.Animation
                 m_SkeletonToolView.Update(bone.name, Mathf.RoundToInt(bone.depth), bone.position, bone.rotation.eulerAngles.z, bone.bindPoseColor);
         }
 
-        private void SelectedSpriteChanged(SpriteCache sprite)
+        void SelectedSpriteChanged(SpriteCache sprite)
         {
             SetupSkeleton(skinningCache.GetEffectiveSkeleton(sprite));
         }
 
-        private void BoneSelectionChanged()
+        void BoneSelectionChanged()
         {
             UpdateBoneInspector();
         }
 
-        private void UpdateBoneInspector()
+        void UpdateBoneInspector()
         {
             var selectedBone = skinningCache.skeletonSelection.activeElement;
             var selectionCount = skinningCache.skeletonSelection.Count;
@@ -146,12 +139,12 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void SkinningModeChanged(SkinningMode mode)
+        void SkinningModeChanged(SkinningMode skinningMode)
         {
             SetupSkeleton(skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite));
         }
 
-        private void SetupSkeleton(SkeletonCache sk)
+        void SetupSkeleton(SkeletonCache sk)
         {
             m_RectBoneSelector.bones = null;
             skeleton = sk;
@@ -174,7 +167,7 @@ namespace UnityEditor.U2D.Animation
             m_UnselectTool.OnGUI();
         }
 
-        private void BoneColorChanged(BoneCache selectedBone, Color32 color)
+        void BoneColorChanged(BoneCache selectedBone, Color32 color)
         {
             if (selectedBone != null)
             {
@@ -184,7 +177,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
         
-        private void BonePositionChanged(BoneCache selectedBone, Vector2 position)
+        void BonePositionChanged(BoneCache selectedBone, Vector2 position)
         {
             if (selectedBone != null)
             {
@@ -195,7 +188,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
         
-        private void BoneRotationChanged(BoneCache selectedBone, float rotation)
+        void BoneRotationChanged(BoneCache selectedBone, float rotation)
         {
             if (selectedBone != null)
             {
@@ -208,7 +201,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void BoneNameChanged(BoneCache selectedBone, string name)
+        void BoneNameChanged(BoneCache selectedBone, string name)
         {
             if (selectedBone != null)
             {
@@ -228,7 +221,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void BoneDepthChanged(BoneCache selectedBone, int depth)
+        void BoneDepthChanged(BoneCache selectedBone, int depth)
         {
             if (selectedBone != null)
             {

@@ -30,3 +30,24 @@ For the Sprite Skin component to automatically locate the bones successfully, Ga
 ![](images/2d-anim-sprite-skin-root-bone.png)
 
 By setting the Sprite Skin’s **Root Bone** property to the correct GameObject Transform, Sprite Skin will then map the GameObject Transform to the Sprite’s rigged bone of the same name. For the **Auto Rebind** to be successful, the name and the hierarchy of the rigged bones and the GameObject Transforms must match. This means that changing the name of the bones in the Skinning Editor will require you to update the names of the GameObject Transforms to match as well.
+
+## Deformation methods
+Starting from 2D Animation 10 (Unity 2023.1), Sprite Skins can be deformed using two different methods, CPU and GPU deformation. However, do note that GPU deforomation is only available with the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest).
+
+### Usage guidelines
+The option to choose between CPU and GPU deformation allows projects to pick where the deformation should happen, on the CPU or the GPU. Projects which are heavily using the CPU for their different systems are therefore advised to use GPU deformation, and vice versa. 
+
+Do also note that selecting GPU deformation will cause the Sprite to be rendered using the [SRP Batcher](https://docs.unity3d.com/Manual/SRPBatcher.html). This means that there is a small draw call cost per object. When selecting CPU deformation, the Sprites are dynamically batched, reducing the overall draw calls. We therefore advice choosing CPU deformation when a scene contains many low-polygon objects, and GPU deformation when a scene contains fewer high-polygon objects.
+
+As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/Manual/Profiler.html) and make changes according to the data, as every use case is unique. 
+
+### Selecting CPU/GPU deformation
+1. Make sure the project is setup with the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest) package.
+    - If the project is not set up with the Universal Render Pipeline package, [see this guide](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@15.0/manual/Setup.html) on how to set it up.
+2. Verify that the **SRP Batcher** option is checked in the [Universal Render Pipeline Asset](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@15.0/manual/universalrp-asset.html).
+
+![](images/urp-pipeline-asset.png)<br/>To see the **SRP Batcher** option, check **Show Additional Properties** in the Rendering options menu.
+
+3. Open the Player settings (Edit > Project Settings > Player) and locate the **GPU Skinning** option under **Other Settings**. If this option is checked, Sprite Skins will be deformed on the GPU, and left unchecked, on the CPU. 
+
+![](images/gpu-deformation-settings.png)<br/>The GPU Skinning option in the Player Settings.

@@ -3,9 +3,9 @@
 namespace UnityEngine.U2D.Animation
 {
     [AddComponentMenu("")]
-    [DefaultExecutionOrder(-1)]
+    [DefaultExecutionOrder(UpdateOrder.spriteSkinUpdateOrder)]
     [ExecuteInEditMode]
-    internal class SpriteSkinUpdateHelper : MonoBehaviour
+    internal class DeformationManagerUpdater : MonoBehaviour
     {
         public System.Action<GameObject> onDestroyingComponent
         {
@@ -13,20 +13,20 @@ namespace UnityEngine.U2D.Animation
             set;
         }
         
-        ProfilerMarker m_ProfilerMarker = new ProfilerMarker("SpriteSkinUpdateHelper.LateUpdate");
+        ProfilerMarker m_ProfilerMarker = new ProfilerMarker("DeformationManager.LateUpdate");
 
         void OnDestroy() => onDestroyingComponent?.Invoke(gameObject);
 
         void LateUpdate()
         {
-            if (SpriteSkinComposite.instance.helperGameObject != gameObject)
+            if (DeformationManager.instance.helperGameObject != gameObject)
             {
                 GameObject.DestroyImmediate(gameObject);
                 return;
             }
             
             m_ProfilerMarker.Begin();
-            SpriteSkinComposite.instance.LateUpdate();
+            DeformationManager.instance.Update();
             m_ProfilerMarker.End();
         }
     }

@@ -18,9 +18,9 @@ namespace UnityEditor.U2D.Animation
 
     internal class BoneGizmo : ScriptableSingleton<BoneGizmo>
     {
-        private BoneGizmoController m_BoneGizmoController;
+        BoneGizmoController m_BoneGizmoController;
 
-        internal BoneGizmoController boneGizmoController { get { return m_BoneGizmoController; } }
+        internal BoneGizmoController boneGizmoController => m_BoneGizmoController;
 
         internal void Initialize()
         {
@@ -33,7 +33,7 @@ namespace UnityEditor.U2D.Animation
             boneGizmoController.ClearSpriteBoneCache();
         }
 
-        private void RegisterCallbacks()
+        void RegisterCallbacks()
         {
             Selection.selectionChanged += OnSelectionChanged;
             SceneView.duringSceneGui += OnSceneGUI;
@@ -41,22 +41,22 @@ namespace UnityEditor.U2D.Animation
             EditorApplication.playModeStateChanged += PlayModeStateChanged;
         }
 
-        private void OnSceneGUI(SceneView sceneView)
+        void OnSceneGUI(SceneView sceneView)
         {
             boneGizmoController.OnGUI();
         }
 
-        private void OnSelectionChanged()
+        void OnSelectionChanged()
         {
             boneGizmoController.OnSelectionChanged();
         }
 
-        private void OnAfterAssemblyReload()
+        void OnAfterAssemblyReload()
         {
             boneGizmoController.OnSelectionChanged();
         }
 
-        private void PlayModeStateChanged(PlayModeStateChange stateChange)
+        void PlayModeStateChanged(PlayModeStateChange stateChange)
         {
             if (stateChange == PlayModeStateChange.EnteredPlayMode ||
                 stateChange == PlayModeStateChange.EnteredEditMode)
@@ -66,51 +66,36 @@ namespace UnityEditor.U2D.Animation
 
     internal class BoneGizmoController
     {
-        private Dictionary<Sprite, UnityEngine.U2D.SpriteBone[]> m_SpriteBones = new Dictionary<Sprite, UnityEngine.U2D.SpriteBone[]>();
-        private Dictionary<Transform, Vector2> m_BoneData = new Dictionary<Transform, Vector2>();
-        private HashSet<SpriteSkin> m_SkinComponents = new HashSet<SpriteSkin>();
-        private HashSet<Transform> m_CachedBones = new HashSet<Transform>();
-        private HashSet<Transform> m_SelectionRoots = new HashSet<Transform>();
-        private ISkeletonView view;
-        private IUndo m_Undo;
-        private Tool m_PreviousTool = Tool.None;
-        private IBoneGizmoToggle m_BoneGizmoToggle;
-        
-        internal IBoneGizmoToggle boneGizmoToggle { get { return m_BoneGizmoToggle; } set { m_BoneGizmoToggle = value; } }
+        Dictionary<Sprite, SpriteBone[]> m_SpriteBones = new Dictionary<Sprite, UnityEngine.U2D.SpriteBone[]>();
+        Dictionary<Transform, Vector2> m_BoneData = new Dictionary<Transform, Vector2>();
+        HashSet<SpriteSkin> m_SkinComponents = new HashSet<SpriteSkin>();
+        HashSet<Transform> m_CachedBones = new HashSet<Transform>();
+        HashSet<Transform> m_SelectionRoots = new HashSet<Transform>();
+        ISkeletonView m_View;
+        IUndo m_Undo;
+        Tool m_PreviousTool = Tool.None;
 
-        public Transform hoveredBone
-        {
-            get { return GetBone(view.hoveredBoneID); }
-        }
-        public Transform hoveredTail
-        {
-            get { return GetBone(view.hoveredTailID); }
-        }
-        public Transform hoveredBody
-        {
-            get { return GetBone(view.hoveredBodyID); }
-        }
-        public Transform hoveredJoint
-        {
-            get { return GetBone(view.hoveredJointID); }
-        }
-        public Transform hotBone
-        {
-            get { return GetBone(view.hotBoneID); }
-        }
+        internal IBoneGizmoToggle boneGizmoToggle { get; set; }
+        public Transform hoveredBone => GetBone(m_View.hoveredBoneID);
+        public Transform hoveredTail => GetBone(m_View.hoveredTailID);
+        public Transform hoveredBody => GetBone(m_View.hoveredBodyID);
 
-        private Transform GetBone(int instanceID)
+        public Transform hoveredJoint => GetBone(m_View.hoveredJointID);
+
+        public Transform hotBone => GetBone(m_View.hotBoneID);
+
+        static Transform GetBone(int instanceID)
         {
             return EditorUtility.InstanceIDToObject(instanceID) as Transform;
         }
 
         public BoneGizmoController(ISkeletonView view, IUndo undo, IBoneGizmoToggle toggle)
         {
-            this.view = view;
-            view.mode = SkeletonMode.EditPose;
-            view.InvalidID = 0;
+            m_View = view;
+            m_View.mode = SkeletonMode.EditPose;
+            m_View.InvalidID = 0;
             m_Undo = undo;
-            m_BoneGizmoToggle = toggle;
+            boneGizmoToggle = toggle;
         }
 
         internal void OnSelectionChanged()
@@ -120,7 +105,7 @@ namespace UnityEditor.U2D.Animation
             foreach (var selectedTransform in Selection.transforms)
             {
                 var prefabRoot = PrefabUtility.GetOutermostPrefabInstanceRoot(selectedTransform.gameObject);
-                var animator = default(Animator);
+                Animator animator;
 
                 if (prefabRoot != null)
                     m_SelectionRoots.Add(prefabRoot.transform);
@@ -149,9 +134,9 @@ namespace UnityEditor.U2D.Animation
 
         internal void OnGUI()
         {
-            m_BoneGizmoToggle.OnGUI();
+            boneGizmoToggle.OnGUI();
 
-            if (!m_BoneGizmoToggle.enableGizmos)
+            if (!boneGizmoToggle.enableGizmos)
                 return;
             
             PrepareBones();
@@ -178,12 +163,12 @@ namespace UnityEditor.U2D.Animation
             m_SpriteBones.Clear();
         }
 
-        private void PrepareBones()
+        void PrepareBones()
         {
-            if (!view.CanLayout())
+            if (!m_View.CanLayout())
                 return;
 
-            if (view.IsActionHot(SkeletonAction.None))
+            if (m_View.IsActionHot(SkeletonAction.None))
                 m_CachedBones.Clear();
 
             m_BoneData.Clear();
@@ -197,13 +182,12 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private UnityEngine.U2D.SpriteBone[] GetSpriteBones(SpriteSkin spriteSkin)
+        SpriteBone[] GetSpriteBones(SpriteSkin spriteSkin)
         {
             Debug.Assert(spriteSkin.isValid);
 
             var sprite = spriteSkin.spriteRenderer.sprite;
-            UnityEngine.U2D.SpriteBone[] spriteBones;
-            if (!m_SpriteBones.TryGetValue(sprite, out spriteBones))
+            if (!m_SpriteBones.TryGetValue(sprite, out var spriteBones))
             {
                 spriteBones = sprite.GetBones();
                 m_SpriteBones[sprite] = sprite.GetBones();
@@ -212,23 +196,22 @@ namespace UnityEditor.U2D.Animation
             return spriteBones;
         }
 
-        private void PrepareBones(SpriteSkin spriteSkin)
+        void PrepareBones(SpriteSkin spriteSkin)
         {
             Debug.Assert(spriteSkin != null);
-            Debug.Assert(view.CanLayout());
+            Debug.Assert(m_View.CanLayout());
 
             if (!spriteSkin.isActiveAndEnabled || !spriteSkin.isValid || !spriteSkin.spriteRenderer.enabled)
                 return;
-
-            var sprite = spriteSkin.spriteRenderer.sprite;
+            
             var boneTransforms = spriteSkin.boneTransforms;
             var spriteBones = GetSpriteBones(spriteSkin);
-            var alpha = 1f;
+            const float alpha = 1f;
 
             if (spriteBones == null)
                 return;
             
-            for (int i = 0; i < boneTransforms.Length; ++i)
+            for (var i = 0; i < boneTransforms.Length; ++i)
             {
                 var boneTransform = boneTransforms[i];
 
@@ -237,52 +220,52 @@ namespace UnityEditor.U2D.Animation
 
                 var bone = spriteBones[i];
 
-                if (view.IsActionHot(SkeletonAction.None))
+                if (m_View.IsActionHot(SkeletonAction.None))
                     m_CachedBones.Add(boneTransform);
 
                 m_BoneData.Add(boneTransform, new Vector2(bone.length, alpha));
             }
         }
 
-        private void DoBoneGUI()
+        void DoBoneGUI()
         {
-            view.BeginLayout();
+            m_View.BeginLayout();
 
-            if (view.CanLayout())
+            if (m_View.CanLayout())
                 LayoutBones();
 
-            view.EndLayout();
+            m_View.EndLayout();
 
             HandleSelectBone();
             HandleRotateBone();
             HandleMoveBone();
-            DrawBones();
+            DrawBoneAndOutlines();
             DrawCursors();
         }
 
-        private void LayoutBones()
+        void LayoutBones()
         {
             foreach (var bone in m_CachedBones)
             {
                 if (bone == null)
                     continue;
 
-                Vector2 value;
-                if (!m_BoneData.TryGetValue(bone, out value))
+                if (!m_BoneData.TryGetValue(bone, out var value))
                     continue;
 
                 var length = value.x;
 
                 if (bone != hotBone)
-                    view.LayoutBone(bone.GetInstanceID(), bone.position, bone.position + bone.GetScaledRight() * length, bone.forward, bone.up, bone.right, false);
+                {
+                    var bonePosition = bone.position;
+                    m_View.LayoutBone(bone.GetInstanceID(), bonePosition, bonePosition + bone.GetScaledRight() * length, bone.forward, bone.up, bone.right, false);
+                }
             }
         }
 
-        private void HandleSelectBone()
+        void HandleSelectBone()
         {
-            int instanceID;
-            bool additive;
-            if (view.DoSelectBone(out instanceID, out additive))
+            if (m_View.DoSelectBone(out var instanceID, out var additive))
             {
                 var bone = GetBone(instanceID);
 
@@ -305,34 +288,25 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleRotateBone()
+        void HandleRotateBone()
         {
             var pivot = hoveredBone;
 
-            if (view.IsActionHot(SkeletonAction.RotateBone))
+            if (m_View.IsActionHot(SkeletonAction.RotateBone))
                 pivot = hotBone;
 
             if (pivot == null)
                 return;
 
             FindPivotTransform(pivot, out pivot);
-
             if (pivot == null)
                 return;
 
-            float deltaAngle;
-            if (view.DoRotateBone(pivot.position, pivot.forward, out deltaAngle))
+            if (m_View.DoRotateBone(pivot.position, pivot.forward, out var deltaAngle))
                 SetBoneRotation(deltaAngle);
         }
 
-        private void HandleMoveBone()
-        {
-            Vector3 deltaPosition;
-            if (view.DoMoveBone(out deltaPosition))
-                SetBonePosition(deltaPosition);
-        }
-
-        private bool FindPivotTransform(Transform transform, out Transform selectedTransform)
+        static bool FindPivotTransform(Transform transform, out Transform selectedTransform)
         {
             selectedTransform = transform;
             var selectedRoots = Selection.transforms;
@@ -347,9 +321,15 @@ namespace UnityEditor.U2D.Animation
             }
 
             return false;
+        }        
+        
+        void HandleMoveBone()
+        {
+            if (m_View.DoMoveBone(out var deltaPosition))
+                SetBonePosition(deltaPosition);
         }
 
-        private void SetBonePosition(Vector3 deltaPosition)
+        void SetBonePosition(Vector3 deltaPosition)
         {
             foreach (var selectedTransform in Selection.transforms)
             {
@@ -363,7 +343,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void SetBoneRotation(float deltaAngle)
+        void SetBoneRotation(float deltaAngle)
         {
             foreach(var selectedGameObject in Selection.gameObjects)
             {
@@ -378,16 +358,21 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void DrawBones()
+        void DrawBoneAndOutlines()
         {
-            if (!view.IsRepainting())
+            if (!m_View.IsRepainting())
                 return;
+            
+            DrawBoneOutlines();
+            DrawBones();
+        }
 
+        void DrawBoneOutlines()
+        {
             var selectedOutlineColor = SelectionOutlineSettings.outlineColor;
             var selectedOutlineSize = SelectionOutlineSettings.selectedBoneOutlineSize;
             var defaultOutlineColor = Color.black.AlphaMultiplied(0.5f);
-
-            //Draw bone outlines
+            
             foreach (var boneData in m_BoneData)
             {
                 var bone = boneData.Key;
@@ -406,7 +391,7 @@ namespace UnityEditor.U2D.Animation
                 var outlineSize = 1.25f;
 
                 var isSelected = Selection.Contains(bone.gameObject);
-                var isHovered = hoveredBody == bone && view.IsActionHot(SkeletonAction.None);
+                var isHovered = hoveredBody == bone && m_View.IsActionHot(SkeletonAction.None);
 
                 if (isSelected)
                 {
@@ -416,55 +401,48 @@ namespace UnityEditor.U2D.Animation
                 else if (isHovered)
                     color = Handles.preselectionColor;
 
-                DrawBoneOutline(bone, length, color, outlineSize);
+                m_View.DrawBoneOutline(bone.position, bone.GetScaledRight(), bone.forward, length, color, outlineSize);
             }
+            
+            BatchedDrawing.Draw();
+        }
 
-            //Draw bones
+        void DrawBones()
+        {
             foreach (var boneData in m_BoneData)
             {
                 var bone = boneData.Key;
-
                 if (bone == null)
                     continue;
 
                 var value = boneData.Value;
                 var length = value.x;
                 var alpha = value.y;
-
+                
                 if (alpha == 0f || !bone.gameObject.activeInHierarchy)
                     continue;
 
                 DrawBone(bone, length, Color.white);
             }
+            
+            BatchedDrawing.Draw();
         }
 
-        private void DrawBone(Transform bone, float length, Color color)
+        void DrawBone(Transform bone, float length, Color color)
         {
             var isSelected = Selection.Contains(bone.gameObject);
-            var isJointHovered = view.IsActionHot(SkeletonAction.None) && hoveredJoint == bone;
-            var isTailHovered = view.IsActionHot(SkeletonAction.None) && hoveredTail == bone;
+            var isJointHovered = m_View.IsActionHot(SkeletonAction.None) && hoveredJoint == bone;
+            var isTailHovered = m_View.IsActionHot(SkeletonAction.None) && hoveredTail == bone;
 
-            view.DrawBone(bone.position, bone.GetScaledRight(), bone.forward, length, color, false, isSelected, isJointHovered, isTailHovered, bone == hotBone);
+            m_View.DrawBone(bone.position, bone.GetScaledRight(), bone.forward, length, color, false, isSelected, isJointHovered, isTailHovered, bone == hotBone);
         }
 
-        private void DrawBoneOutline(Transform bone, float length, Color color, float outlineScale)
+        void DrawCursors()
         {
-            view.DrawBoneOutline(bone.position, bone.GetScaledRight(), bone.forward, length, color, outlineScale);
-        }
-
-        private void DrawCursors()
-        {
-            if (!view.IsRepainting())
+            if (!m_View.IsRepainting())
                 return;
 
-            view.DrawCursors(true);
-        }
-
-        private bool HasParentBone(Transform transform)
-        {
-            Debug.Assert(transform != null);
-
-            return transform.parent != null && m_BoneData.ContainsKey(transform.parent);
+            m_View.DrawCursors(true);
         }
     }
 }

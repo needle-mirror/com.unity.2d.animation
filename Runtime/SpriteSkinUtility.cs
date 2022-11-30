@@ -3,7 +3,12 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.Rendering;
 using UnityEngine.U2D.Common;
+
+#if ENABLE_URP
+using UnityEngine.Rendering.Universal;
+#endif
 
 namespace UnityEngine.U2D.Animation
 {
@@ -40,6 +45,29 @@ namespace UnityEngine.U2D.Animation
 
     internal static class SpriteSkinUtility
     {
+        internal static bool CanUseGpuDeformation()
+        {
+            return SystemInfo.supportsComputeShaders;            
+        }
+
+        internal static bool IsUsingGpuDeformation()
+        {
+#if ENABLE_URP            
+            return CanUseGpuDeformation() &&
+                   GraphicsSettings.currentRenderPipeline != null &&
+                   UniversalRenderPipeline.asset.useSRPBatcher &&
+                   InternalEngineBridge.IsGPUSkinningEnabled();
+#else
+            return false;
+#endif
+        }
+
+        internal static bool CanSpriteSkinUseGpuDeformation(SpriteSkin spriteSkin)
+        {
+            return IsUsingGpuDeformation() &&
+                   GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
+        }
+        
         internal static SpriteSkinValidationResult Validate(this SpriteSkin spriteSkin)
         {
             if (spriteSkin.spriteRenderer.sprite == null)

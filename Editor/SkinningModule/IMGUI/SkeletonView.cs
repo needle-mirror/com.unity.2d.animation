@@ -1,53 +1,53 @@
 using UnityEngine;
-using System;
 
 namespace UnityEditor.U2D.Animation
 {
     internal class SkeletonView : ISkeletonView
     {
-        private const float kPickingRadius = 5f;
-        internal const string kDeleteCommandName = "Delete";
-        internal const string kSoftDeleteCommandName = "SoftDelete";
-        private static readonly int kBodyHashCode = "Body".GetHashCode();
-        private static readonly int kJointHashCode = "Joint".GetHashCode();
-        private static readonly int kTailHashCode = "Tail".GetHashCode();
-        private static readonly int kCreateBoneHashCode = "CreateBone".GetHashCode();
+        internal const string deleteCommandName = "Delete";
+        internal const string softDeleteCommandName = "SoftDelete";
+        
+        const float k_PickingRadius = 5f;
+        static readonly int k_BodyHashCode = "Body".GetHashCode();
+        static readonly int k_JointHashCode = "Joint".GetHashCode();
+        static readonly int k_TailHashCode = "Tail".GetHashCode();
+        static readonly int k_CreateBoneHashCode = "CreateBone".GetHashCode();
 
         public int InvalidID { get; set; }
         public SkeletonMode mode { get; set; }
         public int defaultControlID { get; set; }
-        public int hoveredBoneID { get { return m_HoveredBoneID; } }
-        public int hoveredJointID { get { return m_HoveredJointID; } }
-        public int hoveredBodyID { get { return m_HoveredBodyID; } }
-        public int hoveredTailID { get { return m_HoveredTailID; } }
-        public int hotBoneID { get { return m_HotBoneID; } }
+        public int hoveredBoneID => m_HoveredBoneID;
+        public int hoveredJointID => m_HoveredJointID;
+        public int hoveredBodyID => m_HoveredBodyID;
+        public int hoveredTailID => m_HoveredTailID;
+        public int hotBoneID => m_HotBoneID;
 
-        private IGUIWrapper m_GUIWrapper;
-        private int m_RotateControlID = -1;
-        private int m_MoveControlID = -1;
-        private int m_FreeMoveControlID = -1;
-        private int m_MoveJointControlID = -1;
-        private int m_MoveEndPositionControlID = -1;
-        private int m_ChangeLengthControlID = -1;
-        private int m_CreateBoneControlID = -1;
-        private int m_HoveredBoneID = 0;
-        private int m_PrevHoveredBoneID = 0;
-        private int m_HoveredBodyID = 0;
-        private int m_HoveredJointID = 0;
-        private int m_HoveredTailID = 0;
-        private int m_HotBoneID = 0;
-        private int m_HoveredBodyControlID = -1;
-        private int m_HoveredJointControlID = -1;
-        private int m_HoveredTailControlID = -1;
-        private float m_NearestDistance;
-        private float m_NearestBodyDistance;
-        private float m_NearestJointDistance;
-        private float m_NearestTailDistance;
-        private int m_NearestBodyId = 0;
-        private int m_NearestJointId = 0;
-        private int m_NearestTailId = 0;
-        private SliderData m_HoveredSliderData = SliderData.zero;
-        private SliderData m_HotSliderData = SliderData.zero;
+        IGUIWrapper m_GUIWrapper;
+        int m_RotateControlID = -1;
+        int m_MoveControlID = -1;
+        int m_FreeMoveControlID = -1;
+        int m_MoveJointControlID = -1;
+        int m_MoveEndPositionControlID = -1;
+        int m_ChangeLengthControlID = -1;
+        int m_CreateBoneControlID = -1;
+        int m_HoveredBoneID = 0;
+        int m_PrevHoveredBoneID = 0;
+        int m_HoveredBodyID = 0;
+        int m_HoveredJointID = 0;
+        int m_HoveredTailID = 0;
+        int m_HotBoneID = 0;
+        int m_HoveredBodyControlID = -1;
+        int m_HoveredJointControlID = -1;
+        int m_HoveredTailControlID = -1;
+        float m_NearestDistance;
+        float m_NearestBodyDistance;
+        float m_NearestJointDistance;
+        float m_NearestTailDistance;
+        int m_NearestBodyId = 0;
+        int m_NearestJointId = 0;
+        int m_NearestTailId = 0;
+        SliderData m_HoveredSliderData = SliderData.zero;
+        SliderData m_HotSliderData = SliderData.zero;
 
         public SkeletonView(IGUIWrapper gw)
         {
@@ -56,10 +56,10 @@ namespace UnityEditor.U2D.Animation
 
         public void BeginLayout()
         {
-            m_HoveredBodyControlID = m_GUIWrapper.GetControlID(kBodyHashCode, FocusType.Passive);
-            m_HoveredJointControlID = m_GUIWrapper.GetControlID(kJointHashCode, FocusType.Passive);
-            m_HoveredTailControlID = m_GUIWrapper.GetControlID(kTailHashCode, FocusType.Passive);
-            m_CreateBoneControlID = m_GUIWrapper.GetControlID(kCreateBoneHashCode, FocusType.Passive);
+            m_HoveredBodyControlID = m_GUIWrapper.GetControlID(k_BodyHashCode, FocusType.Passive);
+            m_HoveredJointControlID = m_GUIWrapper.GetControlID(k_JointHashCode, FocusType.Passive);
+            m_HoveredTailControlID = m_GUIWrapper.GetControlID(k_TailHashCode, FocusType.Passive);
+            m_CreateBoneControlID = m_GUIWrapper.GetControlID(k_CreateBoneHashCode, FocusType.Passive);
 
             if (m_GUIWrapper.eventType == EventType.Layout)
             {
@@ -182,12 +182,12 @@ namespace UnityEditor.U2D.Animation
             return m_GUIWrapper.GUIToWorld(m_GUIWrapper.mousePosition, planeNormal, planePosition);
         }
 
-        private float GetBoneRadiusForPicking(Vector3 position)
+        float GetBoneRadiusForPicking(Vector3 position)
         {
             if (m_GUIWrapper.HasCurrentCamera())
                 return 0.1f * m_GUIWrapper.GetHandleSize(position);
 
-            return kPickingRadius;
+            return k_PickingRadius;
         }
 
         public bool DoSelectBone(out int id, out bool additive)
@@ -216,9 +216,8 @@ namespace UnityEditor.U2D.Animation
         {
             deltaAngle = 0f;
 
-            Vector3 oldPosition = m_HotSliderData.position;
-            Vector3 newPosition;
-            if (DoSliderAction(SkeletonAction.RotateBone, m_HoveredBodyControlID, ref m_RotateControlID, out newPosition))
+            var oldPosition = m_HotSliderData.position;
+            if (DoSliderAction(SkeletonAction.RotateBone, m_HoveredBodyControlID, ref m_RotateControlID, out var newPosition))
             {
                 deltaAngle = Vector3.SignedAngle(oldPosition - pivot, (Vector3)newPosition - pivot, normal);
                 return true;
@@ -231,9 +230,8 @@ namespace UnityEditor.U2D.Animation
         {
             deltaPosition = Vector3.zero;
 
-            Vector3 oldPosition = m_HotSliderData.position;
-            Vector3 newPosition;
-            if (DoSliderAction(SkeletonAction.MoveBone, m_HoveredJointControlID, ref m_MoveControlID, out newPosition))
+            var oldPosition = m_HotSliderData.position;
+            if (DoSliderAction(SkeletonAction.MoveBone, m_HoveredJointControlID, ref m_MoveControlID, out var newPosition))
             {
                 deltaPosition = newPosition - oldPosition;
                 return true;
@@ -246,9 +244,8 @@ namespace UnityEditor.U2D.Animation
         {
             deltaPosition = Vector3.zero;
 
-            Vector3 oldPosition = m_HotSliderData.position;
-            Vector3 newPosition;
-            if (DoSliderAction(SkeletonAction.FreeMoveBone, m_HoveredBodyControlID, ref m_FreeMoveControlID, out newPosition))
+            var oldPosition = m_HotSliderData.position;
+            if (DoSliderAction(SkeletonAction.FreeMoveBone, m_HoveredBodyControlID, ref m_FreeMoveControlID, out var newPosition))
             {
                 deltaPosition = newPosition - oldPosition;
                 return true;
@@ -261,9 +258,8 @@ namespace UnityEditor.U2D.Animation
         {
             deltaPosition = Vector3.zero;
 
-            Vector3 oldPosition = m_HotSliderData.position;
-            Vector3 newPosition;
-            if (DoSliderAction(SkeletonAction.MoveJoint, m_HoveredJointControlID, ref m_MoveJointControlID, out newPosition))
+            var oldPosition = m_HotSliderData.position;
+            if (DoSliderAction(SkeletonAction.MoveJoint, m_HoveredJointControlID, ref m_MoveJointControlID, out var newPosition))
             {
                 deltaPosition = newPosition - oldPosition;
                 return true;
@@ -282,7 +278,7 @@ namespace UnityEditor.U2D.Animation
             return DoSliderAction(SkeletonAction.ChangeLength, m_HoveredTailControlID, ref m_ChangeLengthControlID, out endPosition);
         }
 
-        private bool DoSliderAction(SkeletonAction action, int controlID, ref int actionControlID, out Vector3 newPosition)
+        bool DoSliderAction(SkeletonAction action, int controlID, ref int actionControlID, out Vector3 newPosition)
         {
             newPosition = m_HoveredSliderData.position;
 
@@ -479,7 +475,7 @@ namespace UnityEditor.U2D.Animation
             if (action == SkeletonAction.Remove)
             {
                 if ((m_GUIWrapper.eventType == EventType.ValidateCommand || m_GUIWrapper.eventType == EventType.ExecuteCommand)
-                    && (m_GUIWrapper.commandName == kSoftDeleteCommandName || m_GUIWrapper.commandName == kDeleteCommandName))
+                    && (m_GUIWrapper.commandName == softDeleteCommandName || m_GUIWrapper.commandName == deleteCommandName))
                 {
                     if (m_GUIWrapper.eventType == EventType.ExecuteCommand)
                         return true;
@@ -516,7 +512,6 @@ namespace UnityEditor.U2D.Animation
         {
             var endPosition = position + right * length;
             var rotation = Quaternion.LookRotation(forward, Vector3.Cross(right, forward));
-            var boneBodyColor = color;
             var boneJointColor = new Color(0f, 0f, 0f, 0.75f * color.a);
             var tailColor = new Color(0f, 0f, 0f, 0.75f * color.a);
             var hoveredColor = Handles.preselectionColor;
@@ -542,7 +537,7 @@ namespace UnityEditor.U2D.Animation
             if (drawRectCap)
                 Handles.RectangleHandleCap(0, position, rotation, BoneDrawingUtility.GetBoneRadius(position), EventType.Repaint);
 
-            BoneDrawingUtility.DrawBone(position, endPosition, forward, boneBodyColor);
+            BoneDrawingUtility.DrawBone(position, endPosition, forward, color);
             BoneDrawingUtility.DrawBoneNode(position, forward, boneJointColor);
 
             if (!isChained &&
@@ -584,13 +579,13 @@ namespace UnityEditor.U2D.Animation
                 EditorGUIUtility.AddCursorRect(mouseScreenRect, MouseCursor.MoveArrow);
         }
 
-        private void ConsumeMouseMoveEvents()
+        void ConsumeMouseMoveEvents()
         {
             if (m_GUIWrapper.eventType == EventType.MouseMove || (m_GUIWrapper.eventType == EventType.MouseDrag && m_GUIWrapper.mouseButton == 0))
                 m_GUIWrapper.UseCurrentEvent();
         }
 
-        private bool IsCapable(SkeletonAction action)
+        bool IsCapable(SkeletonAction action)
         {
             return ((int)mode & (int)action) != 0;
         }

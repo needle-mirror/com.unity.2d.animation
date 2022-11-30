@@ -33,9 +33,9 @@ namespace UnityEngine.U2D.Animation
             nativeArray = newArray;
         }
 
-        public static unsafe void DisposeIfCreated<T>(this NativeArray<T> nativeArray) where T : struct
+        public static void DisposeIfCreated<T>(this NativeArray<T> nativeArray) where T : struct
         {
-            if (nativeArray.IsCreated)
+            if (nativeArray != default && nativeArray.IsCreated)
                 nativeArray.Dispose();
         }
 

@@ -8,17 +8,18 @@ namespace UnityEditor.U2D.Animation
     [Serializable]
     internal class SkeletonController
     {
-        private static readonly string k_DefaultRootName = "root";
-        private static readonly string k_DefaultBoneName = "bone";
-        private static Regex s_Regex = new Regex(@"\w+_\d+$", RegexOptions.IgnoreCase);
+        static readonly string k_DefaultRootName = "root";
+        static readonly string k_DefaultBoneName = "bone";
+        static Regex s_Regex = new Regex(@"\w+_\d+$", RegexOptions.IgnoreCase);
 
-        private SkeletonCache m_Skeleton;
         [SerializeField]
-        private Vector3 m_CreateBoneStartPosition;
+        Vector3 m_CreateBoneStartPosition;
         [SerializeField]
-        private BoneCache m_PrevCreatedBone;
-        private bool m_Moved = false;
-        private ISkeletonStyle style
+        BoneCache m_PrevCreatedBone;
+        
+        SkeletonCache m_Skeleton;
+        bool m_Moved = false;
+        ISkeletonStyle style
         {
             get
             {
@@ -28,28 +29,21 @@ namespace UnityEditor.U2D.Animation
                 return SkeletonStyles.Default;
             }
         }
-        private SkinningCache skinningCache
+
+        SkinningCache skinningCache => m_Skeleton.skinningCache;
+
+        BoneCache selectedBone
         {
-            get { return m_Skeleton.skinningCache; }
+            get => selection.activeElement.ToSpriteSheetIfNeeded();
+            set => selection.activeElement = value.ToCharacterIfNeeded();
         }
-        private BoneCache selectedBone
+        BoneCache[] selectedBones
         {
-            get { return selection.activeElement.ToSpriteSheetIfNeeded(); }
-            set { selection.activeElement = value.ToCharacterIfNeeded(); }
+            get => selection.elements.ToSpriteSheetIfNeeded();
+            set => selection.elements = value.ToCharacterIfNeeded();
         }
-        private BoneCache[] selectedBones
-        {
-            get { return selection.elements.ToSpriteSheetIfNeeded(); }
-            set { selection.elements = value.ToCharacterIfNeeded(); }
-        }
-        private BoneCache rootBone
-        {
-            get { return selection.root.ToSpriteSheetIfNeeded(); }
-        }
-        private BoneCache[] rootBones
-        {
-            get { return selection.roots.ToSpriteSheetIfNeeded(); }
-        }
+        BoneCache rootBone => selection.root.ToSpriteSheetIfNeeded();
+        BoneCache[] rootBones => selection.roots.ToSpriteSheetIfNeeded();
 
         public ISkeletonView view { get; set; }
         public ISkeletonStyle styleOverride { get; set; }
@@ -57,36 +51,21 @@ namespace UnityEditor.U2D.Animation
         public bool editBindPose { get; set; }
         public SkeletonCache skeleton
         {
-            get { return m_Skeleton; }
-            set { SetSkeleton(value); }
+            get => m_Skeleton;
+            set => SetSkeleton(value);
         }
-        public BoneCache hoveredBone
-        {
-            get { return GetBone(view.hoveredBoneID); }
-        }
-        public BoneCache hoveredTail
-        {
-            get { return GetBone(view.hoveredTailID); }
-        }
-        public BoneCache hoveredBody
-        {
-            get { return GetBone(view.hoveredBodyID); }
-        }
-        public BoneCache hoveredJoint
-        {
-            get { return GetBone(view.hoveredJointID); }
-        }
-        public BoneCache hotBone
-        {
-            get { return GetBone(view.hotBoneID); }
-        }
+        public BoneCache hoveredBone => GetBone(view.hoveredBoneID);
+        public BoneCache hoveredTail => GetBone(view.hoveredTailID);
+        public BoneCache hoveredBody => GetBone(view.hoveredBodyID);
+        public BoneCache hoveredJoint => GetBone(view.hoveredJointID);
+        public BoneCache hotBone => GetBone(view.hotBoneID);
 
-        private BoneCache GetBone(int instanceID)
+        BoneCache GetBone(int instanceID)
         {
             return BaseObject.InstanceIDToObject(instanceID) as BoneCache;
         }
 
-        private void SetSkeleton(SkeletonCache newSkeleton)
+        void SetSkeleton(SkeletonCache newSkeleton)
         {
             if (skeleton != newSkeleton)
             {
@@ -127,9 +106,11 @@ namespace UnityEditor.U2D.Animation
             DrawSplitBonePreview();
             DrawCreateBonePreview();
             DrawCursors();
+            
+            BatchedDrawing.Draw();
         }
 
-        private void LayoutBones()
+        void LayoutBones()
         {
             for (var i = 0; i < skeleton.boneCount; ++i)
             {
@@ -140,11 +121,9 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleSelectBone()
+        void HandleSelectBone()
         {
-            int instanceID;
-            bool additive;
-            if (view.DoSelectBone(out instanceID, out additive))
+            if (view.DoSelectBone(out var instanceID, out var additive))
             {
                 var bone = GetBone(instanceID).ToCharacterIfNeeded();
 
@@ -163,7 +142,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleRotateBone()
+        void HandleRotateBone()
         {
             if (view.IsActionTriggering(SkeletonAction.RotateBone))
                 m_Moved = false;
@@ -176,14 +155,13 @@ namespace UnityEditor.U2D.Animation
             if (pivot == null)
                 return;
 
-            var rootBones = selection.roots.ToSpriteSheetIfNeeded();
-            pivot = pivot.FindRoot<BoneCache>(rootBones);
+            var selectedRootBones = selection.roots.ToSpriteSheetIfNeeded();
+            pivot = pivot.FindRoot<BoneCache>(selectedRootBones);
 
             if (pivot == null)
                 return;
 
-            float deltaAngle;
-            if (view.DoRotateBone(pivot.position, pivot.forward, out deltaAngle))
+            if (view.DoRotateBone(pivot.position, pivot.forward, out var deltaAngle))
             {
                 if (!m_Moved)
                 {
@@ -196,13 +174,12 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleMoveBone()
+        void HandleMoveBone()
         {
             if (view.IsActionTriggering(SkeletonAction.MoveBone))
                 m_Moved = false;
 
-            Vector3 deltaPosition;
-            if (view.DoMoveBone(out deltaPosition))
+            if (view.DoMoveBone(out var deltaPosition))
             {
                 if (!m_Moved)
                 {
@@ -215,13 +192,12 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleFreeMoveBone()
+        void HandleFreeMoveBone()
         {
             if (view.IsActionTriggering(SkeletonAction.FreeMoveBone))
                 m_Moved = false;
 
-            Vector3 deltaPosition;
-            if (view.DoFreeMoveBone(out deltaPosition))
+            if (view.DoFreeMoveBone(out var deltaPosition))
             {
                 if (!m_Moved)
                 {
@@ -234,7 +210,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleMoveJoint()
+        void HandleMoveJoint()
         {
             if (view.IsActionTriggering(SkeletonAction.MoveJoint))
                 m_Moved = false;
@@ -245,8 +221,7 @@ namespace UnityEditor.U2D.Animation
                     hoveredTail.chainedChild = hotBone;
             }
 
-            Vector3 deltaPosition;
-            if (view.DoMoveJoint(out deltaPosition))
+            if (view.DoMoveJoint(out var deltaPosition))
             {
                 if (!m_Moved)
                 {
@@ -263,7 +238,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleMoveEndPosition()
+        void HandleMoveEndPosition()
         {
             if (view.IsActionTriggering(SkeletonAction.MoveEndPosition))
                 m_Moved = false;
@@ -274,8 +249,7 @@ namespace UnityEditor.U2D.Animation
                     hotBone.chainedChild = hoveredJoint;
             }
 
-            Vector3 endPosition;
-            if (view.DoMoveEndPosition(out endPosition))
+            if (view.DoMoveEndPosition(out var endPosition))
             {
                 if (!m_Moved)
                 {
@@ -294,13 +268,12 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleChangeLength()
+        void HandleChangeLength()
         {
             if (view.IsActionTriggering(SkeletonAction.ChangeLength))
                 m_Moved = false;
 
-            Vector3 endPosition;
-            if (view.DoChangeLength(out endPosition))
+            if (view.DoChangeLength(out var endPosition))
             {
                 if (!m_Moved)
                 {
@@ -317,10 +290,9 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleCreateBone()
+        void HandleCreateBone()
         {
-            Vector3 position;
-            if (view.DoCreateBoneStart(out position))
+            if (view.DoCreateBoneStart(out var position))
             {
                 m_PrevCreatedBone = null;
 
@@ -357,11 +329,9 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleSplitBone()
+        void HandleSplitBone()
         {
-            int instanceID;
-            Vector3 position;
-            if (view.DoSplitBone(out instanceID, out position))
+            if (view.DoSplitBone(out var instanceID, out var position))
             {
                 using (skinningCache.UndoScope(TextContent.splitBone))
                 {
@@ -380,7 +350,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleRemoveBone()
+        void HandleRemoveBone()
         {
             if (view.DoRemoveBone())
             {
@@ -396,19 +366,18 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void HandleCancelMultiStepAction()
+        void HandleCancelMultiStepAction()
         {
             if (view.DoCancelMultistepAction(false))
                 m_PrevCreatedBone = null;
         }
 
-        private void DrawSkeleton()
+        void DrawSkeleton()
         {
             if (!view.IsRepainting())
                 return;
 
-            bool isNotOnVisualElement = !skinningCache.IsOnVisualElement();
-
+            var isNotOnVisualElement = !skinningCache.IsOnVisualElement();
             if (view.IsActionActive(SkeletonAction.CreateBone) || view.IsActionHot(SkeletonAction.CreateBone))
             {
                 if (isNotOnVisualElement)
@@ -461,7 +430,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void DrawBone(BoneCache bone, Color color)
+        void DrawBone(BoneCache bone, Color color)
         {
             var isSelected = selection.Contains(bone.ToCharacterIfNeeded());
             var isNotOnVisualElement = !skinningCache.IsOnVisualElement();
@@ -471,12 +440,12 @@ namespace UnityEditor.U2D.Animation
             view.DrawBone(bone.position, bone.right, Vector3.forward, bone.length, color, bone.chainedChild != null, isSelected, isJointHovered, isTailHovered, bone == hotBone);
         }
 
-        private void DrawBoneOutline(BoneCache bone, Color color, float outlineScale)
+        void DrawBoneOutline(BoneCache bone, Color color, float outlineScale)
         {
             view.DrawBoneOutline(bone.position, bone.right, Vector3.forward, bone.length, color, outlineScale);
         }
 
-        private void DrawSplitBonePreview()
+        void DrawSplitBonePreview()
         {
             if (!view.IsRepainting())
                 return;
@@ -521,7 +490,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void DrawCreateBonePreview()
+        void DrawCreateBonePreview()
         {
             if (!view.IsRepainting())
                 return;
@@ -559,7 +528,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void DrawCursors()
+        void DrawCursors()
         {
             if (!view.IsRepainting())
                 return;
@@ -569,20 +538,18 @@ namespace UnityEditor.U2D.Animation
 
         public static string AutoBoneName(BoneCache parent, IEnumerable<BoneCache> bones)
         {
-            string parentName = "root";
-            string inheritedName;
-            int counter;
+            var parentName = "root";
 
             if (parent != null)
                 parentName = parent.name;
 
-            DissectBoneName(parentName, out inheritedName, out counter);
+            DissectBoneName(parentName, out var inheritedName, out _);
             int nameCounter = FindBiggestNameCounter(bones);
 
             if (inheritedName == k_DefaultRootName)
                 inheritedName = k_DefaultBoneName;
 
-            return String.Format("{0}_{1}", inheritedName, ++nameCounter);
+            return $"{inheritedName}_{++nameCounter}";
         }
         
         public static string AutoNameBoneCopy(string originalBoneName, IEnumerable<BoneCache> bones)
@@ -593,17 +560,15 @@ namespace UnityEditor.U2D.Animation
             if (inheritedName == k_DefaultRootName)
                 inheritedName = k_DefaultBoneName;
 
-            return String.Format("{0}_{1}", inheritedName, ++nameCounter);
+            return $"{inheritedName}_{++nameCounter}";
         }
 
-        private static int FindBiggestNameCounter(IEnumerable<BoneCache> bones)
+        static int FindBiggestNameCounter(IEnumerable<BoneCache> bones)
         {
-            int autoNameCounter = 0;
-            string inheritedName;
-            int counter;
+            var autoNameCounter = 0;
             foreach (var bone in bones)
             {
-                DissectBoneName(bone.name, out inheritedName, out counter);
+                DissectBoneName(bone.name, out _, out var counter);
                 if (counter > autoNameCounter)
                     autoNameCounter = counter;
             }
@@ -627,7 +592,7 @@ namespace UnityEditor.U2D.Animation
             return autoNameCounter;
         }
 
-        private static void DissectBoneName(string boneName, out string inheritedName, out int counter)
+        static void DissectBoneName(string boneName, out string inheritedName, out int counter)
         {
             if (IsBoneNameMatchAutoFormat(boneName))
             {
@@ -646,12 +611,12 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private static bool IsBoneNameMatchAutoFormat(string boneName)
+        static bool IsBoneNameMatchAutoFormat(string boneName)
         {
             return s_Regex.IsMatch(boneName);
         }
 
-        private void InvokeTopologyChanged()
+        void InvokeTopologyChanged()
         {
             skinningCache.events.skeletonTopologyChanged.Invoke(skeleton);
         }

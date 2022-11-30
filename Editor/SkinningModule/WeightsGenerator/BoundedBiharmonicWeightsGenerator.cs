@@ -214,9 +214,9 @@ namespace UnityEditor.U2D.Animation
 
             SampleBones_(in inputControlPoints, in inputBones, numSamples, ref boneSamples);
 
-            // Copy Original Indices.
+            // Copy Original Indices. Every new vertex introduced to the sampler creates 3 triangles.
             var cntIndices = 0;
-            var indicesCnt = 8 * (indices.Length + inputControlPoints.Length + inputBones.Length);
+            var indicesCnt = 8 * (indices.Length + ((inputControlPoints.Length + inputBones.Length) * 3));
             var tmpIndices = new NativeArray<int>(indicesCnt, Allocator.Temp);
             for (var i = 0; i < indices.Length / 3; ++i)
             {
