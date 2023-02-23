@@ -287,4 +287,19 @@ namespace UnityEngine.U2D.Animation
         
         // ---- End For tests
     }
+
+#if UNITY_EDITOR
+
+    [UnityEditor.InitializeOnLoad]
+    internal class DeformationStartup
+    {
+        static DeformationStartup()
+        {
+            if (null == DeformationManager.instance.helperGameObject)
+                throw new System.InvalidOperationException("SpriteSkinComposite not initialized properly.");
+        }
+    }
+
+#endif
+
 }

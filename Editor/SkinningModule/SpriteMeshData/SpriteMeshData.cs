@@ -32,10 +32,12 @@ namespace UnityEditor.U2D.Animation
         int2[] m_Edges = new int2[0];
         [SerializeField]
         int2[] m_OutlineEdges = new int2[0];
+
+        Vector2[] m_VertexPositionsOverride = null;
         
         public abstract Rect frame { get; }
         
-        public Vector2[] vertices => m_Vertices;
+        public Vector2[] vertices => m_VertexPositionsOverride ?? m_Vertices;
         public EditableBoneWeight[] vertexWeights => m_VertexWeights;
         
         public int[] indices => m_Indices;
@@ -73,12 +75,35 @@ namespace UnityEditor.U2D.Animation
 
         public void SetVertices(Vector2[] newVertices, EditableBoneWeight[] newWeights)
         {
+            ClearVertexPositionOverride();
+
             m_Vertices = newVertices;
             m_VertexWeights = newWeights;
         }
 
+        /// <summary>
+        /// Sets the temporary vertex positions overrides.
+        /// Overrides are not serialized.
+        /// </summary>
+        /// <param name="vertexPositionsOverride">Array of new vertex positions.</param>
+        public void SetVertexPositionsOverride(Vector2[] vertexPositionsOverride)
+        {
+            if(vertexCount == vertexPositionsOverride.Length)
+                m_VertexPositionsOverride = vertexPositionsOverride;
+        }
+
+        /// <summary>
+        /// Clears the temporary vertex positions overrides.
+        /// </summary>
+        public void ClearVertexPositionOverride()
+        {
+            m_VertexPositionsOverride = null;
+        }
+
         public void AddVertex(Vector2 position, BoneWeight weight)
         {
+            ClearVertexPositionOverride();
+
             var listOfVertices = new List<Vector2>(m_Vertices);
             listOfVertices.Add(position);
             m_Vertices = listOfVertices.ToArray();
@@ -90,6 +115,8 @@ namespace UnityEditor.U2D.Animation
 
         public void RemoveVertex(int index)
         {
+            ClearVertexPositionOverride();
+
             var listOfVertices = new List<Vector2>(m_Vertices);
             listOfVertices.RemoveAt(index);
             m_Vertices = listOfVertices.ToArray();
@@ -110,6 +137,7 @@ namespace UnityEditor.U2D.Animation
             m_VertexWeights = new EditableBoneWeight[0];
             m_Edges = new int2[0];
             m_OutlineEdges = new int2[0];
+            m_VertexPositionsOverride = null;
         }
     }
 

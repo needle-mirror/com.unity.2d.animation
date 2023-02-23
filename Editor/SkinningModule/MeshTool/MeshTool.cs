@@ -12,7 +12,6 @@ namespace UnityEditor.U2D.Animation
         RectVertexSelector m_RectVertexSelector = new RectVertexSelector();
         UnselectTool<int> m_UnselectTool = new UnselectTool<int>();
         ITriangulator m_Triangulator;
-        Vector2[] m_PreviousVertices = new Vector2[0];
 
         public MeshCache mesh => m_Mesh;
 
@@ -150,21 +149,19 @@ namespace UnityEditor.U2D.Animation
 
                 if (skeleton.isPosePreview)
                 {
-                    m_PreviousVertices = m_Mesh.vertices;
-                    
                     var overrideVertices = m_Mesh.sprite.GetMeshPreview().vertices;
                     var convertedVerts = new Vector2[overrideVertices.Count];
                     for (var i = 0; i < convertedVerts.Length; ++i)
                         convertedVerts[i] = new Vector2(overrideVertices[i].x, overrideVertices[i].y);
-                    m_Mesh.SetVertices(convertedVerts, m_Mesh.vertexWeights);
+                    m_Mesh.SetVertexPositionsOverride(convertedVerts);
                 }
             }
         }
 
         public void EndPositionOverride()
         {
-            if(m_Mesh != null && m_Mesh.vertices.Length == m_PreviousVertices.Length)
-                m_Mesh.SetVertices(m_PreviousVertices, m_Mesh.vertexWeights);
+            if(m_Mesh != null)
+                m_Mesh.ClearVertexPositionOverride();
         }
 
         public void UpdateWeights()

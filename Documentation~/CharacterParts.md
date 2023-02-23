@@ -19,6 +19,20 @@ This and the previous step can be automated by dragging and dropping sprites int
 
 If you want to switch more than one Sprite at a time, consider [swapping the Sprite Library Asset](SLASwap.md) to switch to an entire alternate set of Sprites.
 
+## Sprite Resolver Scene View overlay
+Sprite Resolver overlay allows you to swap individual Sprites directly from the Scene View. The overlay supports swapping Sprites from multiple resolvers. This might be useful when working on complex characters.
+The overlay can be enabled from the Overlay Menu which is accessible with the ` shortcut key, or from the Scene View's settings button.
+
+Once the overlay is displayed, select a single or multiple game objects with Sprite Resolver component. If a selected game object has child game objects with Sprite Resolvers, they will be displayed as well.
+
+<br/>![](images/2D-animation-SResolver-overlay.png)
+
+To Sprite Swap, select Sprite Resolver's categories and labels using your mouse, or arrow keys on your keyboard when the overlay is in focus. 
+
+It's possible to filter the list of Sprite Resolvers to show only Resolvers that contain two or more labels in their selected category. Select the first button in the bottom-left corner of the overlay to toggle the filter.
+
+<br/>![](images/2D-animation-SResolver-overlay-filter.png)
+
 ## Sprites pivot alignment
 When working with [skinned Sprites](SkinningEditor.md), the positions of their Meshes' vertices are calculated based on the current skeleton pose, and are unaffected by each Sprite’s individual pivot. However, when [swapping](SpriteSwapIntro.md) Sprites which are not skinned (that is not [Rigged](SkinEdToolsShortcuts.md#bone-tools) to an actor’s skeleton), then they may not align correctly as their pivots are not in the same relative positions. This is especially noticeable if the Sprites are of very different sizes. The following example shows how Sprites can misalign when a skinned Sprite is swapped with an unskinned one:
 

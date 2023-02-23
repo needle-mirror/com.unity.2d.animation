@@ -12,20 +12,6 @@ using UnityEngine.Rendering.Universal;
 
 namespace UnityEngine.U2D.Animation
 {
-    internal enum SpriteSkinValidationResult
-    {
-        SpriteNotFound,
-        SpriteHasNoSkinningInformation,
-        SpriteHasNoWeights,
-        RootTransformNotFound,
-        InvalidTransformArray,
-        InvalidTransformArrayLength,
-        TransformArrayContainsNull,
-        InvalidBoneWeights,
-
-        Ready
-    }
-
     internal class NativeByteArray
     {
         public int Length => array.Length;
@@ -68,37 +54,37 @@ namespace UnityEngine.U2D.Animation
                    GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
         }
         
-        internal static SpriteSkinValidationResult Validate(this SpriteSkin spriteSkin)
+        internal static SpriteSkinState Validate(this SpriteSkin spriteSkin)
         {
             if (spriteSkin.spriteRenderer.sprite == null)
-                return SpriteSkinValidationResult.SpriteNotFound;
+                return SpriteSkinState.SpriteNotFound;
 
             var bindPoses = spriteSkin.spriteRenderer.sprite.GetBindPoses();
             var bindPoseCount = bindPoses.Length;
 
             if (bindPoseCount == 0)
-                return SpriteSkinValidationResult.SpriteHasNoSkinningInformation;
+                return SpriteSkinState.SpriteHasNoSkinningInformation;
 
             if (spriteSkin.rootBone == null)
-                return SpriteSkinValidationResult.RootTransformNotFound;
+                return SpriteSkinState.RootTransformNotFound;
 
             if (spriteSkin.boneTransforms == null)
-                return SpriteSkinValidationResult.InvalidTransformArray;
+                return SpriteSkinState.InvalidTransformArray;
 
             if (bindPoseCount != spriteSkin.boneTransforms.Length)
-                return SpriteSkinValidationResult.InvalidTransformArrayLength;
+                return SpriteSkinState.InvalidTransformArrayLength;
             
             foreach (var boneTransform in spriteSkin.boneTransforms)
             {
                 if (boneTransform == null)
-                    return SpriteSkinValidationResult.TransformArrayContainsNull;
+                    return SpriteSkinState.TransformArrayContainsNull;
             }
 
             var boneWeights = spriteSkin.spriteBoneWeights;
             if (!BurstedSpriteSkinUtilities.ValidateBoneWeights(in boneWeights, bindPoseCount))
-                return SpriteSkinValidationResult.InvalidBoneWeights;
+                return SpriteSkinState.InvalidBoneWeights;
             
-            return SpriteSkinValidationResult.Ready;
+            return SpriteSkinState.Ready;
         }
 
         internal static void CreateBoneHierarchy(this SpriteSkin spriteSkin)
@@ -117,8 +103,8 @@ namespace UnityEngine.U2D.Animation
                     root = transforms[i];
             }
 
-            spriteSkin.rootBone = root;
-            spriteSkin.boneTransforms = transforms;
+            spriteSkin.SetRootBone(root);
+            spriteSkin.SetBoneTransforms(transforms);
         }
 
         internal static int GetVertexStreamSize(this Sprite sprite)
@@ -167,28 +153,6 @@ namespace UnityEngine.U2D.Animation
                 transform.localRotation = spriteBone.rotation;
                 transform.localScale = Vector3.one;
                 transforms[index] = transform;
-            }
-        }
-
-        internal static void ResetBindPose(this SpriteSkin spriteSkin)
-        {
-            if (!spriteSkin.isValid)
-                throw new InvalidOperationException("SpriteSkin is not valid");
-
-            var spriteBones = spriteSkin.spriteRenderer.sprite.GetBones();
-            var boneTransforms = spriteSkin.boneTransforms;
-
-            for (int i = 0; i < boneTransforms.Length; ++i)
-            {
-                var boneTransform = boneTransforms[i];
-                var spriteBone = spriteBones[i];
-
-                if (spriteBone.parentId != -1)
-                {
-                    boneTransform.localPosition = spriteBone.position;
-                    boneTransform.localRotation = spriteBone.rotation;
-                    boneTransform.localScale = Vector3.one;
-                }
             }
         }
 

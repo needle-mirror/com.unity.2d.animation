@@ -18,39 +18,41 @@ namespace UnityEditor.U2D.IK
         private Dictionary<IKChain2D, Vector3> m_ChainPositionOverrides = new Dictionary<IKChain2D, Vector3>();
         public bool isDragging { get; private set; }
 
-        public void DoSolverGUI(Solver2D solver)
+        public void DoSolversGUI(IKManager2D manager)
         {
-            if (solver == null || !solver.isValid)
-                return;
-
-            IKManager2D manager = IKEditorManager.instance.FindManager(solver);
-            if (!solver.isActiveAndEnabled || manager == null || !manager.isActiveAndEnabled)
-                return;
-
-            var solverData = manager.GetSolverEditorData(solver);
-            if (!solverData.showGizmo)
-                return;
-            DrawSolver(solver, solverData);
-
-            var allChainsHaveTargets = solver.allChainsHaveTargets;
-
-            for (int i = 0; i < solver.chainCount; ++i)
+            var solvers = manager.solvers;
+            for (var s = 0; s < solvers.Count; s++)
             {
-                var chain = solver.GetChain(i);
-                if (chain == null)
+                var solver = solvers[s];
+                if (solver == null || !solver.isValid || !solver.isActiveAndEnabled)
                     continue;
 
-                if (allChainsHaveTargets)
-                {
-                    if (!IsTargetTransformSelected(chain))
-                        DoTargetGUI(solver, chain);
-                }
-                else if(chain.target == null)
-                    DoIkPoseGUI(solver, chain);
-            }
+                var solverData = manager.GetSolverEditorData(solver);
+                if (!solverData.showGizmo)
+                    return;
 
-            if(GUIUtility.hotControl == 0)
-                isDragging = false;
+                DrawSolver(solver, solverData.color);
+
+                var allChainsHaveTargets = solver.allChainsHaveTargets;
+
+                for (var c = 0; c < solver.chainCount; ++c)
+                {
+                    var chain = solver.GetChain(c);
+                    if (chain == null)
+                        continue;
+
+                    if (allChainsHaveTargets)
+                    {
+                        if (!IsTargetTransformSelected(chain))
+                            DoTargetGUI(solver, chain);
+                    }
+                    else if (chain.target == null)
+                        DoIkPoseGUI(solver, chain);
+                }
+
+                if (GUIUtility.hotControl == 0)
+                    isDragging = false;
+            }
         }
 
         private void DoTargetGUI(Solver2D solver, IKChain2D chain)
@@ -145,7 +147,7 @@ namespace UnityEditor.U2D.IK
             return Selection.Contains(chain.target.gameObject);
         }
 
-        private void DrawSolver(Solver2D solver, IKManager2D.SolverEditorData editorData)
+        private void DrawSolver(Solver2D solver, Color color)
         {
             if (Event.current.type != EventType.Repaint)
                 return;
@@ -154,7 +156,7 @@ namespace UnityEditor.U2D.IK
             {
                 var chain = solver.GetChain(i);
                 if (chain != null)
-                    DrawChain(chain, editorData.color, solver.allChainsHaveTargets);
+                    DrawChain(chain, color, solver.allChainsHaveTargets);
             }
         }
 

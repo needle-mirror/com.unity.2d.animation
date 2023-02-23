@@ -21,7 +21,7 @@ namespace UnityEngine.U2D.Animation
     [DefaultExecutionOrder(UpdateOrder.spriteResolverUpdateOrder)]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html%23sprite-resolver-component")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
-    public class SpriteResolver : MonoBehaviour, ISerializationCallbackReceiver, IPreviewable
+    public partial class SpriteResolver : MonoBehaviour, IPreviewable
     {
         // SpriteHash is the new animation key.
         // We are keeping the old ones so that the animation clip doesn't break
@@ -48,14 +48,10 @@ namespace UnityEngine.U2D.Animation
         int m_PreviousSpriteKeyInt;
         int m_PreviousSpriteHash;
 
-#if UNITY_EDITOR
-        bool m_SpriteLibChanged;
-        
         /// <summary>
-        /// Raised when object is deserialized in the Editor.
+        /// Raised when resolved to a new value.
         /// </summary>
-        public event Action onDeserializedCallback = () => { };
-#endif
+        internal event Action<SpriteResolver> onResolvedSprite; 
 
         void Reset()
         {
@@ -93,10 +89,8 @@ namespace UnityEngine.U2D.Animation
 
         void InitializeSerializedData()
         {
-            m_CategoryHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(InternalEngineBridge.ConvertFloatToInt(m_CategoryHash));
-            m_PreviousCategoryHash = m_CategoryHashInt;
-            m_LabelHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(InternalEngineBridge.ConvertFloatToInt(m_labelHash));
-            m_PreviousLabelHash = m_LabelHashInt;
+            m_CategoryHashInt = InternalEngineBridge.ConvertFloatToInt(m_CategoryHash);
+            m_LabelHashInt = InternalEngineBridge.ConvertFloatToInt(m_labelHash);
             m_PreviousSpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(InternalEngineBridge.ConvertFloatToInt(m_SpriteKey));
             m_SpriteKey = InternalEngineBridge.ConvertIntToFloat(m_PreviousSpriteKeyInt);
             
@@ -105,10 +99,22 @@ namespace UnityEngine.U2D.Animation
                 if (m_SpriteKey != 0f)
                     m_SpriteHash = InternalEngineBridge.ConvertFloatToInt(m_SpriteKey);
                 else
-                    m_SpriteHash = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, m_CategoryHashInt, m_LabelHashInt);
+                    m_SpriteHash = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, SpriteLibraryUtility.Convert32BitTo30BitHash(m_CategoryHashInt), SpriteLibraryUtility.Convert32BitTo30BitHash(m_LabelHashInt));
             }
-
-            m_PreviousSpriteHash = m_SpriteHash;            
+            m_PreviousSpriteHash = m_SpriteHash;     
+            
+            string newCat, newLab;
+            if (spriteLibrary != null && spriteLibrary.GetCategoryAndEntryNameFromHash(m_SpriteHash, out newCat, out newLab))
+            {
+                // Populate back in case user is using animating with old animation clip
+                m_CategoryHashInt = SpriteLibraryUtility.GetStringHash(newCat);
+                m_LabelHashInt = SpriteLibraryUtility.GetStringHash(newLab);
+                m_CategoryHash = InternalEngineBridge.ConvertIntToFloat(m_CategoryHashInt);
+                m_labelHash = InternalEngineBridge.ConvertIntToFloat(m_LabelHashInt);
+            }
+            
+            m_PreviousLabelHash = m_LabelHashInt;
+            m_PreviousCategoryHash = m_CategoryHashInt;       
         }
 
         SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
@@ -165,15 +171,7 @@ namespace UnityEngine.U2D.Animation
         /// Empty method. Implemented for the IPreviewable interface.
         /// </summary>
         public void OnPreviewUpdate() { }
-        
-#if UNITY_EDITOR         
-        void OnDidApplyAnimationProperties()
-        {
-            if(IsInGUIUpdateLoop())
-                ResolveUpdatedValue();
-        }        
-#endif        
-        
+
         static bool IsInGUIUpdateLoop() => Event.current != null;
         
         void LateUpdate()
@@ -183,15 +181,14 @@ namespace UnityEngine.U2D.Animation
 
         void ResolveUpdatedValue()
         {
-            var isSpriteHashUsed = m_SpriteHash != 0;
-
             if (m_SpriteHash != m_PreviousSpriteHash)
             {
                 m_PreviousSpriteHash = m_SpriteHash;
                 ResolveSpriteToSpriteRenderer();
             }
-            else if(!isSpriteHashUsed)
+            else
             {
+                // Path is still needed in case users are running animation clip from before.
                 var spriteKeyInt = InternalEngineBridge.ConvertFloatToInt(m_SpriteKey);
                 if (spriteKeyInt != m_PreviousSpriteKeyInt)
                 {
@@ -201,15 +198,15 @@ namespace UnityEngine.U2D.Animation
                 }
                 else
                 {
-                    m_CategoryHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(InternalEngineBridge.ConvertFloatToInt(m_CategoryHash));
-                    m_LabelHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(InternalEngineBridge.ConvertFloatToInt(m_labelHash));
+                    m_CategoryHashInt = InternalEngineBridge.ConvertFloatToInt(m_CategoryHash);
+                    m_LabelHashInt = InternalEngineBridge.ConvertFloatToInt(m_labelHash);
                     if (m_LabelHashInt != m_PreviousLabelHash || m_CategoryHashInt != m_PreviousCategoryHash)
                     {
                         if (spriteLibrary != null)
                         {
                             m_PreviousCategoryHash = m_CategoryHashInt;
                             m_PreviousLabelHash = m_LabelHashInt;
-                            m_SpriteHash = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, m_CategoryHashInt, m_LabelHashInt);
+                            m_SpriteHash = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, SpriteLibraryUtility.Convert32BitTo30BitHash(m_CategoryHashInt), SpriteLibraryUtility.Convert32BitTo30BitHash(m_LabelHashInt));
                             m_PreviousSpriteHash = m_SpriteHash;
                             ResolveSpriteToSpriteRenderer();
                         }
@@ -266,6 +263,9 @@ namespace UnityEngine.U2D.Animation
             var sr = spriteRenderer;
             if (sr != null && (sprite != null || validEntry))
                 sr.sprite = sprite;
+            
+            onResolvedSprite?.Invoke(this);
+            
             return validEntry;
         }
         
@@ -275,31 +275,6 @@ namespace UnityEngine.U2D.Animation
 #if UNITY_EDITOR
             spriteLibChanged = true;
 #endif
-        }
-
-#if UNITY_EDITOR
-        internal bool spriteLibChanged
-        {
-            get => m_SpriteLibChanged;
-            set => m_SpriteLibChanged = value;
-        }
-#endif
-        
-        /// <summary>
-        /// Called before object is serialized.
-        /// </summary>
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
-        {
-        }
-
-        /// <summary>
-        /// Called after object is deserialized.
-        /// </summary>
-        void ISerializationCallbackReceiver.OnAfterDeserialize()
-        {
-#if UNITY_EDITOR
-            onDeserializedCallback();
-#endif            
         }
     }
 }

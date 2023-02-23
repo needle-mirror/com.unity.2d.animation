@@ -1,5 +1,24 @@
 # Changelog
 
+## [10.0.0] - 2023-02-23
+### Added
+- Scene overlays for manipulating Sprite Resolver's category and label.
+
+### Fixed
+- Fixed an issue where undoing vertex painting results in a displaced mesh. (case DANB-334)
+- Fixed an issue where "System.ArgumentException" thrown when opening sprite Prefab with Script. (DANB-335)
+- Fixed an issue where IKEditorManager updates even when there are no active IK Manager 2Ds in the Scene. (case DANB-348)
+- Fixed SpriteResolver does not animation with animation clip when upgrading from 2020.3. (case DANB-375)
+- Fixed an issue where IKGizmos will throw an exception in the editor when IKSolver has an unassigned Solver in its list. (case DANB-373)
+- Fixed IMGUIContainer:ProcessEvent error occurs when selecting a PSD embedded SpriteLibraryAsset as a Main Library of another Sprite Library Asset. (case DANB-379)
+- Fixed Sprite Resolver inspector not updating its previews when the category is set externally to 'No Category'. (case DANB-390)
+
+### Added
+- Ability to change Sprite Skin's root transform and bone transforms from a script.
+
+### Added
+- Ability to reset Sprite Skin's bind pose by script.
+
 ## [10.0.0-pre.2] - 2022-11-30
 ### Fixed
 - Fixed an issue where body parts could not be selected from UI dropdowns in a sample scene '2 Part Swap'. (case DANB-262)

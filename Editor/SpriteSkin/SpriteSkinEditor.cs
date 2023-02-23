@@ -234,7 +234,7 @@ namespace UnityEditor.U2D.Animation
                     continue;
                 if (!SpriteSkin.GetSpriteBonesTransforms(skin, out var transforms))
                     Debug.LogWarning($"Rebind failed for {skin.name}. Could not find all bones required by the Sprite: {skin.sprite.name}.");
-                skin.boneTransforms = transforms;
+                skin.SetBoneTransforms(transforms);
                 
                 ResetBoundsIfNeeded(skin);
             }
@@ -340,34 +340,34 @@ namespace UnityEditor.U2D.Animation
             foreach (var skin in m_SpriteSkins)
             {
                 var validationResult = skin.Validate();
-                if (validationResult == SpriteSkinValidationResult.Ready)
+                if (validationResult == SpriteSkinState.Ready)
                     continue;
 
                 var text = "";
                 switch (validationResult)
                 {
-                    case SpriteSkinValidationResult.SpriteNotFound:
+                    case SpriteSkinState.SpriteNotFound:
                         text = Contents.spriteNotFound;
                         break;
-                    case SpriteSkinValidationResult.SpriteHasNoSkinningInformation:
+                    case SpriteSkinState.SpriteHasNoSkinningInformation:
                         text = Contents.spriteHasNoSkinningInformation;
                         break;
-                    case SpriteSkinValidationResult.SpriteHasNoWeights:
+                    case SpriteSkinState.SpriteHasNoWeights:
                         text = Contents.spriteHasNoWeights;
                         break;
-                    case SpriteSkinValidationResult.RootTransformNotFound:
+                    case SpriteSkinState.RootTransformNotFound:
                         text = Contents.rootTransformNotFound;
                         break;
-                    case SpriteSkinValidationResult.InvalidTransformArray:
+                    case SpriteSkinState.InvalidTransformArray:
                         text = Contents.invalidTransformArray;
                         break;
-                    case SpriteSkinValidationResult.InvalidTransformArrayLength:
+                    case SpriteSkinState.InvalidTransformArrayLength:
                         text = Contents.invalidTransformArrayLength;
                         break;
-                    case SpriteSkinValidationResult.TransformArrayContainsNull:
+                    case SpriteSkinState.TransformArrayContainsNull:
                         text = Contents.transformArrayContainsNull;
                         break;
-                    case SpriteSkinValidationResult.InvalidBoneWeights:
+                    case SpriteSkinState.InvalidBoneWeights:
                         text = Contents.invalidBoneWeights;
                         break;
                 }

@@ -16,6 +16,11 @@ namespace UnityEngine.U2D.IK
     [ExecuteInEditMode]
     public partial class IKManager2D : MonoBehaviour, IPreviewable
     {
+#if UNITY_EDITOR
+        internal static event System.Action<IKManager2D> onEnabledEditor;
+        internal static event System.Action<IKManager2D> onDisabledEditor;
+#endif
+
         [SerializeField]
         List<Solver2D> m_Solvers = new List<Solver2D>();
         [SerializeField]
@@ -60,11 +65,19 @@ namespace UnityEngine.U2D.IK
         void OnEnable()
         {
             ToggleCulling(!m_AlwaysUpdate);
+            
+            #if UNITY_EDITOR
+            onEnabledEditor?.Invoke(this);
+            #endif
         }
 
         void OnDisable()
         {
             ToggleCulling(false);
+            
+            #if UNITY_EDITOR
+            onDisabledEditor?.Invoke(this);
+            #endif
         }
 
         void ToggleCulling(bool enableCulling)

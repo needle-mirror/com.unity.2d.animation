@@ -81,6 +81,7 @@ namespace UnityEditor.U2D.Animation
 
         // Sprite Library
         public static string categoryList = L10n.Tr("Category List");
+        public static string category = L10n.Tr("Category");
         public static string label = L10n.Tr("Label");
         public static string spriteLibraryCircularDependency = L10n.Tr("The Sprite Library can't be added because self-referencing is not allowed. Try another Sprite Library instead.");
         public static string spriteLibraryNoAssetSelected = L10n.Tr("Select a Sprite Library Asset in your Project window.\n\nNew Sprite Library Assets can be created from the asset creation menu:\nAsset > Create > 2D > Sprite Library Asset");
@@ -118,6 +119,14 @@ namespace UnityEditor.U2D.Animation
         public static string spriteLibraryCreateNewAsset = L10n.Tr("Create new Sprite Library Asset");
         public static string spriteLibraryCreateTitle = L10n.Tr("New Sprite Library Asset");
         public static string spriteLibraryCreateMessage = L10n.Tr("Create a new Sprite Library Asset");
+        
+        // Sprite Resolver
+        public static readonly string emptyCategory = L10n.Tr("Category is Empty");
+        public static readonly string noCategory = L10n.Tr("No Category");
+        public static readonly string selectSpriteResolver = L10n.Tr("Select a Sprite Resolver");
+        public static readonly string resolverOverlayFilterDescription = L10n.Tr("Filters out single-label Sprite Resolvers");
+        public static readonly string resolverOverlayResetThumbnailSize = L10n.Tr("Resets the Label thumbnail to its default size");
+        public static readonly string resolverOverlayThumbnailSlider = L10n.Tr("Sets the Label thumbnail size");
 
         // Other
         public static string savePopupTitle = L10n.Tr("Unsaved changes");

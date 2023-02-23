@@ -40,6 +40,57 @@ namespace UnityEngine.U2D.Animation
     }
 
     /// <summary>
+    /// The state of the Sprite Skin.
+    /// </summary>
+    public enum SpriteSkinState
+    {
+        /// <summary>
+        /// Sprite Renderer doesn't contain a sprite.
+        /// </summary>
+        SpriteNotFound,
+
+        /// <summary>
+        /// Sprite referenced in the Sprite Renderer doesn't have skinning information.
+        /// </summary>
+        SpriteHasNoSkinningInformation,
+
+        /// <summary>
+        /// Sprite referenced in the Sprite Renderer doesn't have weights.
+        /// </summary>
+        SpriteHasNoWeights,
+
+        /// <summary>
+        /// Root transform is not assigned.
+        /// </summary>
+        RootTransformNotFound,
+
+        /// <summary>
+        /// Bone transform array is not assigned.
+        /// </summary>
+        InvalidTransformArray,
+
+        /// <summary>
+        /// Bone transform array has incorrect length.
+        /// </summary>
+        InvalidTransformArrayLength,
+
+        /// <summary>
+        /// One or more bone transforms is not assigned.
+        /// </summary>
+        TransformArrayContainsNull,
+
+        /// <summary>
+        /// Bone weights are invalid.
+        /// </summary>
+        InvalidBoneWeights,
+
+        /// <summary>
+        /// Sprite Skin is ready for deformation.
+        /// </summary>
+        Ready
+    }
+
+    /// <summary>
     /// Deforms the Sprite that is currently assigned to the SpriteRenderer in the same GameObject.
     /// </summary>
     [Preserve]
@@ -85,6 +136,7 @@ namespace UnityEngine.U2D.Animation
         SpriteRenderer m_SpriteRenderer;
         int m_CurrentDeformSprite = 0;
         bool m_IsValid = false;
+        SpriteSkinState m_State;
         int m_TransformsHash = 0;
         bool m_ForceCpuDeformation = false;
 
@@ -146,39 +198,51 @@ namespace UnityEngine.U2D.Animation
                 CacheCurrentSprite(m_AutoRebind);
             }
         }
-        
+
         /// <summary>
-        /// Returns the Transform Components that is used for deformation.
+        /// Returns the Transform Components that are used for deformation.
         /// Do not modify elements of the returned array.
         /// </summary>
         /// <returns>An array of Transform Components.</returns>
-        public Transform[] boneTransforms
+        public Transform[] boneTransforms => m_BoneTransforms;
+
+        /// <summary>
+        /// Sets the Transform Components that are used for deformation.
+        /// </summary>
+        /// <param name="boneTransformsArray">Array of new bone Transforms.</param>
+        /// <returns>The state of the Sprite Skin.</returns>
+        public SpriteSkinState SetBoneTransforms(Transform[] boneTransformsArray)
         {
-            get => m_BoneTransforms;
-            internal set
-            {
-                m_BoneTransforms = value;
-                CacheValidFlag();
-                OnBoneTransformChanged();
-            }
+            m_BoneTransforms = boneTransformsArray;
+
+            var result = CacheValidFlag();
+            OnBoneTransformChanged();
+
+            return result;
         }
 
         /// <summary>
         /// Returns the Transform Component that represents the root bone for deformation.
         /// </summary>
         /// <returns>A Transform Component.</returns>
-        public Transform rootBone
+        public Transform rootBone => m_RootBone;
+
+        /// <summary>
+        /// Sets the Transform Component that represents the root bone for deformation.
+        /// </summary>
+        /// <param name="rootBoneTransform">Root bone Transform Component.</param>
+        /// <returns>The state of the Sprite Skin.</returns>
+        public SpriteSkinState SetRootBone(Transform rootBoneTransform)
         {
-            get => m_RootBone;
-            internal set
-            {
-                m_RootBone = value;
-                CacheValidFlag();
-                CacheHierarchy();
-                OnRootBoneTransformChanged();
-            }
-        }     
-        
+            m_RootBone = rootBoneTransform;
+
+            var result = CacheValidFlag();
+            CacheHierarchy();
+            OnRootBoneTransformChanged();
+
+            return result;
+        }
+
         internal Bounds bounds
         {
             get => m_Bounds;
@@ -213,7 +277,33 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        internal bool isValid => this.Validate() == SpriteSkinValidationResult.Ready;
+        /// <summary>
+        /// Resets the bone transforms to the bind pose.
+        /// </summary>
+        /// <returns>True if successful.</returns>
+        public bool ResetBindPose()
+        {
+            if (!isValid)
+                return false;
+
+            var spriteBones = spriteRenderer.sprite.GetBones();
+            for (var i = 0; i < boneTransforms.Length; ++i)
+            {
+                var boneTransform = boneTransforms[i];
+                var spriteBone = spriteBones[i];
+
+                if (spriteBone.parentId != -1)
+                {
+                    boneTransform.localPosition = spriteBone.position;
+                    boneTransform.localRotation = spriteBone.rotation;
+                    boneTransform.localScale = Vector3.one;
+                }
+            }
+
+            return true;
+        }
+
+        internal bool isValid => this.Validate() == SpriteSkinState.Ready;
 
 #if UNITY_EDITOR
         internal static Events.UnityEvent onDrawGizmos = new Events.UnityEvent();
@@ -317,11 +407,14 @@ namespace UnityEngine.U2D.Animation
             Awake();
         }
 
-        void CacheValidFlag()
+        SpriteSkinState CacheValidFlag()
         {
-            m_IsValid = isValid;
+            m_State = this.Validate();
+            m_IsValid = m_State == SpriteSkinState.Ready;
             if(!m_IsValid)
                 DeactivateSkinning();
+
+            return m_State;
         }
         
         internal bool BatchValidate()
@@ -640,7 +733,7 @@ namespace UnityEngine.U2D.Animation
                 {
                     if (!GetSpriteBonesTransforms(this, out var transforms))
                         Debug.LogWarning($"Rebind failed for {name}. Could not find all bones required by the Sprite: {sprite.name}.");
-                    boneTransforms = transforms;
+                    SetBoneTransforms(transforms);
                 }
                     
                 UpdateSpriteDeformationData();
