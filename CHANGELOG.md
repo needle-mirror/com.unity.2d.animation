@@ -1,5 +1,17 @@
 # Changelog
 
+## [9.0.2] - 2023-02-27
+### Added
+- Added support for Collections 2.0.0.
+- Fixed an issue where "System.ArgumentException" thrown when opening sprite Prefab with Script. (DANB-342)
+
+### Fixed
+- Fixed an issue where IKEditorManager updates even when there are no active IK Manager 2Ds in the Scene. (case DANB-345)
+- Fixed an issue where undoing vertex painting results in a displaced mesh. (case DANB-355)
+- Fixed an issue where IKGizmos will throw an exception in the editor when IKSolver has an unassigned Solver in its list. (case DANB-371)
+- Fixed SpriteResolver does not animation with animation clip when upgrading from 2020.3. (case DANB-377)
+- IMGUIContainer:ProcessEvent error occurs when selecting a PSD embedded SpriteLibraryAsset as a Main Library of another Sprite Library Asset. (case DANB-380)
+
 ## [9.0.1] - 2022-10-11
 ### Fixed
 - Fixed a case where pasting bones in the Skinning Editor would move bones rather than copy them. (case DANB-179)

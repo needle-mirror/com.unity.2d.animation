@@ -1,4 +1,5 @@
 using Unity.Collections;
+using Unity.Collections.NotBurstCompatible;
 using Unity.Mathematics;
 
 namespace UnityEngine.U2D.Animation
@@ -28,8 +29,12 @@ namespace UnityEngine.U2D.Animation
                 AddToEdgeMap(edge1, ref edges);
                 AddToEdgeMap(edge2, ref edges);
             }    
-            
+
+#if COLLECTIONS_2_0_OR_ABOVE
+            var outlineEdges = new NativeList<int2>(edges.Count, Allocator.Temp);
+#else
             var outlineEdges = new NativeList<int2>(edges.Count(), Allocator.Temp);
+#endif
             foreach(var edgePair in edges)
             {
                 // If an edge is only used in one triangle, it is an outline edge.
@@ -38,7 +43,7 @@ namespace UnityEngine.U2D.Animation
             }
             edges.Dispose();
 
-            return outlineEdges.ToArray();
+            return Extensions.ToArrayNBC(outlineEdges);
         }
 
         static void AddToEdgeMap(int2 edge, ref NativeHashMap<int, int3> edgeMap)

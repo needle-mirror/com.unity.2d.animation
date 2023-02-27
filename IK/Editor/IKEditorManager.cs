@@ -7,13 +7,13 @@ using UnityEngine.U2D.IK;
 
 namespace UnityEditor.U2D.IK
 {
+    [DefaultExecutionOrder(-3)]
     internal class IKEditorManager : ScriptableObject
     {
         static IKEditorManager s_Instance;
         
         readonly HashSet<IKManager2D> m_DirtyManagers = new HashSet<IKManager2D>();
-        readonly HashSet<Solver2D> m_IKSolvers = new HashSet<Solver2D>();
-        readonly List<IKManager2D> m_IKManagers = new List<IKManager2D>();
+        readonly HashSet<IKManager2D> m_IKManagers = new HashSet<IKManager2D>();
         readonly Dictionary<IKChain2D, Vector3> m_ChainPositionOverrides = new Dictionary<IKChain2D, Vector3>();
         readonly List<Vector3> m_TargetPositions = new List<Vector3>();
 
@@ -21,6 +21,8 @@ namespace UnityEditor.U2D.IK
         GameObject[] m_SelectedGameobjects;
         
         internal bool isDraggingATool { get; private set; }
+
+        bool m_Initialized;
 
         [InitializeOnLoadMethod]
         static void CreateInstance()
@@ -46,23 +48,64 @@ namespace UnityEditor.U2D.IK
             }
         }
 
-        private void OnEnable()
+        void OnEnable()
         {
             if (s_Instance == null)
                 s_Instance = this;
 
-            RegisterCallbacks();
-            Initialize();
+            IKManager2D.onEnabledEditor += AddIKManager2D;
+            IKManager2D.onDisabledEditor += RemoveIKManager2D;
         }
 
-        private void OnDisable()
+        void OnDisable()
+        {
+            IKManager2D.onEnabledEditor -= AddIKManager2D;
+            IKManager2D.onDisabledEditor -= RemoveIKManager2D;
+
+            Dispose();
+        }
+
+        public void Initialize()
+        {
+            var currentStage = StageUtility.GetCurrentStageHandle();
+            var managers = currentStage.FindComponentsOfType<IKManager2D>().Where(x => x.gameObject.scene.isLoaded).ToArray();
+            foreach (var ikManager2D in managers)
+                m_IKManagers.Add(ikManager2D);
+
+            RegisterCallbacks();
+
+            m_Initialized = true;
+        }
+
+        void Dispose()
         {
             UnregisterCallbacks();
+            Clear();
+
+            m_Initialized = false;
+        }
+
+        void AddIKManager2D(IKManager2D manager)
+        {
+            if (manager == null)
+                return;
+
+            if (!m_Initialized)
+                Initialize();
+
+            m_IKManagers.Add(manager);
+        }
+
+        void RemoveIKManager2D(IKManager2D manager)
+        {
+            m_IKManagers.Remove(manager);
+
+            if (m_IKManagers.Count == 0)
+                Dispose();
         }
 
         private void RegisterCallbacks()
         {
-            EditorApplication.hierarchyChanged += Initialize;
 #if UNITY_2019_1_OR_NEWER
             SceneView.duringSceneGui += OnSceneGUI;
 #else
@@ -73,7 +116,6 @@ namespace UnityEditor.U2D.IK
 
         private void UnregisterCallbacks()
         {
-            EditorApplication.hierarchyChanged -= Initialize;
 #if UNITY_2019_1_OR_NEWER
             SceneView.duringSceneGui -= OnSceneGUI;
 #else
@@ -113,25 +155,11 @@ namespace UnityEditor.U2D.IK
             m_SelectedGameobjects = null;
         }
 
-        public void Initialize()
+        void Clear()
         {
             m_IKManagers.Clear();
-            m_IKSolvers.Clear();
             m_DirtyManagers.Clear();
             m_ChainPositionOverrides.Clear();
-
-            var currentStage = StageUtility.GetCurrentStageHandle();
-            var managers =  currentStage.FindComponentsOfType<IKManager2D>().Where(x => x.gameObject.scene.isLoaded).ToArray();
-            m_IKManagers.AddRange(managers);
-
-            foreach (IKManager2D manager in m_IKManagers)
-            {
-                foreach (Solver2D solver in manager.solvers)
-                {
-                    if (solver)
-                        m_IKSolvers.Add(solver);
-                }
-            }
         }
 
         public IKManager2D FindManager(Solver2D solver)
@@ -255,8 +283,11 @@ namespace UnityEditor.U2D.IK
             if (m_SelectedGameobjects == null)
                 m_SelectedGameobjects = Selection.gameObjects;
 
-            foreach (Solver2D solver in m_IKSolvers)
-                IKGizmos.instance.DoSolverGUI(solver);
+            foreach (var ikManager2D in m_IKManagers)
+            {
+                if (ikManager2D != null && ikManager2D.isActiveAndEnabled)
+                    IKGizmos.instance.DoSolversGUI(ikManager2D);
+            }
 
             if (!IKGizmos.instance.isDragging && IsDraggingATool())
             {
@@ -294,22 +325,35 @@ namespace UnityEditor.U2D.IK
 
         private void SetDirtySolversAffectedByTransform(Transform transform)
         {
-            foreach (Solver2D solver in m_IKSolvers)
+            foreach (var manager in m_IKManagers)
             {
-                if (solver.isValid)
+                if (manager != null && manager.isActiveAndEnabled)
                 {
-                    for (int i = 0; i < solver.chainCount; ++i)
+                    var dirty = false;
+                    var solvers = manager.solvers;
+                    for (var s = 0; s < solvers.Count; s++)
                     {
-                        var chain = solver.GetChain(i);
-
-                        if(chain.target == null)
-                            continue;
-
-                        if (!(IKUtility.IsDescendentOf(chain.target, transform) && IKUtility.IsDescendentOf(chain.rootTransform, transform)) &&
-                            (chain.target == transform || IKUtility.IsDescendentOf(chain.target, transform) || IKUtility.IsDescendentOf(chain.effector, transform)))
-                        {
-                            SetSolverDirty(solver);
+                        if (dirty)
                             break;
+
+                        var solver = solvers[s];
+                        if (solver != null && solver.isValid)
+                        {
+                            for (var c = 0; c < solver.chainCount; ++c)
+                            {
+                                var chain = solver.GetChain(c);
+
+                                if (chain.target == null)
+                                    continue;
+
+                                if (!(IKUtility.IsDescendentOf(chain.target, transform) && IKUtility.IsDescendentOf(chain.rootTransform, transform)) &&
+                                    (chain.target == transform || IKUtility.IsDescendentOf(chain.target, transform) || IKUtility.IsDescendentOf(chain.effector, transform)))
+                                {
+                                    SetManagerDirty(manager);
+                                    dirty = true;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }

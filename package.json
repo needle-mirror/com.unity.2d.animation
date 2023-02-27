@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "9.0.1",
+  "version": "9.0.2",
   "unity": "2022.2",
   "displayName": "2D Animation",
   "description": "2D Animation provides all the necessary tooling and runtime components for skeletal animation using Sprites.",
@@ -17,9 +17,9 @@
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "9.0.1",
+    "com.unity.2d.animation.tests": "9.0.2",
     "com.unity.2d.common.tests": "8.0.1",
-    "com.unity.2d.psdimporter": "8.0.1"
+    "com.unity.2d.psdimporter": "8.0.2"
   },
   "samples": [
     {
@@ -28,12 +28,16 @@
       "path": "Samples~/AnimationSamples"
     }
   ],
-  "upmCi": {
-    "footprint": "14b3f7961deaec181ef9d89ace53a42350da9f61"
+  "_upm": {
+    "changelog": "### Added\n- Added support for Collections 2.0.0.\n- Fixed an issue where \"System.ArgumentException\" thrown when opening sprite Prefab with Script. (DANB-342)\n\n### Fixed\n- Fixed an issue where IKEditorManager updates even when there are no active IK Manager 2Ds in the Scene. (case DANB-345)\n- Fixed an issue where undoing vertex painting results in a displaced mesh. (case DANB-355)\n- Fixed an issue where IKGizmos will throw an exception in the editor when IKSolver has an unassigned Solver in its list. (case DANB-371)\n- Fixed SpriteResolver does not animation with animation clip when upgrading from 2020.3. (case DANB-377)\n- IMGUIContainer:ProcessEvent error occurs when selecting a PSD embedded SpriteLibraryAsset as a Main Library of another Sprite Library Asset. (case DANB-380)"
   },
+  "upmCi": {
+    "footprint": "1ed84be902e346ce74f85cd3962e9c74762ea289"
+  },
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.2d.animation@9.0/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "6fc635d83d4bb0b2640893b8d4a0f3934044aeb5"
+    "revision": "ff926a6d093212af31bc3c835f61abfbb1b3f163"
   }
 }

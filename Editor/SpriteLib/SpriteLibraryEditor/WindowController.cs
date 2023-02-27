@@ -338,13 +338,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     Debug.LogWarning(TextContent.spriteLibraryCircularDependency);
                     validAsset = false;
                 }
-
-                var path = AssetDatabase.GetAssetPath(libraryAsset);
-                if (string.Compare(Path.GetExtension(path), SpriteLibrarySourceAsset.extension) != 0)
-                {
-                    Debug.LogWarning($"Only {SpriteLibrarySourceAsset.extension} assets are supported.");
-                    validAsset = false;
-                }
             }
 
             if (validAsset)
