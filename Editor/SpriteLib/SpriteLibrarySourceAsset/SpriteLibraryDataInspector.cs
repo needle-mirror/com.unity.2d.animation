@@ -725,5 +725,26 @@ namespace UnityEditor.U2D.Animation
 
             return canDelete;
         }
+
+        public static int GetSpriteLibraryEntryCount(SerializedProperty library, int min = 100)
+        {
+            if (library == null || library.arraySize == 0)
+                return 0;
+
+            var entryCount = 0;
+            var categoryCount = library.arraySize;
+            for (var i = 0; i < categoryCount; i++)
+            {
+                var category = library.GetArrayElementAtIndex(i);
+                if (category != null)
+                {
+                    var entries = category.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries);
+                    if (entries != null)
+                        entryCount += entries.arraySize;
+                }
+            }
+
+            return Math.Max(entryCount, min);
+        }
     }
 }

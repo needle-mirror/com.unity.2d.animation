@@ -81,16 +81,26 @@ namespace UnityEngine.U2D.Animation
         
         void OnEnable()
         {
-            m_CategoryHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_CategoryHash));
+            m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
             m_PreviousCategoryHash = m_CategoryHashInt;
-            m_LabelHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_labelHash));
+            m_LabelHashInt = ConvertFloatToInt(m_labelHash);
             m_PreviousLabelHash = m_LabelHashInt;
             
             m_SpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_SpriteKey));
             if (m_SpriteKeyInt == 0)
             {
-                m_SpriteKey = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, m_CategoryHashInt, m_LabelHashInt);
+                m_SpriteKey = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, SpriteLibraryUtility.Convert32BitTo30BitHash(m_CategoryHashInt), SpriteLibraryUtility.Convert32BitTo30BitHash(m_LabelHashInt));
                 m_SpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_SpriteKey));
+            }
+
+            string newCat, newLab;
+            if (spriteLibrary != null && spriteLibrary.GetCategoryAndEntryNameFromHash(m_SpriteKeyInt, out newCat, out newLab))
+            {
+                // Populate back in case user is using animating with old animation clip
+                m_CategoryHashInt = SpriteLibraryUtility.GetStringHash(newCat);
+                m_LabelHashInt = SpriteLibraryUtility.GetStringHash(newLab);
+                m_CategoryHash = ConvertIntToFloat(m_CategoryHashInt);
+                m_labelHash = ConvertIntToFloat(m_LabelHashInt);
             }
             m_PreviousSpriteKeyInt = m_SpriteKeyInt;
             ResolveSpriteToSpriteRenderer();
@@ -155,15 +165,15 @@ namespace UnityEngine.U2D.Animation
             }
             else
             {
-                m_CategoryHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_CategoryHash));
-                m_LabelHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_labelHash));
+                m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
+                m_LabelHashInt = ConvertFloatToInt(m_labelHash);
                 if (m_LabelHashInt != m_PreviousLabelHash || m_CategoryHashInt != m_PreviousCategoryHash)
                 {
                     if (spriteLibrary != null)
                     {
                         m_PreviousCategoryHash = m_CategoryHashInt;
                         m_PreviousLabelHash = m_LabelHashInt;
-                        m_SpriteKey = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, m_CategoryHashInt, m_LabelHashInt);
+                        m_SpriteKey = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, SpriteLibraryUtility.Convert32BitTo30BitHash(m_CategoryHashInt), SpriteLibraryUtility.Convert32BitTo30BitHash(m_LabelHashInt));
                         m_SpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_SpriteKey));
                         m_PreviousSpriteKeyInt = m_SpriteKeyInt;
                         ResolveSpriteToSpriteRenderer();

@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "7.0.9",
+  "version": "7.0.10",
   "unity": "2021.2",
   "unityRelease": "7f1",
   "displayName": "2D Animation",
@@ -17,9 +17,9 @@
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "7.0.9",
+    "com.unity.2d.animation.tests": "7.0.10",
     "com.unity.2d.common.tests": "6.0.6",
-    "com.unity.2d.psdimporter": "6.0.6"
+    "com.unity.2d.psdimporter": "6.0.7"
   },
   "samples": [
     {
@@ -28,12 +28,16 @@
       "path": "Samples~/AnimationSamples"
     }
   ],
-  "upmCi": {
-    "footprint": "a43903270f3391678486add983a7a7780c2b6def"
+  "_upm": {
+    "changelog": "### Fixed\n- Fixed an issue where undoing vertex painting results in a displaced mesh. (case DANB-357)\n- Fixed an issue where \"System.ArgumentException\" thrown when opening sprite Prefab with Script. (DANB-340)\n- Fixed an issue where IKEditorManager updates even when there are no active IK Manager 2Ds in the Scene. (case DANB-347)\n- Fixed an issue where IKGizmos will throw an exception in the editor when IKSolver has an unassigned Solver in its list. (case DANB-372)\n- Fixed an issue where in large Sprite Libraries the inspector would fail to load Sprite previews. (case DANB-368)\nanager 2Ds in the Scene. (case DANB-347)\n- Fixed SpriteResolver does not animation with animation clip when upgrading from 2020.3. (case DANB-376)\n- Fixed an issue where undo the addition of a Sprite Skin component would crash the editor. (DANB-388)"
   },
+  "upmCi": {
+    "footprint": "9c6abcaf0b27b1c71011eccb85615e57fd73dcbd"
+  },
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.2d.animation@7.0/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "aebc9b022b1d3ecdcc734e0ee8f139df3f3fe3dd"
+    "revision": "2dba3153b5c4ffa75993dfca0bd0df8cbc28809c"
   }
 }

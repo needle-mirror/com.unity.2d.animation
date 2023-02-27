@@ -51,6 +51,11 @@ namespace UnityEditor.U2D.Animation
             spriteResolver.onDeserializedCallback += SpriteResolverDeserializedCallback;
         }
 
+        public void OnDisable()
+        {
+            spriteResolver.onDeserializedCallback -= SpriteResolverDeserializedCallback;
+        }
+
         void SpriteResolverDeserializedCallback()
         {
             if (!m_IgnoreNextDeserializeCallback)

@@ -465,11 +465,6 @@ namespace UnityEngine.U2D.Animation
             get { return this.Validate() == SpriteSkinValidationResult.Ready; }
         }
 
-        void OnDestroy()
-        {
-            DeactivateSkinning();
-        }
-
         internal void DeactivateSkinning()
         {
             var sprite = spriteRenderer.sprite;

@@ -800,5 +800,20 @@ namespace UnityEngine.U2D.Animation
         }
         #endregion
     }
+
+#if UNITY_EDITOR
+
+    [UnityEditor.InitializeOnLoad]
+    internal class SpriteSkinCompositeStartup
+    {
+        static SpriteSkinCompositeStartup()
+        {
+            if (null == SpriteSkinComposite.instance.helperGameObject)
+                throw new System.InvalidOperationException("SpriteSkinComposite not initialized properly.");
+        }
+    }
+
+#endif
+
 }
 #endif

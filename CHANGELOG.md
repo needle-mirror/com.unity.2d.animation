@@ -1,4 +1,16 @@
 # Changelog
+
+## [7.0.10] - 2023-02-27
+### Fixed
+- Fixed an issue where undoing vertex painting results in a displaced mesh. (case DANB-357)
+- Fixed an issue where "System.ArgumentException" thrown when opening sprite Prefab with Script. (DANB-340)
+- Fixed an issue where IKEditorManager updates even when there are no active IK Manager 2Ds in the Scene. (case DANB-347)
+- Fixed an issue where IKGizmos will throw an exception in the editor when IKSolver has an unassigned Solver in its list. (case DANB-372)
+- Fixed an issue where in large Sprite Libraries the inspector would fail to load Sprite previews. (case DANB-368)
+anager 2Ds in the Scene. (case DANB-347)
+- Fixed SpriteResolver does not animation with animation clip when upgrading from 2020.3. (case DANB-376)
+- Fixed an issue where undo the addition of a Sprite Skin component would crash the editor. (DANB-388)
+
 ## [7.0.9] - 2022-10-25
 ### Fixed
 - Fixed a case where new bones are not selected after pasting them in the Skinning Editor and an exception is thrown. (DANB-211)

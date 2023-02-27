@@ -27,6 +27,8 @@ namespace UnityEditor.U2D.Animation
         List<SpriteLibrary> m_CachedLibraryTargets = new List<SpriteLibrary>();
         List<SpriteResolver> m_CachedResolvers = new List<SpriteResolver>();
 
+        int m_EntryCount;
+
         public void OnEnable()
         {
             m_OverrideLibraryObject = ScriptableObject.CreateInstance<SpriteLibCombineCache>();
@@ -39,6 +41,7 @@ namespace UnityEditor.U2D.Animation
             UpdateMasterLibraryObject();
             CacheTargets();
             UpdateSpriteLibraryDataCache();
+            UpdatePreviewCount();
         }
 
         void UpdateMasterLibraryObject()
@@ -87,6 +90,7 @@ namespace UnityEditor.U2D.Animation
                 UpdateMasterLibraryObject();
                 UpdateSpriteLibraryDataCache();
                 serializedObject.ApplyModifiedProperties();
+                UpdatePreviewCount();
                 UpdateSpriteResolvers();
             }
 
@@ -103,6 +107,7 @@ namespace UnityEditor.U2D.Animation
                     foreach(var spriteLib in m_CachedLibraryTargets)
                         spriteLib.CacheOverrides();
 
+                    UpdatePreviewCount();
                     UpdateSpriteResolvers();
                 }
             }
@@ -118,6 +123,7 @@ namespace UnityEditor.U2D.Animation
             if (m_PreviousModificationHash != modificationHash)
             {
                 UpdateSpriteLibraryDataCache();
+                UpdatePreviewCount();
                 UpdateSpriteResolvers();
                 m_PreviousModificationHash = modificationHash;
             }            
@@ -168,6 +174,16 @@ namespace UnityEditor.U2D.Animation
                 }
                 libOverride.Add(overrideCategory);
                 categoryEntries.Next(false);
+            }
+        }
+
+        void UpdatePreviewCount()
+        {
+            var newEntryCount = SpriteLibraryDataInspector.GetSpriteLibraryEntryCount(m_OverrideLibraryCategories);
+            if (newEntryCount != m_EntryCount)
+            {
+                m_EntryCount = newEntryCount;
+                AssetPreview.SetPreviewTextureCacheSize(m_EntryCount * 2);
             }
         }
         

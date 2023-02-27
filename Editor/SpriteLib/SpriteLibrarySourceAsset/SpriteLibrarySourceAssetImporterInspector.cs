@@ -26,12 +26,16 @@ namespace UnityEditor.U2D.Animation
         
         protected override bool ShouldHideOpenButton() => true;
 
+        int m_EntryCount = 0;
+
         public override void OnEnable()
         {
             base.OnEnable();
             m_PrimaryLibraryGUID = extraDataSerializedObject.FindProperty(SpriteLibrarySourceAssetPropertyString.primaryLibraryGUID);
             m_Library = extraDataSerializedObject.FindProperty(SpriteLibrarySourceAssetPropertyString.library);
             m_SpriteLibraryDataInspector = new SpriteLibraryDataInspector(extraDataSerializedObject, m_Library);
+
+            UpdatePreviewCount();
         }
 
         protected override void InitializeExtraDataInstance(Object extraTarget, int targetIndex)
@@ -94,7 +98,10 @@ namespace UnityEditor.U2D.Animation
                     successfulAssignment = AssignNewMainLibrary(targets[i], extraDataTargets[i] as SpriteLibrarySourceAsset, newMainLibraryAsset);
 
                 if (successfulAssignment)
+                {
                     m_PrimaryLibraryGUID.stringValue = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(newMainLibraryAsset));
+                    UpdatePreviewCount();
+                }
             }
 
             EditorGUI.showMixedValue = false;
@@ -124,13 +131,28 @@ namespace UnityEditor.U2D.Animation
         }        
         
         void DoLibraryGUI()
-        { 
+        {
             if (targets.Length == 1)
+            {
+                EditorGUI.BeginChangeCheck();
                 m_SpriteLibraryDataInspector.OnGUI();
+                if (EditorGUI.EndChangeCheck())
+                    UpdatePreviewCount();
+            }
             else
             {
                 EditorGUILayout.Space(10);
                 EditorGUILayout.HelpBox(Style.multiEditWarning, MessageType.Info);
+            }
+        }
+
+        void UpdatePreviewCount()
+        {
+            var newEntryCount = SpriteLibraryDataInspector.GetSpriteLibraryEntryCount(m_Library);
+            if (newEntryCount != m_EntryCount)
+            {
+                m_EntryCount = newEntryCount;
+                AssetPreview.SetPreviewTextureCacheSize(m_EntryCount * 2);
             }
         }
     }

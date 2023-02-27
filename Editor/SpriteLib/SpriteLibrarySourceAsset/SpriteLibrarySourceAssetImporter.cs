@@ -167,14 +167,16 @@ namespace UnityEditor.U2D.Animation
         internal static SpriteLibraryAsset GetAssetParent(SpriteLibraryAsset asset)
         {
             var currentAssetPath = AssetDatabase.GetAssetPath(asset);
-            var sourceAsset = LoadSpriteLibrarySourceAsset(currentAssetPath);
-            var primaryLibraryId = sourceAsset != null ? sourceAsset.primaryLibraryID : null;
-            if (primaryLibraryId != null)
+            if (AssetImporter.GetAtPath(currentAssetPath) is SpriteLibrarySourceAssetImporter)
             {
-                var primaryLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(primaryLibraryId);
-                return AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(primaryLibraryAssetAssetPath);
+                var sourceAsset = LoadSpriteLibrarySourceAsset(currentAssetPath);
+                var primaryLibraryId = sourceAsset != null ? sourceAsset.primaryLibraryID : null;
+                if (primaryLibraryId != null)
+                {
+                    var primaryLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(primaryLibraryId);
+                    return AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(primaryLibraryAssetAssetPath);
+                }    
             }
-
             return null;
         }
 

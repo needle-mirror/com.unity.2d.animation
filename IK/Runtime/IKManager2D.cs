@@ -12,6 +12,11 @@ namespace UnityEngine.U2D.IK
     [ExecuteInEditMode]
     public partial class IKManager2D : MonoBehaviour
     {
+#if UNITY_EDITOR
+        internal static event System.Action<IKManager2D> onEnabledEditor;
+        internal static event System.Action<IKManager2D> onDisabledEditor;
+#endif
+
         [SerializeField]
         List<Solver2D> m_Solvers = new List<Solver2D>();
         [SerializeField]
@@ -104,6 +109,16 @@ namespace UnityEngine.U2D.IK
         }
         
 #if UNITY_EDITOR
+        void OnEnable()
+        {
+            onEnabledEditor?.Invoke(this);
+        }
+
+        void OnDisable()
+        {
+            onDisabledEditor?.Invoke(this);
+        }
+
         internal static Events.UnityEvent onDrawGizmos = new Events.UnityEvent();
         void OnDrawGizmos()
         {
