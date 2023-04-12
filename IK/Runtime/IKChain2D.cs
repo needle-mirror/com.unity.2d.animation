@@ -38,7 +38,7 @@ namespace UnityEngine.U2D.IK
         protected float[] m_Lengths;
 
         /// <summary>
-        /// Get Set the Unity Transform used as IK Effector.
+        /// Get and set the transform used as the IK Effector.
         /// </summary>
         public Transform effector
         {
@@ -47,7 +47,7 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Get Set the Unity Transform used as IK Target.
+        /// Get and set the transform used as the IK Target.
         /// </summary>
         public Transform target
         {
@@ -56,12 +56,12 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Get the Unity Transforms that are in the IK Chain.
+        /// Get the transforms that are used in the IK Chain.
         /// </summary>
         public Transform[] transforms => m_Transforms;
 
         /// <summary>
-        /// Get the root Unity Transform for the IK Chain.
+        /// Get the root transform for the IK Chain.
         /// </summary>
         public Transform rootTransform
         {
@@ -84,7 +84,7 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Get and Set the number of Unity Transforms in the IK Chain.
+        /// Get and Set the number of transforms in the IK Chain.
         /// </summary>
         public int transformCount
         {
@@ -177,7 +177,7 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Restores IK Chain to it's default pose.
+        /// Restores the IK Chain to it's default pose.
         /// </summary>
         /// <param name="targetRotationIsConstrained">True to constrain the target rotation. False otherwise.</param>
         public void RestoreDefaultPose(bool targetRotationIsConstrained)
@@ -188,7 +188,7 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Explicitly stores the local rotation
+        /// Explicitly stores the local rotation.
         /// </summary>
         public void StoreLocalRotations()
         {

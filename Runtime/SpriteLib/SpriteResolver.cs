@@ -38,9 +38,9 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         void OnEnable()
         {
-            m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
+            m_CategoryHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_CategoryHash));
             m_PreviousCategoryHash = m_CategoryHashInt;
-            m_LabelHashInt = ConvertFloatToInt(m_labelHash);
+            m_LabelHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_labelHash));
             m_PreviouslabelHash = m_LabelHashInt;
             ResolveSpriteToSpriteRenderer();
         }
@@ -57,9 +57,9 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <param name="label">Label to use</param>
         public void SetCategoryAndLabel(string category, string label)
         {
-            categoryHashInt = SpriteLibraryAsset.GetStringHash(category);
+            categoryHashInt = SpriteLibraryUtility.GetStringHash(category);
             m_PreviousCategoryHash = categoryHashInt;
-            labelHashInt = SpriteLibraryAsset.GetStringHash(label);
+            labelHashInt = SpriteLibraryUtility.GetStringHash(label);
             m_PreviouslabelHash = categoryHashInt;
             ResolveSpriteToSpriteRenderer();
         }
@@ -99,8 +99,8 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         void LateUpdate()
         {
-            m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
-            m_LabelHashInt = ConvertFloatToInt(m_labelHash);
+            m_CategoryHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_CategoryHash));
+            m_LabelHashInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_labelHash));
             if (m_LabelHashInt != m_PreviouslabelHash || m_CategoryHashInt != m_PreviousCategoryHash)
             {
                 m_PreviousCategoryHash = m_CategoryHashInt;

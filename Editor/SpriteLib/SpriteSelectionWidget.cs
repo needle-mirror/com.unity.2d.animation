@@ -28,9 +28,12 @@ namespace UnityEditor.Experimental.U2D.Animation
 
         public void UpdateContents(Sprite[] sprites)
         {
+            var spriteCount = sprites.Length;
             m_SpriteList = sprites;
-            m_SpritePreviews = new Texture2D[sprites.Length];
-            for (int i = 0; i < m_SpritePreviews.Length; ++i)
+            m_SpritePreviews = new Texture2D[spriteCount];
+            m_SpritePreviewNeedFetching.Clear();
+            m_SpritePreviewNeedFetching.Capacity = spriteCount;
+            for (var i = 0; i < spriteCount; ++i)
                 m_SpritePreviewNeedFetching.Add(i);
             UpdateSpritePreviews();
         }

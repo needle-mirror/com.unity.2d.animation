@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.2.7] - 2023-04-12
+### Added
+- Fixed an issue where "System.ArgumentException" thrown when opening sprite Prefab with Script. (DANB-339)
+- Fixed an issue where IKEditorManager updates even when there are no active IK Manager 2Ds in the Scene. (case DANB-361)
+- Fixed an issue where the Limb IK solver will become unstable when the child bones have different Z position. (case DANB-415)
+- Fixed an issue where the CCD and Fabrik solvers will become unstable when the child bones have different Z position. (case DANB-420)
+- Fixed an issue where changing Sprite Library reference in the Inspector will result in an exception. (case DANB-428)
+- Fixed an issue where the Sprite Resolver will not resolve to certain labels. (case DANB-444)
+- Fixed an issue where the Sprite Resolver will not resolve when using assets created with 32 bit hash length. (case DANB-457)
+
+### Changed
+- Updated IK parameter names and comments in public APIs.
+
 ## [5.2.6] - 2022-11-02
 ### Fixed
 - Removed ValidationExceptions.json from the package.
@@ -7,7 +20,7 @@
 ## [5.2.5] - 2022-10-18
 ### Fixed
 - Fixed an issue where the Sprite Skin editor would throw an exception if Sprite Renderer doesn't have a Sprite assigned to it.
-Fixed IK Manager 2D's inspector slow downs. (case DANB-218)
+- Fixed IK Manager 2D's inspector slow downs. (case DANB-218)
 
 ### Changed
 - Updated Toolbar and Visibility tab buttons' selection color.

@@ -146,8 +146,8 @@ namespace UnityEditor.U2D.Animation
                 if (categoryIndex == -1)
                 {
                     // check if the hash might clash
-                    var hash = SpriteLibraryAsset.GetStringHash(category);
-                    if (categories.FindIndex(x => x.name != category && SpriteLibraryAsset.GetStringHash(x.name) == hash) != -1)
+                    var hash = SpriteLibraryUtility.GetStringHash(category);
+                    if (categories.FindIndex(x => x.name != category && SpriteLibraryUtility.GetStringHash(x.name) == hash) != -1)
                     {
                         Debug.LogError("Unable to add Sprite to new Category due to name hash clash");
                         return;

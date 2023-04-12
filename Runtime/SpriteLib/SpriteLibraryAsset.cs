@@ -29,14 +29,14 @@ namespace UnityEngine.Experimental.U2D.Animation
             set
             {
                 m_Name = value;
-                m_Hash = SpriteLibraryAsset.GetStringHash(m_Name);
+                m_Hash = SpriteLibraryUtility.GetStringHash(m_Name);
             }
         }
         public int hash { get { return m_Hash; } }
         public Sprite sprite {get { return m_Sprite; } set { m_Sprite = value; }}
         public void UpdateHash()
         {
-            m_Hash = SpriteLibraryAsset.GetStringHash(m_Name);
+            m_Hash = SpriteLibraryUtility.GetStringHash(m_Name);
         }
     }
 
@@ -56,7 +56,7 @@ namespace UnityEngine.Experimental.U2D.Animation
             set
             {
                 m_Name = value;
-                m_Hash = SpriteLibraryAsset.GetStringHash(m_Name);
+                m_Hash = SpriteLibraryUtility.GetStringHash(m_Name);
             }
         }
 
@@ -70,7 +70,7 @@ namespace UnityEngine.Experimental.U2D.Animation
 
         public void UpdateHash()
         {
-            m_Hash = SpriteLibraryAsset.GetStringHash(m_Name);
+            m_Hash = SpriteLibraryUtility.GetStringHash(m_Name);
             foreach (var s in m_CategoryList)
                 s.UpdateHash();
         }
@@ -100,12 +100,14 @@ namespace UnityEngine.Experimental.U2D.Animation
         [SerializeField]
         private List<SpriteLibCategory> m_Labels = new List<SpriteLibCategory>();
 
+        void OnEnable()
+        {
+            UpdateHashes();
+        }
+
         internal List<SpriteLibCategory> categories
         {
-            get
-            {
-                return m_Labels;
-            }
+            get { return m_Labels; }
             set
             {
                 m_Labels = value;
@@ -139,7 +141,7 @@ namespace UnityEngine.Experimental.U2D.Animation
                     break;
                 }
             }
-            
+
             if (category != null)
             {
                 Categorylabel spritelabel = null;
@@ -151,12 +153,14 @@ namespace UnityEngine.Experimental.U2D.Animation
                         break;
                     }
                 }
+
                 if (spritelabel != null)
                 {
                     validEntry = true;
                     return spritelabel.sprite;
                 }
             }
+
             validEntry = false;
             return null;
         }
@@ -169,8 +173,8 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <returns></returns>
         public Sprite GetSprite(string category, string label)
         {
-            var categoryHash = SpriteLibraryAsset.GetStringHash(category);
-            var labelHash = SpriteLibraryAsset.GetStringHash(label);
+            var categoryHash = SpriteLibraryUtility.GetStringHash(category);
+            var labelHash = SpriteLibraryUtility.GetStringHash(label);
             return GetSprite(categoryHash, labelHash);
         }
 
@@ -225,7 +229,8 @@ namespace UnityEngine.Experimental.U2D.Animation
             {
                 Debug.LogError("Cannot add label with empty or null Category or label string");
             }
-            var catHash = SpriteLibraryAsset.GetStringHash(category);
+
+            var catHash = SpriteLibraryUtility.GetStringHash(category);
             Categorylabel categorylabel = null;
             SpriteLibCategory libCategory = null;
             libCategory = m_Labels.FirstOrDefault(x => x.hash == catHash);
@@ -234,7 +239,7 @@ namespace UnityEngine.Experimental.U2D.Animation
             {
                 Assert.AreEqual(libCategory.name, category, "Category string  hash clashes with another existing Category. Please use another string");
 
-                var labelHash = SpriteLibraryAsset.GetStringHash(label);
+                var labelHash = SpriteLibraryUtility.GetStringHash(label);
                 categorylabel = libCategory.categoryList.FirstOrDefault(y => y.hash == labelHash);
                 if (categorylabel != null)
                 {
@@ -280,13 +285,13 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <param name="deleteCategory">Indicate to remove the Category if it is empty</param>
         public void RemoveCategoryLabel(string category, string label, bool deleteCategory)
         {
-            var catHash = SpriteLibraryAsset.GetStringHash(category);
+            var catHash = SpriteLibraryUtility.GetStringHash(category);
             SpriteLibCategory libCategory = null;
             libCategory = m_Labels.FirstOrDefault(x => x.hash == catHash);
 
             if (libCategory != null)
             {
-                var labelHash = SpriteLibraryAsset.GetStringHash(label);
+                var labelHash = SpriteLibraryUtility.GetStringHash(label);
                 libCategory.categoryList.RemoveAll(x => x.hash == labelHash);
                 if (deleteCategory && libCategory.categoryList.Count == 0)
                     m_Labels.RemoveAll(x => x.hash == libCategory.hash);
@@ -304,6 +309,7 @@ namespace UnityEngine.Experimental.U2D.Animation
                 var label = labels.categoryList.FirstOrDefault(x => x.hash == labelHash);
                 return label == null ? "" : label.name;
             }
+
             return "";
         }
 
@@ -320,9 +326,9 @@ namespace UnityEngine.Experimental.U2D.Animation
         {
             RenameDuplicate(m_Labels, (originalName, newName)
                 =>
-                {
-                    Debug.LogWarning(string.Format("Category {0} renamed to {1} due to hash clash", originalName, newName));
-                });
+            {
+                Debug.LogWarning(string.Format("Category {0} renamed to {1} due to hash clash", originalName, newName));
+            });
             for (int i = 0; i < m_Labels.Count; ++i)
             {
                 // Verify categories have no hash clash
@@ -350,7 +356,7 @@ namespace UnityEngine.Experimental.U2D.Animation
                     {
                         var name = categoryClash.name;
                         name = string.Format("{0}_{1}", name, increment);
-                        var nameHash = SpriteLibraryAsset.GetStringHash(name);
+                        var nameHash = SpriteLibraryUtility.GetStringHash(name);
                         var exist = nameHashList.FirstOrDefault(x => (x.hash == nameHash || x.name == name) && x != categoryClash);
                         if (exist == null)
                         {
@@ -358,26 +364,11 @@ namespace UnityEngine.Experimental.U2D.Animation
                             categoryClash.name = name;
                             break;
                         }
+
                         ++increment;
                     }
                 }
             }
-        }
-
-        // Allow delegate override for test
-        internal static Func<string, int> GetStringHash = Default_GetStringHash;
-        internal static int Default_GetStringHash(string value)
-        {
-#if DEBUG_GETSTRINGHASH_CLASH
-            if (value == "abc" || value == "123")
-                value = "abc";
-#endif
-            var hash = Animator.StringToHash(value);
-            var bytes = BitConverter.GetBytes(hash);
-            var exponentialBit = BitConverter.IsLittleEndian ? 3 : 1;
-            if (bytes[exponentialBit] == 0xFF)
-                bytes[exponentialBit] -= 1;
-            return BitConverter.ToInt32(bytes, 0);
         }
     }
 }

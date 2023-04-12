@@ -428,8 +428,8 @@ namespace UnityEditor.U2D.Animation
 
         public bool IsLabelDuplicate(SpriteCategory category, string labelName)
         {
-            var hash = SpriteLibraryAsset.GetStringHash(labelName);
-            return category.labels.Count(x => x.name == labelName || hash == SpriteLibraryAsset.GetStringHash(x.name)) > 1;
+            var hash = SpriteLibraryUtility.GetStringHash(labelName);
+            return category.labels.Count(x => x.name == labelName || hash == SpriteLibraryUtility.GetStringHash(x.name)) > 1;
         }
 
         public void SetCategoryLabelName(string labelname, TreeViewItem treeViewItem)

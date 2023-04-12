@@ -9,11 +9,11 @@ namespace UnityEngine.U2D.IK
     public class IKUtility
     {
         /// <summary>
-        /// Check if a Unity Transform is a descendent of another Unity Transform.
+        /// Check if a transform is a descendent of another transform.
         /// </summary>
-        /// <param name="transform">Unity Transform to check.</param>
-        /// <param name="ancestor">Unity Transform ancestor.</param>
-        /// <returns>Returns true if the Unity Transform is a descendent. False otherwise.</returns>
+        /// <param name="transform">Transforms to check.</param>
+        /// <param name="ancestor">Transform's ancestor.</param>
+        /// <returns>Returns true if the transform is a descendent. False otherwise.</returns>
         public static bool IsDescendentOf(Transform transform, Transform ancestor)
         {
             Debug.Assert(transform != null, "Transform is null");
@@ -32,9 +32,9 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Gets the hierarchy depth of a Unity Transform.
+        /// Gets the depth of the transform's hierarchy.
         /// </summary>
-        /// <param name="transform">Unity Transform to check.</param>
+        /// <param name="transform">Transform to check.</param>
         /// <returns>Integer value for hierarchy depth.</returns>
         public static int GetAncestorCount(Transform transform)
         {

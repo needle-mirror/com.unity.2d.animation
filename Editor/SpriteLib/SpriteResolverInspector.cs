@@ -46,8 +46,8 @@ namespace UnityEditor.Experimental.U2D.Animation
             m_SpritelabelHash = serializedObject.FindProperty("m_labelHash");
             m_SpriteSkin = (target as SpriteResolver).GetComponent<SpriteSkin>();
 
-            m_PreviousCategoryHash = SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue);
-            m_PreviouslabelHash = SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue);
+            m_PreviousCategoryHash = SpriteLibraryUtility.Convert32BitTo30BitHash(SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue));
+            m_PreviouslabelHash = SpriteLibraryUtility.Convert32BitTo30BitHash(SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue));
             UpdateSpriteLibrary();
         }
 
@@ -56,8 +56,8 @@ namespace UnityEditor.Experimental.U2D.Animation
         void UpdateSpriteLibrary()
         {
             m_SpriteLibSelection.Clear();
-            int categoryHash = SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue);
-            int labelHash = SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue);
+            int categoryHash = SpriteLibraryUtility.Convert32BitTo30BitHash(SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue));
+            int labelHash = SpriteLibraryUtility.Convert32BitTo30BitHash(SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue));
             var spriteLib = spriteResolver.spriteLibrary;
             if (spriteLib != null)
             {
@@ -93,7 +93,7 @@ namespace UnityEditor.Experimental.U2D.Animation
             m_CategorySelection = new string[1 + m_SpriteLibSelection.Keys.Count];
             m_CategorySelection[0] = TextContent.none;
             m_CategorySelectionHash = new int[1 + m_SpriteLibSelection.Keys.Count];
-            m_CategorySelectionHash[0] = SpriteLibraryAsset.GetStringHash(TextContent.none);
+            m_CategorySelectionHash[0] = SpriteLibraryUtility.GetStringHash(TextContent.none);
             for (int i = 0; i < m_SpriteLibSelection.Keys.Count; ++i)
             {
                 var selection = m_SpriteLibSelection[m_SpriteLibSelection.Keys.ElementAt(i)];
@@ -127,8 +127,8 @@ namespace UnityEditor.Experimental.U2D.Animation
             if (spriteResolver.spriteLibChanged)
                 UpdateSpriteLibrary();
 
-            var currentlabelHashValue = SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue);
-            var currentCategoryHashValue = SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue);
+            var currentlabelHashValue = SpriteLibraryUtility.Convert32BitTo30BitHash(SpriteResolver.ConvertFloatToInt(m_SpritelabelHash.floatValue));
+            var currentCategoryHashValue = SpriteLibraryUtility.Convert32BitTo30BitHash(SpriteResolver.ConvertFloatToInt(m_SpriteCategoryHash.floatValue));
 
             m_CategorySelectionIndex = Array.FindIndex(m_CategorySelectionHash, x => x == currentCategoryHashValue);
             ValidateCategorySelectionIndexValue();

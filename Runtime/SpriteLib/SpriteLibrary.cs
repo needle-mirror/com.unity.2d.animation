@@ -20,7 +20,7 @@ namespace UnityEngine.Experimental.U2D.Animation
             public StringAndHash(string name)
             {
                 this.name = name;
-                hash = SpriteLibraryAsset.GetStringHash(name);
+                hash = SpriteLibraryUtility.GetStringHash(name);
             }
 
             public StringAndHash(int hash)
@@ -89,8 +89,8 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <returns>Sprite associated to the name and index</returns>
         public Sprite GetSprite(string category, string label)
         {
-            var categoryHash = SpriteLibraryAsset.GetStringHash(category);
-            var labelHash = SpriteLibraryAsset.GetStringHash(label);
+            var categoryHash = SpriteLibraryUtility.GetStringHash(category);
+            var labelHash = SpriteLibraryUtility.GetStringHash(label);
             return GetSprite(categoryHash, labelHash);
         }
 
@@ -182,7 +182,7 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <param name="category">Category name from the Sprite Library Asset to add override</param>
         public void AddOverride(SpriteLibraryAsset spriteLib, string category)
         {
-            var categoryHash = SpriteLibraryAsset.GetStringHash(category);
+            var categoryHash = SpriteLibraryUtility.GetStringHash(category);
             var cat = spriteLib.categories.FirstOrDefault(x => x.hash == categoryHash);
             if (cat != null)
             {
@@ -212,7 +212,7 @@ namespace UnityEngine.Experimental.U2D.Animation
         /// <param name="category">Category overrides to remove</param>
         public void RemoveOverride(string category)
         {
-            var hash = new StringAndHash(SpriteLibraryAsset.GetStringHash(category));
+            var hash = new StringAndHash(SpriteLibraryUtility.GetStringHash(category));
             m_Overrides.Remove(hash);
             RefreshSpriteResolvers();
         }
@@ -227,7 +227,7 @@ namespace UnityEngine.Experimental.U2D.Animation
             var catlabel = GetCategoryOverride(category, false);
             if (catlabel != null)
             {
-                catlabel.Remove(new StringAndHash(SpriteLibraryAsset.GetStringHash(label)));
+                catlabel.Remove(new StringAndHash(SpriteLibraryUtility.GetStringHash(label)));
                 RefreshSpriteResolvers();
             }
         }
