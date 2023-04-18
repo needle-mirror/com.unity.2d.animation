@@ -64,6 +64,8 @@ namespace UnityEditor.U2D.Animation
         
         SpriteResolver spriteResolver => target as SpriteResolver;
 
+        bool IsSpriteHashAssigned => m_SpriteHash.intValue != 0;
+
         void GetCategoryAndLabelStringValue(out string categoryName, out string labelName)
         {
             categoryName = null;
@@ -74,13 +76,13 @@ namespace UnityEditor.U2D.Animation
                 var entryHash = m_SpriteHash.intValue;
                 spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
                 
-                if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName))
+                if (!IsSpriteHashAssigned && (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName)))
                 {
                     m_SpriteHash.intValue = InternalEngineBridge.ConvertFloatToInt(m_SpriteKey.floatValue);
                     entryHash = m_SpriteHash.intValue;
                     spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
                 }
-                if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName))
+                if (!IsSpriteHashAssigned && (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName)))
                 {
                     var labelHash = InternalEngineBridge.ConvertFloatToInt(m_LabelHash.floatValue);
                     var categoryHash = InternalEngineBridge.ConvertFloatToInt(m_CategoryHash.floatValue);
@@ -90,7 +92,7 @@ namespace UnityEditor.U2D.Animation
                 }
             }
         }
-        
+
         void UpdateSpriteLibrary()
         {
             m_SpriteLibSelection.Clear();
@@ -177,9 +179,8 @@ namespace UnityEditor.U2D.Animation
                 UpdateSpriteLibrary();
 
             GetCategoryAndLabelStringValue(out var currentCategoryValue, out var currentLabelValue);
-            var catIndex = Array.FindIndex(m_CategorySelection, x => x == currentCategoryValue);
-            if (catIndex >= 0)
-                m_CategorySelectionIndex = catIndex;
+
+            m_CategorySelectionIndex = Array.FindIndex(m_CategorySelection, x => x == currentCategoryValue);
             ValidateCategorySelectionIndexValue();
             
             EditorGUI.BeginChangeCheck();
@@ -234,18 +235,13 @@ namespace UnityEditor.U2D.Animation
 
             if (m_PreviousCategoryValue != currentCategoryValue)
             {
-                if (!string.IsNullOrEmpty(currentCategoryValue))
-                {
-                    if (m_SpriteLibSelection.ContainsKey(currentCategoryValue))
-                    {
-                        m_SpriteSelectorWidget.UpdateContents(m_SpriteLibSelection[currentCategoryValue].sprites);
-                    }
-                    else
-                        m_SpriteSelectorWidget.UpdateContents(new Sprite[0]);
-                    
-                    this.Repaint();
-                }
-                
+                if (!string.IsNullOrEmpty(currentCategoryValue) && m_SpriteLibSelection.ContainsKey(currentCategoryValue))
+                    m_SpriteSelectorWidget.UpdateContents(m_SpriteLibSelection[currentCategoryValue].sprites);
+                else
+                    m_SpriteSelectorWidget.UpdateContents(Array.Empty<Sprite>());
+
+                Repaint();
+
                 m_PreviousCategoryValue = currentCategoryValue;
             }
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## [9.0.3] - 2023-04-18
+### Fixed
+- Fixed Sprite Resolver inspector not able to set category to 'No Category' if it contains the old hash value. (case DAB-395)
+- Fixed Sprite Resolver inspector not updating its previews when the category is set externally to 'No Category'. (case DANB-389)
+- Fixed an issue where the Limb IK solver will become unstable when the child bones have different Z position. (case DANB-413)
+- Fixed an issue where changing Sprite Library reference in the Inspector will result in an exception. (case DANB-426)
+- Fixed an issue where the CCD and Fabrik solvers will become unstable when the child bones have different Z position. (case DANB-418)
+
+### Added
+- Updated IK parameter names and comments in public APIs.
+
 ## [9.0.2] - 2023-02-27
 ### Added
 - Added support for Collections 2.0.0.
