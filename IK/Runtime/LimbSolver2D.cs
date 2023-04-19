@@ -4,7 +4,7 @@ using UnityEngine.Scripting.APIUpdating;
 namespace UnityEngine.U2D.IK
 {
     /// <summary>
-    /// Component for 2D Limb IK.
+    /// Component responsible for 2D Limb IK.
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenuAttribute("Limb")]
@@ -21,7 +21,7 @@ namespace UnityEngine.U2D.IK
         float[] m_Angles = new float[2];
 
         /// <summary>
-        /// Get Set for flip property.
+        /// Get and set the flip property.
         /// </summary>
         public bool flip
         {
@@ -30,7 +30,7 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Override base class DoInitialize.
+        /// Initializes the solver.
         /// </summary>
         protected override void DoInitialize()
         {
@@ -39,20 +39,20 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Override base class GetChainCount.
+        /// Returns the number of chains in the solver.
         /// </summary>
-        /// <returns>Always returns 1.</returns>
+        /// <returns>Returns 1, because Limb Solver has only one chain.</returns>
         protected override int GetChainCount() => 1;
 
         /// <summary>
-        /// Override base class GetChain.
+        /// Gets the chain in the solver at index.
         /// </summary>
-        /// <param name="index">Index to query.</param>
+        /// <param name="index">Index to query. Not used in this override.</param>
         /// <returns>Returns IKChain2D for the Solver.</returns>
         public override IKChain2D GetChain(int index) => m_Chain;
 
         /// <summary>
-        /// Override base class DoPrepare.
+        /// Prepares the data required for updating the solver.
         /// </summary>
         protected override void DoPrepare()
         {
@@ -65,21 +65,27 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Override base class DoUpdateIK.
+        /// Updates the IK and sets the chain's transform positions.
         /// </summary>
-        /// <param name="effectorPositions">List of effector positions.</param>
-        protected override void DoUpdateIK(List<Vector3> effectorPositions)
+        /// <param name="targetPositions">List of target positions.</param>
+        protected override void DoUpdateIK(List<Vector3> targetPositions)
         {
-            var effectorPosition = effectorPositions[0];
-            var effectorLocalPosition2D = m_Chain.transforms[0].InverseTransformPoint(effectorPosition);
-            effectorPosition = m_Chain.transforms[0].TransformPoint(effectorLocalPosition2D);
+            var targetPosition = targetPositions[0];
+            var upperLimb = m_Chain.transforms[0];
+            var lowerLimb = m_Chain.transforms[1];
+            var effector = m_Chain.effector;
 
-            if (effectorLocalPosition2D.sqrMagnitude > 0f && Limb.Solve(effectorPosition, m_Lengths, m_Positions, ref m_Angles))
+            var targetLocalPosition2D = (Vector2)upperLimb.InverseTransformPoint(targetPosition);
+            targetPosition = upperLimb.TransformPoint(targetLocalPosition2D);
+
+            if (targetLocalPosition2D.sqrMagnitude > 0f && Limb.Solve(targetPosition, m_Lengths, m_Positions, ref m_Angles))
             {
-                var flipSign = flip ? -1f : 1f;
-                m_Chain.transforms[0].localRotation *= Quaternion.FromToRotation(Vector3.right, effectorLocalPosition2D) * Quaternion.FromToRotation(m_Chain.transforms[1].localPosition, Vector3.right);
-                m_Chain.transforms[0].localRotation *= Quaternion.AngleAxis(flipSign * m_Angles[0], Vector3.forward);
-                m_Chain.transforms[1].localRotation *= Quaternion.FromToRotation(Vector3.right, m_Chain.transforms[1].InverseTransformPoint(effectorPosition)) * Quaternion.FromToRotation(m_Chain.transforms[2].localPosition, Vector3.right);
+                var upperLimbRotation = Quaternion.FromToRotation(Vector3.right, targetLocalPosition2D) * Quaternion.FromToRotation((Vector2)lowerLimb.localPosition, Vector3.right);
+                upperLimbRotation *= Quaternion.AngleAxis((flip ? -1f : 1f) * m_Angles[0], Vector3.forward);
+                upperLimb.localRotation *= upperLimbRotation;
+                
+                var loweLimbRotation = Quaternion.FromToRotation(Vector3.right, lowerLimb.InverseTransformPoint(targetPosition)) * Quaternion.FromToRotation((Vector2)effector.localPosition, Vector3.right);
+                m_Chain.transforms[1].localRotation *= loweLimbRotation;
             }
         }
     }

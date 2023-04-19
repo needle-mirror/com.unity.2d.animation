@@ -36,7 +36,7 @@ namespace UnityEngine.U2D.IK
         public int chainCount => GetChainCount();
 
         /// <summary>
-        /// Get Set for rotation constrain property.
+        /// Gets and sets the rotation constrain property.
         /// </summary>
         public bool constrainRotation
         {
@@ -45,7 +45,7 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Get Set for restoring default pose.
+        /// Get and set restoring default pose before the update.
         /// </summary>
         public bool solveFromDefaultPose
         {
@@ -59,7 +59,7 @@ namespace UnityEngine.U2D.IK
         public bool isValid => Validate();
 
         /// <summary>
-        /// Returns true if all chains in the Solver has a target.
+        /// Returns true if all chains in the Solver have a target.
         /// </summary>
         public bool allChainsHaveTargets => HasTargets();
 
@@ -156,7 +156,7 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Perform Solver IK update.
+        /// Perform the Solver IK update.
         /// </summary>
         /// <param name="globalWeight">Weight for position solving.</param>
         public void UpdateIK(float globalWeight)
@@ -169,13 +169,13 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Perform Solver IK update.
+        /// Perform the Solver IK update with specified target positions.
         /// </summary>
-        /// <param name="positions">Positions of chain.</param>
+        /// <param name="targetPositions">Target positions.</param>
         /// <param name="globalWeight">Weight for position solving.</param>
-        public void UpdateIK(List<Vector3> positions, float globalWeight)
+        public void UpdateIK(List<Vector3> targetPositions, float globalWeight)
         {
-            if (positions.Count != chainCount)
+            if (targetPositions.Count != chainCount)
                 return;
 
             var finalWeight = globalWeight * weight;
@@ -193,7 +193,7 @@ namespace UnityEngine.U2D.IK
             if (finalWeight < 1f)
                 StoreLocalRotations();
 
-            DoUpdateIK(positions);
+            DoUpdateIK(targetPositions);
 
             if (constrainRotation)
             {
@@ -232,21 +232,21 @@ namespace UnityEngine.U2D.IK
         /// <summary>
         /// Override to return the IKChain2D at the given index.
         /// </summary>
-        /// <param name="index">Index for IKChain2D.</param>
+        /// <param name="index">Index of the IKChain2D.</param>
         /// <returns></returns>
         public abstract IKChain2D GetChain(int index);
         
         /// <summary>
-        /// Override to return the number of chains in the Solver
+        /// Override to return the number of chains in the Solver.
         /// </summary>
-        /// <returns>Integer represents IKChain2D count.</returns>
+        /// <returns>Number of chains in the solver.</returns>
         protected abstract int GetChainCount();
         
         /// <summary>
-        /// Override to perform Solver IK update
+        /// Override to perform Solver IK update.
         /// </summary>
-        /// <param name="effectorPositions">Position of the effectors.</param>
-        protected abstract void DoUpdateIK(List<Vector3> effectorPositions);
+        /// <param name="targetPositions">Target position for the chain.</param>
+        protected abstract void DoUpdateIK(List<Vector3> targetPositions);
 
         /// <summary>
         /// Override to perform custom validation.
@@ -255,27 +255,26 @@ namespace UnityEngine.U2D.IK
         protected virtual bool DoValidate() => true;
 
         /// <summary>
-        /// Override to perform initialize the solver
+        /// Override to initialize the solver.
         /// </summary>
         protected virtual void DoInitialize() { }
 
         /// <summary>
-        /// Override to prepare the solver for update
+        /// Override to prepare the solver for update.
         /// </summary>
         protected virtual void DoPrepare() { }
 
         /// <summary>
-        /// Override to return the root Unity Transform of the Solver. The default implementation returns the root
-        /// transform of the first chain.
+        /// Override to return the root transform of the Solver. The default implementation returns the root transform of the first chain.
         /// </summary>
-        /// <returns>Unity Transform that represents the root.</returns>
+        /// <returns>Transform representing the root.</returns>
         protected virtual Transform GetPlaneRootTransform()
         {
             return chainCount > 0 ? GetChain(0).rootTransform : null;
         }
 
         /// <summary>
-        /// Convert a world position coordinate to the solver's plane space
+        /// Convert a world position coordinate to the solver's plane space.
         /// </summary>
         /// <param name="worldPosition">Vector3 representing world position</param>
         /// <returns>Converted position in solver's plane</returns>
@@ -285,10 +284,10 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Convert a position from solver's plane to world coordinate
+        /// Convert a position from solver's plane to world coordinates.
         /// </summary>
         /// <param name="planePoint">Vector3 representing a position in the Solver's plane.</param>
-        /// <returns>Converted position to world coordinate.</returns>
+        /// <returns>Converted position to world coordinates.</returns>
         protected Vector3 GetWorldPositionFromSolverPlanePoint(Vector2 planePoint)
         {
             return GetPlaneRootTransform().TransformPoint(planePoint);

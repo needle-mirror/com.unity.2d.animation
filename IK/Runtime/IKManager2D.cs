@@ -5,7 +5,7 @@ using UnityEngine.Scripting.APIUpdating;
 namespace UnityEngine.U2D.IK
 {
     /// <summary>
-    /// Component to manager 2D IK Solvers.
+    /// Component responsible for managing and updating 2D IK Solvers.
     /// </summary>
     [DefaultExecutionOrder(-2)]
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
@@ -24,7 +24,7 @@ namespace UnityEngine.U2D.IK
         float m_Weight = 1f;
 
         /// <summary>
-        /// Get and Set the weight for solvers.
+        /// Get and set the weight for solvers.
         /// </summary>
         public float weight
         {
