@@ -6,11 +6,19 @@ namespace UnityEditor.U2D.Animation
     internal class SkinningModuleSettings
     {
         public const string kCompactToolbarKey = UserSettings.kSettingsUniqueKey + "AnimationEditorSetting.compactToolbar";
+        public const string kShowSpriteMeshOverwriteWarningKey = UserSettings.kSettingsUniqueKey + "AnimationEditorSetting.showSpriteMeshOverwriteWarning";
         public static readonly GUIContent kCompactToolbarLabel = EditorGUIUtility.TrTextContent("Hide Tool Text");
+        public static readonly GUIContent kShowSpriteMeshOverwriteWarning = new GUIContent(TextContent.showSpriteMeshOverwriteWarning, TextContent.showSpriteMeshOverwriteWarningTip);
         public static bool compactToolBar
         {
             get { return EditorPrefs.GetBool(kCompactToolbarKey, false); }
             set { EditorPrefs.SetBool(kCompactToolbarKey, value); }
+        }
+        
+        public static bool showSpriteMeshOverwriteWarning
+        {
+            get { return EditorPrefs.GetBool(kShowSpriteMeshOverwriteWarningKey, true); }
+            set { EditorPrefs.SetBool(kShowSpriteMeshOverwriteWarningKey, value); }
         }
 
         public void OnGUI()
@@ -19,6 +27,11 @@ namespace UnityEditor.U2D.Animation
             var c = EditorGUILayout.Toggle(kCompactToolbarLabel, compactToolBar);
             if (EditorGUI.EndChangeCheck())
                 compactToolBar = c;
+            
+            EditorGUI.BeginChangeCheck();
+            c = EditorGUILayout.Toggle(kShowSpriteMeshOverwriteWarning, showSpriteMeshOverwriteWarning);
+            if (EditorGUI.EndChangeCheck())
+                showSpriteMeshOverwriteWarning = c;
         }
     }
 
@@ -85,6 +98,7 @@ namespace UnityEditor.U2D.Animation
         public static readonly GUIContent kSelectedOutlineColorLabel = new GUIContent(TextContent.selectedOutlineColor);
         public static readonly GUIContent kSelectedOutlineSizeLabel = new GUIContent(TextContent.spriteOutlineSize);
         public static readonly GUIContent kSelectedBoneOutlineSizeLabel = new GUIContent(TextContent.boneOutlineSize);
+
 
         public static Color outlineColor
         {

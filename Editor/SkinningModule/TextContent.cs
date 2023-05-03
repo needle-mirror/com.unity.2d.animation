@@ -78,6 +78,8 @@ namespace UnityEditor.U2D.Animation
         public static string selectedOutlineColor = L10n.Tr("Selected Outline Color");
         public static string spriteOutlineSize = L10n.Tr("Sprite Outline Size");
         public static string boneOutlineSize = L10n.Tr("Bone Outline Size");
+        public static string showSpriteMeshOverwriteWarning = L10n.Tr("Mesh Overwrite Warning");
+        public static string showSpriteMeshOverwriteWarningTip = L10n.Tr("Log warning message when Skinning Editor is overwriting custom outline mesh.");
 
         // Sprite Library
         public static string categoryList = L10n.Tr("Category List");
@@ -162,7 +164,8 @@ namespace UnityEditor.U2D.Animation
         public static string influencedSprites = L10n.Tr("Sprite Influences");
 
         // Error messages
-        public static string smoothMeshError = "Generated mesh could not be smoothed. Please try using different parameters";
-        public static string copyIncorrectNumberOfSprites = "Cannot paste Sprites ({0}) from the source, because the target has a different number of Sprites ({1}).";
+        public static string copyIncorrectNumberOfSprites = L10n.Tr("Cannot paste Sprites ({0}) from the source, because the target has a different number of Sprites ({1}).");
+        public static string spriteMeshOverwriteWarning = L10n.Tr("{0} has custom outline defined. The Sprite's mesh will be overwritten by the mesh defined in Skinning Editor.");
+        public static string boneWeightsNotSumZeroWarning = L10n.Tr("Sprite {0} contains bone weights which sum zero or are not normalized. To avoid visual artifacts please consider fixing them.");
     }
 }

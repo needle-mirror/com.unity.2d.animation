@@ -31,7 +31,7 @@ namespace UnityEditor.U2D.Animation
                 var definitionScale = CalculateDefinitionScale(texture, ai.GetDataProvider<ITextureDataProvider>());
                 ai.InitSpriteEditorDataProvider();
                 PostProcessBoneData(ai, definitionScale, sprites);
-                PostProcessSpriteMeshData(ai, definitionScale, sprites);
+                PostProcessSpriteMeshData(ai, definitionScale, sprites, assetImporter);
                 BoneGizmo.instance.ClearSpriteBoneCache();
             }
 
@@ -172,16 +172,18 @@ namespace UnityEditor.U2D.Animation
             return dataChanged;
         }
 
-        static bool PostProcessSpriteMeshData(ISpriteEditorDataProvider spriteDataProvider, float definitionScale, Sprite[] sprites)
+        static bool PostProcessSpriteMeshData(ISpriteEditorDataProvider spriteDataProvider, float definitionScale, Sprite[] sprites, AssetImporter assetImporter)
         {
             var spriteMeshDataProvider = spriteDataProvider.GetDataProvider<ISpriteMeshDataProvider>();
             var boneDataProvider = spriteDataProvider.GetDataProvider<ISpriteBoneDataProvider>();
             var textureDataProvider = spriteDataProvider.GetDataProvider<ITextureDataProvider>();
+            var outlineDataProvider = spriteDataProvider.GetDataProvider<ISpriteOutlineDataProvider>();
             if (sprites == null || sprites.Length == 0 || spriteMeshDataProvider == null || textureDataProvider == null)
                 return false;
 
             var dataChanged = false;
             var spriteRects = spriteDataProvider.GetSpriteRects();
+            var showMeshOverwriteWarning = SkinningModuleSettings.showSpriteMeshOverwriteWarning;
             foreach (var sprite in sprites)
             {
                 var guid = sprite.GetSpriteID();
@@ -218,6 +220,8 @@ namespace UnityEditor.U2D.Animation
                     for (int i = 0; i < indices.Length; ++i)
                         indicesArray[i] = (ushort)indices[i];
 
+                    if(showMeshOverwriteWarning && outlineDataProvider?.GetOutlines(guid)?.Count > 0)
+                        Debug.LogWarning(string.Format(TextContent.spriteMeshOverwriteWarning, sprite.name), assetImporter);
                     sprite.SetVertexCount(vertices.Length);
                     sprite.SetVertexAttribute<Vector3>(VertexAttribute.Position, vertexArray);
                     sprite.SetIndices(indicesArray);
@@ -239,7 +243,7 @@ namespace UnityEditor.U2D.Animation
                     dataChanged = true;
 
                     if (hasBones && hasInvalidWeights)
-                        Debug.LogWarning("Sprite \"" + spriteRect.name + "\" contains bone weights which sum zero or are not normalized. To avoid visual artifacts please consider fixing them.");
+                        Debug.LogWarning(string.Format(TextContent.boneWeightsNotSumZeroWarning,spriteRect.name), assetImporter);
                 }
                 else
                 {

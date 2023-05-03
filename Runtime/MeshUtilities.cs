@@ -33,7 +33,11 @@ namespace UnityEngine.U2D.Animation
                 AddToEdgeMap(edge2, ref edges);
             }    
             
+#if COLLECTIONS_2_0_OR_ABOVE
+             var outlineEdges = new NativeList<int2>(edges.Count, Allocator.Temp);
+#else
             var outlineEdges = new NativeList<int2>(edges.Count(), Allocator.Temp);
+#endif
             foreach(var edgePair in edges)
             {
                 // If an edge is only used in one triangle, it is an outline edge.

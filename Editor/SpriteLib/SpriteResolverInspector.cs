@@ -64,6 +64,8 @@ namespace UnityEditor.U2D.Animation
         
         SpriteResolver spriteResolver => target as SpriteResolver;
 
+        bool IsSpriteHashAssigned => m_SpriteHash.intValue != 0;
+
         void GetCategoryAndLabelStringValue(out string categoryName, out string labelName)
         {
             categoryName = null;
@@ -74,13 +76,13 @@ namespace UnityEditor.U2D.Animation
                 var entryHash = m_SpriteHash.intValue;
                 spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
                 
-                if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName))
+                if (!IsSpriteHashAssigned && (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName)))
                 {
                     m_SpriteHash.intValue = InternalEngineBridge.ConvertFloatToInt(m_SpriteKey.floatValue);
                     entryHash = m_SpriteHash.intValue;
                     spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
                 }
-                if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName))
+                if (!IsSpriteHashAssigned && (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName)))
                 {
                     var labelHash = InternalEngineBridge.ConvertFloatToInt(m_LabelHash.floatValue);
                     var categoryHash = InternalEngineBridge.ConvertFloatToInt(m_CategoryHash.floatValue);
@@ -90,7 +92,7 @@ namespace UnityEditor.U2D.Animation
                 }
             }
         }
-        
+
         void UpdateSpriteLibrary()
         {
             m_SpriteLibSelection.Clear();

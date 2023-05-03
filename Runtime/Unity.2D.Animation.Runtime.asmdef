@@ -21,6 +21,11 @@
             "name": "com.unity.render-pipelines.universal",
             "expression": "1.0.0",
             "define": "ENABLE_URP"
+        },
+        {
+            "name": "com.unity.collections",
+            "expression": "2.0.0-exp",
+            "define": "COLLECTIONS_2_0_OR_ABOVE"
         }
     ],
     "noEngineReferences": false
