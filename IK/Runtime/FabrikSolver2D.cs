@@ -5,7 +5,7 @@ using UnityEngine.Scripting.APIUpdating;
 namespace UnityEngine.U2D.IK
 {
     /// <summary>
-    /// Component for 2D Forward And Backward Reaching Inverse Kinematics (FABRIK) IK.
+    /// Component responsible for 2D Forward And Backward Reaching Inverse Kinematics (FABRIK) IK.
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenu("Chain (FABRIK)")]
@@ -31,7 +31,7 @@ namespace UnityEngine.U2D.IK
         Vector3[] m_WorldPositions;
 
         /// <summary>
-        /// Get and Set the solver's integration count.
+        /// Get and set the solver's integration count.
         /// </summary>
         public int iterations
         {
@@ -40,7 +40,7 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Get and Set target distance tolerance.
+        /// Get and set target distance tolerance.
         /// </summary>
         public float tolerance
         {
@@ -49,20 +49,20 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Returns the number of chain in the solver.
+        /// Returns the number of chains in the solver.
         /// </summary>
-        /// <returns>This always returns 1.</returns>
+        /// <returns>Returns 1, because FABRIK Solver has only one chain.</returns>
         protected override int GetChainCount() => 1;
 
         /// <summary>
-        /// Gets the chain in the solver by index.
+        /// Gets the chain in the solver at index.
         /// </summary>
-        /// <param name="index">Chain index.</param>
-        /// <returns>Returns IKChain2D at the index.</returns>
+        /// <param name="index">Index to query. Not used in this override.</param>
+        /// <returns>Returns IKChain2D for the Solver.</returns>
         public override IKChain2D GetChain(int index) => m_Chain;
 
         /// <summary>
-        /// DoPrepare override from base class.
+        /// Prepares the data required for updating the solver.
         /// </summary>
         protected override void DoPrepare()
         {
@@ -85,16 +85,16 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// DoUpdateIK override from base class.
+        /// Updates the IK and sets the chain's transform positions.
         /// </summary>
-        /// <param name="effectorPositions">Target position for the chain.</param>
-        protected override void DoUpdateIK(List<Vector3> effectorPositions)
+        /// <param name="targetPositions">Target position for the chain.</param>
+        protected override void DoUpdateIK(List<Vector3> targetPositions)
         {
             Profiler.BeginSample(nameof(FabrikSolver2D.DoUpdateIK));
 
-            var effectorPosition = effectorPositions[0];
-            effectorPosition = GetPointOnSolverPlane(effectorPosition);
-            if (FABRIK2D.Solve(effectorPosition, iterations, tolerance, m_Lengths, ref m_Positions))
+            var targetPosition = targetPositions[0];
+            targetPosition = GetPointOnSolverPlane(targetPosition);
+            if (FABRIK2D.Solve(targetPosition, iterations, tolerance, m_Lengths, ref m_Positions))
             {
                 // Convert all plane positions to world positions
                 for (var i = 0; i < m_Positions.Length; ++i)
@@ -104,8 +104,8 @@ namespace UnityEngine.U2D.IK
 
                 for (var i = 0; i < m_Chain.transformCount - 1; ++i)
                 {
-                    var startLocalPosition = m_Chain.transforms[i + 1].localPosition;
-                    var endLocalPosition = m_Chain.transforms[i].InverseTransformPoint(m_WorldPositions[i + 1]);
+                    var startLocalPosition = (Vector2)m_Chain.transforms[i + 1].localPosition;
+                    var endLocalPosition = (Vector2)m_Chain.transforms[i].InverseTransformPoint(m_WorldPositions[i + 1]);
                     m_Chain.transforms[i].localRotation *= Quaternion.FromToRotation(startLocalPosition, endLocalPosition);
                 }
             }

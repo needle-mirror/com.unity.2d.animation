@@ -10,11 +10,11 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
     {
         static class Styles
         {
-            public const string labelVisual = SpriteResolverOverlay.rootStyle + "__label-visual";
-            public const string labelContainer = SpriteResolverOverlay.rootStyle + "__label-container";
-            public const string directionButton = SpriteResolverOverlay.rootStyle + "__label-direction-button";
-            public const string labelImagesContainer = SpriteResolverOverlay.rootStyle + "__label-images-container";
-            public const string labelSelected = SpriteResolverOverlay.rootStyle + "__label-selected";
+            public const string labelVisual = SpriteSwapOverlay.rootStyle + "__label-visual";
+            public const string labelContainer = SpriteSwapOverlay.rootStyle + "__label-container";
+            public const string directionButton = SpriteSwapOverlay.rootStyle + "__label-direction-button";
+            public const string labelImagesContainer = SpriteSwapOverlay.rootStyle + "__label-images-container";
+            public const string labelSelected = SpriteSwapOverlay.rootStyle + "__label-selected";
         }
 
         const string k_ScrollLeftIcon = "scrollleft_uielements";
@@ -36,6 +36,8 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         ScrollView m_LabelImagesContainer;
 
         bool m_IsFocused;
+
+        PropertyAnimationState m_AnimationState;
 
         public LabelContainer()
         {
@@ -125,7 +127,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         void UpdateElementSize()
         {
             var paddingAndMarginsSize = 4.0f;
-            style.minHeight = style.maxHeight = SpriteResolverOverlay.Settings.thumbnailSize + paddingAndMarginsSize;
+            style.minHeight = style.maxHeight = SpriteSwapOverlay.Settings.thumbnailSize + paddingAndMarginsSize;
         }
 
         void ClearItems()
@@ -137,7 +139,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void OnItemSelected(PointerDownEvent evt)
         {
-            var image = (Image)evt.currentTarget;
+            var image = (VisualElement)evt.currentTarget;
             if (image != null)
                 Select(m_LabelImagesContainer.IndexOf(image));
         }
@@ -146,12 +148,16 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         {
             foreach (var child in m_LabelImagesContainer.Children())
             {
-                child.RemoveFromClassList(Styles.labelSelected);
-
                 if (m_LabelImagesContainer.IndexOf(child) == selectedIndex)
                 {
                     m_LabelImagesContainer.ScrollTo(child);
                     child.AddToClassList(Styles.labelSelected);
+
+                    child.style.backgroundColor = GetColorForAnimationState(m_AnimationState);
+                }
+                else
+                {
+                    child.RemoveFromClassList(Styles.labelSelected);
                 }
             }
         }
@@ -165,11 +171,34 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         VisualElement GetVisualForLabel(string labelName, Sprite labelSprite)
         {
-            var ve = new Image { name = labelName, tooltip = labelName, sprite = labelSprite };
-            ve.style.height = ve.style.width = SpriteResolverOverlay.Settings.thumbnailSize;
-            ve.AddToClassList(Styles.labelVisual);
-            ve.RegisterCallback<PointerDownEvent>(OnItemSelected);
-            return ve;
+            var image = new Image { name = labelName, tooltip = labelName, sprite = labelSprite };
+            image.style.height = image.style.width = SpriteSwapOverlay.Settings.thumbnailSize;
+            image.AddToClassList(Styles.labelVisual);
+            image.RegisterCallback<PointerDownEvent>(OnItemSelected);
+            return image;
+        }
+
+        public void SetAnimationState(PropertyAnimationState animationState)
+        {
+            if (animationState != m_AnimationState)
+            {
+                m_AnimationState = animationState;
+
+                UpdateSelectionVisuals();
+            }
+        }
+
+        static Color GetColorForAnimationState(PropertyAnimationState animationState)
+        {
+            var color = new Color(88.0f / 255.0f, 88.0f / 255.0f, 88.0f / 255.5f, 1.0f);
+            if (animationState == PropertyAnimationState.Animated)
+                color *= AnimationMode.animatedPropertyColor;
+            else if (animationState == PropertyAnimationState.Candidate)
+                color *= AnimationMode.candidatePropertyColor;
+            else if (animationState == PropertyAnimationState.Recording)
+                color *= AnimationMode.recordedPropertyColor;
+
+            return color;
         }
     }
 }

@@ -20,4 +20,4 @@ Follow the steps below to create a [Sprite Library Asset](SL-Asset.md), and choo
 
 9. Select a Sprite in the Sprite Resolver component to replace the current Sprite rendered by the Sprite Renderer component with the one you have selected.
 
-It's also possible to use the [Sprite Resolver overlay](CharacterParts.md#sprite-resolver-scene-view-overlay) to swap Sprites directly from the Scene View.
+It's also possible to use the [Sprite Swap overlay](CharacterParts.md#sprite-resolver-scene-view-overlay) to swap Sprites directly from the Scene View.

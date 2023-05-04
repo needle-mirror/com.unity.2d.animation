@@ -6,6 +6,8 @@ namespace UnityEngine.U2D.Animation
 {
     public partial class SpriteResolver : ISerializationCallbackReceiver
     {
+        internal static string spriteHashPropertyName => nameof(m_SpriteHash);
+        
         bool m_SpriteLibChanged;
 
         /// <summary>
@@ -23,14 +25,6 @@ namespace UnityEngine.U2D.Animation
         {
             get => m_SpriteLibChanged;
             set => m_SpriteLibChanged = value;
-        }
-
-        internal void SetCategoryAndLabelEditor(string category, string label)
-        {
-            var so = new SerializedObject(this);
-            var newHash = SpriteLibrary.GetHashForCategoryAndEntry(category, label);
-            so.FindProperty(nameof(m_SpriteHash)).intValue = newHash;
-            so.ApplyModifiedProperties();
         }
 
         /// <summary>

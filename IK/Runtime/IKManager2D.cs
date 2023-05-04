@@ -8,7 +8,7 @@ using UnityEngine.U2D.Common;
 namespace UnityEngine.U2D.IK
 {
     /// <summary>
-    /// Component to manager 2D IK Solvers.
+    /// Component responsible for managing and updating 2D IK Solvers.
     /// </summary>
     [DefaultExecutionOrder(UpdateOrder.ikUpdateOrder)]
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
@@ -34,7 +34,7 @@ namespace UnityEngine.U2D.IK
         internal BaseCullingStrategy GetCullingStrategy() => m_CullingStrategy;
 
         /// <summary>
-        /// Get and Set the weight for solvers.
+        /// Get and set the weight for solvers.
         /// </summary>
         public float weight
         {
@@ -219,8 +219,7 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Used by the animation clip preview window.
-        /// Recommended to not use outside of this purpose.
+        /// Used by the animation clip preview window. Recommended to not use outside of this purpose.
         /// </summary>
         public void OnPreviewUpdate()
         {

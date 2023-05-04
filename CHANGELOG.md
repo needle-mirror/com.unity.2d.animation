@@ -1,13 +1,28 @@
 # Changelog
 
+## [10.0.2] - 2023-05-04
+### Added
+- Updated IK parameter names and comments in public APIs. 
+
+### Fixed
+- Fixed Sprite Resolver inspector not able to set category to 'No Category' if it contains the old hash value. (case DANB-396)
+- Fixed an issue where the Limb IK solver will become unstable when the child bones have different Z position. (case DANB-416)
+- Fixed an issue where the CCD and Fabrik solvers will become unstable when the child bones have different Z position. (case DANB-421)
+- Fixed an issue where changing Sprite Library reference in the Inspector will result in an exception. (case DANB-429)
+
 ## [10.0.1] - 2023-05-03
 ### Added
 - Added console log when Skinning Editor is overwriting mesh from Custom Outline module. Logs can be enabled or disabled from 2D Animation user settings. 
 - Added support for the Collections 2.X packages.
 
 ### Fixed
-- Fixed Sprite Resolver inspector not able to set category to 'No Category' if it contains the old hash value. (case DAB-396)
+- Fixed Sprite Resolver inspector not able to set category to 'No Category' if it contains the old hash value. (case DANB-396)
 
+
+### Changed
+- Renamed the "Sprite Resolver" overlay to "Sprite Swap".
+- Added lock toggle to the Sprite Swap overlay and updated its stylesheets.
+- Added support for the Collections 2.X packages.
 
 ## [10.0.0] - 2023-02-23
 

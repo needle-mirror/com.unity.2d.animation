@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.U2D.Common;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
 using UnityEngine.UIElements;
@@ -10,10 +12,10 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
     {
         static class Styles
         {
-            public const string spriteResolverNameLabel = SpriteResolverOverlay.rootStyle + "__resolver-name-label";
-            public const string categoryAndLabelNameContainer = SpriteResolverOverlay.rootStyle + "__category-and-label-name-container";
-            public const string selector = SpriteResolverOverlay.rootStyle + "__selector";
-            public const string descriptionLabel = SpriteResolverOverlay.rootStyle + "__label-description";
+            public const string spriteResolverNameLabel = SpriteSwapOverlay.rootStyle + "__resolver-name-label";
+            public const string categoryAndLabelNameContainer = SpriteSwapOverlay.rootStyle + "__category-and-label-name-container";
+            public const string selector = SpriteSwapOverlay.rootStyle + "__selector";
+            public const string descriptionLabel = SpriteSwapOverlay.rootStyle + "__label-description";
         }
 
         Label m_SpriteResolverLabel;
@@ -21,7 +23,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         INavigableElement m_CategoryContainer;
         INavigableElement m_LabelContainer;
         INavigableElement m_CurrentSelection;
-        
+
         Label m_LabelNameLabel;
 
         string m_Category = string.Empty;
@@ -30,7 +32,9 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         List<string> m_AvailableCategories;
         List<Tuple<string, Sprite>> m_AvailableLabels;
 
-        SpriteResolver m_SpriteResolver;
+        SerializedObject m_SerializedResolver;
+        SerializedProperty m_SpriteHashProperty;
+        SpriteResolver spriteResolver => (SpriteResolver)m_SerializedResolver?.targetObject;
 
         public SpriteResolverSelector(INavigableElement categoryContainer, INavigableElement labelContainer)
         {
@@ -72,53 +76,60 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             m_LabelContainer.visualElement.Focus();
         }
 
+        public void SceneUpdate()
+        {
+            UpdateAnimationColor();
+        }
+
         void OnDetachFromPanel(DetachFromPanelEvent evt)
         {
             SetSpriteResolver(null);
         }
 
-        public void SetSpriteResolver(SpriteResolver spriteResolver)
+        public void SetSpriteResolver(SpriteResolver newSpriteResolver)
         {
-            if (m_SpriteResolver != null)
-                m_SpriteResolver.onResolvedSprite -= OnResolvedSprite;
+            this.Unbind();
 
-            m_SpriteResolver = spriteResolver;
-            if (m_SpriteResolver == null)
+            if (newSpriteResolver == null)
                 return;
 
-            m_SpriteResolver.onResolvedSprite += OnResolvedSprite;
+            m_SerializedResolver = new SerializedObject(newSpriteResolver);
+            m_SpriteHashProperty = m_SerializedResolver.FindProperty(SpriteResolver.spriteHashPropertyName);
+            this.TrackPropertyValue(m_SpriteHashProperty, OnResolvedSprite);
             ReadCategoryAndLabelFromSelection();
         }
 
-        void OnResolvedSprite(SpriteResolver spriteResolver)
+        void OnResolvedSprite(SerializedProperty serializedProperty)
         {
             ReadCategoryAndLabelFromSelection();
         }
 
         void ReadCategoryAndLabelFromSelection()
         {
-            if (m_SpriteResolver == null)
+            var resolver = spriteResolver;
+            if (resolver == null)
                 return;
 
-            m_Category = m_SpriteResolver.GetCategory() ?? string.Empty;
-            m_Label = m_SpriteResolver.GetLabel() ?? string.Empty;
+            m_Category = resolver.GetCategory() ?? string.Empty;
+            m_Label = resolver.GetLabel() ?? string.Empty;
 
             UpdateVisuals();
         }
 
         void UpdateVisuals()
         {
-            if (m_SpriteResolver == null)
+            var resolver = spriteResolver;
+            if (resolver == null)
                 return;
 
-            m_SpriteResolverLabel.text = m_SpriteResolverLabel.tooltip = m_SpriteResolver.name;
+            m_SpriteResolverLabel.text = m_SpriteResolverLabel.tooltip = resolver.name;
 
-            m_AvailableCategories = GetAvailableCategories(m_SpriteResolver) ?? new List<string>();
+            m_AvailableCategories = GetAvailableCategories(resolver) ?? new List<string>();
             m_AvailableLabels = new List<Tuple<string, Sprite>>();
-            if (m_SpriteResolver.spriteLibrary != null)
+            if (resolver.spriteLibrary != null)
             {
-                foreach (var labelName in GetAvailableLabels(m_SpriteResolver, m_Category))
-                    m_AvailableLabels.Add(new Tuple<string, Sprite>(labelName, m_SpriteResolver.spriteLibrary.GetSprite(m_Category, labelName)));
+                foreach (var labelName in GetAvailableLabels(resolver, m_Category))
+                    m_AvailableLabels.Add(new Tuple<string, Sprite>(labelName, resolver.spriteLibrary.GetSprite(m_Category, labelName)));
             }
 
             m_CategoryContainer.SetItems(m_AvailableCategories);
@@ -133,36 +144,42 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
             if (m_LabelContainer.itemCount == 0)
                 m_CurrentSelection = m_CategoryContainer;
+
+            UpdateAnimationColor();
         }
 
-        internal void OnCategorySelected(int newSelection)
+        void OnCategorySelected(int newSelection)
         {
-            if (m_SpriteResolver == null)
+            var resolver = spriteResolver;
+            if (resolver == null)
                 return;
 
             var categoryName = (string)m_CategoryContainer.GetItem(newSelection);
             if (categoryName == null || categoryName == m_Category)
                 return;
 
-            var availableLabels = m_SpriteResolver.spriteLibrary != null ? m_SpriteResolver.spriteLibrary.GetEntryNames(categoryName) : null;
+            var availableLabels = resolver.spriteLibrary != null ? resolver.spriteLibrary.GetEntryNames(categoryName) : null;
             var labelList = availableLabels != null ? new List<string>(availableLabels) : new List<string>();
             var labelName = string.Empty;
             if (labelList.Count > 0)
                 labelName = labelList.Contains(m_Label) ? m_Label : labelList[0];
 
-            m_SpriteResolver.SetCategoryAndLabelEditor(categoryName, labelName);
+            m_SpriteHashProperty.intValue = SpriteLibrary.GetHashForCategoryAndEntry(categoryName, labelName);
+            m_SerializedResolver.ApplyModifiedProperties();
         }
 
-        internal void OnLabelSelected(int newSelection)
+        void OnLabelSelected(int newSelection)
         {
-            if (m_SpriteResolver == null)
+            var resolver = spriteResolver;
+            if (resolver == null)
                 return;
 
             var (labelName, _) = (Tuple<string, Sprite>)m_LabelContainer.GetItem(newSelection);
             if (string.IsNullOrWhiteSpace(labelName) || labelName == m_Label)
                 return;
 
-            m_SpriteResolver.SetCategoryAndLabelEditor(m_Category, labelName);
+            m_SpriteHashProperty.intValue = SpriteLibrary.GetHashForCategoryAndEntry(m_Category, labelName);
+            m_SerializedResolver.ApplyModifiedProperties();
             m_LabelNameLabel.text = m_LabelNameLabel.tooltip = labelName;
         }
 
@@ -224,6 +241,26 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
             var availableLabels = spriteResolver.spriteLibrary.GetEntryNames(categoryName);
             return availableLabels != null ? new List<string>(availableLabels) : new List<string>();
+        }
+
+        void UpdateAnimationColor()
+        {
+            var spriteResolverObject = spriteResolver;
+            var animationState = PropertyAnimationState.NotAnimated;
+            if (spriteResolverObject != null && m_SpriteHashProperty != null)
+            {
+                if (InternalEditorBridge.IsAnimated(spriteResolverObject, m_SpriteHashProperty))
+                {
+                    if (InternalEditorBridge.InAnimationRecording())
+                        animationState = PropertyAnimationState.Recording;
+                    else if (InternalEditorBridge.IsCandidate(spriteResolverObject, m_SpriteHashProperty))
+                        animationState = PropertyAnimationState.Candidate;
+                    else
+                        animationState = PropertyAnimationState.Animated;
+                }
+            }
+
+            (m_LabelContainer as LabelContainer)?.SetAnimationState(animationState);
         }
     }
 }

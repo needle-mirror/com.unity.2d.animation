@@ -19,8 +19,8 @@ This and the previous step can be automated by dragging and dropping sprites int
 
 If you want to switch more than one Sprite at a time, consider [swapping the Sprite Library Asset](SLASwap.md) to switch to an entire alternate set of Sprites.
 
-## Sprite Resolver Scene View overlay
-Sprite Resolver overlay allows you to swap individual Sprites directly from the Scene View. The overlay supports swapping Sprites from multiple resolvers. This might be useful when working on complex characters.
+## Sprite Swap Scene View overlay
+Sprite Swap overlay allows you to swap individual Sprites directly from the Scene View. The overlay supports swapping Sprites from multiple resolvers. This might be useful when working on complex characters.
 The overlay can be enabled from the Overlay Menu which is accessible with the ` shortcut key, or from the Scene View's settings button.
 
 Once the overlay is displayed, select a single or multiple game objects with Sprite Resolver component. If a selected game object has child game objects with Sprite Resolvers, they will be displayed as well.

@@ -5,28 +5,32 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation.SceneOverlays
 {
-    internal class SpriteResolverOverlayVisualElement : VisualElement
+    internal class SpriteSwapVisualElement : VisualElement
     {
         static class Styles
         {
-            public const string selectorList = SpriteResolverOverlay.rootStyle + "__selector-list";
-            public static string infoLabelHolder = SpriteResolverOverlay.rootStyle + "__info-label-holder";
-            public static string infoLabel = SpriteResolverOverlay.rootStyle + "__info-label";
+            public const string selectorList = SpriteSwapOverlay.rootStyle + "__selector-list";
+            public static string infoLabelHolder = SpriteSwapOverlay.rootStyle + "__info-label-holder";
+            public static string infoLabelIcon = SpriteSwapOverlay.rootStyle + "__info-label-icon";
+            public static string infoLabel = SpriteSwapOverlay.rootStyle + "__info-label";
         }
 
         VisualElement m_InfoLabelHolder;
+        Image m_InfoIcon;
         Label m_InfoLabel;
         ListView m_ListView;
-        OverlayToolbar m_OverlayToolbar;
 
-        public SpriteResolverOverlayVisualElement()
+        public SpriteSwapVisualElement()
         {
-            AddToClassList(SpriteResolverOverlay.rootStyle);
+            AddToClassList(SpriteSwapOverlay.rootStyle);
 
             m_InfoLabelHolder = new VisualElement();
             m_InfoLabelHolder.AddToClassList(Styles.infoLabelHolder);
-            m_InfoLabel = new Label { text = TextContent.selectSpriteResolver };
+            m_InfoIcon = new Image { image = EditorGUIUtility.IconContent("console.infoicon").image };
+            m_InfoIcon.AddToClassList(Styles.infoLabelIcon);
+            m_InfoLabel = new Label { text = TextContent.spriteSwapSelectSpriteResolver };
             m_InfoLabel.AddToClassList(Styles.infoLabel);
+            m_InfoLabelHolder.Add(m_InfoIcon);
             m_InfoLabelHolder.Add(m_InfoLabel);
             Add(m_InfoLabelHolder);
 
@@ -38,8 +42,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             m_ListView.AddToClassList(Styles.selectorList);
             Add(m_ListView);
 
-            m_OverlayToolbar = new OverlayToolbar();
-            Add(m_OverlayToolbar);
+            Add(new OverlayToolbar());
         }
 
         static VisualElement MakeItem() => new SpriteResolverSelector(new CategoryContainer(), new LabelContainer());
@@ -85,6 +88,25 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
                 m_ListView.itemsSource = selection;
                 m_ListView.Rebuild();
             }
+        }
+
+        public void OnSceneGUI()
+        {
+            if (m_ListView?.itemsSource == null)
+                return;
+
+            for (var i = 0; i < m_ListView.itemsSource.Count; i++)
+            {
+                var id = m_ListView.viewController.GetIdForIndex(i);
+                var spriteResolverSelector = (SpriteResolverSelector)m_ListView.GetRootElementForId(id);
+                spriteResolverSelector?.SceneUpdate();
+            }
+        }
+
+        public void SetFiltered(bool isFiltered)
+        {
+            m_InfoLabel.text = isFiltered ? TextContent.spriteSwapFilteredContent : TextContent.spriteSwapSelectSpriteResolver;
+            m_InfoIcon.style.display = isFiltered ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }

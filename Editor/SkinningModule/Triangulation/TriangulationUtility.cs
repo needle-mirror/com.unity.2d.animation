@@ -29,7 +29,7 @@ namespace UnityEditor.U2D.Animation
         public void Execute()
         {
             int outputVertexCount = 0, outputIndexCount = 0, outputEdgeCount = 0;
-            ModuleHandle.Tessellate(Allocator.Temp, inputVertices, inputEdges, ref outputVertices, out outputVertexCount, ref outputIndices, out outputIndexCount, ref outputEdges, out outputEdgeCount);
+            ModuleHandle.Tessellate(Allocator.Temp, inputVertices, inputEdges, ref outputVertices, out outputVertexCount, ref outputIndices, out outputIndexCount, ref outputEdges, out outputEdgeCount, true);
             result[0] = new int4(outputVertexCount, outputIndexCount, outputEdgeCount, 0);
         }
     }
@@ -116,7 +116,7 @@ namespace UnityEditor.U2D.Animation
 
             var check = ValidateCollinear((float2*)_points.GetUnsafeReadOnlyPtr(), pointCount, k_CollinearTolerance);
             if (0 != check)
-                ModuleHandle.Tessellate(allocator, in _points, in _edges, ref _outVertices, out outVertexCount, ref _outIndices, out outIndexCount, ref _outEdges, out outEdgeCount);
+                ModuleHandle.Tessellate(allocator, in _points, in _edges, ref _outVertices, out outVertexCount, ref _outIndices, out outIndexCount, ref _outEdges, out outEdgeCount, true);
 
             for (var i = 0; i < outEdgeCount; ++i)
                 outEdges[i] = _outEdges[i];
@@ -186,7 +186,7 @@ namespace UnityEditor.U2D.Animation
 
             try
             {
-                ModuleHandle.Tessellate(Allocator.Persistent, in points, in edges, ref outVertices, out outVertexCount, ref outIndices, out outIndexCount, ref outEdges, out outEdgeCount);
+                ModuleHandle.Tessellate(Allocator.Persistent, in points, in edges, ref outVertices, out outVertexCount, ref outIndices, out outIndexCount, ref outEdges, out outEdgeCount, true);
             }
             catch (Exception)
             {

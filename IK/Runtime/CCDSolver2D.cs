@@ -5,7 +5,7 @@ using UnityEngine.Scripting.APIUpdating;
 namespace UnityEngine.U2D.IK
 {
     /// <summary>
-    /// Component for 2D Cyclic Coordinate Descent (CCD) IK.
+    /// Component responsible for 2D Cyclic Coordinate Descent (CCD) IK.
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenuAttribute("Chain (CCD)")]
@@ -35,7 +35,7 @@ namespace UnityEngine.U2D.IK
         Vector3[] m_Positions;
 
         /// <summary>
-        /// Get and Set the solver's integration count.
+        /// Get and set the solver's integration count.
         /// </summary>
         public int iterations
         {
@@ -44,7 +44,7 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Get and Set target distance tolerance.
+        /// Get and set target distance tolerance.
         /// </summary>
         public float tolerance
         {
@@ -62,48 +62,50 @@ namespace UnityEngine.U2D.IK
         }
 
         /// <summary>
-        /// Returns the number of chain in the solver.
+        /// Returns the number of chains in the solver.
         /// </summary>
-        /// <returns>This always returns 1</returns>
+        /// <returns>Returns 1, because CCD Solver has only one chain.</returns>
         protected override int GetChainCount() => 1;
 
         /// <summary>
-        /// Gets the chain in the solver by index.
+        /// Gets the chain in the solver at index.
         /// </summary>
-        /// <param name="index">Chain index.</param>
-        /// <returns>Returns IKChain2D at the index.</returns>
+        /// <param name="index">Index to query. Not used in this override.</param>
+        /// <returns>Returns IKChain2D for the Solver.</returns>
         public override IKChain2D GetChain(int index) => m_Chain;
 
         /// <summary>
-        /// DoPrepare override from base class.
+        /// Prepares the data required for updating the solver.
         /// </summary>
         protected override void DoPrepare()
         {
             if (m_Positions == null || m_Positions.Length != m_Chain.transformCount)
                 m_Positions = new Vector3[m_Chain.transformCount];
 
+            var root = m_Chain.rootTransform;
             for (var i = 0; i < m_Chain.transformCount; ++i)
-                m_Positions[i] = m_Chain.transforms[i].position;
+                m_Positions[i] = root.TransformPoint((Vector2)root.InverseTransformPoint(m_Chain.transforms[i].position));
         }
 
         /// <summary>
-        /// DoUpdateIK override from base class.
+        /// Updates the IK and sets the chain's transform positions.
         /// </summary>
-        /// <param name="effectorPositions">Target position for the chain.</param>
-        protected override void DoUpdateIK(List<Vector3> effectorPositions)
+        /// <param name="targetPositions">Target positions for the chain.</param>
+        protected override void DoUpdateIK(List<Vector3> targetPositions)
         {
             Profiler.BeginSample(nameof(CCDSolver2D.DoUpdateIK));
 
-            var effectorPosition = effectorPositions[0];
-            var effectorLocalPosition2D = m_Chain.transforms[0].InverseTransformPoint(effectorPosition);
-            effectorPosition = m_Chain.transforms[0].TransformPoint(effectorLocalPosition2D);
+            var root = m_Chain.rootTransform;
+            var targetPosition = targetPositions[0];
+            var targetLocalPosition2D = (Vector2)root.InverseTransformPoint(targetPosition);
+            targetPosition = root.TransformPoint(targetLocalPosition2D);
 
-            if (CCD2D.Solve(effectorPosition, GetPlaneRootTransform().forward, iterations, tolerance, Mathf.Lerp(k_MinVelocity, k_MaxVelocity, m_Velocity), ref m_Positions))
+            if (CCD2D.Solve(targetPosition, GetPlaneRootTransform().forward, iterations, tolerance, Mathf.Lerp(k_MinVelocity, k_MaxVelocity, m_Velocity), ref m_Positions))
             {
                 for (var i = 0; i < m_Chain.transformCount - 1; ++i)
                 {
-                    var startLocalPosition = m_Chain.transforms[i + 1].localPosition;
-                    var endLocalPosition = m_Chain.transforms[i].InverseTransformPoint(m_Positions[i + 1]);
+                    var startLocalPosition = (Vector2)m_Chain.transforms[i + 1].localPosition;
+                    var endLocalPosition = (Vector2)m_Chain.transforms[i].InverseTransformPoint(m_Positions[i + 1]);
                     m_Chain.transforms[i].localRotation *= Quaternion.FromToRotation(startLocalPosition, endLocalPosition);
                 }
             }

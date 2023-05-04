@@ -125,10 +125,12 @@ namespace UnityEditor.U2D.Animation
         // Sprite Resolver
         public static readonly string emptyCategory = L10n.Tr("Category is Empty");
         public static readonly string noCategory = L10n.Tr("No Category");
-        public static readonly string selectSpriteResolver = L10n.Tr("Select a Sprite Resolver");
-        public static readonly string resolverOverlayFilterDescription = L10n.Tr("Filters out single-label Sprite Resolvers");
-        public static readonly string resolverOverlayResetThumbnailSize = L10n.Tr("Resets the Label thumbnail to its default size");
-        public static readonly string resolverOverlayThumbnailSlider = L10n.Tr("Sets the Label thumbnail size");
+        public static readonly string spriteSwapSelectSpriteResolver = L10n.Tr("Select any Game Object(s) with the Sprite Resolver component in the Scene to start Sprite Swapping.");
+        public static readonly string spriteSwapFilterDescription = L10n.Tr("Filters out single-label Sprite Resolvers");
+        public static readonly string spriteSwapLockDescription = L10n.Tr("Locks the current selection");
+        public static readonly string spriteSwapResetThumbnailSize = L10n.Tr("Resets the Label thumbnail to its default size");
+        public static readonly string spriteSwapThumbnailSlider = L10n.Tr("Sets the Label thumbnail size");
+        public static readonly string spriteSwapFilteredContent = L10n.Tr("Filtered Content");
 
         // Other
         public static string savePopupTitle = L10n.Tr("Unsaved changes");

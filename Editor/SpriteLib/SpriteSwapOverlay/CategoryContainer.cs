@@ -10,7 +10,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
     {
         static class Styles
         {
-            public const string categoryContainer = SpriteResolverOverlay.rootStyle + "__category-container";
+            public const string categoryContainer = SpriteSwapOverlay.rootStyle + "__category-container";
         }
 
         public event Action<int> onSelectionChange;
