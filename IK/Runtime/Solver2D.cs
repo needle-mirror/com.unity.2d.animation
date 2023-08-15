@@ -186,10 +186,10 @@ namespace UnityEngine.U2D.IK
             if (!isValid)
                 return;
 
-            Prepare();
-
             if (finalWeight < 1f)
                 StoreLocalRotations();
+
+            Prepare();
 
             DoUpdateIK(targetPositions);
 

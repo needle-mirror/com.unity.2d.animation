@@ -5,7 +5,7 @@ The 2D Animation Asset Upgrader tool eases the transition and upgrade of older a
 
 - Upgrades [Sprite Library Asset](SL-Asset.md) files ending in `.asset` to Sprite Library Source Asset files ending in `.spriteLib`.
 - Moves Sprite Library Assets baked into `.psb` files created in Unity 2019 and Unity 2020 out into their own separate Sprite Library Source Asset files ending in `.spriteLib`.
-- Upgrades [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) that animate Sprites based on the [Sprite Resolver component](https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html%23sprite-resolver-component)'s [Category and Label](https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html%23category) hash in Unity 2019 and Unity 2020, to Sprite Resolver's new **Sprite Hash** property from Unity 2022 onwards.
+- Upgrades [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) that animate Sprites based on the [Sprite Resolver component](https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SL-Resolver.html)'s [Category and Label](SL-Editor.md) hash in Unity 2019 and Unity 2020, to Sprite Resolver's new **Sprite Hash** property from Unity 2022 onwards.
 - Upgrades Animation Clips animating the Sprite Resolver component's **Sprite Key** property in Unity 2021, to Sprite Resolver's new Sprite Hash property from Unity 2022 onwards.
 
 ## Getting Started

@@ -1,5 +1,15 @@
 # Changelog
 
+## [10.0.3] - 2023-08-15
+### Fixed
+- Fixed an issue where the FK doesn't blend correctly with the IK if solver solves from the bind pose. (case DANB-484)
+- Fixed an issue where GPU-deformed Sprites will not animated after scene reload. (case DANB-461) 
+- Added correct help documentation link to Sprite Library Asset. (case DANB-487)
+
+##Changed
+- Updated documentation on enabling GPU skinning.
+- Update the Sprite Library component inspector to inform users about the entry overrides documentation page.
+
 ## [10.0.2] - 2023-05-04
 ### Added
 - Updated IK parameter names and comments in public APIs. 

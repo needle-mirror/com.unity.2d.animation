@@ -90,6 +90,10 @@ namespace UnityEngine.U2D.Animation
             m_LocalToWorldTransformAccessJob.AddTransform(spriteSkin.rootBone);
         }
 
+        internal virtual void UpdateMaterial(SpriteSkin spriteSkin)
+        {
+        }
+
         internal virtual void AddSpriteSkin(SpriteSkin spriteSkin)
         {
             if (!DoesCollectionContainSpriteSkin(in m_SpriteSkins, spriteSkin) && !DoesCollectionContainSpriteSkin(in m_SpriteSkinsToAdd, spriteSkin))
@@ -247,6 +251,7 @@ namespace UnityEngine.U2D.Animation
                     continue;
                 }
                 m_SpriteSkins.Add(spriteSkin);
+                UpdateMaterial(spriteSkin);
                 var count = m_SpriteSkins.Count;
                 
                 m_SpriteRenderers[count - 1] = spriteSkin.spriteRenderer;

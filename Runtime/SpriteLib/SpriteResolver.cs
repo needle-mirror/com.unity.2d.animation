@@ -19,7 +19,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu("2D Animation/Sprite Resolver")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteResolver.png")]
     [DefaultExecutionOrder(UpdateOrder.spriteResolverUpdateOrder)]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html%23sprite-resolver-component")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SL-Resolver.html")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     public partial class SpriteResolver : MonoBehaviour, IPreviewable
     {

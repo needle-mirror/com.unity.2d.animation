@@ -14,7 +14,7 @@ namespace UnityEditor.U2D.Animation
         static class Style
         {
             public static readonly string createNew = L10n.Tr("New");
-            public static readonly string exportToAssetInfo = L10n.Tr("Editing Sprite Library in this Component is no longer supported. Select ‘Export to Sprite Library Asset’ to save your data.");
+            public static readonly string exportToAssetInfo = L10n.Tr($"There are overrides in this Sprite Library. To save the override data, select 'Export to Sprite Library Asset'. Learn mode about creating and modifying overrides <a href={k_OverrideEntriesDocsLink}>here</a>.");
             public static readonly string exportToAsset = L10n.Tr("Export to Sprite Library Asset");
             public static readonly string selectSaveLocation = L10n.Tr("Select save location");
             public static readonly string selectSaveLocationMessage = L10n.Tr("Select save location for the Sprite Library Asset in your project.");
@@ -29,6 +29,7 @@ namespace UnityEditor.U2D.Animation
         List<SpriteResolver> m_CachedResolvers;
 
         const string k_RootFolderName = "Assets";
+        const string k_OverrideEntriesDocsLink = "\"https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SL-component.html%23overriding-entries\"";
 
         public void OnEnable()
         {
@@ -78,7 +79,8 @@ namespace UnityEditor.U2D.Animation
 
             if (targets.Any(t => HasLocalOverride(m_CachedSerializedObjects[t])))
             {
-                EditorGUILayout.HelpBox(Style.exportToAssetInfo, MessageType.Warning);
+                EditorStyles.helpBox.richText = true;
+                EditorGUILayout.HelpBox(Style.exportToAssetInfo, MessageType.Info);
                 if (GUILayout.Button(Style.exportToAsset) && HandleExportOverrides())
                 {
                     UpdateMasterLibraryReference();

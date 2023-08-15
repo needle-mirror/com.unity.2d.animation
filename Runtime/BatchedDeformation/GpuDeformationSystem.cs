@@ -80,6 +80,13 @@ namespace UnityEngine.U2D.Animation
             m_KeywordEnabledMaterials.Clear();
         }
 
+        internal override void UpdateMaterial(SpriteSkin spriteSkin)
+        {
+            var sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
+            if (!sharedMaterial.IsKeywordEnabled(k_GpuSkinningShaderKeyword))
+                sharedMaterial.EnableKeyword(k_GpuSkinningShaderKeyword);
+        }
+
         internal override void AddSpriteSkin(SpriteSkin spriteSkin)
         {
             base.AddSpriteSkin(spriteSkin);

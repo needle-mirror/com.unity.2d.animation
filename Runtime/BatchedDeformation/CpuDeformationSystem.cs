@@ -6,6 +6,7 @@ namespace UnityEngine.U2D.Animation
 {
     internal class CpuDeformationSystem : BaseDeformationSystem
     {
+        const string k_GpuSkinningShaderKeyword = "SKINNED_SPRITE";
         JobHandle m_BoundJobHandle;
         JobHandle m_CopyJobHandle;
 
@@ -15,6 +16,13 @@ namespace UnityEngine.U2D.Animation
             
             m_BoundJobHandle.Complete();
             m_CopyJobHandle.Complete();
+        }
+
+        internal override void UpdateMaterial(SpriteSkin spriteSkin)
+        {
+            var sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
+            if (sharedMaterial.IsKeywordEnabled(k_GpuSkinningShaderKeyword))
+                sharedMaterial.DisableKeyword(k_GpuSkinningShaderKeyword);
         }
 
         internal override void Update()

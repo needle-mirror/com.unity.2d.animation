@@ -42,12 +42,10 @@ Do also note that selecting GPU deformation will cause the Sprite to be rendered
 As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/Manual/Profiler.html) and make changes according to the data, as every use case is unique. 
 
 ### Selecting CPU/GPU deformation
-1. Make sure the project is setup with the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest) package.
-    - If the project is not set up with the Universal Render Pipeline package, [see this guide](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@15.0/manual/Setup.html) on how to set it up.
-2. Verify that the **SRP Batcher** option is checked in the [Universal Render Pipeline Asset](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@15.0/manual/universalrp-asset.html).
-
-![](images/urp-pipeline-asset.png)<br/>To see the **SRP Batcher** option, check **Show Additional Properties** in the Rendering options menu.
-
-3. Open the Player settings (Edit > Project Settings > Player) and locate the **GPU Skinning** option under **Other Settings**. If this option is checked, Sprite Skins will be deformed on the GPU, and left unchecked, on the CPU. 
-
-![](images/gpu-deformation-settings.png)<br/>The GPU Skinning option in the Player Settings.
+1. Ensure your project is setup with the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest) package.
+    * If the project isn't set up with the Universal Render Pipeline package, [refer to this guide](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest?subfolder=/manual/Setup.html) on how to set it up.
+2. Ensure that you enabled the **SRP Batcher** option in the [Universal Render Pipeline Asset](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest?subfolder=/manual/universalrp-asset.html).
+    * If the **SRP Batcher** option is not visible, open the **More** (⋮) menu in the Rendering section and enable **Show Additional Properties**.
+    ![](images/urp-pipeline-asset.png)
+3. Go to **Edit** &gt; **Project Settings** &gt; **Player** &gt; **Other Settings**. In the Rendering section, set **GPU Skinning** to **GPU (Batched)**. When **GPU Skinning** is set to **GPU (Batched)** or **GPU**, Unity performs Sprite Skin deformation on the GPU instead of the CPU. 
+![](images/gpu-deformation-settings.png)
