@@ -1,5 +1,10 @@
 # Changelog
 
+## [9.0.4] - 2023-09-05
+### Fixed
+- Fixed an issue where the FK doesn't blend correctly with the IK if solver solves from the bind pose. (case DANB-482)
+- Added correct help documentation link to Sprite Library Asset. (case DANB-486)
+
 ## [9.0.3] - 2023-04-18
 ### Fixed
 - Fixed Sprite Resolver inspector not able to set category to 'No Category' if it contains the old hash value. (case DAB-395)

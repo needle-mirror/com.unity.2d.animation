@@ -12,7 +12,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu("2D Animation/Sprite Library")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteLibrary.png")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html%23sprite-library-component")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@9.0/manual/SL-component.html")]
     public class SpriteLibrary : MonoBehaviour, IPreviewable
     {
         struct CategoryEntrySprite

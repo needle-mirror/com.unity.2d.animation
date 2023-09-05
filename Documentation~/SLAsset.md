@@ -152,7 +152,7 @@ Similarly, any Labels in the same Category that have the same names are merged. 
 When a Sprite Library Asset is removed from the **Sprite Library Asset** property, any changes that were made to the current Sprite Library Asset remain.
 
 ## Sprite Resolver component
-The Sprite Resolver component is attached to each GameObject in the Prefab. The component pulls information from the [Sprite Library Asset](SLAsset.md) (assigned to the [Sprite Library component](#sprite-library-component) at the root of the Prefab). The component contains two properties - [Category](#category) and [Label](#entry) - and a visual Variant Selector that displays thumbnails of the Sprites contained in the Sprite Library Asset.
+The Sprite Resolver component is attached to each GameObject in the Prefab. The component pulls information from the [Sprite Library Asset](SL-Asset.md) (assigned to the [Sprite Library component](SL-component.md) at the root of the Prefab). The component contains two properties - [Category](#category) and [Label](#entry) - and a visual Variant Selector that displays thumbnails of the Sprites contained in the Sprite Library Asset.
 
 ![](images/2D-animation-SResolver-properties.png)<br/>Inspector view of Sprite Resolver component.
 

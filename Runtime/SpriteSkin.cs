@@ -50,7 +50,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteSkin.png")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SpriteSkin.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@9.0/manual/SpriteSkin.html")]
     public sealed class SpriteSkin : MonoBehaviour, IPreviewable, ISerializationCallbackReceiver
     {
         static class Profiling
