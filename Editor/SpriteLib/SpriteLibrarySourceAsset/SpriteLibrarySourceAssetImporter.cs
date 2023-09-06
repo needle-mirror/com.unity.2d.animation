@@ -10,6 +10,7 @@ namespace UnityEditor.U2D.Animation
     /// A ScriptedImporter that imports .spriteLib extension file to generate
     /// SpriteLibraryAsset
     /// </summary>
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@7.0/manual/SLAsset.html")]
     [ScriptedImporter(1, "spriteLib")]
     public class SpriteLibrarySourceAssetImporter : ScriptedImporter
     {

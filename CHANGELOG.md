@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.0.12] - 2023-09-06
+### Fixed
+- Fixed an issue when adding IK Manager to a Game Object sometimes throws a null reference exception. (case DANB-476)
+- Fixed an issue where the FK doesn't blend correctly with the IK if solver solves from the bind pose. (case DANB-483)
+- Added correct help documentation link to Sprite Library Asset. (case DANB-488)
+
 ## [7.0.11] - 2023-04-19
 ### Fixed
 - Fixed Sprite Resolver inspector not able to set category to 'No Category' if it contains the old hash value. (case DAB-397)

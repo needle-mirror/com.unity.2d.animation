@@ -10,7 +10,7 @@ namespace UnityEngine.U2D.Animation
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Library")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SLAsset.html%23sprite-library-component")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@7.0/manual/SLAsset.html#sprite-library-component")]
     public class SpriteLibrary : MonoBehaviour
     {
         struct CategoryEntrySprite
