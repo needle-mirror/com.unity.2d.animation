@@ -103,6 +103,8 @@ namespace UnityEngine.U2D.Animation
                 m_labelHash = ConvertIntToFloat(m_LabelHashInt);
             }
             m_PreviousSpriteKeyInt = m_SpriteKeyInt;
+            m_PreviousCategoryHash = m_CategoryHashInt;
+            m_PreviousLabelHash = m_LabelHashInt;
             ResolveSpriteToSpriteRenderer();
         }
 

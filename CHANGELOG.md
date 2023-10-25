@@ -1,5 +1,9 @@
 # Changelog
 
+## [7.0.13] - 2023-10-25
+### Fixed
+- Sprite resolves to a previous entry in the first frame after OnEnable(). (case DANB-538)
+
 ## [7.0.12] - 2023-09-06
 ### Fixed
 - Fixed an issue when adding IK Manager to a Game Object sometimes throws a null reference exception. (case DANB-476)
