@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.U2D.Animation;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
@@ -17,18 +16,16 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         VisualElement m_LabelsContainer;
         Button m_AddButton;
         Label m_InfoLabel;
-        
+
         IRenamableCollection m_ItemsCollection;
         List<string> m_SelectedCategories = new();
         List<string> m_SelectedLabels = new();
-        
+
         List<LabelData> m_LabelData = new();
 
         ViewType m_CurrentViewType;
         float m_CurrentViewSize;
         float m_AdjustedViewSize;
-
-        const string k_LabelDragItemsStr = "SpriteLibraryLabel.DragItems";
 
         const string k_ListLabelClassName = SpriteLibraryEditorWindow.editorWindowClassName + "__label-list-label";
         const string k_GridLabelClassName = SpriteLibraryEditorWindow.editorWindowClassName + "__label-grid-label";
@@ -54,21 +51,22 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_CurrentViewSize = SpriteLibraryEditorWindow.Settings.viewSize;
 
             m_LabelsContainer = this.Q<VisualElement>("LabelsContainer");
+            m_LabelsContainer.pickingMode = PickingMode.Ignore;
 
             var tabHeaderLabel = this.Q(SpriteLibraryEditorWindow.tabHeaderName).Q<Label>();
             tabHeaderLabel.text = "Labels";
             tabHeaderLabel.tooltip = TextContent.spriteLibraryLabelsTooltip;
 
-            var container = new VisualElement { name = DragAndDropHandler.overlayElementName, pickingMode = PickingMode.Ignore };
+            var container = new VisualElement { pickingMode = PickingMode.Ignore };
             Add(container);
             container.StretchToParentSize();
 
             this.AddManipulator(new ContextualMenuManipulator(ContextualManipulatorAddActions));
 
-            DragAndDropHandler.SetupDragOverlay(this, container, k_LabelDragItemsStr, IsTabActive, (spritesData, alt) =>
+            this.AddManipulator(new DragAndDropManipulator(container, IsTabActive, (spritesData, alt) =>
             {
                 m_ViewEvents.onAddDataToLabels?.Invoke(spritesData, alt, null);
-            });
+            }));
 
             controllerEvents.onModifiedLabels.AddListener(OnModifiedLabels);
             controllerEvents.onSelectedCategories.AddListener(OnSelectedCategories);
@@ -133,7 +131,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             {
                 name = "InfoLabel",
                 text = TextContent.spriteCategoryNoSelection,
-                style = { display = DisplayStyle.None }
+                style = { display = DisplayStyle.None },
+                pickingMode = PickingMode.Ignore
             };
             m_InfoLabel.AddToClassList(SpriteLibraryEditorWindow.infoLabelClassName);
             m_LabelsContainer.Add(m_InfoLabel);
@@ -209,7 +208,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         static void UnbindCollectionItem(VisualElement e, int i)
         {
-            var overlay = e.Q(DragAndDropHandler.overlayElementName);
+            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = null;
         }
 
@@ -230,12 +229,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             RegisterCallback<ValidateCommandEvent>(evt =>
             {
-                if (evt.commandName is SpriteLibraryEditorWindow.deleteCommandName or SpriteLibraryEditorWindow.renameCommandName)
+                if (evt.commandName is SpriteLibraryEditorWindow.deleteCommandName or SpriteLibraryEditorWindow.softDeleteCommandName or SpriteLibraryEditorWindow.renameCommandName)
                     evt.StopPropagation();
             });
             RegisterCallback<ExecuteCommandEvent>(evt =>
             {
-                if (evt.commandName == SpriteLibraryEditorWindow.deleteCommandName)
+                if (evt.commandName is SpriteLibraryEditorWindow.deleteCommandName or SpriteLibraryEditorWindow.softDeleteCommandName)
                 {
                     evt.StopPropagation();
                     DeleteSelected();
@@ -339,16 +338,16 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             var e = new VisualElement { name = "ListElementParent" };
 
-            var overlay = new VisualElement { name = DragAndDropHandler.overlayElementName, pickingMode = PickingMode.Ignore };
+            var overlay = new VisualElement { pickingMode = PickingMode.Ignore };
             e.Add(overlay);
             overlay.StretchToParentSize();
 
             const int spriteSizeMargin = 5;
             var spriteSizeAdjustedForMargin = m_AdjustedViewSize - spriteSizeMargin;
-            var spriteSlot = new Image { name = "ListSpriteSlot", style = { width = spriteSizeAdjustedForMargin, height = spriteSizeAdjustedForMargin } };
+            var spriteSlot = new Image { name = "ListSpriteSlot", pickingMode = PickingMode.Ignore, style = { width = spriteSizeAdjustedForMargin, height = spriteSizeAdjustedForMargin } };
             e.Add(spriteSlot);
 
-            var label = new Label { name = IRenamableCollection.labelElementName };
+            var label = new Label { name = IRenamableCollection.labelElementName, pickingMode = PickingMode.Ignore };
             label.AddToClassList(k_ListLabelClassName);
             e.Add(label);
 
@@ -356,10 +355,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             objField.RegisterValueChangedCallback(_ => SpriteReferenceChanged(objField));
             e.Add(objField);
 
-            DragAndDropHandler.SetupDragOverlay(e, overlay, k_LabelDragItemsStr, IsTabActive, (spritesData, alt) =>
+            e.AddManipulator(new DragAndDropManipulator(overlay, IsTabActive, (spritesData, alt) =>
             {
                 m_ViewEvents.onAddDataToLabels?.Invoke(spritesData, alt, overlay.userData.ToString());
-            });
+            }));
 
             return e;
         }
@@ -397,15 +396,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             objRef.SetValueWithoutNotify(labelData.sprite);
             objRef.userData = i;
 
-            objRef.RemoveFromClassList(SpriteLibraryEditorWindow.overrideClassName);
-            if (labelData.spriteOverride)
-                objRef.AddToClassList(SpriteLibraryEditorWindow.overrideClassName);
+            objRef.EnableInClassList(SpriteLibraryEditorWindow.overrideClassName, labelData.spriteOverride);
 
             e.RemoveFromClassList(SpriteLibraryEditorWindow.overrideClassName);
             if (labelData.categoryFromMain && !labelData.fromMain)
                 e.AddToClassList(SpriteLibraryEditorWindow.overrideClassName);
 
-            var overlay = e.Q(DragAndDropHandler.overlayElementName);
+            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = labelData.name;
         }
 
@@ -413,21 +410,21 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             var e = new VisualElement { name = "GridElementParent" };
 
-            var spriteSlot = new Image { name = "GridElementImage" };
+            var spriteSlot = new Image { name = "GridElementImage", pickingMode = PickingMode.Ignore };
             e.Add(spriteSlot);
 
-            var overlay = new VisualElement { name = DragAndDropHandler.overlayElementName, pickingMode = PickingMode.Ignore };
+            var overlay = new VisualElement { pickingMode = PickingMode.Ignore };
             spriteSlot.Add(overlay);
             overlay.StretchToParentSize();
 
-            var label = new Label { name = IRenamableCollection.labelElementName };
+            var label = new Label { name = IRenamableCollection.labelElementName, pickingMode = PickingMode.Ignore };
             label.AddToClassList(k_GridLabelClassName);
             e.Add(label);
 
-            DragAndDropHandler.SetupDragOverlay(e, overlay, k_LabelDragItemsStr, IsTabActive, (spritesData, alt) =>
+            e.AddManipulator(new DragAndDropManipulator(overlay, IsTabActive, (spritesData, alt) =>
             {
                 m_ViewEvents.onAddDataToLabels?.Invoke(spritesData, alt, overlay.userData.ToString());
-            });
+            }));
 
             return e;
         }
@@ -472,7 +469,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             else
                 label.RemoveFromClassList(SpriteLibraryEditorWindow.overrideClassName);
 
-            var overlay = e.Q(DragAndDropHandler.overlayElementName);
+            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = labelData.name;
         }
 
@@ -515,7 +512,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 evt.menu.AppendSeparator();
             }
 
-            var sprite = m_SelectedLabels.Any() ? m_SelectedLabels.Select(label => m_LabelData.FirstOrDefault(l => l.name == label)).FirstOrDefault(l => l.sprite != null)?.sprite : null;
+            var sprite = m_SelectedLabels.Any() ? m_SelectedLabels.Select(label => m_LabelData.FirstOrDefault(l => l.name == label)).FirstOrDefault(l => l?.sprite != null)?.sprite : null;
             evt.menu.AppendAction(TextContent.spriteLibraryShowLabel, _ => Selection.objects = new UnityEngine.Object[] { sprite }, _ => sprite != null ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Hidden);
         }
 

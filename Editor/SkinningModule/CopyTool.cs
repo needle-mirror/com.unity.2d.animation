@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEditor.U2D.Common;
 using UnityEditor.U2D.Layout;
@@ -311,16 +312,19 @@ namespace UnityEditor.U2D.Animation
                         pastedBonesToSelect.Add(newBone);
                 }
 
+                var pastedToSprites = new List<SpriteCache>();
                 foreach (var copySpriteData in skinningCopyData.copyData)
                 {
                     SpriteCache sprite = null;
                     if (selectedSprite != null && !doesCopyContainMultipleSprites)
                         sprite = selectedSprite;
                     if (sprite == null && !string.IsNullOrEmpty(copySpriteData.spriteName))
-                        sprite = FindSpriteWithName(sprites, copySpriteData.spriteName);
+                        sprite = FindSpriteWithName(sprites.Except(pastedToSprites).ToList(), copySpriteData.spriteName) ?? FindSpriteWithName(sprites, copySpriteData.spriteName);
 
                     if (sprite == null)
                         continue;
+
+                    pastedToSprites.Add(sprite);
 
                     var boneMapping = new Dictionary<string, string>();
                     if (shouldPasteBones && !replaceCharacterSkeleton)

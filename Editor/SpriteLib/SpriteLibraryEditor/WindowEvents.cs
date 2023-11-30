@@ -176,5 +176,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// Revert Labels in the collection.
         /// </summary>
         public UnityEvent<IList<string>> onRevertOverridenLabels { get; } = new();
+
+        /// <summary>
+        /// Selection lock value changed.
+        /// </summary>
+        public UnityEvent<bool> onToggleSelectionLock = new();
     }
 }

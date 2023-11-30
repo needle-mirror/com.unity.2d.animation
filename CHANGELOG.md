@@ -1,12 +1,31 @@
 # Changelog
 
-## [10.0.3] - 2023-08-15
+## [10.1.0] - 2023-11-30
+### Fixed
+- Blend weight vertex attribute is added only when sprite has bones. (case DANB-521)
+- Sprite Library editor drag and drop interactions. (case DANB-536)
+- Sprite Library editor drag and drop blocked by labels. (case DANB-560)
+- Adjust the copy-paste logic to not paste sprite mesh to the same sprite twice. (case DANB-532)
+- Sprite Library Asset is selected on creation. (case DANB-544)
+- Sprite Library Editor window not reacting to the delete command. (case DANB-547)
+
+### Added
+- SpriteSkin's Auto Rebind property can now be accessed from scripts. (case DANB-492)
+- Sprite Library public API to save an asset as a .spriteLib SpriteLibrarySourceAsset.
+- Ability to lock Sprite Library Editor window's asset selection.
+
+### Changed
+- Update samples to use UI Toolkit.
+- Moved the Sprite Library Editor window's save shortcut to the Shortcut Manager.
+
+## [10.0.3] - 2023-09-04
+
 ### Fixed
 - Fixed an issue where the FK doesn't blend correctly with the IK if solver solves from the bind pose. (case DANB-484)
 - Fixed an issue where GPU-deformed Sprites will not animated after scene reload. (case DANB-461) 
 - Added correct help documentation link to Sprite Library Asset. (case DANB-487)
 
-##Changed
+### Changed
 - Updated documentation on enabling GPU skinning.
 - Update the Sprite Library component inspector to inform users about the entry overrides documentation page.
 

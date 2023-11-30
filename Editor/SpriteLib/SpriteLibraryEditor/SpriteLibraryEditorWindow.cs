@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using UnityEditor.U2D.Common;
+using UnityEditor.ShortcutManagement;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
 using UnityEngine.UIElements;
@@ -25,6 +27,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         public const string infoLabelClassName = editorWindowClassName + "__description-text";
 
         public const string deleteCommandName = "Delete";
+        public const string softDeleteCommandName = "SoftDelete";
         public const string renameCommandName = "Rename";
 
         const string k_WindowTitle = "Sprite Library Editor";
@@ -41,14 +44,35 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         ControllerEvents m_ControllerEvents;
         ViewEvents m_ViewEvents;
 
+        InternalEditorBridge.EditorLockTracker m_LockTracker = new InternalEditorBridge.EditorLockTracker();
+        GUIStyle m_LockButtonStyle;
+
         const int k_MinWidth = 500;
         const int k_MinHeight = 300;
 
         [MenuItem("Window/2D/Sprite Library Editor")]
         public static SpriteLibraryEditorWindow OpenWindow()
         {
-            var window = GetWindow(typeof(SpriteLibraryEditorWindow));
-            return window as SpriteLibraryEditorWindow;
+            var window = GetWindow<SpriteLibraryEditorWindow>();
+            window.m_Controller.SelectAsset(SpriteLibrarySourceAssetImporter.GetAssetFromSelection());
+            return window;
+        }
+
+        public static SpriteLibraryEditorWindow OpenWindowForAsset(SpriteLibraryAsset asset = null)
+        {
+            var window = GetWindow<SpriteLibraryEditorWindow>();
+            if (asset == null)
+                asset = SpriteLibrarySourceAssetImporter.GetAssetFromSelection();
+            window.m_Controller.SelectAsset(asset);
+
+            return window;
+        }
+
+        [Shortcut("2D/Animation/Save Sprite Library", typeof(SpriteLibraryEditorWindow), KeyCode.S, ShortcutModifiers.Action)]
+        public static void SaveShortcut()
+        {
+            if (focusedWindow is SpriteLibraryEditorWindow spriteLibraryEditorWindow)
+                spriteLibraryEditorWindow.m_ViewEvents?.onSave?.Invoke();
         }
 
         void CreateGUI()
@@ -96,7 +120,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             ui.Add(m_CreateAssetElement);
 
             rootVisualElement.Add(ui);
-            RegisterSaveEvent(rootVisualElement, m_ViewEvents);
 
             m_MainWindow = ui.Q<EditorMainWindow>();
             m_MainWindow.BindElements(m_ControllerEvents, m_ViewEvents);
@@ -110,13 +133,22 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_ControllerEvents.onSelectedLibrary.AddListener(_ => UpdateVisualsAfterChange(false));
             m_ControllerEvents.onLibraryDataChanged.AddListener(UpdateVisualsAfterChange);
 
-            m_Controller.SelectAsset(SpriteLibrarySourceAssetImporter.GetAssetFromSelection());
-
             UpdateVisualsAfterChange(false);
 
             HandleEditorPrefs();
 
             EditorApplication.playModeStateChanged += PlayModeStateChanged;
+        }
+
+        void ShowButton(Rect rect)
+        {
+            m_LockButtonStyle ??= "IN LockButton";
+            EditorGUI.BeginChangeCheck();
+            m_LockTracker.ShowButtonAtRect(rect, m_LockButtonStyle);
+            if (!EditorGUI.EndChangeCheck())
+                return;
+
+            m_ViewEvents.onToggleSelectionLock?.Invoke(m_LockTracker.IsLocked());
         }
 
         void PlayModeStateChanged(PlayModeStateChange newState)
@@ -184,20 +216,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             var isEditingAsset = m_Controller.GetSelectedAsset() != null;
             m_EditorWindowRoot.style.display = isEditingAsset ? DisplayStyle.Flex : DisplayStyle.None;
             m_CreateAssetElement.style.display = isEditingAsset ? DisplayStyle.None : DisplayStyle.Flex;
-        }
-
-        static void RegisterSaveEvent(VisualElement element, ViewEvents viewEvents)
-        {
-            element.focusable = true;
-            element.RegisterCallback<KeyDownEvent>(evt =>
-            {
-                if (Application.platform != RuntimePlatform.OSXEditor && evt.keyCode == KeyCode.S && evt.ctrlKey ||
-                    Application.platform == RuntimePlatform.OSXEditor && evt.keyCode == KeyCode.S && evt.commandKey)
-                {
-                    viewEvents.onSave?.Invoke();
-                    evt.StopPropagation();
-                }
-            });
         }
 
         void HandleCreateNewAsset()

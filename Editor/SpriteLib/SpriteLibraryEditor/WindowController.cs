@@ -79,6 +79,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         const string k_DefaultCategoryName = "New Category";
 
         bool m_AutoSave;
+        bool m_SelectionLocked;
 
         public WindowController(ISpriteLibraryEditorWindow window, SpriteLibraryEditorModel model, ControllerEvents controllerEvents, ViewEvents viewEvents)
         {
@@ -155,6 +156,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_ViewEvents.onSave.AddListener(OnSave);
             m_ViewEvents.onRevert.AddListener(OnRevert);
             m_ViewEvents.onToggleAutoSave.AddListener(ToggleAutoSave);
+            m_ViewEvents.onToggleSelectionLock.AddListener(ToggleSelectionLock);
 
             m_ViewEvents.onViewSizeUpdate.AddListener(ChangeViewSize);
             m_ViewEvents.onViewTypeUpdate.AddListener(ChangeViewType);
@@ -289,7 +291,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void SelectionChanged()
         {
-            SelectAsset(SpriteLibrarySourceAssetImporter.GetAssetFromSelection());
+            if (!m_SelectionLocked)
+                SelectAsset(SpriteLibrarySourceAssetImporter.GetAssetFromSelection());
         }
 
         void RefreshView()
@@ -570,7 +573,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void SetLabelSprite(string labelName, Sprite newSprite)
         {
-            if (!hasSelectedLibrary || !m_Model.hasSelectedCategories || !m_Model.hasSelectedLabels)
+            if (!hasSelectedLibrary || !m_Model.hasSelectedCategories)
                 return;
 
             var labelData = GetLabelData(labelName);
@@ -608,6 +611,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             if (m_AutoSave)
                 m_Window.SaveChanges();
+        }
+
+        void ToggleSelectionLock(bool isSelectionLocked)
+        {
+            m_SelectionLocked = isSelectionLocked;
+
+            SelectionChanged();
         }
 
         void AddDataToCategories(IList<DragAndDropData> spritesData, bool alt, string category)

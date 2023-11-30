@@ -15,7 +15,7 @@ namespace UnityEngine.U2D.Animation
 
     [Serializable]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
-    internal class SpriteCategoryEntry : INameHash
+    internal class SpriteCategoryEntry : INameHash, ISpriteLibraryLabel
     {
         [SerializeField]
         string m_Name;
@@ -48,7 +48,7 @@ namespace UnityEngine.U2D.Animation
 
     [Serializable]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
-    internal class SpriteLibCategory : INameHash
+    internal class SpriteLibCategory : INameHash, ISpriteLibraryCategory
     {
         [SerializeField]
         string m_Name;
@@ -74,6 +74,8 @@ namespace UnityEngine.U2D.Animation
             get => m_CategoryList;
             set => m_CategoryList = value;
         }
+
+        public IEnumerable<ISpriteLibraryLabel> labels => m_CategoryList;
 
         public void UpdateHash()
         {

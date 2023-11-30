@@ -6,7 +6,7 @@ namespace UnityEngine.U2D.Animation
     {
         public const string defaultName = "New Sprite Library Asset";
         public const string extension = ".spriteLib";
-        
+
         [SerializeField]
         List<SpriteLibCategoryOverride> m_Library = new();
 
@@ -73,7 +73,7 @@ namespace UnityEngine.U2D.Animation
         {
             m_Library.Clear();
         }
-        
+
         public void RemoveCategory(int indexToRemove)
         {
             if (indexToRemove >= 0 && indexToRemove < m_Library.Count)
