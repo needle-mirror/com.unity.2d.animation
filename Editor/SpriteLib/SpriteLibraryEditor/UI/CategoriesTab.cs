@@ -35,8 +35,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         const string k_ListTextClassName = SpriteLibraryEditorWindow.editorWindowClassName + "__category-list-text";
         const string k_ListItemClassName = SpriteLibraryEditorWindow.editorWindowClassName + "__category-list-item";
 
-        const string k_CategoryDragItemsStr = "SpriteLibraryCategory.DragItems";
-
         const int k_FoldoutHeight = 25;
         const int k_ListItemHeight = 20;
 
@@ -55,22 +53,24 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             tabHeaderLabel.text = "Categories";
             tabHeaderLabel.tooltip = TextContent.spriteLibraryCategoriesTooltip;
 
-            var containerOverlay = new VisualElement { name = DragAndDropHandler.overlayElementName, pickingMode = PickingMode.Ignore };
+            var containerOverlay = new VisualElement { pickingMode = PickingMode.Ignore };
             Add(containerOverlay);
             containerOverlay.StretchToParentSize();
 
             this.AddManipulator(new ContextualMenuManipulator(ContextualManipulatorAddActions));
 
-            DragAndDropHandler.SetupDragOverlay(this, containerOverlay, k_CategoryDragItemsStr, CanDragStart, (spritesData, alt) =>
+            this.AddManipulator(new DragAndDropManipulator(containerOverlay, CanDragStart, (spritesData, alt) =>
             {
                 m_ViewEvents.onAddDataToCategories?.Invoke(spritesData, alt, null);
-            });
+            }));
 
             controllerEvents.onModifiedCategories.AddListener(OnModifiedCategories);
             controllerEvents.onSelectedCategories.AddListener(SetSelection);
             controllerEvents.onSelectedLibrary.AddListener(OnLibraryAssetSelected);
 
             m_CategoryListsScrollContainer = this.Q<ScrollView>("CategoryListsScrollView");
+            m_CategoryListsScrollContainer.pickingMode = PickingMode.Ignore;
+            m_CategoryListsScrollContainer.Q<VisualElement>("unity-content-and-vertical-scroll-container").pickingMode = PickingMode.Ignore;
             m_CategoryListsContainer = new VisualElement { name = "CategoryListsContainer", pickingMode = PickingMode.Ignore };
             m_CategoryListsScrollContainer.Add(m_CategoryListsContainer);
 
@@ -136,7 +136,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 text.RegisterCallback<FocusOutEvent>(OnTextFocusOut);
             }
 
-            var overlay = e.Q(DragAndDropHandler.overlayElementName);
+            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = categoryName;
         }
 
@@ -150,9 +150,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             var e = new VisualElement { name = "LocalItemParent" };
 
-            var label = new Label { name = IRenamableCollection.labelElementName, style = { display = DisplayStyle.None } };
+            var label = new Label { name = IRenamableCollection.labelElementName, pickingMode = PickingMode.Ignore, style = { display = DisplayStyle.None } };
 
-            var overlay = new VisualElement { name = DragAndDropHandler.overlayElementName };
+            var overlay = new VisualElement { pickingMode = PickingMode.Ignore };
             e.Add(overlay);
             overlay.StretchToParentSize();
 
@@ -161,10 +161,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             e.Add(label);
 
-            DragAndDropHandler.SetupDragOverlay(e, overlay, k_CategoryDragItemsStr, CanDragStart, (spritesData, alt) =>
+            e.AddManipulator(new DragAndDropManipulator(overlay, CanDragStart, (spritesData, alt) =>
             {
                 m_ViewEvents.onAddDataToCategories?.Invoke(spritesData, alt, overlay.userData.ToString());
-            });
+            }));
 
             return e;
         }
@@ -191,22 +191,22 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         VisualElement OnMakeInheritedItem()
         {
-            var e = new VisualElement {name = "InheritedItemParent"};
+            var e = new VisualElement { name = "InheritedItemParent" };
 
-            var label = new Label();
+            var label = new Label() { pickingMode = PickingMode.Ignore };
             label.AddToClassList(k_ListTextClassName);
             e.AddToClassList(k_ListItemClassName);
 
-            var overlay = new VisualElement { name = DragAndDropHandler.overlayElementName };
+            var overlay = new VisualElement { name = DragAndDropManipulator.overlayClassName, pickingMode = PickingMode.Ignore };
             e.Add(overlay);
             overlay.StretchToParentSize();
 
             e.Add(label);
 
-            DragAndDropHandler.SetupDragOverlay(e, overlay, k_CategoryDragItemsStr, CanDragStart, (spritesData, alt) =>
+            e.AddManipulator(new DragAndDropManipulator(overlay, CanDragStart, (spritesData, alt) =>
             {
                 m_ViewEvents.onAddDataToCategories?.Invoke(spritesData, alt, overlay.userData.ToString());
-            });
+            }));
 
             return e;
         }
@@ -217,18 +217,15 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             var category = m_InheritedCategoriesData[i];
             label.text = category.name;
 
-            if (category.isOverride)
-                e.AddToClassList(SpriteLibraryEditorWindow.overrideClassName);
-            else
-                e.RemoveFromClassList(SpriteLibraryEditorWindow.overrideClassName);
+            e.EnableInClassList(SpriteLibraryEditorWindow.overrideClassName, category.isOverride);
 
-            var overlay = e.Q(DragAndDropHandler.overlayElementName);
+            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = category.name;
         }
 
         static void OnUnbindItem(VisualElement e, int i)
         {
-            var overlay = e.Q(DragAndDropHandler.overlayElementName);
+            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = null;
 
             e.RemoveFromClassList(SpriteLibraryEditorWindow.overrideClassName);
@@ -263,7 +260,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             {
                 name = "InfoLabel",
                 text = TextContent.spriteCategoryColumnEmpty,
-                style = { display = DisplayStyle.None }
+                style = { display = DisplayStyle.None },
+                pickingMode = PickingMode.Ignore
             };
             m_InfoLabel.AddToClassList(SpriteLibraryEditorWindow.infoLabelClassName);
             Add(m_InfoLabel);

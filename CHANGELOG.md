@@ -1,5 +1,18 @@
 # Changelog
 
+## [9.1.0] - 2023-12-14
+### Fixed
+- Blend weight vertex attribute is added only when sprite has bones. (case DANB-520)
+- Sprite Library editor drag and drop interactions. (case DANB-535)
+- Sprite Library editor drag and drop blocked by labels. (case DANB-558)
+- Adjust the copy-paste logic to not paste sprite mesh to the same sprite twice. (case DANB-530)
+- Sprite Library Asset is selected on creation. (case DANB-542)
+- Sprite Resolver previews not visible after editor regained focus. (case DANB-564)
+
+### Added
+- SpriteSkin's Auto Rebind property can now be accessed from scripts. (case DANB-490)
+- Sprite Library public API to save an asset as a .spriteLib SpriteLibrarySourceAsset.
+
 ## [9.0.4] - 2023-09-05
 ### Fixed
 - Fixed an issue where the FK doesn't blend correctly with the IK if solver solves from the bind pose. (case DANB-482)

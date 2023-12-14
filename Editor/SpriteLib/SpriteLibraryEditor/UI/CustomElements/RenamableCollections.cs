@@ -46,6 +46,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             name = "RenamableCollection";
             reorderable = false;
 
+            pickingMode = PickingMode.Ignore;
+
+            var scrollView = this.Q<ScrollView>();
+            scrollView.pickingMode = PickingMode.Ignore;
+            scrollView.contentContainer.pickingMode = PickingMode.Ignore;
+            scrollView.contentViewport.pickingMode = PickingMode.Ignore;
+            scrollView.contentViewport.parent.pickingMode = PickingMode.Ignore;
+
             itemsChosen += OnItemChosen;
 
             RegisterCallback<KeyDownEvent>(OnCollectionKeyDown);
@@ -154,6 +162,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             name = "RenamableCollection";
 
             onItemsChosen += OnItemChosen;
+
+            pickingMode = PickingMode.Ignore;
+
+            scrollView.pickingMode = PickingMode.Ignore;
+            scrollView.contentContainer.pickingMode = PickingMode.Ignore;
+            scrollView.contentViewport.pickingMode = PickingMode.Ignore;
+            scrollView.contentViewport.parent.pickingMode = PickingMode.Ignore;
 
             scrollView.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
             scrollView.verticalScrollerVisibility = ScrollerVisibility.Auto;

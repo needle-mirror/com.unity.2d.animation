@@ -570,7 +570,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void SetLabelSprite(string labelName, Sprite newSprite)
         {
-            if (!hasSelectedLibrary || !m_Model.hasSelectedCategories || !m_Model.hasSelectedLabels)
+            if (!hasSelectedLibrary || !m_Model.hasSelectedCategories)
                 return;
 
             var labelData = GetLabelData(labelName);

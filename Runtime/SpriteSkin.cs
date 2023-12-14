@@ -110,7 +110,11 @@ namespace UnityEngine.U2D.Animation
         internal SpriteRenderer spriteRenderer => m_SpriteRenderer;
         internal NativeCustomSlice<BoneWeight> spriteBoneWeights => m_SpriteBoneWeights;
 
-        internal bool autoRebind
+        /// <summary>
+        /// Get and set the Auto Rebind property.
+        /// When enabled, Sprite Skin attempts to automatically locate the Transform that is needed for the current Sprite assigned to the Sprite Renderer.
+        /// </summary>
+        public bool autoRebind
         {
             get => m_AutoRebind;
             set

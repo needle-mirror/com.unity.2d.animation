@@ -52,6 +52,13 @@ namespace UnityEditor.U2D.Animation
             m_SpriteSkin = (target as SpriteResolver).GetComponent<SpriteSkin>();
             UpdateSpriteLibrary();
             spriteResolver.onDeserializedCallback += SpriteResolverDeserializedCallback;
+
+            EditorApplication.focusChanged += OnEditorFocusChanged;
+        }
+
+        void OnDisable()
+        {
+            EditorApplication.focusChanged -= OnEditorFocusChanged;
         }
 
         void SpriteResolverDeserializedCallback()
@@ -61,10 +68,16 @@ namespace UnityEditor.U2D.Animation
                 m_ReInitOnNextGUI = true;
             }
         }
-        
+
         SpriteResolver spriteResolver => target as SpriteResolver;
 
         bool IsSpriteHashAssigned => m_SpriteHash.intValue != 0;
+
+        void OnEditorFocusChanged(bool focused)
+        {
+            if (focused)
+                m_ReInitOnNextGUI = true;
+        }
 
         void GetCategoryAndLabelStringValue(out string categoryName, out string labelName)
         {
@@ -75,13 +88,14 @@ namespace UnityEditor.U2D.Animation
             {
                 var entryHash = m_SpriteHash.intValue;
                 spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
-                
+
                 if (!IsSpriteHashAssigned && (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName)))
                 {
                     m_SpriteHash.intValue = InternalEngineBridge.ConvertFloatToInt(m_SpriteKey.floatValue);
                     entryHash = m_SpriteHash.intValue;
                     spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
                 }
+
                 if (!IsSpriteHashAssigned && (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName)))
                 {
                     var labelHash = InternalEngineBridge.ConvertFloatToInt(m_LabelHash.floatValue);
@@ -96,21 +110,21 @@ namespace UnityEditor.U2D.Animation
         void UpdateSpriteLibrary()
         {
             m_SpriteLibSelection.Clear();
-            
+
             var spriteLib = spriteResolver.spriteLibrary;
             string categoryName = "", labelName = "";
             if (spriteLib != null)
             {
                 GetCategoryAndLabelStringValue(out categoryName, out labelName);
                 var enumerator = spriteLib.categoryNames;
-                foreach(var category in enumerator)
+                foreach (var category in enumerator)
                 {
                     if (!m_SpriteLibSelection.ContainsKey(category))
                     {
                         var entries = spriteLib.GetEntryNames(category);
                         if (entries == null)
                             entries = new string[0];
-                        
+
                         var selectionList = new SpriteCategorySelectionList()
                         {
                             entryNames = entries.ToArray(),
@@ -122,10 +136,11 @@ namespace UnityEditor.U2D.Animation
                         };
 
                         m_SpriteLibSelection.Add(category, selectionList);
-                        
+
                     }
                 }
             }
+
             m_CategorySelection = new string[1 + m_SpriteLibSelection.Keys.Count];
             m_CategorySelection[0] = Style.noCategory.text;
             for (var i = 0; i < m_SpriteLibSelection.Keys.Count; ++i)
@@ -135,6 +150,7 @@ namespace UnityEditor.U2D.Animation
                 if (selection.categoryName == categoryName)
                     m_CategorySelectionIndex = i + 1;
             }
+
             ValidateCategorySelectionIndexValue();
             if (m_CategorySelectionIndex > 0)
             {
@@ -145,7 +161,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     var labelIndex = Array.FindIndex(m_SpriteLibSelection[categoryName].entryNames,
                         x => x == labelName);
-                    
+
                     if (labelIndex >= 0 ||
                         m_SpriteLibSelection[categoryName].entryNames.Length <= m_LabelSelectionIndex)
                     {
@@ -157,6 +173,7 @@ namespace UnityEditor.U2D.Animation
             {
                 m_SpriteSelectorWidget.UpdateContents(new Sprite[0]);
             }
+
             spriteResolver.spriteLibChanged = false;
         }
 
@@ -182,11 +199,11 @@ namespace UnityEditor.U2D.Animation
 
             m_CategorySelectionIndex = Array.FindIndex(m_CategorySelection, x => x == currentCategoryValue);
             ValidateCategorySelectionIndexValue();
-            
+
             EditorGUI.BeginChangeCheck();
             using (new EditorGUI.DisabledScope(m_CategorySelection.Length <= 1))
                 m_CategorySelectionIndex = EditorGUILayout.Popup(Style.categoryLabel, m_CategorySelectionIndex, m_CategorySelection);
-            
+
             SpriteCategorySelectionList selection;
             m_SpriteLibSelection.TryGetValue(m_CategorySelection[m_CategorySelectionIndex], out selection);
 
@@ -199,16 +216,16 @@ namespace UnityEditor.U2D.Animation
             {
                 if (entryNames.Length == 0)
                 {
-                    m_LabelSelectionIndex = EditorGUILayout.Popup(Style.labelLabel, 0, new [] {Style.categoryIsEmptyLabel});
+                    m_LabelSelectionIndex = EditorGUILayout.Popup(Style.labelLabel, 0, new[] { Style.categoryIsEmptyLabel });
                 }
                 else
                 {
                     m_LabelSelectionIndex = EditorGUILayout.Popup(Style.labelLabel, m_LabelSelectionIndex, entryNames);
                 }
             }
-                
+
             m_LabelSelectionIndex = m_SpriteSelectorWidget.ShowGUI(m_LabelSelectionIndex);
-            
+
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -256,7 +273,7 @@ namespace UnityEditor.U2D.Animation
             if (m_SpriteSelectorWidget.NeedUpdatePreview())
                 this.Repaint();
         }
-        
+
         void ApplyModifiedProperty()
         {
             m_IgnoreNextDeserializeCallback = true;

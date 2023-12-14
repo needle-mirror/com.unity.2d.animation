@@ -4,7 +4,7 @@
     <ui:Template name="EditorMainWindow" src="EditorMainWindow.uxml" />
     <ui:Template name="EditorBottomToolbar" src="EditorBottomToolbar.uxml" />
     <ui:VisualElement name="EditorWindowRoot" >
-        <ui:Instance template="EditorTopToolbar" name="EditorTopToolbar" />
+        <ui:Instance template="EditorTopToolbar" name="EditorTopToolbar" pickingMode="Ignore" />
         <ui:Instance template="EditorMainWindow" name="EditorMainWindow" />
         <ui:Instance template="EditorBottomToolbar" name="EditorBottomToolbar" />
     </ui:VisualElement>

@@ -150,6 +150,8 @@ namespace UnityEditor.U2D.Animation
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 
             m_MainLibrary = string.Empty;
+
+            ProjectWindowUtil.ShowCreatedAsset(AssetDatabase.LoadAssetAtPath<Object>(pathName));
         }
 
         [MenuItem("Assets/Create/2D/Sprite Library Asset", priority = k_SpriteLibraryAssetMenuPriority)]
