@@ -83,7 +83,11 @@ namespace UnityEngine.U2D.Animation
             set { m_BatchSkinning = value; }
         }
 
-        internal bool autoRebind
+        /// <summary>
+        /// Get and set the Auto Rebind property.
+        /// When enabled, Sprite Skin attempts to automatically locate the Transform that is needed for the current Sprite assigned to the Sprite Renderer.
+        /// </summary>
+        public bool autoRebind
         {
             get => m_AutoRebind;
             set

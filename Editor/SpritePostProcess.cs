@@ -195,11 +195,12 @@ namespace UnityEditor.U2D.Animation
                 if (vertices.Length > 2)
                     indices = spriteMeshDataProvider.GetIndices(guid);
 
-                if (indices != null && indices.Length > 2 && vertices.Length > 2 )
+                var spriteBone = boneDataProvider.GetBones(guid);
+                var hasBones = spriteBone is { Count: > 0 };
+
+                if (indices != null && indices.Length > 2 && vertices.Length > 2)
                 {
                     var spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
-                    var spriteBone = boneDataProvider.GetBones(guid);
-                    var hasBones = spriteBone != null && spriteBone.Count > 0;
                     var hasInvalidWeights = false;
 
                     var vertexArray = new NativeArray<Vector3>(vertices.Length, Allocator.Temp);
@@ -226,7 +227,8 @@ namespace UnityEditor.U2D.Animation
                     sprite.SetVertexCount(vertices.Length);
                     sprite.SetVertexAttribute<Vector3>(VertexAttribute.Position, vertexArray);
                     sprite.SetIndices(indicesArray);
-                    sprite.SetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight, boneWeightArray);
+                    if (hasBones)
+                        sprite.SetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight, boneWeightArray);
                     vertexArray.Dispose();
                     boneWeightArray.Dispose();
                     indicesArray.Dispose();
@@ -248,13 +250,16 @@ namespace UnityEditor.U2D.Animation
                 }
                 else
                 {
-                    var boneWeightArray = new NativeArray<BoneWeight>(sprite.GetVertexCount(), Allocator.Temp);
-                    var defaultBoneWeight = new BoneWeight() { weight0 = 1f };
+                    if (hasBones)
+                    {
+                        var boneWeightArray = new NativeArray<BoneWeight>(sprite.GetVertexCount(), Allocator.Temp);
+                        var defaultBoneWeight = new BoneWeight() { weight0 = 1f };
 
-                    for (var i = 0; i < boneWeightArray.Length; ++i)
-                        boneWeightArray[i] = defaultBoneWeight;
+                        for (var i = 0; i < boneWeightArray.Length; ++i)
+                            boneWeightArray[i] = defaultBoneWeight;
 
-                    sprite.SetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight, boneWeightArray);
+                        sprite.SetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight, boneWeightArray);
+                    }
                 }
             }
 

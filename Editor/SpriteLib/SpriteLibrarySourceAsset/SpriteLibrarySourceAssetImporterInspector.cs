@@ -166,6 +166,7 @@ namespace UnityEditor.U2D.Animation
             var asset = CreateInstance<SpriteLibrarySourceAsset>();
             UnityEditorInternal.InternalEditorUtility.SaveToSerializedFileAndForget(new Object[] { asset }, pathName, true);
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            ProjectWindowUtil.ShowCreatedAsset(AssetDatabase.LoadAssetAtPath<Object>(pathName));
         }
         
         [MenuItem("Assets/Create/2D/Sprite Library Asset", priority = k_SpriteLibraryAssetMenuPriority)]

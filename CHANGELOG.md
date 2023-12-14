@@ -1,5 +1,16 @@
 # Changelog
 
+## [7.1.0] - 2023-12-14
+### Fixed
+- Adjust the copy-paste logic to not paste sprite mesh to the same sprite twice. (case DANB-531)
+- Blend weight vertex attribute is added only when sprite has bones. (case DANB-519)
+- Sprite Library Asset is selected on creation. (case DANB-543)
+- SpriteSkin's Auto Rebind property can now be accessed from scripts. (case DANB-491)
+
+### Added
+- SpriteSkin's Auto Rebind property can now be accessed from scripts. (case DANB-491)
+- Sprite Library public API to save an asset as a .spriteLib SpriteLibrarySourceAsset.
+
 ## [7.0.13] - 2023-10-25
 ### Fixed
 - Sprite resolves to a previous entry in the first frame after OnEnable(). (case DANB-538)
