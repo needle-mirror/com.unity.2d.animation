@@ -1,6 +1,16 @@
 # Changelog
 
+## [10.1.1] - 2024-02-06
+### Added
+- Support for automatic weight generation in the Skinning Editor for ARM64 editors. (case DANB-550)
+
+### Fixed
+- Sprite Resolver previews not visible after editor regained focus. (case DANB-565)
+- Sprite Skin is not deformed in the Editor after exiting the playmode if the domain reload is disabled. (case DANB-573)
+
 ## [10.1.0] - 2023-11-30
+
+
 ### Fixed
 - Blend weight vertex attribute is added only when sprite has bones. (case DANB-521)
 - Sprite Library editor drag and drop interactions. (case DANB-536)

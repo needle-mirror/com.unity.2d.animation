@@ -91,6 +91,8 @@ namespace UnityEngine.U2D.Animation
 
         void UpdateTransformIndex()
         {
+            ValidateTransformAccessArray();
+
             if (!m_Dirty)
                 return;
             m_Dirty = false;
@@ -113,6 +115,21 @@ namespace UnityEngine.U2D.Animation
                 }
             }
             Profiler.EndSample();
+        }
+
+        void ValidateTransformAccessArray()
+        {
+            if (m_TransformAccessArray.isCreated)
+            {
+                for (var i = 0; i < m_TransformAccessArray.length; i++)
+                {
+                    if (m_TransformAccessArray[i] == null)
+                    {
+                        m_Dirty = true;
+                        return;
+                    }
+                }
+            }
         }
 
         public JobHandle StartLocalToWorldJob()
