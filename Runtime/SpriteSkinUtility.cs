@@ -42,10 +42,11 @@ namespace UnityEngine.U2D.Animation
     {
         internal static SpriteSkinValidationResult Validate(this SpriteSkin spriteSkin)
         {
-            if (spriteSkin.spriteRenderer.sprite == null)
+            var sprite = spriteSkin.sprite;
+            if (sprite == null)
                 return SpriteSkinValidationResult.SpriteNotFound;
 
-            var bindPoses = spriteSkin.spriteRenderer.sprite.GetBindPoses();
+            var bindPoses = sprite.GetBindPoses();
             var bindPoseCount = bindPoses.Length;
 
             if (bindPoseCount == 0)

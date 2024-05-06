@@ -684,9 +684,44 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             return new List<LabelData>();
         }
 
+        public bool CompareLabels(IList<string> labelsToCompare)
+        {
+            if (labelsToCompare == null)
+                return false;
+
+            var category = GetSelectedCategory();
+            if (category == null || category.entryOverrideCount != labelsToCompare.Count)
+                return false;
+
+            for (var i = 0; i < labelsToCompare.Count; i++)
+            {
+                if (category.overrideEntries[i].name != labelsToCompare[i])
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool CompareCategories(IList<string> categoriesToCompare)
+        {
+            if (categoriesToCompare == null)
+                return false;
+
+            if (m_CurrentLibrary.Count != categoriesToCompare.Count)
+                return false;
+
+            for (var i = 0; i < categoriesToCompare.Count; i++)
+            {
+                if (m_CurrentLibrary[i].name != categoriesToCompare[i])
+                    return false;
+            }
+
+            return true;
+        }
+
         void RenameDuplicatedCategories()
         {
-            if(m_CurrentLibrary != null)
+            if (m_CurrentLibrary != null)
                 SpriteLibraryAsset.RenameDuplicate(m_CurrentLibrary, (_, _) => { });
         }
 

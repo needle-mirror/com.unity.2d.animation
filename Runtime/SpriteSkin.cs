@@ -106,9 +106,14 @@ namespace UnityEngine.U2D.Animation
         
         Dictionary<int, List<TransformData>> m_HierarchyCache = new Dictionary<int, List<TransformData>>();
         
-        internal Sprite sprite => spriteRenderer.sprite;
+        internal Sprite sprite => m_SpriteRenderer != null ? m_SpriteRenderer.sprite : null;
         internal SpriteRenderer spriteRenderer => m_SpriteRenderer;
         internal NativeCustomSlice<BoneWeight> spriteBoneWeights => m_SpriteBoneWeights;
+
+        /// <summary>
+        /// Gets the index of the SpriteSkin in the SpriteSkinComposite.
+        /// </summary>
+        internal int dataIndex => m_DataIndex;
 
         /// <summary>
         /// Get and set the Auto Rebind property.
@@ -120,8 +125,11 @@ namespace UnityEngine.U2D.Animation
             set
             {
                 m_AutoRebind = value;
-                CacheHierarchy();
-                CacheCurrentSprite(m_AutoRebind);
+                if (isActiveAndEnabled)
+                {
+                    CacheHierarchy();
+                    CacheCurrentSprite(m_AutoRebind);
+                }
             }
         }
         
@@ -137,7 +145,8 @@ namespace UnityEngine.U2D.Animation
             {
                 m_BoneTransforms = value;
                 CacheValidFlag();
-                OnBoneTransformChanged();
+                if(isActiveAndEnabled)
+                    OnBoneTransformChanged();
             }
         }
 
@@ -152,8 +161,11 @@ namespace UnityEngine.U2D.Animation
             {
                 m_RootBone = value;
                 CacheValidFlag();
-                CacheHierarchy();
-                OnRootBoneTransformChanged();
+                if (isActiveAndEnabled)
+                {
+                    CacheHierarchy();
+                    OnRootBoneTransformChanged();
+                }
             }
         }     
         
@@ -232,14 +244,12 @@ namespace UnityEngine.U2D.Animation
         
         void OnBoneTransformChanged()
         {
-            if (enabled)
-                CacheBoneTransformIds(true);
+            CacheBoneTransformIds(true);
         }
 
         void OnRootBoneTransformChanged()
         {
-            if (enabled)
-                CacheBoneTransformIds(true);
+            CacheBoneTransformIds(true);
         }
 
         /// <summary>
@@ -536,7 +546,7 @@ namespace UnityEngine.U2D.Animation
         void Deform()
         {
             CacheCurrentSprite(m_AutoRebind);
-            if (isValid && this.enabled && (this.alwaysUpdate || this.spriteRenderer.isVisible))
+            if (isValid && isActiveAndEnabled && (this.alwaysUpdate || this.spriteRenderer.isVisible))
             {
                 var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
                 var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
@@ -645,8 +655,9 @@ namespace UnityEngine.U2D.Animation
                 m_HierarchyCache.Clear();
                 if (rootBone == null || !m_AutoRebind)
                     return;
-                
-                m_HierarchyCache.EnsureCapacity(rootBone.hierarchyCount);
+
+                var boneCount = CountChildren(rootBone);
+                m_HierarchyCache.EnsureCapacity(boneCount + 1);
                 CacheChildren(rootBone, m_HierarchyCache);
 
                 foreach (var entry in m_HierarchyCache)
@@ -799,11 +810,15 @@ namespace UnityEngine.U2D.Animation
 
         internal void DeactivateSkinning()
         {
-            var currentSprite = spriteRenderer.sprite;
-            if (currentSprite != null)
-                InternalEngineBridge.SetLocalAABB(spriteRenderer, currentSprite.bounds);
+            if (m_SpriteRenderer != null)
+            {
+                var currentSprite = m_SpriteRenderer.sprite;
+                if (currentSprite != null)
+                    InternalEngineBridge.SetLocalAABB(m_SpriteRenderer, currentSprite.bounds);
 
-            spriteRenderer.DeactivateDeformableBuffer();
+                m_SpriteRenderer.DeactivateDeformableBuffer();
+            }
+
             m_TransformsHash = 0;
         }
 
@@ -811,6 +826,16 @@ namespace UnityEngine.U2D.Animation
         {
             m_CurrentDeformSprite = 0;
             CacheValidFlag();
+        }
+
+        static int CountChildren(Transform transform)
+        {
+            var childCount = transform.childCount;
+            var count = childCount;
+            for (var i = 0; i < childCount; ++i)
+                count += CountChildren(transform.GetChild(i));
+
+            return count;
         }
     }
 }

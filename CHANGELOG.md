@@ -1,5 +1,15 @@
 # Changelog
 
+## [9.1.1] - 2024-05-06
+### Fixed
+- Fixed the the memory leak in the SpriteSkin component. (case DANB-602)
+- Fixed the IK bones flipped at certain angels. (case DANB-583)
+- Sprite Library's labels and categories cannot be reordered. (case DANB-592)
+- Fixed the incorrect transform cache capacity in the SpriteSkin component. (case DANB-614)
+
+### Added
+- Added safety checks to SpriteSkin's APIs.
+
 ## [9.1.0] - 2023-12-14
 ### Fixed
 - Blend weight vertex attribute is added only when sprite has bones. (case DANB-520)

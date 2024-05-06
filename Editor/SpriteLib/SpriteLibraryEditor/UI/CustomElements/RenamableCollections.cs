@@ -55,18 +55,17 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             scrollView.contentViewport.parent.pickingMode = PickingMode.Ignore;
 
             itemsChosen += OnItemChosen;
+            itemIndexChanged += OnItemIndexChanged;
 
             RegisterCallback<KeyDownEvent>(OnCollectionKeyDown);
-            RegisterCallback<DragPerformEvent>(OnDragPerform);
 
             this.StretchToParentSize();
             fixedItemHeight = 20;
         }
 
-        void OnDragPerform(DragPerformEvent evt)
+        void OnItemIndexChanged(int oldIndex, int newIndex)
         {
-            if (DragAndDrop.GetGenericData("user_data") != null)
-                schedule.Execute(() => onItemsReordered?.Invoke());
+            onItemsReordered?.Invoke();
         }
 
         void OnCollectionKeyDown(KeyDownEvent evt)

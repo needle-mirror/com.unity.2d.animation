@@ -675,17 +675,20 @@ namespace UnityEngine.U2D.Animation
 
                         // Check if it is not the last SpriteSkin
                         if (index < m_SpriteSkins.Count - 1)
-                        {
                             m_SpriteSkins.RemoveAtSwapBack(index);
-                            CopyToSpriteSkinData(index);
-                        }
                         else
                             m_SpriteSkins.RemoveAt(index);
                     }
                 }
-                
+
+                for (var i = 0; i < m_SpriteSkins.Count; i++)
+                {
+                    if (i != m_SpriteSkins[i].dataIndex)
+                        CopyToSpriteSkinData(i);
+                }
+
                 Array.Resize(ref m_SpriteRenderers, updatedCount);
-                ResizeAndCopyArrays(updatedCount);             
+                ResizeAndCopyArrays(updatedCount);
 
                 m_TransformIdsToRemove.Clear();
                 m_SpriteSkinsToRemove.Clear();
