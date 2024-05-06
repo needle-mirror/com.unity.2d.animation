@@ -75,11 +75,11 @@
     background-color: var(--unity-colors-inspector_titlebar-background);
 }
 
-.spritelib-grid-view__item--selected #GridElementImage  {
+.unity2d-grid-view__item--selected #GridElementImage  {
     background-color: var(--unity-colors-inspector_titlebar-background-hover);
 }
 
-.spritelib-grid-view__item--selected #DragOverlay  {
+.unity2d-grid-view__item--selected #DragOverlay  {
     border-width: 2px;
     border-color: var(--unity-colors-highlight-background);
 }
@@ -93,7 +93,7 @@
     padding-right: 5px;
 }
 
-.spritelib-grid-view__item--selected .sprite-library-editor-window__label-grid-label {
+.unity2d-grid-view__item--selected .sprite-library-editor-window__label-grid-label {
     color: var(--unity-colors-highlight-text-inactive);
     background-color: var(--unity-colors-highlight-background);
     border-radius: 5px;

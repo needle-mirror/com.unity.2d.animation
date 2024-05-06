@@ -1,5 +1,19 @@
 # Changelog
 
+## [10.1.2] - 2024-05-06
+### Fixed
+- Sprite Library's labels and categories cannot be reordered. (case DANB-593)
+- Added safety checks to SpriteSkin's public APIs. (case DANB-598)
+- Fixed the IK bones flipped at certain angels. (case DANB-595)
+- Fixed the the memory leak in the SpriteSkin component. (case DANB-603)
+- Fixed the incorrect transform cache capacity in the SpriteSkin component. (case DANB-615)
+
+### Changed
+- Updated the Editor Analytics to use the latest APIs.
+- Updated the UI Elements to use the latest APIs.
+- Remove implicit NativeArray cast from MeshUtilities.
+- Updated the SpriteSkin's deformation system to improve performance.
+
 ## [10.1.1] - 2024-02-06
 ### Added
 - Support for automatic weight generation in the Skinning Editor for ARM64 editors. (case DANB-550)

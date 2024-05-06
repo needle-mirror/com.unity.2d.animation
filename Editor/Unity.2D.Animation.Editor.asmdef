@@ -26,6 +26,26 @@
             "name": "com.unity.collections",
             "expression": "2.0.0-exp",
             "define": "COLLECTIONS_2_0_OR_ABOVE"
+        },
+        {
+            "name": "Unity",
+            "expression": "2023.2.0a22",
+            "define": "USE_NEW_EDITOR_ANALYTICS"
+        },
+        {
+            "name": "Unity",
+            "expression": "2023.3.0a1",
+            "define": "ENABLE_UXML_SERIALIZED_DATA"
+        },
+        {
+            "name": "Unity",
+            "expression": "[2021.3,2023.3.0a1)",
+            "define": "ENABLE_UXML_TRAITS"
+        },
+        {
+            "name": "Unity",
+            "expression": "2023.2",
+            "define": "ENABLE_RUNTIME_DATA_BINDINGS"
         }
     ],
     "noEngineReferences": false

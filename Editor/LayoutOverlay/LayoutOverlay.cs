@@ -3,11 +3,15 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Layout
 {
-	internal class LayoutOverlay : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+	[UxmlElement]
+#endif
+	internal partial class LayoutOverlay : VisualElement
 	{
+#if ENABLE_UXML_TRAITS
 		public class LayoutOverlayFactory : UxmlFactory<LayoutOverlay, LayoutOverlayUxmlTraits> {}
 		public class LayoutOverlayUxmlTraits : UxmlTraits {}
-
+#endif
 		private ScrollableToolbar m_HorizontalToolbar;
 		private ScrollableToolbar m_VerticalToolbar;
 		private VisualElement m_HorizontalHolder;

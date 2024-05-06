@@ -4,10 +4,15 @@ using UnityEditor.U2D.Common;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class GenerateWeightsPanel : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class GenerateWeightsPanel : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class GenerateWeightsPanelFactory : UxmlFactory<GenerateWeightsPanel, GenerateWeightsPanelUxmlTraits> {}
         public class GenerateWeightsPanelUxmlTraits : UxmlTraits {}
+#endif
 
         public event Action onGenerateWeights = () => {};
         public event Action onNormalizeWeights = () => {};

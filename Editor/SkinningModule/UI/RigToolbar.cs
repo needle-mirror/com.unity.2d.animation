@@ -4,7 +4,10 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class RigToolbar : Toolbar
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class RigToolbar : Toolbar
     {
         private const string k_UxmlPath = "SkinningModule/RigToolbar.uxml";
         private const string k_UssPath = "SkinningModule/RigToolbarStyle.uss";
@@ -13,13 +16,15 @@ namespace UnityEditor.U2D.Animation
         private const string k_CopyRigId = "CopyRig";
         private const string k_PasteRigId = "PasteRig";
 
+#if ENABLE_UXML_TRAITS
         public class CustomUXMLFactor : UxmlFactory<RigToolbar, UxmlTraits> {}
-        
-        public event Action ActivateCopyTool = () => {};
-        public event Action TogglePasteTool = () => {};
-        
-        public SkinningCache skinningCache { get; set; }     
-        
+#endif
+
+        public event Action ActivateCopyTool = () => { };
+        public event Action TogglePasteTool = () => { };
+
+        public SkinningCache skinningCache { get; set; }
+
         private Button m_CopyBtn;
         private Button m_PasteBtn;
         

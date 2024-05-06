@@ -6,7 +6,10 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class BoneInspectorPanel : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class BoneInspectorPanel : VisualElement
     {
         [Flags]
         internal enum PropertyReadOnly
@@ -18,14 +21,17 @@ namespace UnityEditor.U2D.Animation
             Rotation  = 1 << 4,
             Color = 1 << 5
         }
-        
+
+#if ENABLE_UXML_TRAITS
         public class BoneInspectorPanelFactory : UxmlFactory<BoneInspectorPanel, BoneInspectorPanelUxmlTraits> {}
         public class BoneInspectorPanelUxmlTraits : UxmlTraits {}
-        public event Action<BoneCache, int> onBoneDepthChanged = (bone, depth) => {};
-        public event Action<BoneCache, Vector2> onBonePositionChanged = (bone, position) => {};
-        public event Action<BoneCache, float> onBoneRotationChanged = (bone, rotation) => {};
-        public event Action<BoneCache, string> onBoneNameChanged = (bone, name) => {};
-        public event Action<BoneCache, Color32> onBoneColorChanged = (bone, color) => {};
+#endif
+
+        public event Action<BoneCache, int> onBoneDepthChanged = (bone, depth) => { };
+        public event Action<BoneCache, Vector2> onBonePositionChanged = (bone, position) => { };
+        public event Action<BoneCache, float> onBoneRotationChanged = (bone, rotation) => { };
+        public event Action<BoneCache, string> onBoneNameChanged = (bone, name) => { };
+        public event Action<BoneCache, Color32> onBoneColorChanged = (bone, color) => { };
 
         private TextField m_BoneNameField;
         private IntegerField m_BoneDepthField;

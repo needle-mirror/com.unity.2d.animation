@@ -4,9 +4,15 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class WeightInspectorIMGUIPanel : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class WeightInspectorIMGUIPanel : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class CustomUXMLFactor : UxmlFactory<WeightInspectorIMGUIPanel, UxmlTraits> {}
+#endif
+
         private WeightInspector m_WeightInspector = new WeightInspector();
 
         public WeightInspector weightInspector

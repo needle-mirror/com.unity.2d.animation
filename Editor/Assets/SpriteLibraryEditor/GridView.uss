@@ -1,7 +1,7 @@
-.spritelib-grid-view {
+.unity2d-grid-view {
 }
 
-.spritelib-grid-view__row {
+.unity2d-grid-view__row {
     flex-direction: row;
     flex-grow: 0;
     flex-shrink: 0;
@@ -9,11 +9,11 @@
     justify-content: space-around;
 }
 
-.spritelib-grid-view__item {
+.unity2d-grid-view__item {
     border-color: rgba(11, 124, 213, 0);
     border-width: 3px;
     margin: 1px;
 }
 
-.spritelib-grid-view__item--selected {
+.unity2d-grid-view__item--selected {
 }

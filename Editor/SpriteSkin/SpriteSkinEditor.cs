@@ -232,7 +232,7 @@ namespace UnityEditor.U2D.Animation
             {
                 if(skin.sprite == null || skin.rootBone == null)
                     continue;
-                if (!SpriteSkin.GetSpriteBonesTransforms(skin, out var transforms))
+                if (!SpriteSkinHelpers.GetSpriteBonesTransforms(skin, out var transforms))
                     Debug.LogWarning($"Rebind failed for {skin.name}. Could not find all bones required by the Sprite: {skin.sprite.name}.");
                 skin.SetBoneTransforms(transforms);
                 

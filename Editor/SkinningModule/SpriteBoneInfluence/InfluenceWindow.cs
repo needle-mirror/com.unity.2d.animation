@@ -23,9 +23,14 @@ namespace UnityEditor.U2D.Animation
         event Action<IEnumerable<object>> onSelectionChanged;
     }
     
-    internal class InfluenceWindow : VisualElement, IInfluenceWindow
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class InfluenceWindow : VisualElement, IInfluenceWindow
     {
+#if ENABLE_UXML_TRAITS
         public class CustomUxmlFactory : UxmlFactory<InfluenceWindow, UxmlTraits> { }
+#endif
 
         public event Action onAddElement = () => {};
         public event Action onRemoveElement = () => {};

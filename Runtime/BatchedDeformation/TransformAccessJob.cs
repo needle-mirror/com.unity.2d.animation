@@ -11,7 +11,7 @@ namespace UnityEngine.U2D.Animation
 {
     internal class TransformAccessJob
     {
-        internal struct TransformData
+        public struct TransformData
         {
             public int transformIndex;
             public int refCount;
@@ -33,7 +33,7 @@ namespace UnityEngine.U2D.Animation
         public TransformAccessJob()
         {
             m_TransformMatrix = new NativeArray<float4x4>(1, Allocator.Persistent);
-            m_TransformData  = new NativeHashMap<int, TransformData>(1, Allocator.Persistent);
+            m_TransformData = new NativeHashMap<int, TransformData>(1, Allocator.Persistent);
             m_Transform = new Transform[0];
             m_Dirty = false;
             m_JobHandle = default(JobHandle);
@@ -75,13 +75,13 @@ namespace UnityEngine.U2D.Animation
 
         }
 
-        static void  ArrayAdd<T>(ref T[] array, T item)
+        static void ArrayAdd<T>(ref T[] array, T item)
         {
             int arraySize = array.Length;
             Array.Resize(ref array, arraySize + 1);
             array[arraySize] = item;
         }
-        
+
         static void ArrayRemoveAt<T>(ref T[] array, int index)
         {
             List<T> list = new List<T>(array);
@@ -91,8 +91,6 @@ namespace UnityEngine.U2D.Animation
 
         void UpdateTransformIndex()
         {
-            ValidateTransformAccessArray();
-
             if (!m_Dirty)
                 return;
             m_Dirty = false;
@@ -114,22 +112,8 @@ namespace UnityEngine.U2D.Animation
                     m_TransformData[instanceId] = transformData;
                 }
             }
-            Profiler.EndSample();
-        }
 
-        void ValidateTransformAccessArray()
-        {
-            if (m_TransformAccessArray.isCreated)
-            {
-                for (var i = 0; i < m_TransformAccessArray.length; i++)
-                {
-                    if (m_TransformAccessArray[i] == null)
-                    {
-                        m_Dirty = true;
-                        return;
-                    }
-                }
-            }
+            Profiler.EndSample();
         }
 
         public JobHandle StartLocalToWorldJob()
@@ -147,7 +131,7 @@ namespace UnityEngine.U2D.Animation
                 Profiler.EndSample();
                 return m_JobHandle;
             }
-            
+
             return default(JobHandle);
         }
 
@@ -187,7 +171,7 @@ namespace UnityEngine.U2D.Animation
                 {
                     log += "RefCount: " + m_TransformData[ss.GetInstanceID()].refCount + "\n";
                 }
-                
+
                 log += "\n";
             }
 
@@ -207,7 +191,7 @@ namespace UnityEngine.U2D.Animation
                     idsToRemove.Remove(id);
                     continue;
                 }
-                
+
                 var transformData = m_TransformData[id];
                 if (transformData.refCount > 1)
                 {
@@ -248,6 +232,7 @@ namespace UnityEngine.U2D.Animation
                     {
                         ArrayRemoveAt(ref m_Transform, index);
                     }
+
                     m_Dirty = true;
                 }
                 else
@@ -258,24 +243,25 @@ namespace UnityEngine.U2D.Animation
             }
         }
     }
-    
+
     [BurstCompile]
     internal struct LocalToWorldTransformAccessJob : IJobParallelForTransform
     {
         [WriteOnly]
         public NativeArray<float4x4> outMatrix;
+
         public void Execute(int index, TransformAccess transform)
         {
             outMatrix[index] = transform.localToWorldMatrix;
         }
     }
-    
+
     [BurstCompile]
     internal struct WorldToLocalTransformAccessJob : IJobParallelForTransform
     {
         [WriteOnly]
         public NativeArray<float4x4> outMatrix;
-        
+
         public void Execute(int index, TransformAccess transform)
         {
             outMatrix[index] = transform.worldToLocalMatrix;

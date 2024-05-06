@@ -7,9 +7,14 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class VisibilityToolWindow : VisualElement, IVisibilityToolWindow
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class VisibilityToolWindow : VisualElement, IVisibilityToolWindow
     {
+#if ENABLE_UXML_TRAITS
         public class CustomUxmlFactory : UxmlFactory<VisibilityToolWindow, UxmlTraits> {}
+#endif
 
         VisualElement m_SelectorContainer;
         VisualElement m_Container;

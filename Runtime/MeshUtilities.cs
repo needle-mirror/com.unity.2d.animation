@@ -46,7 +46,7 @@ namespace UnityEngine.U2D.Animation
             }
             edges.Dispose();
             
-            SortEdges(outlineEdges, out var sortedEdges);
+            SortEdges(outlineEdges.AsArray(), out var sortedEdges);
             return sortedEdges;
         }
 

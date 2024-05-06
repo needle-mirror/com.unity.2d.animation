@@ -5,12 +5,17 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class Toolbar : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class Toolbar : VisualElement
     {
         private const string k_UssPath = "SkinningModule/ToolbarStyle.uss";
-        
+
+#if ENABLE_UXML_TRAITS
         public class ToolbarFactory : UxmlFactory<Toolbar, ToolbarUxmlTraits> {}
         public class ToolbarUxmlTraits : UxmlTraits {}
+#endif
 
         protected ShortcutUtility m_ShortcutUtility;
         

@@ -3,10 +3,15 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Layout
 {
-	internal class DropdownMenu : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+	[UxmlElement]
+#endif
+	internal partial class DropdownMenu : VisualElement
 	{
+#if ENABLE_UXML_TRAITS
 		public class DropdownMenuFactory : UxmlFactory<DropdownMenu, DropdownMenuUxmlTraits> {}
 		public class DropdownMenuUxmlTraits : UxmlTraits {}
+#endif
 
 		/*
 		private ButtonGroup m_ButtonGroup;

@@ -4,10 +4,15 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class PastePanel : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class PastePanel : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class PastePanelFactory : UxmlFactory<PastePanel, PastePanelUxmlTraits> {}
         public class PastePanelUxmlTraits : UxmlTraits {}
+#endif
 
         public event Action<bool, bool, bool, bool> onPasteActivated = (bones, mesh, flipX, flipY) => {};
 

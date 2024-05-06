@@ -2,18 +2,88 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Scripting;
 using UnityEngine.UIElements;
+#if ENABLE_RUNTIME_DATA_BINDINGS
+using Unity.Properties;
+#endif
 
 namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 {
     /// <summary>
     /// A view containing recycled rows with items inside.
     /// </summary>
-    internal class GridView : BindableElement, ISerializationCallbackReceiver
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class GridView : BindableElement, ISerializationCallbackReceiver
     {
+#if ENABLE_RUNTIME_DATA_BINDINGS
+        internal static readonly BindingId itemHeightProperty = new BindingId(nameof(itemHeight));
+        internal static readonly BindingId itemSquareProperty = new BindingId(nameof(itemSquare));
+        internal static readonly BindingId selectionTypeProperty = new BindingId(nameof(selectionType));
+        internal static readonly BindingId allowNoSelectionProperty = new BindingId(nameof(allowNoSelection));
+#endif
+
+        /// <summary>
+        /// Available Operations.
+        /// </summary>
+        [Flags]
+        public enum GridOperations
+        {
+            /// <summary>
+            /// No operation.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// Select all items. 
+            /// </summary>
+            SelectAll = 1 << 0,
+
+            /// <summary>
+            /// Cancel selection.
+            /// </summary>
+            Cancel = 1 << 1,
+
+            /// <summary>
+            /// Move selection cursor left.
+            /// </summary>
+            Left = 1 << 2,
+
+            /// <summary>
+            /// Move selection cursor right.
+            /// </summary>
+            Right = 1 << 3,
+
+            /// <summary>
+            /// Move selection cursor up.
+            /// </summary>
+            Up = 1 << 4,
+
+            /// <summary>
+            /// Move selection cursor down.
+            /// </summary>
+            Down = 1 << 5,
+
+            /// <summary>
+            /// Move selection cursor to the beginning of the list.
+            /// </summary>
+            Begin = 1 << 6,
+
+            /// <summary>
+            /// Move selection cursor to the end of the list.
+            /// </summary>
+            End = 1 << 7,
+
+            /// <summary>
+            /// Choose selected items.
+            /// </summary>
+            Choose = 1 << 8,
+        }
+
+        const float k_PageSizeFactor = 0.25f;
+
         const int k_ExtraVisibleRows = 2;
 
         /// <summary>
@@ -23,7 +93,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// Unity adds this USS class to every instance of the GridView element. Any styling applied to
         /// this class affects every GridView located beside, or below the stylesheet in the visual tree.
         /// </remarks>
-        const string k_UssClassName = "spritelib-grid-view";
+        const string k_UssClassName = "unity2d-grid-view";
 
         /// <summary>
         /// The USS class name for GridView elements with a border.
@@ -45,6 +115,16 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         const string k_ItemUssClassName = k_UssClassName + "__item";
 
         /// <summary>
+        /// The first column USS class name for GridView elements.
+        /// </summary>
+        static readonly string k_FirstColumnUssClassName = k_UssClassName + "__first-column";
+
+        /// <summary>
+        /// The last column USS class name for GridView elements.
+        /// </summary>
+        static readonly string k_LastColumnUssClassName = k_UssClassName + "__last-column";
+
+        /// <summary>
         /// The USS class name of selected item elements in the GridView.
         /// </summary>
         /// <remarks>
@@ -59,41 +139,52 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// </summary>
         const string k_RowUssClassName = k_UssClassName + "__row";
 
-        const int k_DefaultItemHeight = 30;
+        internal const int defaultItemHeight = 30;
+
+        const float k_DpiScaling = 1f;
+
+        const bool k_DefaultPreventScrollWithModifiers = true;
 
         static CustomStyleProperty<int> s_ItemHeightProperty = new CustomStyleProperty<int>("--unity-item-height");
 
-        internal readonly ScrollView scrollView;
+        /// <summary>
+        /// The <see cref="UnityEngine.UIElements.ScrollView"/> used by the GridView.
+        /// </summary>
+        public ScrollView scrollView { get; }
+
+        Func<VisualElement> m_MakeItem;
+        Action<VisualElement, int> m_BindItem;
+        Func<int, int> m_GetItemId;
 
         readonly List<int> m_SelectedIds = new List<int>();
-
         readonly List<int> m_SelectedIndices = new List<int>();
-
         readonly List<object> m_SelectedItems = new List<object>();
+        readonly List<int> m_PreviouslySelectedIndices = new List<int>();
+        readonly List<int> m_OriginalSelection = new List<int>();
 
-        Action<VisualElement, int> m_BindItem;
+        float m_OriginalScrollOffset;
+
+        int m_SoftSelectIndex = -1;
 
         int m_ColumnCount = 1;
 
         int m_FirstVisibleIndex;
 
-        Func<int, int> m_GetItemId;
-
-        int m_ItemHeight = k_DefaultItemHeight;
+        int m_ItemHeight = defaultItemHeight;
+        float m_LastHeight;
 
         bool m_ItemHeightIsInline;
+        bool m_ItemSquare;
 
         IList m_ItemsSource;
 
-        float m_LastHeight;
-
-        Func<VisualElement> m_MakeItem;
-
         int m_RangeSelectionOrigin = -1;
+
+        bool m_IsRangeSelectionDirectionUp;
 
         List<RecycledRow> m_RowPool = new List<RecycledRow>();
 
-        // we keep this list in order to minimize temporary gc allocs
+        // We keep this list in order to minimize temporary gc allocations.
         List<RecycledRow> m_ScrollInsertionList = new List<RecycledRow>();
 
         // Persisted.
@@ -101,11 +192,19 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         SelectionType m_SelectionType;
 
-        Vector3 m_TouchDownPosition;
-
-        long m_TouchDownTime;
+        bool m_AllowNoSelection = true;
 
         int m_VisibleRowCount;
+
+        bool m_IsList;
+
+        NavigationMoveEvent m_NavigationMoveAdapter;
+
+        NavigationCancelEvent m_NavigationCancelAdapter;
+
+        bool m_HasPointerMoved;
+
+        bool m_SoftSelectIndexWasPreviouslySelected;
 
         /// <summary>
         /// Creates a <see cref="GridView"/> with all default properties. The <see cref="GridView.itemsSource"/>,
@@ -114,151 +213,205 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// </summary>
         public GridView()
         {
-            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SpriteLibraryEditor/GridView.uss"));
             AddToClassList(k_UssClassName);
 
-            selectionType = SelectionType.Multiple;
+            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SpriteLibraryEditor/GridView.uss"));
 
+            selectionType = SelectionType.Single;
             m_ScrollOffset = 0.0f;
 
-            scrollView = new ScrollView { viewDataKey = "grid-view__scroll-view" };
+            scrollView = new ScrollView
+            {
+                viewDataKey = "grid-view__scroll-view",
+                horizontalScrollerVisibility = ScrollerVisibility.Hidden
+            };
             scrollView.StretchToParentSize();
+
             scrollView.verticalScroller.valueChanged += OnScroll;
+
+            dragger = new Dragger(OnDraggerStarted, OnDraggerMoved, OnDraggerEnded, OnDraggerCanceled);
 
             RegisterCallback<GeometryChangedEvent>(OnSizeChanged);
             RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyleResolved);
 
-            scrollView.contentContainer.RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
-            scrollView.contentContainer.RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
-            
+            RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
+            RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
+
             hierarchy.Add(scrollView);
 
-            scrollView.contentContainer.focusable = true;
             scrollView.contentContainer.usageHints &= ~UsageHints.GroupTransform; // Scroll views with virtualized content shouldn't have the "view transform" optimization
-        }
 
-        void OnKeyPress(KeyDownEvent evt)
-        {
-            switch (evt.keyCode)
-            {
-                case KeyCode.A when evt.actionKey:
-                    SelectAll();
-                    evt.StopPropagation();
-                    break;
-                case KeyCode.Home:
-                    ScrollToItem(0);
-                    evt.StopPropagation();
-                    break;
-                case KeyCode.End:
-                    ScrollToItem(-1);
-                    evt.StopPropagation();
-                    break;
-                case KeyCode.Escape:
-                    ClearSelection();
-                    evt.StopPropagation();
-                    break;
-                case KeyCode.Return:
-                    onItemsChosen?.Invoke(m_SelectedItems);
-                    evt.StopPropagation();
-                    break;
-                case KeyCode.LeftArrow:
-                    var firstIndexInRow = selectedIndex - selectedIndex % columnCount;
-                    if (selectedIndex >= 0 && selectedIndex > firstIndexInRow)
-                    {
-                        var next = evt.actionKey ? firstIndexInRow :  selectedIndex - 1;
-                        if (next < firstIndexInRow)
-                            next = firstIndexInRow;
-
-                        if (evt.shiftKey)
-                            DoRangeSelection(next);
-                        else
-                            m_RangeSelectionOrigin = selectedIndex = next;
-
-                        evt.StopPropagation();
-                    }
-                    break;
-                case KeyCode.RightArrow:
-                {
-                    var currentRow = selectedIndex / columnCount;
-                    var lastIndexInRow = Math.Min((currentRow + 1) * columnCount - 1, itemsSource.Count - 1);
-                    if (selectedIndex >= 0 && selectedIndex < lastIndexInRow)
-                    {
-                        var next = evt.actionKey ? lastIndexInRow : selectedIndex + 1;
-                        if (next > lastIndexInRow)
-                            next = lastIndexInRow;
-
-                        if (evt.shiftKey)
-                            DoRangeSelection(next);
-                        else
-                            m_RangeSelectionOrigin = selectedIndex = next;
-
-                        evt.StopPropagation();
-                    }
-                    break;
-                }
-                case KeyCode.UpArrow:
-                    if (selectedIndex >= 0)
-                    {
-                        var next = evt.actionKey ? 
-                            selectedIndex % columnCount :
-                            selectedIndex - columnCount;
-                        if (next >= 0 && selectedIndex != next)
-                        {
-                            if (evt.shiftKey)
-                                DoRangeSelection(next);
-                            else
-                                m_RangeSelectionOrigin = selectedIndex = next;
-
-                            ScrollToItem(evt.actionKey ? 0 : selectedIndex);
-
-                            evt.StopPropagation();
-                        }
-                    }
-                    break;
-                case KeyCode.DownArrow:
-                {
-                    if (selectedIndex >= 0)
-                    {
-                        var targetId = (Mathf.FloorToInt((float)itemsSource.Count / columnCount)) * columnCount + selectedIndex % columnCount;
-                        var next = evt.actionKey ? 
-                             targetId >= itemsSource.Count ? targetId - columnCount : targetId :
-                            selectedIndex + columnCount;
-                        if (next < itemsSource.Count && selectedIndex != next)
-                        {
-                            if (evt.shiftKey)
-                                DoRangeSelection(next);
-                            else
-                                m_RangeSelectionOrigin = selectedIndex = next;
-                            
-                            ScrollToItem(evt.actionKey ? -1 : selectedIndex);
-
-                            evt.StopPropagation();
-                        }
-                    }
-                    break;
-                }
-            }
+            focusable = true;
+            dragger.acceptStartDrag = DefaultAcceptStartDrag;
         }
 
         /// <summary>
         /// Constructs a <see cref="GridView"/>, with all required properties provided.
         /// </summary>
         /// <param name="itemsSource">The list of items to use as a data source.</param>
-        /// <param name="itemHeight">The height of each item, in pixels.</param>
         /// <param name="makeItem">The factory method to call to create a display item. The method should return a
         /// VisualElement that can be bound to a data item.</param>
         /// <param name="bindItem">The method to call to bind a data item to a display item. The method
         /// receives as parameters the display item to bind, and the index of the data item to bind it to.</param>
-        public GridView(IList itemsSource, int itemHeight, Func<VisualElement> makeItem, Action<VisualElement, int> bindItem)
+        public GridView(IList itemsSource, Func<VisualElement> makeItem, Action<VisualElement, int> bindItem)
             : this()
         {
             m_ItemsSource = itemsSource;
-            m_ItemHeight = itemHeight;
             m_ItemHeightIsInline = true;
 
             m_MakeItem = makeItem;
             m_BindItem = bindItem;
+
+            operationMask = ~GridOperations.None;
         }
+
+        bool Apply(GridOperations operation, bool shiftKey)
+        {
+            if ((operation & operationMask) == 0)
+                return false;
+
+            void HandleSelectionAndScroll(int index)
+            {
+                if (selectionType == SelectionType.Multiple && shiftKey && m_SelectedIndices.Count != 0)
+                    DoRangeSelection(index, true, true);
+                else
+                    selectedIndex = index;
+
+                ScrollToItem(index);
+            }
+
+            switch (operation)
+            {
+                case GridOperations.None:
+                    break;
+                case GridOperations.SelectAll:
+                    SelectAll();
+                    return true;
+                case GridOperations.Cancel:
+                    ClearSelection();
+                    return true;
+                case GridOperations.Left:
+                {
+                    var newIndex = Mathf.Max(selectedIndex - 1, 0);
+                    if (newIndex != selectedIndex)
+                    {
+                        HandleSelectionAndScroll(newIndex);
+                        return true;
+                    }
+                }
+                    break;
+                case GridOperations.Right:
+                {
+                    var newIndex = Mathf.Min(selectedIndex + 1, itemsSource.Count - 1);
+                    if (newIndex != selectedIndex)
+                    {
+                        HandleSelectionAndScroll(newIndex);
+                        return true;
+                    }
+                }
+                    break;
+                case GridOperations.Up:
+                {
+                    var newIndex = Mathf.Max(selectedIndex - columnCount, 0);
+                    if (newIndex != selectedIndex)
+                    {
+                        HandleSelectionAndScroll(newIndex);
+                        return true;
+                    }
+                }
+                    break;
+                case GridOperations.Down:
+                {
+                    var newIndex = Mathf.Min(selectedIndex + columnCount, itemsSource.Count - 1);
+                    if (newIndex != selectedIndex)
+                    {
+                        HandleSelectionAndScroll(newIndex);
+                        return true;
+                    }
+                }
+                    break;
+                case GridOperations.Begin:
+                    HandleSelectionAndScroll(0);
+                    return true;
+                case GridOperations.End:
+                    HandleSelectionAndScroll(itemsSource.Count - 1);
+                    return true;
+                case GridOperations.Choose:
+                    if (m_SelectedIndices.Count > 0)
+                        itemsChosen?.Invoke(selectedItems);
+                    return true;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(operation), operation, null);
+            }
+
+            return false;
+        }
+
+        void Apply(GridOperations operation, EventBase sourceEvent)
+        {
+            if ((operation & operationMask) != 0 && Apply(operation, (sourceEvent as IKeyboardEvent)?.shiftKey ?? false))
+            {
+                sourceEvent?.StopPropagation();
+            }
+        }
+
+        /// <summary>
+        /// Internal use only.
+        /// </summary>
+        /// <param name="operation"></param>
+        internal void Apply(GridOperations operation) => Apply(operation, null);
+
+        void OnDraggerStarted(PointerMoveEvent evt)
+        {
+            dragStarted?.Invoke(evt);
+        }
+
+        void OnDraggerMoved(PointerMoveEvent evt)
+        {
+            dragUpdated?.Invoke(evt);
+        }
+
+        void OnDraggerEnded(PointerUpEvent evt)
+        {
+            dragFinished?.Invoke(evt);
+            CancelSoftSelect();
+        }
+
+        void OnDraggerCanceled()
+        {
+            dragCanceled?.Invoke();
+            CancelSoftSelect();
+        }
+
+        /// <summary>
+        /// Cancel drag operation.
+        /// </summary>
+        public void CancelDrag()
+        {
+            dragger?.Cancel();
+        }
+
+        void OnKeyDown(KeyDownEvent evt)
+        {
+            var operation = evt.keyCode switch
+            {
+                KeyCode.A when evt.actionKey => GridOperations.SelectAll,
+                KeyCode.Escape => GridOperations.Cancel,
+                KeyCode.Home => GridOperations.Begin,
+                KeyCode.End => GridOperations.End,
+                KeyCode.UpArrow => GridOperations.Up,
+                KeyCode.DownArrow => GridOperations.Down,
+                KeyCode.LeftArrow => GridOperations.Left,
+                KeyCode.RightArrow => GridOperations.Right,
+                KeyCode.KeypadEnter or KeyCode.Return => GridOperations.Choose,
+                _ => GridOperations.None
+            };
+
+            Apply(operation, evt);
+        }
+
+        static void OnNavigationMove(NavigationMoveEvent evt) => evt.StopPropagation();
+        static void OnNavigationCancel(NavigationCancelEvent evt) => evt.StopPropagation();
 
         /// <summary>
         /// Callback for binding a data item to the visual element.
@@ -269,7 +422,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// </remarks>
         public Action<VisualElement, int> bindItem
         {
-            get { return m_BindItem; }
+            get => m_BindItem;
             set
             {
                 m_BindItem = value;
@@ -296,6 +449,21 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         }
 
         /// <summary>
+        /// The <see cref="Dragger"/> manipulator used by this <see cref="GridView"/>.
+        /// </summary>
+        public Dragger dragger { get; }
+
+        /// <summary>
+        /// A mask describing available operations in this <see cref="GridView"/> when the user interacts with it.
+        /// </summary>
+        public GridOperations operationMask { get; set; } =
+            GridOperations.Choose |
+            GridOperations.SelectAll | GridOperations.Cancel |
+            GridOperations.Begin | GridOperations.End |
+            GridOperations.Left | GridOperations.Right |
+            GridOperations.Up | GridOperations.Down;
+
+        /// <summary>
         /// Returns the content container for the <see cref="GridView"/>. Because the GridView control automatically manages
         /// its content, this always returns null.
         /// </summary>
@@ -310,36 +478,72 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         ///
         /// This property must be set for the list view to function.
         /// </remarks>
+#if ENABLE_RUNTIME_DATA_BINDINGS
+        [CreateProperty]
+#endif
+#if ENABLE_UXML_SERIALIZED_DATA
+        [UxmlAttribute]
+#endif
         public int itemHeight
         {
-            get { return m_ItemHeight; }
+            get => m_ItemHeight;
             set
             {
                 if (m_ItemHeight != value && value > 0)
                 {
                     m_ItemHeightIsInline = true;
                     m_ItemHeight = value;
+                    scrollView.verticalPageSize = m_ItemHeight * k_PageSizeFactor;
                     Refresh();
+
+#if ENABLE_RUNTIME_DATA_BINDINGS
+                    NotifyPropertyChanged(in itemHeightProperty);
+#endif
                 }
             }
         }
 
         /// <summary>
-        ///
+        /// Decides whether the item should have 1:1 aspect ratio.
         /// </summary>
-        public float itemWidth => (scrollView.contentViewport.layout.width / columnCount);
+#if ENABLE_RUNTIME_DATA_BINDINGS
+        [CreateProperty]
+#endif
+#if ENABLE_UXML_SERIALIZED_DATA
+        [UxmlAttribute]
+#endif
+        public bool itemSquare
+        {
+            get => m_ItemSquare;
+            set
+            {
+                if (m_ItemSquare != value)
+                {
+                    m_ItemSquare = value;
+                    Refresh();
+
+#if ENABLE_RUNTIME_DATA_BINDINGS
+                    NotifyPropertyChanged(in itemSquareProperty);
+#endif
+                }
+            }
+        }
+
+        /// <summary>
+        /// The width of the item.
+        /// </summary>
+        public float itemWidth => scrollView.contentViewport.layout.width / columnCount;
 
         /// <summary>
         /// The data source for list items.
         /// </summary>
         /// <remarks>
         /// This list contains the items that the <see cref="GridView"/> displays.
-        ///
         /// This property must be set for the list view to function.
         /// </remarks>
         public IList itemsSource
         {
-            get { return m_ItemsSource; }
+            get => m_ItemsSource;
             set
             {
                 if (m_ItemsSource is INotifyCollectionChanged oldCollection)
@@ -371,7 +575,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// </remarks>
         public Func<VisualElement> makeItem
         {
-            get { return m_MakeItem; }
+            get => m_MakeItem;
             set
             {
                 if (m_MakeItem == value)
@@ -388,26 +592,16 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// This value changes depending on the current panel's DPI scaling.
         /// </remarks>
         /// <seealso cref="GridView.itemHeight"/>
-        public float resolvedItemHeight
-        {
-            get
-            {
-                var dpiScaling = 1;//this.GetScaledPixelsPerPoint();
-                return Mathf.Round(itemHeight * dpiScaling) / dpiScaling;
-            }
-        }
+        public float resolvedItemHeight => Mathf.Round(itemHeight * k_DpiScaling) / k_DpiScaling;
 
         /// <summary>
-        ///
+        /// The computed pixel-aligned width for the list elements.
         /// </summary>
-        public float resolvedItemWidth
-        {
-            get
-            {
-                var dpiScaling = 1;//this.GetScaledPixelsPerPoint();
-                return Mathf.Round(itemWidth * dpiScaling) / dpiScaling;
-            }
-        }
+        /// <remarks>
+        /// This value changes depending on the current panel's DPI scaling.
+        /// </remarks>
+        /// <seealso cref="GridView.itemWidth"/>
+        public float resolvedItemWidth => Mathf.Round(itemWidth * k_DpiScaling) / k_DpiScaling;
 
         /// <summary>
         /// Returns or sets the selected item's index in the data source. If multiple items are selected, returns the
@@ -415,8 +609,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// </summary>
         public int selectedIndex
         {
-            get { return m_SelectedIndices.Count == 0 ? -1 : m_SelectedIndices.First(); }
-            set { SetSelection(value); }
+            get => m_SelectedIndices.Count == 0 ? -1 : m_SelectedIndices[0];
+            set => SetSelection(value);
         }
 
         /// <summary>
@@ -428,7 +622,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// <summary>
         /// Returns the selected item from the data source. If multiple items are selected, returns the first selected item.
         /// </summary>
-        public object selectedItem => m_SelectedItems.Count == 0 ? null : m_SelectedItems.First();
+        public object selectedItem => m_SelectedItems.Count == 0 ? null : m_SelectedItems[0];
 
         /// <summary>
         /// Returns the selected items from the data source. Always returns an enumerable, even if no item is selected, or a single
@@ -450,18 +644,75 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         ///
         /// When you set the GridView to disable selections, any current selection is cleared.
         /// </remarks>
+#if ENABLE_RUNTIME_DATA_BINDINGS
+        [CreateProperty]
+#endif
+#if ENABLE_UXML_SERIALIZED_DATA
+        [UxmlAttribute]
+#endif
         public SelectionType selectionType
         {
             get { return m_SelectionType; }
             set
             {
+                var changed = m_SelectionType != value;
                 m_SelectionType = value;
-                if (m_SelectionType == SelectionType.None || (m_SelectionType == SelectionType.Single && m_SelectedIndices.Count > 1))
+
+                if (m_SelectionType == SelectionType.None)
                 {
-                    ClearSelection();
+                    ClearSelectionWithoutValidation();
                 }
+                else
+                {
+                    if (allowNoSelection)
+                        ClearSelectionWithoutValidation();
+                    else if (m_ItemsSource.Count > 0)
+                        SetSelectionInternal(new[] { 0 }, false, false);
+                    else
+                        ClearSelectionWithoutValidation();
+                }
+
+                m_RangeSelectionOrigin = -1;
+                PostSelection(updatePreviousSelection: true, sendNotification: true);
+
+#if ENABLE_RUNTIME_DATA_BINDINGS
+                if (changed)
+                    NotifyPropertyChanged(in selectionTypeProperty);
+#endif
             }
         }
+
+        /// <summary>
+        /// Whether the GridView allows to have no selection when the selection type is <see cref="SelectionType.Single"/> or <see cref="SelectionType.Multiple"/>.
+        /// </summary>
+#if ENABLE_RUNTIME_DATA_BINDINGS
+        [CreateProperty]
+#endif
+#if ENABLE_UXML_SERIALIZED_DATA
+        [UxmlAttribute]
+#endif
+        public bool allowNoSelection
+        {
+            get => m_AllowNoSelection;
+
+            set
+            {
+                var changed = m_AllowNoSelection != value;
+                m_AllowNoSelection = value;
+                if (HasValidDataAndBindings() && !m_AllowNoSelection && m_SelectedIndices.Count == 0 && m_ItemsSource.Count > 0)
+                    SetSelectionInternal(new[] { 0 }, true, true);
+
+#if ENABLE_RUNTIME_DATA_BINDINGS
+                if (changed)
+                    NotifyPropertyChanged(in allowNoSelectionProperty);
+#endif
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the soft-selection is in progress.
+        /// </summary>
+        public bool isSelecting => m_SoftSelectIndex != -1;
 
         /// <summary>
         /// Enable this property to display a border around the GridView.
@@ -476,6 +727,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         }
 
         /// <summary>
+        /// Prevents the grid view from scrolling when the user presses a modifier key at the same time as scrolling.
+        /// </summary>
+        public bool preventScrollWithModifiers { get; set; } = k_DefaultPreventScrollWithModifiers;
+
+        /// <summary>
         /// Callback for unbinding a data item from the VisualElement.
         /// </summary>
         /// <remarks>
@@ -484,9 +740,15 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// </remarks>
         public Action<VisualElement, int> unbindItem { get; set; }
 
-        internal Func<int, int> getItemId
+        /// <summary>
+        /// Callback for getting the ID of an item.
+        /// </summary>
+        /// <remarks>
+        /// The method called by this callback receives the index of the item to get the ID from.
+        /// </remarks>
+        public Func<int, int> getItemId
         {
-            get { return m_GetItemId; }
+            get => m_GetItemId;
             set
             {
                 m_GetItemId = value;
@@ -494,17 +756,23 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             }
         }
 
-        internal List<RecycledRow> rowPool
+        bool DefaultAcceptStartDrag(Vector2 worldPosition)
         {
-            get { return m_RowPool; }
+            if (!HasValidDataAndBindings())
+                return false;
+
+            var idx = GetIndexByWorldPosition(worldPosition);
+            return idx >= 0 && idx < itemsSource.Count;
         }
+
+        internal List<RecycledRow> rowPool => m_RowPool;
 
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             Refresh();
         }
 
-        void ISerializationCallbackReceiver.OnBeforeSerialize() {}
+        void ISerializationCallbackReceiver.OnBeforeSerialize() { }
 
         /// <summary>
         /// Callback triggered when the user acts on a selection of one or more items, for example by double-clicking or pressing Enter.
@@ -512,7 +780,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// <remarks>
         /// This callback receives an enumerable that contains the item or items chosen.
         /// </remarks>
-        public event Action<IEnumerable<object>> onItemsChosen;
+        public event Action<IEnumerable<object>> itemsChosen;
 
         /// <summary>
         /// Callback triggered when the selection changes.
@@ -523,12 +791,58 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         public event Action<IEnumerable<object>> selectionChanged;
 
         /// <summary>
+        /// Callback triggered when the selection changes.
+        /// </summary>
+        /// <remarks>
+        /// This callback receives an enumerable that contains the indices of selected items.
+        /// </remarks>
+        public event Action<IEnumerable<int>> selectedIndicesChanged;
+
+        /// <summary>
+        /// Callback triggered when the user right-clicks on an item.
+        /// </summary>
+        /// <remarks>
+        /// This callback receives an enumerable that contains the item or items selected.
+        /// </remarks>
+        public event Action<PointerDownEvent> contextClicked;
+
+        /// <summary>
+        /// Callback triggered when the user double-clicks on an item.
+        /// </summary>
+        public event Action<int> doubleClicked;
+
+        /// <summary>
+        /// Callback triggered when drag has started.
+        /// </summary>
+        public event Action<PointerMoveEvent> dragStarted;
+
+        /// <summary>
+        /// Callback triggered when items are dragged.
+        /// </summary>
+        public event Action<PointerMoveEvent> dragUpdated;
+
+        /// <summary>
+        /// Callback triggered when drag has finished.
+        /// </summary>
+        public event Action<PointerUpEvent> dragFinished;
+
+        /// <summary>
+        /// Callback triggered when drag has been canceled.
+        /// </summary>
+        public event Action dragCanceled;
+
+        /// <summary>
         /// Adds an item to the collection of selected items.
         /// </summary>
         /// <param name="index">Item index.</param>
         public void AddToSelection(int index)
         {
-            AddToSelection(new[] { index });
+            AddToSelection(new[] { index }, true, true);
+        }
+
+        internal void AddToSelection(int index, bool updatePrevious, bool notify)
+        {
+            AddToSelection(new[] { index }, updatePrevious, notify);
         }
 
         /// <summary>
@@ -536,11 +850,24 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// </summary>
         public void ClearSelection()
         {
-            if (!HasValidDataAndBindings() || m_SelectedIds.Count == 0)
+            if (m_SelectedIndices.Count == 0 || !allowNoSelection)
                 return;
 
             ClearSelectionWithoutValidation();
-            NotifyOfSelectionChange();
+            PostSelection(true, true);
+        }
+
+        /// <summary>
+        /// Clear the selection without triggering selection changed event.
+        /// </summary>
+        public void ClearSelectionWithoutNotify()
+        {
+            if (m_SelectedIndices.Count == 0 || !allowNoSelection)
+                return;
+
+            ClearSelectionWithoutValidation();
+            m_RangeSelectionOrigin = -1;
+            m_PreviouslySelectedIndices.Clear();
         }
 
         /// <summary>
@@ -562,6 +889,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             m_SelectedIndices.Clear();
             m_SelectedItems.Clear();
+            m_SoftSelectIndex = -1;
+            m_SoftSelectIndexWasPreviouslySelected = false;
+            m_PreviouslySelectedIndices.Clear();
+            m_OriginalSelection.Clear();
+
+            var newSelectedIds = new List<int>();
 
             // O(n)
             if (m_SelectedIds.Count > 0)
@@ -569,12 +902,18 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 // Add selected objects to working lists.
                 for (var index = 0; index < m_ItemsSource.Count; ++index)
                 {
-                    if (!m_SelectedIds.Contains(GetIdFromIndex(index))) continue;
+                    var id = GetIdFromIndex(index);
+                    if (!m_SelectedIds.Contains(id))
+                        continue;
 
                     m_SelectedIndices.Add(index);
                     m_SelectedItems.Add(m_ItemsSource[index]);
+                    newSelectedIds.Add(id);
                 }
             }
+
+            m_SelectedIds.Clear();
+            m_SelectedIds.AddRange(newSelectedIds);
 
             if (!HasValidDataAndBindings())
                 return;
@@ -586,8 +925,21 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             m_FirstVisibleIndex = Math.Min((int)(m_ScrollOffset / resolvedItemHeight) * columnCount, m_ItemsSource.Count - 1);
             ResizeHeight(m_LastHeight);
+
+            if (!allowNoSelection && m_SelectedIds.Count == 0)
+            {
+                if (m_ItemsSource.Count > 0)
+                    SetSelectionInternal(new[]
+                    {
+                        m_FirstVisibleIndex >= 0 ? m_FirstVisibleIndex : 0
+                    }, true, true);
+            }
+            else
+            {
+                PostSelection(true, true);
+            }
         }
-        
+
         /// <summary>
         /// Rebinds a single item if it is currently visible in the collection view.
         /// </summary>
@@ -603,7 +955,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
                     recycledRow.RemoveAt(indexInRow);
                     recycledRow.Insert(indexInRow, item);
-                    
+
                     bindItem.Invoke(item, recycledRow.indices[indexInRow]);
                     recycledRow.SetSelected(indexInRow, m_SelectedIds.Contains(recycledRow.ids[indexInRow]));
                     break;
@@ -617,13 +969,20 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// <param name="index">The item index.</param>
         public void RemoveFromSelection(int index)
         {
+            RemoveFromSelectionInternal(index, true, true);
+        }
+
+        internal void RemoveFromSelectionInternal(int index, bool updatePrevious, bool notify)
+        {
             if (!HasValidDataAndBindings())
                 return;
 
-            RemoveFromSelectionWithoutValidation(index);
-            NotifyOfSelectionChange();
+            if (m_SelectedIndices.Count == 1 && m_SelectedIndices[0] == index && !allowNoSelection)
+                return;
 
-            //SaveViewData();
+            RemoveFromSelectionWithoutValidation(index);
+
+            PostSelection(updatePrevious, notify);
         }
 
         /// <summary>
@@ -639,31 +998,31 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 return;
 
             var pixelAlignedItemHeight = resolvedItemHeight;
-            var actualCount = Math.Min(Mathf.FloorToInt(m_LastHeight / pixelAlignedItemHeight) * columnCount, itemsSource.Count);
+            var lastRowIndex = Mathf.FloorToInt((itemsSource.Count - 1) / (float)columnCount);
+            var maxOffset = Mathf.Max(0, lastRowIndex * pixelAlignedItemHeight - m_LastHeight + pixelAlignedItemHeight);
+            var targetRowIndex = Mathf.FloorToInt(index / (float)columnCount);
+            var targetOffset = targetRowIndex * pixelAlignedItemHeight;
+            var currentOffset = scrollView.scrollOffset.y;
+            var d = targetOffset - currentOffset;
 
             if (index == -1)
             {
-                // Scroll to last item
-                if (itemsSource.Count < actualCount)
-                    scrollView.scrollOffset = new Vector2(0, 0);
-                else
-                    scrollView.scrollOffset = new Vector2(0, Mathf.FloorToInt(itemsSource.Count / (float)columnCount) * pixelAlignedItemHeight);
+                scrollView.scrollOffset = Vector2.up * maxOffset;
             }
-            else if (m_FirstVisibleIndex >= index)
+            else if (d < 0)
             {
-                scrollView.scrollOffset = Vector2.up * (pixelAlignedItemHeight * Mathf.FloorToInt(index / (float)columnCount));
+                scrollView.scrollOffset = Vector2.up * targetOffset;
             }
-            else // index > first
+            else if (d > m_LastHeight - pixelAlignedItemHeight)
             {
-                if (index < m_FirstVisibleIndex + actualCount)
-                    return;
-
-                var d = Mathf.FloorToInt(index - actualCount / (float)columnCount);
-                var visibleOffset = pixelAlignedItemHeight - (m_LastHeight - Mathf.FloorToInt(actualCount / (float)columnCount) * pixelAlignedItemHeight);
-                var yScrollOffset = pixelAlignedItemHeight * d + visibleOffset;
-
-                scrollView.scrollOffset = new Vector2(scrollView.scrollOffset.x, yScrollOffset);
+                // need to scroll up so the item should be visible in last row
+                targetOffset += pixelAlignedItemHeight - m_LastHeight;
+                scrollView.scrollOffset = Vector2.up * Mathf.Min(maxOffset, targetOffset);
             }
+
+            // else do nothing because the item is already entirely visible
+
+            schedule.Execute(() => ResizeHeight(m_LastHeight)).ExecuteLater(2L);
         }
 
         /// <summary>
@@ -687,21 +1046,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// <param name="indices">The collection of the indices of the items to be selected.</param>
         public void SetSelection(IEnumerable<int> indices)
         {
-            switch (selectionType)
-            {
-                case SelectionType.None:
-                    return;
-                case SelectionType.Single:
-                    if (indices != null)
-                        indices = new[] { indices.Last() };
-                    break;
-                case SelectionType.Multiple:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            SetSelectionInternal(indices, true);
+            SetSelectionInternal(indices, true, true);
         }
 
         /// <summary>
@@ -710,29 +1055,45 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// <param name="indices">The collection of items to be selected.</param>
         public void SetSelectionWithoutNotify(IEnumerable<int> indices)
         {
-            SetSelectionInternal(indices, false);
+            indices ??= Array.Empty<int>();
+
+            switch (selectionType)
+            {
+                case SelectionType.None:
+                    return;
+                case SelectionType.Single:
+                    var lastIndex = -1;
+                    var count = 0;
+                    foreach (var index in indices)
+                    {
+                        lastIndex = index;
+                        count++;
+                    }
+                    if (count > 1)
+                        indices = new[] { lastIndex };
+                    break;
+                case SelectionType.Multiple:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            SetSelectionInternal(indices, true, false);
         }
 
-        internal void AddToSelection(IList<int> indexes)
+        internal void AddToSelection(IList<int> indexes, bool updatePrevious, bool notify)
         {
             if (!HasValidDataAndBindings() || indexes == null || indexes.Count == 0)
                 return;
 
             foreach (var index in indexes)
-            {
                 AddToSelectionWithoutValidation(index);
-            }
 
-            NotifyOfSelectionChange();
-
-            //SaveViewData();
+            PostSelection(updatePrevious, notify);
         }
 
         internal void SelectAll()
         {
-            if (!HasValidDataAndBindings())
-                return;
-
             if (selectionType != SelectionType.Multiple)
             {
                 return;
@@ -757,31 +1118,52 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 }
             }
 
-            NotifyOfSelectionChange();
-
-            //SaveViewData();
+            PostSelection(true, true);
         }
 
-        internal void SetSelectionInternal(IEnumerable<int> indices, bool sendNotification)
+        internal void SetSelectionInternal(IEnumerable<int> indices, bool updatePrevious, bool sendNotification)
         {
-            if (!HasValidDataAndBindings() || indices == null)
-                return;
+            indices ??= Array.Empty<int>();
 
-            ClearSelectionWithoutValidation();
-            foreach (var index in indices.Where(index => index != -1))
+            switch (selectionType)
             {
-                AddToSelectionWithoutValidation(index);
+                case SelectionType.None:
+                    return;
+                case SelectionType.Single:
+                    var lastIndex = -1;
+                    var count = 0;
+                    foreach (var index in indices)
+                    {
+                        lastIndex = index;
+                        count++;
+                    }
+
+                    if (count > 1)
+                        indices = new[] { lastIndex };
+                    break;
+                case SelectionType.Multiple:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
-            if (sendNotification)
-                NotifyOfSelectionChange();
+            if (!allowNoSelection)
+            {
+                // Check if empty.
+                using var enumerator = indices.GetEnumerator();
+                if (!enumerator.MoveNext())
+                    return;
+            }
 
-            //SaveViewData();
+            ClearSelectionWithoutValidation();
+            foreach (var index in indices)
+                AddToSelectionWithoutValidation(index);
+            PostSelection(updatePrevious, sendNotification);
         }
 
         void AddToSelectionWithoutValidation(int index)
         {
-            if (m_SelectedIndices.Contains(index))
+            if (m_ItemsSource == null || index < 0 || index >= m_ItemsSource.Count || m_SelectedIndices.Contains(index))
                 return;
 
             var id = GetIdFromIndex(index);
@@ -798,12 +1180,39 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_SelectedItems.Add(item);
         }
 
+        internal VisualElement GetVisualElement(int index)
+        {
+            if (index < 0 || index >= m_ItemsSource.Count || !m_SelectedIndices.Contains(index))
+                return null;
+
+            return GetVisualElementInternal(index);
+        }
+
+        internal VisualElement GetVisualElementWithoutSelection(int index)
+        {
+            if (index < 0 || index >= m_ItemsSource.Count)
+                return null;
+
+            return GetVisualElementInternal(index);
+        }
+
+        VisualElement GetVisualElementInternal(int index)
+        {
+            var id = GetIdFromIndex(index);
+
+            foreach (var recycledRow in m_RowPool)
+            {
+                if (recycledRow.ContainsId(id, out var indexInRow))
+                    return recycledRow.ElementAt(indexInRow);
+            }
+
+            return null;
+        }
+
         void ClearSelectionWithoutValidation()
         {
             foreach (var recycledRow in m_RowPool)
-            {
                 recycledRow.ClearSelection();
-            }
 
             m_SelectedIds.Clear();
             m_SelectedIndices.Clear();
@@ -813,91 +1222,105 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         VisualElement CreateDummyItemElement()
         {
             var item = new VisualElement();
-            item.pickingMode = PickingMode.Ignore;
             SetupItemElement(item);
             return item;
         }
 
-        void DoRangeSelection(int rangeSelectionFinalIndex)
+        void DoRangeSelection(int rangeSelectionFinalIndex, bool updatePrevious, bool notify)
         {
+            var max = -1;
+            var min = -1;
+            foreach (var i in m_SelectedIndices)
+            {
+                if (max == -1 || i > max)
+                    max = i;
+                if (min == -1 || i < min)
+                    min = i;
+            }
+
+            m_RangeSelectionOrigin = m_IsRangeSelectionDirectionUp ? max : min;
+
             ClearSelectionWithoutValidation();
 
             // Add range
             var range = new List<int>();
-            if (rangeSelectionFinalIndex < m_RangeSelectionOrigin)
+            m_IsRangeSelectionDirectionUp = rangeSelectionFinalIndex < m_RangeSelectionOrigin;
+            if (m_IsRangeSelectionDirectionUp)
             {
                 for (var i = rangeSelectionFinalIndex; i <= m_RangeSelectionOrigin; i++)
-                {
                     range.Add(i);
-                }
             }
             else
             {
                 for (var i = rangeSelectionFinalIndex; i >= m_RangeSelectionOrigin; i--)
-                {
                     range.Add(i);
+            }
+
+            AddToSelection(range, updatePrevious, notify);
+        }
+
+        void DoContextClickAfterSelect(PointerDownEvent evt)
+        {
+            contextClicked?.Invoke(evt);
+        }
+
+        void DoSoftSelect(PointerDownEvent evt, int clickCount)
+        {
+            var clickedIndex = GetIndexByWorldPosition(evt.position);
+            if (clickedIndex > m_ItemsSource.Count - 1 || clickedIndex < 0)
+            {
+                if (evt.button == (int)MouseButton.LeftMouse && allowNoSelection)
+                    ClearSelection();
+                return;
+            }
+
+            m_SoftSelectIndex = clickedIndex;
+            m_SoftSelectIndexWasPreviouslySelected = m_SelectedIndices.Contains(clickedIndex);
+
+            if (clickCount == 1)
+            {
+                if (selectionType == SelectionType.None)
+                    return;
+
+                if (selectionType == SelectionType.Multiple && evt.actionKey)
+                {
+                    m_RangeSelectionOrigin = clickedIndex;
+
+                    // Add/remove single clicked element
+                    var clickedItemId = GetIdFromIndex(clickedIndex);
+                    if (m_SelectedIds.Contains(clickedItemId))
+                        RemoveFromSelectionInternal(clickedIndex, false, false);
+                    else
+                        AddToSelection(clickedIndex, false, false);
+                }
+                else if (selectionType == SelectionType.Multiple && evt.shiftKey)
+                {
+                    if (m_RangeSelectionOrigin == -1 || m_SelectedIndices.Count == 0)
+                    {
+                        m_RangeSelectionOrigin = clickedIndex;
+                        SetSelectionInternal(new[] { clickedIndex }, false, false);
+                    }
+                    else
+                    {
+                        DoRangeSelection(clickedIndex, false, false);
+                    }
+                }
+                else if (selectionType == SelectionType.Multiple && m_SoftSelectIndexWasPreviouslySelected)
+                {
+                    // Do noting, selection will be processed OnPointerUp.
+                    // If drag and drop will be started GridViewDragger will capture the mouse and GridView will not receive the mouse up event.
+                }
+                else // single
+                {
+                    m_RangeSelectionOrigin = clickedIndex;
+                    if (!(m_SelectedIndices.Count == 1 && m_SelectedIndices[0] == clickedIndex))
+                    {
+                        SetSelectionInternal(new[] { clickedIndex }, false, false);
+                    }
                 }
             }
 
-            AddToSelection(range);
-        }
-
-        void DoSelect(Vector2 localPosition, int clickCount, bool actionKey, bool shiftKey)
-        {
-            var clickedIndex = GetIndexByPosition(localPosition);
-            if (clickedIndex > m_ItemsSource.Count - 1)
-                return;
-
-            var clickedItemId = GetIdFromIndex(clickedIndex);
-            switch (clickCount)
-            {
-                case 1:
-                    if (selectionType == SelectionType.None)
-                        return;
-
-                    if (selectionType == SelectionType.Multiple && actionKey)
-                    {
-                        m_RangeSelectionOrigin = clickedIndex;
-
-                        // Add/remove single clicked element
-                        if (m_SelectedIds.Contains(clickedItemId))
-                            RemoveFromSelection(clickedIndex);
-                        else
-                            AddToSelection(clickedIndex);
-                    }
-                    else if (selectionType == SelectionType.Multiple && shiftKey)
-                    {
-                        if (m_RangeSelectionOrigin == -1)
-                        {
-                            m_RangeSelectionOrigin = clickedIndex;
-                            SetSelection(clickedIndex);
-                        }
-                        else
-                        {
-                            DoRangeSelection(clickedIndex);
-                        }
-                    }
-                    else if (selectionType == SelectionType.Multiple && m_SelectedIndices.Contains(clickedIndex))
-                    {
-                        // Do noting, selection will be processed OnPointerUp.
-                        // If drag and drop will be started GridViewDragger will capture the mouse and GridView will not receive the mouse up event.
-                    }
-                    else // single
-                    {
-                        m_RangeSelectionOrigin = clickedIndex;
-                        SetSelection(clickedIndex);
-                    }
-
-                    break;
-                case 2:
-                    if (onItemsChosen != null)
-                    {
-                        ProcessSingleClick(clickedIndex);
-                    }
-
-                    onItemsChosen?.Invoke(m_SelectedItems);
-                    break;
-            }
+            ScrollToItem(clickedIndex);
         }
 
         int GetIdFromIndex(int index)
@@ -912,12 +1335,22 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             return itemsSource != null && makeItem != null && bindItem != null;
         }
 
-        void NotifyOfSelectionChange()
+        void PostSelection(bool updatePreviousSelection, bool sendNotification)
         {
-            if (!HasValidDataAndBindings())
+            if (AreSequencesEqual(m_PreviouslySelectedIndices, m_SelectedIndices))
                 return;
 
-            selectionChanged?.Invoke(m_SelectedItems);
+            if (updatePreviousSelection)
+            {
+                m_PreviouslySelectedIndices.Clear();
+                m_PreviouslySelectedIndices.AddRange(m_SelectedIndices);
+            }
+
+            if (sendNotification)
+            {
+                selectionChanged?.Invoke(m_SelectedItems);
+                selectedIndicesChanged?.Invoke(m_SelectedIndices);
+            }
         }
 
         void OnAttachToPanel(AttachToPanelEvent evt)
@@ -925,15 +1358,22 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (evt.destinationPanel == null)
                 return;
 
-            scrollView.contentContainer.RegisterCallback<PointerDownEvent>(OnPointerDown);
-            scrollView.contentContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
-            scrollView.contentContainer.RegisterCallback<KeyDownEvent>(OnKeyPress);
+            if (!UnityEngine.Device.Application.isMobilePlatform)
+                scrollView.AddManipulator(dragger);
+
+            scrollView.RegisterCallback<ClickEvent>(OnClick);
+            scrollView.RegisterCallback<PointerDownEvent>(OnPointerDown);
+            scrollView.RegisterCallback<PointerUpEvent>(OnPointerUp);
+            scrollView.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+            RegisterCallback<KeyDownEvent>(OnKeyDown);
+            RegisterCallback<NavigationMoveEvent>(OnNavigationMove);
+            RegisterCallback<NavigationCancelEvent>(OnNavigationCancel);
+            scrollView.RegisterCallback<WheelEvent>(OnWheel, TrickleDown.TrickleDown);
         }
 
         void OnCustomStyleResolved(CustomStyleResolvedEvent e)
         {
-            int height;
-            if (!m_ItemHeightIsInline && e.customStyle.TryGetValue(s_ItemHeightProperty, out height))
+            if (!m_ItemHeightIsInline && e.customStyle.TryGetValue(s_ItemHeightProperty, out var height))
             {
                 if (m_ItemHeight != height)
                 {
@@ -948,30 +1388,74 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (evt.originPanel == null)
                 return;
 
-            scrollView.contentContainer.UnregisterCallback<PointerDownEvent>(OnPointerDown);
-            scrollView.contentContainer.UnregisterCallback<PointerUpEvent>(OnPointerUp);
-            scrollView.contentContainer.UnregisterCallback<KeyDownEvent>(OnKeyPress);
+            scrollView.RemoveManipulator(dragger);
+
+            scrollView.UnregisterCallback<ClickEvent>(OnClick);
+            scrollView.UnregisterCallback<PointerDownEvent>(OnPointerDown);
+            scrollView.UnregisterCallback<PointerUpEvent>(OnPointerUp);
+            scrollView.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
+            UnregisterCallback<KeyDownEvent>(OnKeyDown);
+            UnregisterCallback<NavigationMoveEvent>(OnNavigationMove);
+            UnregisterCallback<NavigationCancelEvent>(OnNavigationCancel);
+            scrollView.UnregisterCallback<WheelEvent>(OnWheel, TrickleDown.TrickleDown);
+        }
+
+        void OnWheel(WheelEvent evt)
+        {
+            if (preventScrollWithModifiers && evt.modifiers != EventModifiers.None)
+                evt.StopImmediatePropagation();
+        }
+
+        void OnClick(ClickEvent evt)
+        {
+            if (!HasValidDataAndBindings())
+                return;
+
+            if (evt.clickCount == 2)
+            {
+                var clickedIndex = GetIndexByWorldPosition(evt.position);
+                if (clickedIndex >= 0 && clickedIndex < m_ItemsSource.Count)
+                {
+                    doubleClicked?.Invoke(clickedIndex);
+                    Apply(GridOperations.Choose, evt.shiftKey);
+                }
+            }
+        }
+
+        void OnPointerMove(PointerMoveEvent evt)
+        {
+            m_HasPointerMoved = true;
         }
 
         void OnPointerDown(PointerDownEvent evt)
         {
+            evt.StopImmediatePropagation();
             if (!HasValidDataAndBindings())
                 return;
 
             if (!evt.isPrimary)
                 return;
 
-            if (evt.button != (int)MouseButton.LeftMouse)
+            var capturingElement = panel?.GetCapturingElement(evt.pointerId);
+
+            // if the pointer is captured by a child of the scroll view, abort any selection
+            if (capturingElement is VisualElement ve &&
+                ve != scrollView &&
+                ve.FindCommonAncestor(scrollView) != null)
                 return;
 
-            if (evt.pointerType != "mouse")
-            {
-                m_TouchDownTime = evt.timestamp;
-                m_TouchDownPosition = evt.position;
-                return;
-            }
+            m_OriginalSelection.Clear();
+            m_OriginalSelection.AddRange(m_SelectedIndices);
+            m_OriginalScrollOffset = m_ScrollOffset;
+            m_SoftSelectIndex = -1;
 
-            DoSelect(evt.localPosition, evt.clickCount, evt.actionKey, evt.shiftKey);
+            var clickCount = m_HasPointerMoved ? 1 : evt.clickCount;
+            m_HasPointerMoved = false;
+
+            DoSoftSelect(evt, clickCount);
+
+            if (evt.button == (int)MouseButton.RightMouse)
+                DoContextClickAfterSelect(evt);
         }
 
         void OnPointerUp(PointerUpEvent evt)
@@ -982,34 +1466,45 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!evt.isPrimary)
                 return;
 
-            if (evt.button != (int)MouseButton.LeftMouse)
+            if (m_SoftSelectIndex == -1)
                 return;
 
-            if (evt.pointerType != "mouse")
+            var index = m_SoftSelectIndex;
+            m_SoftSelectIndex = -1;
+
+            if (m_SoftSelectIndexWasPreviouslySelected &&
+                evt.button == (int)MouseButton.LeftMouse &&
+                evt.modifiers == EventModifiers.None)
             {
-                var delay = evt.timestamp - m_TouchDownTime;
-                var delta = evt.position - m_TouchDownPosition;
-                if (delay < 500 && delta.sqrMagnitude <= 100)
-                {
-                    DoSelect(evt.localPosition, evt.clickCount, evt.actionKey, evt.shiftKey);
-                }
+                ProcessSingleClick(index);
+                return;
             }
-            else
-            {
-                var clickedIndex = GetIndexByPosition(evt.localPosition);
-                if (selectionType == SelectionType.Multiple
-                    && !evt.shiftKey
-                    && !evt.actionKey
-                    && m_SelectedIndices.Count > 1
-                    && m_SelectedIndices.Contains(clickedIndex))
-                {
-                    ProcessSingleClick(clickedIndex);
-                }
-            }
+
+            PostSelection(true, true);
         }
 
-        int GetIndexByPosition(Vector2 localPosition)
+        void CancelSoftSelect()
         {
+            if (m_SoftSelectIndex != -1)
+            {
+                SetSelectionInternal(m_OriginalSelection, false, false);
+                scrollView.verticalScroller.value = m_OriginalScrollOffset;
+            }
+
+            m_SoftSelectIndex = -1;
+        }
+
+        /// <summary>
+        /// Returns the index of the item at the given position.
+        /// </summary>
+        /// <remarks>
+        /// The position is relative to the top left corner of the grid. No check is made to see if the index is valid.
+        /// </remarks>
+        /// <param name="worldPosition">The position of the item in the world-space.</param>
+        /// <returns> The index of the item at the given position.</returns>
+        public int GetIndexByWorldPosition(Vector2 worldPosition)
+        {
+            var localPosition = scrollView.contentContainer.WorldToLocal(worldPosition);
             return Mathf.FloorToInt(localPosition.y / resolvedItemHeight) * columnCount + Mathf.FloorToInt(localPosition.x / resolvedItemWidth);
         }
 
@@ -1057,7 +1552,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
                         for (var i = 0; i < count && m_RowPool.Count > 0; ++i)
                         {
-                            var last = m_RowPool[m_RowPool.Count - 1];
+                            var last = m_RowPool[^1];
                             inserting.Add(last);
                             m_RowPool.RemoveAt(m_RowPool.Count - 1); //we remove from the end
 
@@ -1096,6 +1591,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                         {
                             var index = rowIndex * columnCount + colIndex + m_FirstVisibleIndex;
 
+                            var isFirstColumn = colIndex == 0;
+                            var isLastColumn = colIndex == columnCount - 1;
+
                             if (index < itemsSource.Count)
                             {
                                 var item = m_RowPool[rowIndex].ElementAt(colIndex);
@@ -1109,6 +1607,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                                 }
 
                                 Setup(item, index);
+                                item.EnableInClassList(k_FirstColumnUssClassName, isFirstColumn);
+                                item.EnableInClassList(k_LastColumnUssClassName, isLastColumn);
                             }
                             else
                             {
@@ -1118,6 +1618,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                                 {
                                     m_RowPool[rowIndex].RemoveAt(colIndex);
                                     m_RowPool[rowIndex].Insert(colIndex, CreateDummyItemElement());
+                                    m_RowPool[rowIndex][colIndex].EnableInClassList(k_FirstColumnUssClassName, isFirstColumn);
+                                    m_RowPool[rowIndex][colIndex].EnableInClassList(k_LastColumnUssClassName, isLastColumn);
                                     m_RowPool[rowIndex].ids.RemoveAt(colIndex);
                                     m_RowPool[rowIndex].ids.Insert(colIndex, RecycledRow.kUndefinedIndex);
                                     m_RowPool[rowIndex].indices.RemoveAt(colIndex);
@@ -1208,7 +1710,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
                         for (var indexInRow = 0; indexInRow < columnCount; indexInRow++)
                         {
-                            var index = m_RowPool.Count * columnCount + indexInRow;
+                            var index = m_RowPool.Count * columnCount + indexInRow + m_FirstVisibleIndex;
                             var item = makeItem != null && index < itemsSource.Count ? makeItem.Invoke() : CreateDummyItemElement();
                             SetupItemElement(item);
 
@@ -1223,6 +1725,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                                 recycledRow.ids.Add(RecycledRow.kUndefinedIndex);
                                 recycledRow.indices.Add(RecycledRow.kUndefinedIndex);
                             }
+
+                            var isFirstColumn = indexInRow == 0;
+                            var isLastColumn = indexInRow == columnCount - 1;
+                            item.EnableInClassList(k_FirstColumnUssClassName, isFirstColumn);
+                            item.EnableInClassList(k_LastColumnUssClassName, isLastColumn);
                         }
 
                         m_RowPool.Add(recycledRow);
@@ -1267,21 +1774,45 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             recycledRow.SetSelected(indexInRow, m_SelectedIds.Contains(recycledRow.ids[indexInRow]));
         }
 
+        static bool AreSequencesEqual<T>(IList<T> first, IList<T> second)
+        {
+            if (first == null || second == null || first.Count != second.Count)
+                return false;
+
+            for (var i = 0; i < first.Count; i++)
+            {
+                if (!first[i].Equals(second[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
         void SetupItemElement(VisualElement item)
         {
             item.AddToClassList(k_ItemUssClassName);
             item.style.position = Position.Relative;
-            item.style.height = item.style.width = itemHeight;
+            if (itemSquare)
+            {
+                var itemSize = (float)itemHeight;
+                item.style.height = item.style.width = itemSize;
+            }
+            else
+            {
+                item.style.flexBasis = 0;
+                item.style.flexGrow = 1f;
+                item.style.flexShrink = 1f;
+            }
         }
 
+#if ENABLE_UXML_TRAITS
         /// <summary>
         /// Instantiates a <see cref="GridView"/> using data from a UXML file.
         /// </summary>
         /// <remarks>
         /// This class is added to every <see cref="VisualElement"/> created from UXML.
         /// </remarks>
-        [Preserve]
-        public new class UxmlFactory : UxmlFactory<GridView, UxmlTraits> {}
+        public new class UxmlFactory : UxmlFactory<GridView, UxmlTraits> { }
 
         /// <summary>
         /// Defines <see cref="UxmlTraits"/> for the <see cref="GridView"/>.
@@ -1291,11 +1822,42 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// </remarks>
         public new class UxmlTraits : BindableElement.UxmlTraits
         {
-            readonly UxmlIntAttributeDescription m_ItemHeight = new UxmlIntAttributeDescription { name = "item-height", obsoleteNames = new[] { "itemHeight" }, defaultValue = k_DefaultItemHeight };
+            readonly UxmlIntAttributeDescription m_ItemHeight = new UxmlIntAttributeDescription
+            {
+                name = "item-height",
+                obsoleteNames = new[] { "itemHeight" },
+                defaultValue = defaultItemHeight
+            };
 
-            readonly UxmlEnumAttributeDescription<SelectionType> m_SelectionType = new UxmlEnumAttributeDescription<SelectionType> { name = "selection-type", defaultValue = SelectionType.Single };
+            readonly UxmlBoolAttributeDescription m_ItemSquare = new UxmlBoolAttributeDescription
+            {
+                name = "item-square",
+                defaultValue = false
+            };
 
-            readonly UxmlBoolAttributeDescription m_ShowBorder = new UxmlBoolAttributeDescription { name = "show-border", defaultValue = false };
+            readonly UxmlEnumAttributeDescription<SelectionType> m_SelectionType = new UxmlEnumAttributeDescription<SelectionType>
+            {
+                name = "selection-type",
+                defaultValue = SelectionType.Single
+            };
+
+            readonly UxmlBoolAttributeDescription m_ShowBorder = new UxmlBoolAttributeDescription
+            {
+                name = "show-border",
+                defaultValue = false
+            };
+
+            readonly UxmlBoolAttributeDescription m_PreventScrollWithModifiers = new UxmlBoolAttributeDescription
+            {
+                name = "prevent-scroll-with-modifiers",
+                defaultValue = k_DefaultPreventScrollWithModifiers
+            };
+
+            readonly UxmlBoolAttributeDescription m_AllowNoSelection = new UxmlBoolAttributeDescription
+            {
+                name = "allow-no-selection",
+                defaultValue = true
+            };
 
             /// <summary>
             /// Returns an empty enumerable, because list views usually do not have child elements.
@@ -1315,20 +1877,22 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
             {
                 base.Init(ve, bag, cc);
-                var itemHeight = 0;
                 var view = (GridView)ve;
 
                 // Avoid setting itemHeight unless it's explicitly defined.
                 // Setting itemHeight property will activate inline property mode.
+                var itemHeight = 0;
                 if (m_ItemHeight.TryGetValueFromBag(bag, cc, ref itemHeight))
-                {
                     view.itemHeight = itemHeight;
-                }
 
+                view.itemSquare = m_ItemSquare.GetValueFromBag(bag, cc);
                 view.showBorder = m_ShowBorder.GetValueFromBag(bag, cc);
+                view.preventScrollWithModifiers = m_PreventScrollWithModifiers.GetValueFromBag(bag, cc);
                 view.selectionType = m_SelectionType.GetValueFromBag(bag, cc);
+                view.allowNoSelection = m_AllowNoSelection.GetValueFromBag(bag, cc);
             }
         }
+#endif
 
         internal class RecycledRow : VisualElement
         {
@@ -1341,7 +1905,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             public RecycledRow(float height)
             {
                 AddToClassList(k_RowUssClassName);
-                pickingMode = PickingMode.Ignore;
                 style.height = height;
 
                 indices = new List<int>();
@@ -1349,7 +1912,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             }
 
             public int firstIndex => indices.Count > 0 ? indices[0] : kUndefinedIndex;
-            public int lastIndex => indices.Count > 0 ? indices[indices.Count - 1] : kUndefinedIndex;
+            public int lastIndex => indices.Count > 0 ? indices[^1] : kUndefinedIndex;
 
             public void ClearSelection()
             {
@@ -1376,32 +1939,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 if (childCount > indexInRow && indexInRow >= 0)
                 {
                     if (selected)
-                    {
-                        AddElementToClass(ElementAt(indexInRow), itemSelectedVariantUssClassName, true);
-                    }
+                        ElementAt(indexInRow).AddToClassList(itemSelectedVariantUssClassName);
                     else
-                    {
-                        RemoveElementFromClass(ElementAt(indexInRow), itemSelectedVariantUssClassName, true);
-                    }
-                }
-            }
-
-            static void AddElementToClass(VisualElement element, string className, bool includeChildren = false)
-            {
-                element.AddToClassList(className);
-                if (includeChildren)
-                {
-                    foreach (var child in element.Children())
-                        child.AddToClassList(className);
-                }
-            }
-            static void RemoveElementFromClass(VisualElement element, string className, bool includeChildren = false)
-            {
-                element.RemoveFromClassList(className);
-                if (includeChildren)
-                {
-                    foreach (var child in element.Children())
-                        child.RemoveFromClassList(className);
+                        ElementAt(indexInRow).RemoveFromClassList(itemSelectedVariantUssClassName);
                 }
             }
         }

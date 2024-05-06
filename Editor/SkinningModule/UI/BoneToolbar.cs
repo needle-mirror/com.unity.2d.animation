@@ -4,7 +4,10 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class BoneToolbar : Toolbar
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class BoneToolbar : Toolbar
     {
         private const string k_UxmlPath = "SkinningModule/BoneToolbar.uxml";
         private const string k_ToolbarId = "BoneToolbar";        
@@ -12,9 +15,11 @@ namespace UnityEditor.U2D.Animation
         private const string k_EditJointsId = "EditJoints";
         private const string k_CreateBoneId = "CreateBone";
         private const string k_SplitBoneId = "SplitBone";
-        
+
+#if ENABLE_UXML_TRAITS
         public class BoneToolbarFactory : UxmlFactory<BoneToolbar, BoneToolbarUxmlTraits> {}
         public class BoneToolbarUxmlTraits : UxmlTraits {}
+#endif
 
         public event Action<Tools> SetSkeletonTool = (mode) => {};
         public SkinningCache skinningCache { get; private set; }

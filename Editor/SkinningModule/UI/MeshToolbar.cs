@@ -4,19 +4,24 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class MeshToolbar : Toolbar
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class MeshToolbar : Toolbar
     {
         private const string k_UxmlPath = "SkinningModule/MeshToolbar.uxml";
         private const string k_ToolbarId = "MeshToolbar";
-        
+
         private const string k_SelectGeometryId = "SelectGeometry";
         private const string k_CreateVertexId = "CreateVertex";
         private const string k_CreateEdgeId = "CreateEdge";
         private const string k_SplitEdgeId = "SplitEdge";
         private const string k_GenerateGeometryId = "GenerateGeometry";
-        
+
+#if ENABLE_UXML_TRAITS
         public class MeshToolbarFactory : UxmlFactory<MeshToolbar, MeshToolbarUxmlTraits> {}
         public class MeshToolbarUxmlTraits : UxmlTraits {}
+#endif
 
         public event Action<Tools> SetMeshTool = (mode) => {};
         public SkinningCache skinningCache { get; set; }

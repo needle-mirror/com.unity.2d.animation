@@ -10,6 +10,8 @@ namespace UnityEngine.U2D.Animation
         JobHandle m_BoundJobHandle;
         JobHandle m_CopyJobHandle;
 
+        public override DeformationMethods deformationMethod => DeformationMethods.Cpu;
+
         internal override void Cleanup()
         {
             base.Cleanup();
@@ -75,11 +77,12 @@ namespace UnityEngine.U2D.Animation
             {
                 InternalEngineBridge.SetBatchDeformableBufferAndLocalAABBArray(m_SpriteRenderers, m_Buffers, m_BufferSizes, m_BoundsData);
             }
-            
-            for (var i = 0; i < m_SpriteSkins.Count; ++i)
+
+            foreach (var spriteSkin in m_SpriteSkins)
             {
-                var didDeform = m_IsSpriteSkinActiveForDeform[i];
-                m_SpriteSkins[i].PostDeform(didDeform);
+                var didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
+                spriteSkin.PostDeform(didDeform);
+                
             }
 
             DeactivateDeformableBuffers();

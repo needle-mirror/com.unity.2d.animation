@@ -6,12 +6,17 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class PivotInspectorPanel : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class PivotInspectorPanel : VisualElement
     {
         EnumField m_PivotAlignment;
         Vector2Field m_PivotPosition;
         
+#if ENABLE_UXML_TRAITS
         public class CustomUxmlFactory : UxmlFactory<PivotInspectorPanel, UxmlTraits> { }
+#endif
         
         internal static PivotInspectorPanel CreateFromUxml()
         {

@@ -4,18 +4,23 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class WeightToolbar : Toolbar
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class WeightToolbar : Toolbar
     {
         private const string k_UxmlPath = "SkinningModule/WeightToolbar.uxml";
         private const string k_ToolbarId = "WeightToolbar";
-        
+
         private const string k_AutoGenerateWeightId = "AutoGenerateWeight";
         private const string k_WeightPainterSliderId = "WeightPainterSlider";
         private const string k_WeightPainterBrushId = "WeightPainterBrush";
         private const string k_BoneInfluenceWidgetId = "BoneInfluenceWidget";
         private const string k_SpriteInfluenceWidgetId = "SpriteInfluenceWidget";
-        
+
+#if ENABLE_UXML_TRAITS
         public class CustomUXMLFactor : UxmlFactory<WeightToolbar, UxmlTraits> {}
+#endif
 
         public event Action<Tools> SetWeightTool = (mode) => {};
         public SkinningCache skinningCache { get; set; }

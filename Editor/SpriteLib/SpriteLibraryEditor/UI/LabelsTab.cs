@@ -7,9 +7,14 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 {
-    internal class LabelsTab : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class LabelsTab : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class CustomUxmlFactory : UxmlFactory<LabelsTab, UxmlTraits> { }
+#endif
 
         ViewEvents m_ViewEvents;
 

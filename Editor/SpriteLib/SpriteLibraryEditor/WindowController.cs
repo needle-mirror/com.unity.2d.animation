@@ -441,7 +441,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!hasSelectedLibrary || !m_Model.hasSelectedCategories)
                 return;
 
-            if (reorderedCategories == null || reorderedCategories.Count == 0)
+            if (m_Model.CompareCategories(reorderedCategories))
                 return;
 
             var categoriesToReorder = selectedCategories;
@@ -530,7 +530,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!hasSelectedLibrary || !m_Model.hasSelectedCategories)
                 return;
 
-            if (reorderedLabels == null || reorderedLabels.Count == 0)
+            if (m_Model.CompareLabels(reorderedLabels))
                 return;
 
             var labelsToReorder = selectedLabels;

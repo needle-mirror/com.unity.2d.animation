@@ -1,8 +1,6 @@
 #define WRITE_TO_JSON
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEngine.Analytics;
 using UnityEngine;
 
@@ -54,7 +52,10 @@ namespace UnityEditor.U2D.Animation
     }
 
     [Serializable]
-    struct AnimationEvent
+    struct AnimationEvent 
+#if USE_NEW_EDITOR_ANALYTICS
+        : IAnalytic.IData
+#endif
     {
         [SerializeField]
         public AnimationEventType sub_type;
@@ -65,14 +66,19 @@ namespace UnityEditor.U2D.Animation
     }
 
     [Serializable]
-    struct AnimationToolUsageEvent
+    struct AnimationToolUsageEvent 
+#if USE_NEW_EDITOR_ANALYTICS
+        : IAnalytic.IData
+#endif
     {
+        public const string name = "u2dAnimationToolUsage";
+        
         [SerializeField]
         public int instance_id;
         [SerializeField]
-        public  AnimationToolType animation_tool;
+        public AnimationToolType animation_tool;
         [SerializeField]
-        public  bool character_mode;
+        public bool character_mode;
         [SerializeField]
         public int time_start_s;
         [SerializeField]
@@ -80,12 +86,80 @@ namespace UnityEditor.U2D.Animation
         [SerializeField]
         public List<AnimationEvent> animation_events;
     }
+    
+#if USE_NEW_EDITOR_ANALYTICS
+    [AnalyticInfo(eventName: "u2dAnimationToolUsage", 
+        vendorKey: UnityAnalyticsStorage.vendorKey, 
+        version: UnityAnalyticsStorage.version,
+        maxEventsPerHour: AnalyticConstant.k_MaxEventsPerHour,
+        maxNumberOfElements: AnalyticConstant.k_MaxNumberOfElements)]
+    class AnimationToolUsageEventAnalytic : IAnalytic
+    {
+        AnimationToolUsageEvent m_EvtData;
+        public AnimationToolUsageEventAnalytic(AnimationToolUsageEvent evtData)
+        {
+            m_EvtData = evtData;
+        }
+        public bool TryGatherData(out IAnalytic.IData data, out Exception error)
+        {
+            data = m_EvtData;
+            error = null;
+            return true;
+        }
+    }
+    
+    [AnalyticInfo(eventName: nameof(AnimationEvent),
+        vendorKey: UnityAnalyticsStorage.vendorKey, 
+        version: UnityAnalyticsStorage.version,
+        maxEventsPerHour: AnalyticConstant.k_MaxEventsPerHour,
+        maxNumberOfElements: AnalyticConstant.k_MaxNumberOfElements)]
+    class AnimationEventAnalytic : IAnalytic
+    {
+        AnimationEvent m_EvtData;
+        public AnimationEventAnalytic(AnimationEvent evtData)
+        {
+            m_EvtData = evtData;
+        }
+        public bool TryGatherData(out IAnalytic.IData data, out Exception error)
+        {
+            data = m_EvtData;
+            error = null;
+            return true;
+        }
+    }
+
+    [AnalyticInfo(eventName: AnimationToolApplyEvent.name,
+        vendorKey: UnityAnalyticsStorage.vendorKey, 
+        version: UnityAnalyticsStorage.version,
+        maxEventsPerHour: AnalyticConstant.k_MaxEventsPerHour,
+        maxNumberOfElements: AnalyticConstant.k_MaxNumberOfElements)]
+    class AnimationToolApplyEventAnalytic : IAnalytic
+    {
+        AnimationToolApplyEvent m_EvtData;
+
+        public AnimationToolApplyEventAnalytic(AnimationToolApplyEvent evtData)
+        {
+            m_EvtData = evtData;
+        }
+        public bool TryGatherData(out IAnalytic.IData data, out Exception error)
+        {
+            data = m_EvtData;
+            error = null;
+            return true;
+        }
+    }
+#endif
 
     [Serializable]
-    struct AnimationToolApplyEvent
+    struct AnimationToolApplyEvent 
+#if USE_NEW_EDITOR_ANALYTICS
+        : IAnalytic.IData
+#endif
     {
+        public const string name = "u2dAnimationToolApply";
+
         [SerializeField]
-        public  bool character_mode;
+        public bool character_mode;
         [SerializeField]
         public int instance_id;
         [SerializeField]
@@ -115,23 +189,23 @@ namespace UnityEditor.U2D.Animation
     internal class SkinningModuleAnalyticsModel : IAnimationAnalyticsModel
     {
         public SkinningCache skinningCache { get; private set; }
-        public bool hasCharacter { get { return skinningCache.hasCharacter; } }
-        public SkinningMode mode { get { return skinningCache.mode; } }
-        public ITool selectedTool { get { return skinningCache.selectedTool; } }
+
+        public bool hasCharacter => skinningCache.hasCharacter;
+
+        public SkinningMode mode => skinningCache.mode;
+
+        public ITool selectedTool => skinningCache.selectedTool;
+
+        public ITool GetTool(Tools tool) => skinningCache.GetTool(tool);
+
+        public int selectedBoneCount => skinningCache.skeletonSelection.Count;
+
+        public int applicationElapseTime => (int)EditorApplication.timeSinceStartup;
 
         public SkinningModuleAnalyticsModel(SkinningCache s)
         {
             skinningCache = s;
         }
-
-        public ITool GetTool(Tools tool)
-        {
-            return skinningCache.GetTool(tool);
-        }
-
-        public int selectedBoneCount { get { return skinningCache.skeletonSelection.Count; } }
-
-        public int applicationElapseTime { get { return (int)EditorApplication.timeSinceStartup; } }
     }
 
     [Serializable]
@@ -221,7 +295,7 @@ namespace UnityEditor.U2D.Animation
             });
         }
 
-        void OnPaste(bool bone , bool mesh , bool flipX , bool flipY)
+        void OnPaste(bool bone, bool mesh, bool flipX, bool flipY)
         {
             SetAnimationEvent(new AnimationEvent()
             {
@@ -275,9 +349,7 @@ namespace UnityEditor.U2D.Animation
             });
         }
 
-        void OnMeshPreviewChanged(MeshPreviewCache mesh)
-        {
-        }
+        void OnMeshPreviewChanged(MeshPreviewCache mesh) { }
 
         void OnSkinningModuleModeChanged(SkinningMode mode)
         {
@@ -395,12 +467,14 @@ namespace UnityEditor.U2D.Animation
                             e.sub_type = AnimationEventType.Truncated;
                             e.repeated_event = 0;
                         }
+
                         e.repeated_event += 1;
                         toolEvent.animation_events[eventCount - 1] = e;
                     }
                     else
                         toolEvent.animation_events.Add(evt);
                 }
+
                 m_CurrentEvent = toolEvent;
             }
         }
@@ -430,6 +504,7 @@ namespace UnityEditor.U2D.Animation
             {
                 SendLastEvent(m_CurrentEvent.Value, tick);
             }
+
             m_CurrentEvent = null;
         }
 
@@ -489,6 +564,7 @@ namespace UnityEditor.U2D.Animation
                             if (parentBone == b)
                             {
                                 ++count;
+
                                 // the bone has a parent and the parent bone's chainedChild is not us, means we are a new chain
                                 if (b1.parentBone != null && b1.parentBone.chainedChild != b1)
                                 {
@@ -503,16 +579,20 @@ namespace UnityEditor.U2D.Animation
 
                                     chainDepth = chainDepth1 > chainDepth ? chainDepth1 : chainDepth;
                                 }
+
                                 break;
                             }
+
                             parentBone = parentBone.parentBone;
                         }
                     }
+
                     chainCountList.Add(chain);
                     boneDepthList.Add(chainDepth);
                     countList.Add(count);
                 }
             }
+
             chainBoneCount = chainCountList.ToArray();
             maxDepth = boneDepthList.ToArray();
             boneCount = countList.ToArray();
@@ -529,7 +609,7 @@ namespace UnityEditor.U2D.Animation
     internal static class AnalyticConstant
     {
         public const int k_MaxEventsPerHour = 1000;
-        public  const int k_MaxNumberOfElements = 1000;
+        public const int k_MaxNumberOfElements = 1000;
     }
 
     internal class AnalyticsJsonStorage : IAnalyticsStorage
@@ -584,25 +664,35 @@ namespace UnityEditor.U2D.Animation
     [InitializeOnLoad]
     internal class UnityAnalyticsStorage : IAnalyticsStorage
     {
-        const string k_VendorKey = "unity.2d.animation";
-        const int k_Version = 1;
+        public const string vendorKey = "unity.2d.animation";
+        public const int version = 1;
 
         static UnityAnalyticsStorage()
         {
-            EditorAnalytics.RegisterEventWithLimit("u2dAnimationToolUsage", AnalyticConstant.k_MaxEventsPerHour, AnalyticConstant.k_MaxNumberOfElements, k_VendorKey, k_Version);
-            EditorAnalytics.RegisterEventWithLimit("u2dAnimationToolApply", AnalyticConstant.k_MaxEventsPerHour, AnalyticConstant.k_MaxNumberOfElements, k_VendorKey, k_Version);
+#if !USE_NEW_EDITOR_ANALYTICS
+            EditorAnalytics.RegisterEventWithLimit(AnimationToolUsageEvent.name, AnalyticConstant.k_MaxEventsPerHour, AnalyticConstant.k_MaxNumberOfElements, vendorKey, version);
+            EditorAnalytics.RegisterEventWithLimit(AnimationToolApplyEvent.name, AnalyticConstant.k_MaxEventsPerHour, AnalyticConstant.k_MaxNumberOfElements, vendorKey, version);
+#endif
         }
 
         public AnalyticsResult SendUsageEvent(AnimationToolUsageEvent evt)
         {
-            return EditorAnalytics.SendEventWithLimit("u2dAnimationToolUsage", evt, k_Version);
+#if USE_NEW_EDITOR_ANALYTICS
+            return EditorAnalytics.SendAnalytic(new AnimationToolUsageEventAnalytic(evt));
+#else
+            return EditorAnalytics.SendEventWithLimit(AnimationToolUsageEvent.name, evt, version);
+#endif
         }
 
         public AnalyticsResult SendApplyEvent(AnimationToolApplyEvent evt)
         {
-            return EditorAnalytics.SendEventWithLimit("u2dAnimationToolApply", evt, k_Version);
+#if USE_NEW_EDITOR_ANALYTICS
+            return EditorAnalytics.SendAnalytic(new AnimationToolApplyEventAnalytic(evt));
+#else
+            return EditorAnalytics.SendEventWithLimit(AnimationToolApplyEvent.name, evt, version);
+#endif
         }
 
-        public void Dispose() {}
+        public void Dispose() { }
     }
 }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.Collections;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -21,7 +20,7 @@ namespace UnityEngine.U2D.Animation
         /// </summary>
         None = 2
     }
-    
+
     internal class DeformationManager : ScriptableObject
     {
         static DeformationManager s_Instance;
@@ -40,6 +39,7 @@ namespace UnityEngine.U2D.Animation
                     s_Instance.hideFlags = HideFlags.HideAndDontSave;
                     s_Instance.Init();
                 }
+
                 return s_Instance;
             }
         }
@@ -52,7 +52,7 @@ namespace UnityEngine.U2D.Animation
 
         bool canUseGpuDeformation { get; set; }
         bool m_WasUsingGpuDeformationLastFrame;
-        
+
         void OnEnable()
         {
             s_Instance = this;
@@ -75,30 +75,30 @@ namespace UnityEngine.U2D.Animation
 
             var noOfSystems = canUseGpuDeformation ? 2 : 1;
             m_DeformationSystems = new BaseDeformationSystem[noOfSystems];
-            m_DeformationSystems[0] = new CpuDeformationSystem();
+            m_DeformationSystems[(int)DeformationMethods.Cpu] = new CpuDeformationSystem();
 
             if (canUseGpuDeformation)
-                m_DeformationSystems[1] = new GpuDeformationSystem();
-            
+                m_DeformationSystems[(int)DeformationMethods.Gpu] = new GpuDeformationSystem();
+
             for (var i = 0; i < m_DeformationSystems.Length; ++i)
                 m_DeformationSystems[i].Initialize(m_DeformationSystems[i].GetHashCode());
         }
-        
+
         void CreateHelper()
         {
             if (m_Helper != null)
                 return;
-            
+
             m_Helper = new GameObject("DeformationManagerUpdater");
             m_Helper.hideFlags = HideFlags.HideAndDontSave;
             var helperComponent = m_Helper.AddComponent<DeformationManagerUpdater>();
             helperComponent.onDestroyingComponent += OnHelperDestroyed;
-                
+
 #if !UNITY_EDITOR
             GameObject.DontDestroyOnLoad(m_Helper);
 #endif
-        }  
-        
+        }
+
         void OnHelperDestroyed(GameObject helperGo)
         {
             if (m_Helper != helperGo)
@@ -106,7 +106,7 @@ namespace UnityEngine.U2D.Animation
 
             m_Helper = null;
             CreateHelper();
-        }        
+        }
 
         void OnDisable()
         {
@@ -115,7 +115,7 @@ namespace UnityEngine.U2D.Animation
                 m_Helper.GetComponent<DeformationManagerUpdater>().onDestroyingComponent -= OnHelperDestroyed;
                 GameObject.DestroyImmediate(m_Helper);
             }
-            
+
             for (var i = 0; i < m_DeformationSystems.Length; ++i)
                 m_DeformationSystems[i].Cleanup();
         }
@@ -124,7 +124,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (HasToggledGpuDeformation())
                 MoveSpriteSkinsToActiveSystem();
-            
+
             for (var i = 0; i < m_DeformationSystems.Length; ++i)
                 m_DeformationSystems[i].Update();
         }
@@ -137,20 +137,22 @@ namespace UnityEngine.U2D.Animation
                 m_WasUsingGpuDeformationLastFrame = isUsingGpuDeformation;
                 return true;
             }
+
             return false;
         }
 
         void MoveSpriteSkinsToActiveSystem()
         {
-            var prevSystem = SpriteSkinUtility.IsUsingGpuDeformation() ? m_DeformationSystems[(int) DeformationMethods.Cpu] : m_DeformationSystems[(int) DeformationMethods.Gpu];
+            var prevSystem = SpriteSkinUtility.IsUsingGpuDeformation() ? m_DeformationSystems[(int)DeformationMethods.Cpu] : m_DeformationSystems[(int)DeformationMethods.Gpu];
 
             var skins = prevSystem.GetSpriteSkins();
-            prevSystem.RemoveSpriteSkins(skins);
+            foreach (var spriteSkin in skins)
+                prevSystem.RemoveSpriteSkin(spriteSkin);
 
-            for (var i = 0; i < skins.Length; ++i)
-                AddSpriteSkin(skins[i]);
+            foreach (var spriteSkin in skins)
+                AddSpriteSkin(spriteSkin);
         }
-        
+
         internal void AddSpriteSkin(SpriteSkin spriteSkin)
         {
             if (spriteSkin == null)
@@ -167,23 +169,13 @@ namespace UnityEngine.U2D.Animation
                 else if (!SpriteSkinUtility.CanSpriteSkinUseGpuDeformation(spriteSkin))
                 {
                     deformationMethod = DeformationMethods.Cpu;
-                    Debug.LogWarning($"{spriteSkin.name} is using a shader without GPU deformation support. Switching the renderer over to CPU deformation.", spriteSkin);   
+                    Debug.LogWarning($"{spriteSkin.name} is using a shader without GPU deformation support. Switching the renderer over to CPU deformation.", spriteSkin);
                 }
             }
-            
-            m_DeformationSystems[(int)deformationMethod].AddSpriteSkin(spriteSkin);
-            spriteSkin.currentDeformationMethod = deformationMethod;
-        }
 
-        internal void RemoveSpriteSkin(SpriteSkin spriteSkin)
-        {
-            if (spriteSkin == null)
-                return;
-            var systemIndex = GetSystemIndexOfSpriteSkin(spriteSkin);
-            if (systemIndex == -1)
-                return;
-            
-            m_DeformationSystems[systemIndex].RemoveSpriteSkin(spriteSkin);
+            var deformationSystem = m_DeformationSystems[(int)deformationMethod];
+            if (deformationSystem.AddSpriteSkin(spriteSkin))
+                spriteSkin.SetDeformationSystem(deformationSystem);
         }
 
         internal void RemoveBoneTransforms(SpriteSkin spriteSkin)
@@ -196,13 +188,25 @@ namespace UnityEngine.U2D.Animation
         {
             if (spriteSkin == null)
                 return;
-            var systemIndex = GetSystemIndexOfSpriteSkin(spriteSkin);
-            if (systemIndex == -1)
+            var system = spriteSkin.deformationSystem;
+            if (system == null)
                 return;
-            
-            m_DeformationSystems[systemIndex].CopyToSpriteSkinData(spriteSkin);
+
+            system.CopyToSpriteSkinData(spriteSkin);
         }
-        
+
+        internal void AddSpriteSkinBoneTransform(SpriteSkin spriteSkin)
+        {
+            if (spriteSkin == null)
+                return;
+            var system = spriteSkin.deformationSystem;
+            if (system == null)
+                return;
+
+            system.AddBoneTransforms(spriteSkin);
+        }
+
+#if UNITY_INCLUDE_TESTS
         internal SpriteSkin[] GetSpriteSkins()
         {
             var skinList = new List<SpriteSkin>();
@@ -211,59 +215,6 @@ namespace UnityEngine.U2D.Animation
 
             return skinList.ToArray();
         }
-
-        internal void AddSpriteSkinRootBoneTransform(SpriteSkin spriteSkin)
-        {
-            if (spriteSkin == null)
-                return;
-            var systemIndex = GetSystemIndexOfSpriteSkin(spriteSkin);
-            if (systemIndex == -1)
-                return;
-            
-            m_DeformationSystems[systemIndex].AddRootBoneTransform(spriteSkin);
-        }
-
-        internal void AddSpriteSkinBoneTransform(SpriteSkin spriteSkin)
-        {
-            if (spriteSkin == null)
-                return;
-            
-            var systemIndex = GetSystemIndexOfSpriteSkin(spriteSkin);
-            if (systemIndex == -1)
-                return;
-            
-            m_DeformationSystems[systemIndex].AddBoneTransforms(spriteSkin);
-        }
-
-        internal bool IsSpriteSkinActiveForDeformation(SpriteSkin spriteSkin)
-        {
-            if (spriteSkin == null)
-                return false;
-            var systemIndex = GetSystemIndexOfSpriteSkin(spriteSkin);
-            return systemIndex != -1 && m_DeformationSystems[systemIndex].IsSpriteSkinActiveForDeformation(spriteSkin);
-        }
-
-        internal NativeArray<byte> GetDeformableBufferForSpriteSkin(SpriteSkin spriteSkin)
-        {
-            if (spriteSkin == null)
-                return default;
-
-            var systemIndex = GetSystemIndexOfSpriteSkin(spriteSkin);
-            return systemIndex != -1 ? m_DeformationSystems[systemIndex].GetDeformableBufferForSpriteSkin(spriteSkin) : default;
-        }
-
-        int GetSystemIndexOfSpriteSkin(SpriteSkin spriteSkin)
-        {
-            for (var i = 0; i < m_DeformationSystems.Length; ++i)
-            {
-                if (m_DeformationSystems[i].DoesSystemContainSpriteSkin(spriteSkin))
-                    return i;
-            }
-
-            return -1;
-        }
-
-        // ---- For tests
 
         internal TransformAccessJob GetWorldToLocalTransformAccessJob(DeformationMethods deformationMethod)
         {
@@ -277,15 +228,14 @@ namespace UnityEngine.U2D.Animation
             if (!IsValidDeformationMethod(deformationMethod, out var systemIndex))
                 return null;
             return m_DeformationSystems[systemIndex].GetLocalToWorldTransformAccessJob();
-        }  
-        
+        }
+
         bool IsValidDeformationMethod(DeformationMethods deformationMethod, out int methodIndex)
         {
             methodIndex = (int)deformationMethod;
             return methodIndex < m_DeformationSystems.Length;
-        }        
-        
-        // ---- End For tests
+        }
+#endif
     }
 
 #if UNITY_EDITOR

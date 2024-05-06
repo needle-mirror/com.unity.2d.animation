@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine.Scripting;
 using UnityEngine.U2D.Common;
 using Unity.Collections;
@@ -32,7 +33,7 @@ namespace UnityEngine.U2D.Animation
         /// Vertex position.
         /// </summary>
         public Vector3 position;
-        
+
         /// <summary>
         /// Vertex tangent.
         /// </summary>
@@ -104,15 +105,15 @@ namespace UnityEngine.U2D.Animation
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SpriteSkin.html")]
     public sealed class SpriteSkin : MonoBehaviour, IPreviewable, ISerializationCallbackReceiver
     {
-        static class Profiling
+        internal static class Profiling
         {
             public static readonly ProfilerMarker cacheCurrentSprite = new ProfilerMarker("SpriteSkin.CacheCurrentSprite");
             public static readonly ProfilerMarker cacheHierarchy = new ProfilerMarker("SpriteSkin.CacheHierarchy");
             public static readonly ProfilerMarker getSpriteBonesTransformFromGuid = new ProfilerMarker("SpriteSkin.GetSpriteBoneTransformsFromGuid");
             public static readonly ProfilerMarker getSpriteBonesTransformFromPath = new ProfilerMarker("SpriteSkin.GetSpriteBoneTransformsFromPath");
         }
-        
-        struct TransformData
+
+        internal struct TransformData
         {
             public string fullName;
             public Transform transform;
@@ -121,12 +122,12 @@ namespace UnityEngine.U2D.Animation
         [SerializeField]
         Transform m_RootBone;
         [SerializeField]
-        Transform[] m_BoneTransforms = new Transform[0];
+        Transform[] m_BoneTransforms = Array.Empty<Transform>();
         [SerializeField]
         Bounds m_Bounds;
-        [SerializeField] 
+        [SerializeField]
         bool m_AlwaysUpdate = true;
-        [SerializeField] 
+        [SerializeField]
         bool m_AutoRebind = false;
 
         // The deformed m_SpriteVertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite Asset data.
@@ -135,6 +136,7 @@ namespace UnityEngine.U2D.Animation
         int m_CurrentDeformVerticesLength = 0;
         SpriteRenderer m_SpriteRenderer;
         int m_CurrentDeformSprite = 0;
+        int m_SpriteId = -1;
         bool m_IsValid = false;
         SpriteSkinState m_State;
         int m_TransformsHash = 0;
@@ -155,17 +157,19 @@ namespace UnityEngine.U2D.Animation
         int m_SpriteTangentVertexOffset;
         int m_DataIndex = -1;
         bool m_BoneCacheUpdateToDate = false;
-        
-        Dictionary<int, List<TransformData>> m_HierarchyCache = new Dictionary<int, List<TransformData>>();
+
+        internal Dictionary<int, List<TransformData>> m_HierarchyCache = new Dictionary<int, List<TransformData>>();
 
         NativeArray<int> m_OutlineIndexCache;
         NativeArray<Vector3> m_StaticOutlineVertexCache;
         NativeArray<Vector3> m_DeformedOutlineVertexCache;
         int m_VertexDeformationHash = 0;
+        Sprite m_Sprite;
 
         internal NativeArray<int> boneTransformId => m_BoneTransformId;
-        internal int rootBoneTransformId => m_RootBoneTransformId; 
-        internal DeformationMethods currentDeformationMethod { get; set; }
+        internal int rootBoneTransformId => m_RootBoneTransformId;
+        internal DeformationMethods currentDeformationMethod { get; private set; }
+        internal BaseDeformationSystem deformationSystem { get; private set; }
 
 #if ENABLE_URP
         /// <summary>
@@ -178,15 +182,20 @@ namespace UnityEngine.U2D.Animation
         /// </summary>
         internal NativeArray<Vector3> outlineVertices => m_DeformedOutlineVertexCache;
 #endif
-        
+
         /// <summary>
         /// Returns a hash which is updated every time the mesh is deformed. 
         /// </summary>
         internal int vertexDeformationHash => m_VertexDeformationHash;
-        
-        internal Sprite sprite => spriteRenderer.sprite;
+
+        internal Sprite sprite => m_Sprite;
         internal SpriteRenderer spriteRenderer => m_SpriteRenderer;
         internal NativeCustomSlice<BoneWeight> spriteBoneWeights => m_SpriteBoneWeights;
+
+        /// <summary>
+        /// Gets the index of the SpriteSkin in the SpriteSkinComposite.
+        /// </summary>
+        internal int dataIndex => m_DataIndex;
 
         /// <summary>
         /// Get and set the Auto Rebind property.
@@ -198,8 +207,11 @@ namespace UnityEngine.U2D.Animation
             set
             {
                 m_AutoRebind = value;
-                CacheHierarchy();
-                CacheCurrentSprite(m_AutoRebind);
+                if (isActiveAndEnabled)
+                {
+                    CacheHierarchy();
+                    CacheCurrentSprite(m_AutoRebind);
+                }
             }
         }
 
@@ -220,7 +232,8 @@ namespace UnityEngine.U2D.Animation
             m_BoneTransforms = boneTransformsArray;
 
             var result = CacheValidFlag();
-            OnBoneTransformChanged();
+            if (isActiveAndEnabled)
+                OnBoneTransformChanged();
 
             return result;
         }
@@ -241,8 +254,11 @@ namespace UnityEngine.U2D.Animation
             m_RootBone = rootBoneTransform;
 
             var result = CacheValidFlag();
-            CacheHierarchy();
-            OnRootBoneTransformChanged();
+            if (isActiveAndEnabled)
+            {
+                CacheHierarchy();
+                OnRootBoneTransformChanged();
+            }
 
             return result;
         }
@@ -275,9 +291,12 @@ namespace UnityEngine.U2D.Animation
                 if (m_ForceCpuDeformation == value)
                     return;
                 m_ForceCpuDeformation = value;
-                
-                UpdateSpriteDeformationData();
-                DeformationManager.instance.CopyToSpriteSkinData(this);
+
+                if (isActiveAndEnabled)
+                {
+                    UpdateSpriteDeformationData();
+                    DeformationManager.instance.CopyToSpriteSkinData(this);
+                }
             }
         }
 
@@ -311,24 +330,17 @@ namespace UnityEngine.U2D.Animation
 
 #if UNITY_EDITOR
         internal static Events.UnityEvent onDrawGizmos = new Events.UnityEvent();
-        void OnDrawGizmos() 
-        { onDrawGizmos.Invoke(); }
 
-        internal bool ignoreNextSpriteChange
-        {
-            get; 
-            set;
-        } = true;
+        void OnDrawGizmos() => onDrawGizmos.Invoke();
+
+        internal bool ignoreNextSpriteChange { get; set; } = true;
 #endif
-
-        int GetSpriteInstanceID()
-        {
-            return sprite != null ? sprite.GetInstanceID() : 0;
-        }
 
         internal void Awake()
         {
             m_SpriteRenderer = GetComponent<SpriteRenderer>();
+            m_Sprite = m_SpriteRenderer.sprite;
+            m_SpriteId = m_Sprite != null ? m_Sprite.GetInstanceID() : 0;
         }
 
         void OnEnable()
@@ -336,49 +348,89 @@ namespace UnityEngine.U2D.Animation
             m_TransformId = gameObject.transform.GetInstanceID();
             m_TransformsHash = 0;
             currentDeformationMethod = SpriteSkinUtility.CanSpriteSkinUseGpuDeformation(this) ? DeformationMethods.Gpu : DeformationMethods.Cpu;
-            
+
             Awake();
-            
+
             CacheCurrentSprite(false);
             UpdateSpriteDeformationData();
-            
+
             if (m_HierarchyCache.Count == 0)
                 CacheHierarchy();
-            
-            CacheBoneTransformIds();
-            
+
+            RefreshBoneTransforms();
+
             DeformationManager.instance.AddSpriteSkin(this);
             SpriteSkinContainer.instance.AddSpriteSkin(this);
+
+            m_SpriteRenderer.RegisterSpriteChangeCallback(OnSpriteChanged);
         }
-        
+
         void OnDisable()
         {
             DeactivateSkinning();
             BufferManager.instance.ReturnBuffer(GetInstanceID());
-            DeformationManager.instance.RemoveSpriteSkin(this);
+            deformationSystem?.RemoveSpriteSkin(this);
+            deformationSystem = null;
             SpriteSkinContainer.instance.RemoveSpriteSkin(this);
             ResetBoneTransformIdCache();
             DisposeOutlineCaches();
         }
 
+        void RefreshBoneTransforms()
+        {
+            DeformationManager.instance.RemoveBoneTransforms(this);
+            CacheBoneTransformIds();
+            DeformationManager.instance.AddSpriteSkinBoneTransform(this);
+
+            CacheValidFlag();
+
+            DeformationManager.instance.CopyToSpriteSkinData(this);
+        }
+
+        void OnSpriteChanged(SpriteRenderer updatedSpriteRenderer)
+        {
+            m_Sprite = updatedSpriteRenderer.sprite;
+            m_SpriteId = m_Sprite != null ? m_Sprite.GetInstanceID() : 0;
+        }
+
+        void CacheBoneTransformIds()
+        {
+            m_BoneCacheUpdateToDate = true;
+
+            var boneCount = 0;
+            for (var i = 0; i < boneTransforms?.Length; ++i)
+            {
+                if (boneTransforms[i] != null)
+                    ++boneCount;
+            }
+
+            if (m_BoneTransformId != default && m_BoneTransformId.IsCreated)
+                NativeArrayHelpers.ResizeIfNeeded(ref m_BoneTransformId, boneCount);
+            else
+                m_BoneTransformId = new NativeArray<int>(boneCount, Allocator.Persistent);
+
+            m_RootBoneTransformId = rootBone != null ? rootBone.GetInstanceID() : 0;
+            m_BoneTransformIdNativeSlice = new NativeCustomSlice<int>(m_BoneTransformId);
+            for (int i = 0, j = 0; i < boneTransforms?.Length; ++i)
+            {
+                if (boneTransforms[i] != null)
+                {
+                    m_BoneTransformId[j] = boneTransforms[i].GetInstanceID();
+                    ++j;
+                }
+            }
+        }
+
         void OnBoneTransformChanged()
         {
-            if (enabled)
-            {
-                RemoveBoneTransformIdsFromDeformationManager();
-                CacheBoneTransformIds();
-                SpriteSkinContainer.instance.BoneTransformsChanged(this);
-            }
+            RefreshBoneTransforms();
+            SpriteSkinContainer.instance.BoneTransformsChanged(this);
         }
 
         void OnRootBoneTransformChanged()
         {
-            if (enabled)
-            {
-                RemoveBoneTransformIdsFromDeformationManager();
-                CacheBoneTransformIds();
-                SpriteSkinContainer.instance.BoneTransformsChanged(this);
-            }
+            RefreshBoneTransforms();
+            SpriteSkinContainer.instance.BoneTransformsChanged(this);
         }
 
         /// <summary>
@@ -395,16 +447,16 @@ namespace UnityEngine.U2D.Animation
         public void OnAfterDeserialize()
         {
             OnAfterSerializeBatch();
-        }     
-        
-        void OnBeforeSerializeBatch() {}
+        }
+
+        void OnBeforeSerializeBatch() { }
 
         void OnAfterSerializeBatch()
         {
 #if UNITY_EDITOR
             m_BoneCacheUpdateToDate = false;
 #endif
-        }           
+        }
 
         internal void OnEditorEnable()
         {
@@ -415,23 +467,22 @@ namespace UnityEngine.U2D.Animation
         {
             m_State = this.Validate();
             m_IsValid = m_State == SpriteSkinState.Ready;
-            if(!m_IsValid)
+            if (!m_IsValid)
                 DeactivateSkinning();
 
             return m_State;
         }
-        
+
         internal bool BatchValidate()
         {
             if (!m_BoneCacheUpdateToDate)
             {
-                RemoveBoneTransformIdsFromDeformationManager();
-                CacheBoneTransformIds();
+                RefreshBoneTransforms();
             }
 
             CacheCurrentSprite(m_AutoRebind);
             var hasSprite = m_CurrentDeformSprite != 0;
-            return (m_IsValid && hasSprite && spriteRenderer.enabled && (alwaysUpdate || spriteRenderer.isVisible));
+            return m_IsValid && hasSprite && m_SpriteRenderer.enabled && (alwaysUpdate || m_SpriteRenderer.isVisible);
         }
 
         void Reset()
@@ -440,68 +491,24 @@ namespace UnityEngine.U2D.Animation
             if (isActiveAndEnabled)
             {
                 CacheValidFlag();
-                
+
                 if (!m_BoneCacheUpdateToDate)
                 {
-                    RemoveBoneTransformIdsFromDeformationManager();
-                    CacheBoneTransformIds();
+                    RefreshBoneTransforms();
                 }
 
                 DeformationManager.instance.CopyToSpriteSkinData(this);
             }
         }
-        
-        void CacheBoneTransformIds()
-        {
-            m_BoneCacheUpdateToDate = true;
-            
-            var boneCount = 0;
-            for (var i = 0; i < boneTransforms?.Length; ++i)
-            {
-                if (boneTransforms[i] != null)
-                    ++boneCount;
-            }
-            
-            if (m_BoneTransformId != default && m_BoneTransformId.IsCreated)
-                NativeArrayHelpers.ResizeIfNeeded(ref m_BoneTransformId, boneCount);
-            else
-                m_BoneTransformId = new NativeArray<int>(boneCount, Allocator.Persistent);            
-            
-            m_RootBoneTransformId = rootBone != null ? rootBone.GetInstanceID() : 0;
-            m_BoneTransformIdNativeSlice = new NativeCustomSlice<int>(m_BoneTransformId);
-            for (int i = 0, j = 0; i < boneTransforms?.Length; ++i)
-            {
-                if (boneTransforms[i] != null)
-                {
-                    m_BoneTransformId[j] = boneTransforms[i].GetInstanceID();
-                    ++j;
-                }
-            }
-            
-            if (enabled)
-            {
-                DeformationManager.instance.AddSpriteSkinRootBoneTransform(this);
-                DeformationManager.instance.AddSpriteSkinBoneTransform(this);
-            }
 
-            CacheValidFlag();
-            
-            DeformationManager.instance.CopyToSpriteSkinData(this);
-        }
-        
-        void RemoveBoneTransformIdsFromDeformationManager()
-        {
-            DeformationManager.instance.RemoveBoneTransforms(this);
-            ResetBoneTransformIdCache();
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void ResetBoneTransformIdCache()
         {
             m_BoneTransformId.DisposeIfCreated();
             m_BoneTransformId = default;
-            
+
             m_RootBoneTransformId = -1;
-            m_BoneCacheUpdateToDate = false;            
+            m_BoneCacheUpdateToDate = false;
         }
 
         internal NativeByteArray GetDeformedVertices(int spriteVertexCount)
@@ -518,7 +525,7 @@ namespace UnityEngine.U2D.Animation
             {
                 m_CurrentDeformVerticesLength = 0;
             }
-            
+
             m_DeformedVertices = BufferManager.instance.GetBuffer(GetInstanceID(), m_CurrentDeformVerticesLength);
             return m_DeformedVertices;
         }
@@ -531,8 +538,8 @@ namespace UnityEngine.U2D.Animation
         {
             if (!m_IsValid)
                 return false;
-            
-            return m_DataIndex >= 0 && DeformationManager.instance.IsSpriteSkinActiveForDeformation(this);
+
+            return m_DataIndex >= 0 && deformationSystem != null && deformationSystem.IsSpriteSkinActiveForDeformation(this);
         }
 
         /// <summary>
@@ -549,11 +556,11 @@ namespace UnityEngine.U2D.Animation
                 throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
             if (m_DataIndex < 0)
                 throw new InvalidOperationException("There are no currently deformed vertices.");
-            
-            var buffer = DeformationManager.instance.GetDeformableBufferForSpriteSkin(this);
+
+            var buffer = deformationSystem?.GetDeformableBufferForSpriteSkin(this) ?? default;
             if (buffer == default)
                 throw new InvalidOperationException("There are no currently deformed vertices.");
-            
+
             return buffer;
         }
 
@@ -569,7 +576,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (!m_IsValid)
                 throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
-            
+
             if (sprite.HasVertexAttribute(VertexAttribute.Tangent))
                 throw new InvalidOperationException("This SpriteSkin has deformed tangents");
             if (!sprite.HasVertexAttribute(VertexAttribute.Position))
@@ -593,7 +600,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (!m_IsValid)
                 throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
-            
+
             if (!sprite.HasVertexAttribute(VertexAttribute.Tangent))
                 throw new InvalidOperationException("This SpriteSkin does not have deformed tangents");
             if (!sprite.HasVertexAttribute(VertexAttribute.Position))
@@ -615,7 +622,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (!m_IsValid)
                 throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
-            
+
             var hasPosition = sprite.HasVertexAttribute(VertexAttribute.Position);
             if (!hasPosition)
                 throw new InvalidOperationException("Sprite does not have vertex position data.");
@@ -637,7 +644,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (!m_IsValid)
                 throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
-            
+
             var hasTangent = sprite.HasVertexAttribute(VertexAttribute.Tangent);
             if (!hasTangent)
                 throw new InvalidOperationException("Sprite does not have vertex tangent data.");
@@ -664,8 +671,8 @@ namespace UnityEngine.U2D.Animation
         /// </summary>
         public void OnPreviewUpdate()
         {
-#if UNITY_EDITOR 
-            if(IsInGUIUpdateLoop())
+#if UNITY_EDITOR
+            if (IsInGUIUpdateLoop())
                 Deform();
 #endif
         }
@@ -675,7 +682,7 @@ namespace UnityEngine.U2D.Animation
         void Deform()
         {
             CacheCurrentSprite(m_AutoRebind);
-            if (isValid && this.enabled && (this.alwaysUpdate || this.spriteRenderer.isVisible))
+            if (isValid && enabled && (alwaysUpdate || m_SpriteRenderer.isVisible))
             {
                 var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
                 var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
@@ -686,12 +693,12 @@ namespace UnityEngine.U2D.Animation
                     SpriteSkinUtility.UpdateBounds(this, inputVertices.array);
                     InternalEngineBridge.SetDeformableBuffer(spriteRenderer, inputVertices.array);
                     m_TransformsHash = transformHash;
-                    m_CurrentDeformSprite = GetSpriteInstanceID();
+                    m_CurrentDeformSprite = m_SpriteId;
 
                     PostDeform(true);
                 }
             }
-            else if(!InternalEngineBridge.IsUsingDeformableBuffer(spriteRenderer, IntPtr.Zero))
+            else if (!InternalEngineBridge.IsUsingDeformableBuffer(spriteRenderer, IntPtr.Zero))
             {
                 DeactivateSkinning();
             }
@@ -701,48 +708,32 @@ namespace UnityEngine.U2D.Animation
         {
             if (didDeform)
             {
+#if ENABLE_URP
                 UpdateDeformedOutlineCache();
-                m_VertexDeformationHash = Time.timeSinceLevelLoad.GetHashCode();
+#endif
+                m_VertexDeformationHash = Time.frameCount;
             }
         }
-        
-        void UpdateDeformedOutlineCache()
-        {
-#if ENABLE_URP            
-            if (sprite == null)
-                return;
-            if (!m_OutlineIndexCache.IsCreated || !m_DeformedOutlineVertexCache.IsCreated)
-                return;
-            if (!HasCurrentDeformedVertices())
-                return;
-            
-            var buffer = GetCurrentDeformedVertices();
-            var indexCache = m_OutlineIndexCache;
-            var vertexCache = m_DeformedOutlineVertexCache;
-            BurstedSpriteSkinUtilities.SetVertexPositionFromByteBuffer(in buffer, in indexCache, ref vertexCache, m_SpriteVertexStreamSize);
-            m_DeformedOutlineVertexCache = vertexCache;
-#endif
-        }          
 
         void CacheCurrentSprite(bool rebind)
         {
-            if (m_CurrentDeformSprite == GetSpriteInstanceID()) 
+            if (m_CurrentDeformSprite == m_SpriteId)
                 return;
-            
+
             using (Profiling.cacheCurrentSprite.Auto())
             {
                 DeactivateSkinning();
-                m_CurrentDeformSprite = GetSpriteInstanceID();
+                m_CurrentDeformSprite = m_SpriteId;
                 if (rebind && m_CurrentDeformSprite > 0 && rootBone != null)
                 {
-                    if (!GetSpriteBonesTransforms(this, out var transforms))
+                    if (!SpriteSkinHelpers.GetSpriteBonesTransforms(this, out var transforms))
                         Debug.LogWarning($"Rebind failed for {name}. Could not find all bones required by the Sprite: {sprite.name}.");
                     SetBoneTransforms(transforms);
                 }
-                    
+
                 UpdateSpriteDeformationData();
                 DeformationManager.instance.CopyToSpriteSkinData(this);
-                    
+
                 CacheValidFlag();
                 m_TransformsHash = 0;
             }
@@ -750,8 +741,10 @@ namespace UnityEngine.U2D.Animation
 
         void UpdateSpriteDeformationData()
         {
+#if ENABLE_URP
             CacheSpriteOutline();
-            
+#endif
+
             if (sprite == null)
             {
                 m_SpriteUVs = NativeCustomSlice<Vector2>.Default();
@@ -772,10 +765,10 @@ namespace UnityEngine.U2D.Animation
                     m_SpriteVertices = new NativeCustomSlice<Vector3>(sprite.GetVertexAttribute<Vector3>(VertexAttribute.Position));
                     m_SpriteVertexCount = sprite.GetVertexCount();
                     m_SpriteVertexStreamSize = sprite.GetVertexStreamSize();
-                    
+
                     m_SpriteTangents = new NativeCustomSlice<Vector4>(sprite.GetVertexAttribute<Vector4>(VertexAttribute.Tangent));
                     m_SpriteHasTangents = sprite.HasVertexAttribute(VertexAttribute.Tangent);
-                    m_SpriteTangentVertexOffset = sprite.GetVertexStreamOffset(VertexAttribute.Tangent);   
+                    m_SpriteTangentVertexOffset = sprite.GetVertexStreamOffset(VertexAttribute.Tangent);
                 }
                 else
                 {
@@ -785,18 +778,34 @@ namespace UnityEngine.U2D.Animation
 
                     m_SpriteTangents = new NativeCustomSlice<Vector4>(sprite.GetVertexAttribute<Vector4>(VertexAttribute.Tangent));
                     m_SpriteHasTangents = false;
-                    m_SpriteTangentVertexOffset = 0;                    
+                    m_SpriteTangentVertexOffset = 0;
                 }
 
                 m_SpriteUVs = new NativeCustomSlice<Vector2>(sprite.GetVertexAttribute<Vector2>(VertexAttribute.TexCoord0));
                 m_SpriteBoneWeights = new NativeCustomSlice<BoneWeight>(sprite.GetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight));
                 m_SpriteBindPoses = new NativeCustomSlice<Matrix4x4>(sprite.GetBindPoses());
             }
-        }  
-        
+        }
+
+#if ENABLE_URP
+        void UpdateDeformedOutlineCache()
+        {
+            if (sprite == null)
+                return;
+            if (!m_OutlineIndexCache.IsCreated || !m_DeformedOutlineVertexCache.IsCreated)
+                return;
+            if (!HasCurrentDeformedVertices())
+                return;
+            
+            var buffer = GetCurrentDeformedVertices();
+            var indexCache = m_OutlineIndexCache;
+            var vertexCache = m_DeformedOutlineVertexCache;
+            BurstedSpriteSkinUtilities.SetVertexPositionFromByteBuffer(in buffer, in indexCache, ref vertexCache, m_SpriteVertexStreamSize);
+            m_DeformedOutlineVertexCache = vertexCache;
+        } 
+
         void CacheSpriteOutline()
         {
-#if ENABLE_URP
             DisposeOutlineCaches();
 
             if (sprite == null)
@@ -805,7 +814,6 @@ namespace UnityEngine.U2D.Animation
             CacheOutlineIndices(out var maxIndex);
             var cacheSize = maxIndex + 1;
             CacheOutlineVertices(cacheSize);
-#endif
         }
 
         void CacheOutlineIndices(out int maxIndex)
@@ -846,13 +854,12 @@ namespace UnityEngine.U2D.Animation
 
             m_StaticOutlineVertexCache = vertexCache;            
         }
-
+#endif
         internal void CopyToSpriteSkinData(ref SpriteSkinData data, int spriteSkinIndex)
         {
             if (!m_BoneCacheUpdateToDate)
             {
-                RemoveBoneTransformIdsFromDeformationManager();
-                CacheBoneTransformIds();
+                RefreshBoneTransforms();
             }
 
             CacheCurrentSprite(m_AutoRebind);
@@ -879,22 +886,25 @@ namespace UnityEngine.U2D.Animation
                 if (rs)
                 {
                     UpdateSpriteDeformationData();
+                    deformationSystem.CopyToSpriteSkinData(this);
                     DeformationManager.instance.CopyToSpriteSkinData(this);
                 }
+
                 return rs;
             }
         }
 
-        void CacheHierarchy()
+        internal void CacheHierarchy()
         {
             using (Profiling.cacheHierarchy.Auto())
             {
                 m_HierarchyCache.Clear();
                 if (rootBone == null || !m_AutoRebind)
                     return;
-                
-                m_HierarchyCache.EnsureCapacity(rootBone.hierarchyCount);
-                CacheChildren(rootBone, m_HierarchyCache);
+
+                var boneCount = CountChildren(rootBone);
+                m_HierarchyCache.EnsureCapacity(boneCount + 1);
+                SpriteSkinHelpers.CacheChildren(rootBone, m_HierarchyCache);
 
                 foreach (var entry in m_HierarchyCache)
                 {
@@ -904,155 +914,24 @@ namespace UnityEngine.U2D.Animation
                     for (var i = 0; i < count; ++i)
                     {
                         var transformEntry = entry.Value[i];
-                        transformEntry.fullName = GenerateTransformPath(rootBone, transformEntry.transform);
+                        transformEntry.fullName = SpriteSkinHelpers.GenerateTransformPath(rootBone, transformEntry.transform);
                         entry.Value[i] = transformEntry;
                     }
                 }
             }
         }
 
-        static void CacheChildren(Transform current, Dictionary<int, List<TransformData>> cache)
-        {
-            var nameHash = current.name.GetHashCode();
-            var entry = new TransformData()
-            {
-                fullName = String.Empty,
-                transform = current
-            };
-            if (cache.ContainsKey(nameHash))
-                cache[nameHash].Add(entry);
-            else
-                cache.Add(nameHash, new List<TransformData>(1) { entry });
-            
-            for (var i = 0; i < current.childCount; ++i)
-                CacheChildren(current.GetChild(i), cache);
-        }
-
-        static string GenerateTransformPath(Transform rootBone, Transform child)
-        {
-            var path = child.name;
-            if (child == rootBone)
-                return path;
-            var parent = child.parent;
-            do
-            {
-                path = parent.name + "/" + path;
-                parent = parent.parent;
-            }
-            while (parent != rootBone && parent != null);
-            return path;
-        }
-
-        internal static bool GetSpriteBonesTransforms(SpriteSkin spriteSkin, out Transform[] outTransform)
-        {
-            var rootBone = spriteSkin.rootBone;
-            var spriteBones = spriteSkin.sprite.GetBones();
-
-            if(rootBone == null)
-                throw new ArgumentException("rootBone parameter cannot be null");
-            if(spriteBones == null)
-                throw new ArgumentException("spriteBones parameter cannot be null");
-
-            outTransform = new Transform[spriteBones.Length];
-
-            var boneObjects = rootBone.GetComponentsInChildren<Bone>();
-            if (boneObjects != null && boneObjects.Length >= spriteBones.Length)
-            {
-                using (Profiling.getSpriteBonesTransformFromGuid.Auto())
-                {
-                    var i = 0;
-                    for (; i < spriteBones.Length; ++i)
-                    {
-                        var boneHash = spriteBones[i].guid;
-                        var boneTransform = Array.Find(boneObjects, x => (x.guid == boneHash));
-                        if (boneTransform == null)
-                            break;
-
-                        outTransform[i] = boneTransform.transform;
-                    }
-                    if (i >= spriteBones.Length)
-                        return true;
-                }
-            }
-                
-            var hierarchyCache = spriteSkin.m_HierarchyCache;
-            if (hierarchyCache.Count == 0)
-                spriteSkin.CacheHierarchy();
-            
-            // If unable to successfully map via guid, fall back to path
-            return GetSpriteBonesTransformFromPath(spriteBones, hierarchyCache, outTransform);
-        }
-        
-        static bool GetSpriteBonesTransformFromPath(SpriteBone[] spriteBones, Dictionary<int, List<TransformData>> hierarchyCache, Transform[] outNewBoneTransform)
-        {
-            using (Profiling.getSpriteBonesTransformFromPath.Auto())
-            {
-                string[] bonePath = null;
-                var foundBones = true;
-                for (var i = 0; i < spriteBones.Length; ++i)
-                {
-                    var nameHash = spriteBones[i].name.GetHashCode();
-                    if (!hierarchyCache.TryGetValue(nameHash, out var children))
-                    {
-                        outNewBoneTransform[i] = null;
-                        foundBones = false;
-                        continue;
-                    }
-                    
-                    if (children.Count == 1)
-                        outNewBoneTransform[i] = children[0].transform;
-                    else
-                    {
-                        if (bonePath == null)
-                            bonePath = new string[spriteBones.Length];
-                        if (bonePath[i] == null)
-                            CalculateBoneTransformsPath(i, spriteBones, bonePath);
-
-                        var m = 0;
-                        for (; m < children.Count; ++m)
-                        {
-                            if (children[m].fullName.Contains(bonePath[i]))
-                            {
-                                outNewBoneTransform[i] = children[m].transform;
-                                break;
-                            }
-                        }
-                        if (m >= children.Count)
-                        {
-                            outNewBoneTransform[i] = null;
-                            foundBones = false;
-                        }
-                    }
-                }
-
-                return foundBones;
-            }
-        }
-        
-        static void CalculateBoneTransformsPath(int index, SpriteBone[] spriteBones, string[] paths)
-        {
-            var spriteBone = spriteBones[index];
-            var parentId = spriteBone.parentId;
-            var bonePath = spriteBone.name;
-            if (parentId != -1)
-            {
-                if (paths[parentId] == null)
-                    CalculateBoneTransformsPath(spriteBone.parentId, spriteBones, paths);
-                paths[index] = $"{paths[parentId]}/{bonePath}";
-            }
-            else
-                paths[index] = bonePath;
-        }
-
         internal void DeactivateSkinning()
         {
-            var currentSprite = spriteRenderer.sprite;
-            if (currentSprite != null)
-                InternalEngineBridge.SetLocalAABB(spriteRenderer, currentSprite.bounds);
+            if (m_SpriteRenderer != null)
+            {
+                var currentSprite = sprite;
+                if (currentSprite != null)
+                    InternalEngineBridge.SetLocalAABB(m_SpriteRenderer, currentSprite.bounds);
 
-            spriteRenderer.DeactivateDeformableBuffer();
+                m_SpriteRenderer.DeactivateDeformableBuffer();
+            }
 
-            m_DataIndex = -1;
             m_TransformsHash = 0;
         }
 
@@ -1060,6 +939,22 @@ namespace UnityEngine.U2D.Animation
         {
             m_CurrentDeformSprite = 0;
             CacheValidFlag();
+        }
+
+        internal void SetDeformationSystem(BaseDeformationSystem newDeformationSystem)
+        {
+            deformationSystem = newDeformationSystem;
+            currentDeformationMethod = deformationSystem.deformationMethod;
+        }
+
+        static int CountChildren(Transform transform)
+        {
+            var childCount = transform.childCount;
+            var count = childCount;
+            for (var i = 0; i < childCount; ++i)
+                count += CountChildren(transform.GetChild(i));
+
+            return count;
         }
     }
 }

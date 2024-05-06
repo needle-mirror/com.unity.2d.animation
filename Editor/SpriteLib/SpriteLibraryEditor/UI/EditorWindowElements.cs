@@ -7,9 +7,14 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 {
-    internal class EditorMainWindow : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class EditorMainWindow : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class CustomUxmlFactory : UxmlFactory<EditorMainWindow, UxmlTraits> { }
+#endif
 
         ViewEvents m_ViewEvents;
 
@@ -47,9 +52,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         }
     }
 
-    internal class EditorBottomToolbar : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class EditorBottomToolbar : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class CustomUxmlFactory : UxmlFactory<EditorBottomToolbar, UxmlTraits> { }
+#endif
 
         public void BindElements(ControllerEvents controllerEvents, ViewEvents viewEvents)
         {
@@ -67,9 +77,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         }
     }
 
-    internal class EditorTopToolbar : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class EditorTopToolbar : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class CustomUxmlFactory : UxmlFactory<EditorTopToolbar, UxmlTraits> { }
+#endif
 
         ControllerEvents m_ControllerEvents;
         ViewEvents m_ViewEvents;
@@ -224,8 +239,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         }
     }
 
-    internal class EditorTabHeader : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class EditorTabHeader : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class CustomUxmlFactory : UxmlFactory<EditorTabHeader, UxmlTraits> { }
+#endif
     }
 }

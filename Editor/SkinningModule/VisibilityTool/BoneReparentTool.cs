@@ -79,9 +79,15 @@ namespace UnityEditor.U2D.Animation
         }
     }
 
-    internal class BoneReparentToolWindow : VisualElement, IBoneVisibilityToolView
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class BoneReparentToolWindow : VisualElement, IBoneVisibilityToolView
     {
-        public class CustomUxmlFactory : UxmlFactory<BoneReparentToolWindow, UxmlTraits> {}
+#if ENABLE_UXML_TRAITS
+        public class CustomUxmlFactory : UxmlFactory<BoneReparentToolWindow, UxmlTraits> { }
+#endif
+
         BoneReparentToolView m_ToolView;
         public Func<IBoneTreeViewModel> GetModel = () => null;
         public Func<BoneTreeWidgetController> GetController = () => null;
@@ -140,10 +146,15 @@ namespace UnityEditor.U2D.Animation
         }
     }
 
-    internal class BoneReparentToolView : BoneVisibilityToolView
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class BoneReparentToolView : BoneVisibilityToolView
     {
+#if ENABLE_UXML_TRAITS
         public class CustomUxmlFactory : UxmlFactory<BoneReparentToolView, CustomUxmlTraits> {}
         public class CustomUxmlTraits : UxmlTraits {}
+#endif
 
         protected override VisibilityToolColumnHeader SetupToolColumnHeader()
         {

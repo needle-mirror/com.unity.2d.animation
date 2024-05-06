@@ -81,12 +81,11 @@ namespace UnityEngine.U2D.IK
 
             if (targetLocalPosition2D.sqrMagnitude > 0f && Limb.Solve(targetPosition, m_Lengths, m_Positions, ref m_Angles))
             {
-                var upperLimbRotation = Quaternion.FromToRotation(Vector3.right, targetLocalPosition2D) * Quaternion.FromToRotation((Vector2)lowerLimb.localPosition, Vector3.right);
-                upperLimbRotation *= Quaternion.AngleAxis((flip ? -1f : 1f) * m_Angles[0], Vector3.forward);
-                upperLimb.localRotation *= upperLimbRotation;
-                
-                var loweLimbRotation = Quaternion.FromToRotation(Vector3.right, lowerLimb.InverseTransformPoint(targetPosition)) * Quaternion.FromToRotation((Vector2)effector.localPosition, Vector3.right);
-                m_Chain.transforms[1].localRotation *= loweLimbRotation;
+                var upperLimbRotationAngle = Vector2.SignedAngle(Vector2.right, targetLocalPosition2D) + Vector2.SignedAngle(lowerLimb.localPosition, Vector2.right) + (flip ? -1f : 1f) * m_Angles[0];
+                upperLimb.localRotation *= Quaternion.AngleAxis(upperLimbRotationAngle, Vector3.forward);
+
+                var lowerLimbRotation = Vector2.SignedAngle(Vector2.right, lowerLimb.InverseTransformPoint(targetPosition)) + Vector2.SignedAngle(effector.localPosition, Vector2.right);
+                m_Chain.transforms[1].localRotation *= Quaternion.AngleAxis(lowerLimbRotation, Vector3.forward);
             }
         }
     }

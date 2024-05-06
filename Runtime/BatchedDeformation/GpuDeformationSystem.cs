@@ -20,6 +20,8 @@ namespace UnityEngine.U2D.Animation
         NativeArray<int> m_BoneTransformBufferSizes;
         ComputeBuffer m_BoneTransformsComputeBuffer;
 
+        public override DeformationMethods deformationMethod => DeformationMethods.Gpu;
+
         internal static bool DoesShaderSupportGpuDeformation(Material material)
         {
             if (material == null)
@@ -87,10 +89,10 @@ namespace UnityEngine.U2D.Animation
                 sharedMaterial.EnableKeyword(k_GpuSkinningShaderKeyword);
         }
 
-        internal override void AddSpriteSkin(SpriteSkin spriteSkin)
+        internal override bool AddSpriteSkin(SpriteSkin spriteSkin)
         {
-            base.AddSpriteSkin(spriteSkin);
-            
+            var success = base.AddSpriteSkin(spriteSkin);
+
             var sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
             if (!sharedMaterial.IsKeywordEnabled(k_GpuSkinningShaderKeyword))
             {
@@ -100,6 +102,8 @@ namespace UnityEngine.U2D.Animation
 
             if (!IsComputeBufferValid(m_BoneTransformsComputeBuffer))
                 CreateComputeBuffer(k_DefaultComputeBufferSize);
+
+            return success;
         }
 
         internal override void Update()
@@ -156,11 +160,12 @@ namespace UnityEngine.U2D.Animation
             }
 
             SetComputeBuffer();
-            
-            for (var i = 0; i < m_SpriteSkins.Count; ++i)
+
+            foreach (var spriteSkin in m_SpriteSkins)
             {
-                var didDeform = m_IsSpriteSkinActiveForDeform[i];
-                m_SpriteSkins[i].PostDeform(didDeform);
+                
+                var didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
+                spriteSkin.PostDeform(didDeform);   
             }
 
             DeactivateDeformableBuffers();

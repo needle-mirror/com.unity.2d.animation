@@ -7,10 +7,15 @@ using UnityEngine.U2D.Common;
 
 namespace UnityEditor.U2D.Animation.Upgrading
 {
-    internal class ButtonStripField : BaseField<int>
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class ButtonStripField : BaseField<int>
     {
+#if ENABLE_UXML_TRAITS
         public new class UxmlFactory : UxmlFactory<ButtonStripField, UxmlTraits> {}
         public new class UxmlTraits : BaseField<int>.UxmlTraits {}
+#endif
 
         const string k_ClassName = "unity-button-strip-field";
         const string k_ButtonClass = k_ClassName + "__button";

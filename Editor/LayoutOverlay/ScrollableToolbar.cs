@@ -5,8 +5,12 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Layout
 {
-    internal class ScrollableToolbar : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class ScrollableToolbar : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class ScrollableToolbarFactory : UxmlFactory<ScrollableToolbar, ScrollableToolbarUxmlTraits> {}
         public class ScrollableToolbarUxmlTraits : UxmlTraits
         {
@@ -30,6 +34,7 @@ namespace UnityEditor.U2D.Layout
                 toolbar.isHorizontal = m_IsHorizontal.GetValueFromBag(bag, cc);
             }
         }
+#endif
 
         private ScrollView m_ScrollView;
         private bool m_IsHorizontal;

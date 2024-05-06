@@ -5,10 +5,15 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class GenerateGeometryPanel : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class GenerateGeometryPanel : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class GenerateGeometryPanelFactory : UxmlFactory<GenerateGeometryPanel, GenerateGeometryPanelUxmlTraits> {}
         public class GenerateGeometryPanelUxmlTraits : UxmlTraits {}
+#endif
 
         public enum GenerateMode
         {

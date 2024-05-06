@@ -6,10 +6,15 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class WeightPainterPanel : VisualElement
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class WeightPainterPanel : VisualElement
     {
+#if ENABLE_UXML_TRAITS
         public class WeightPainterPanelFactory : UxmlFactory<WeightPainterPanel, WeightPainterPanelUxmlTraits> {}
         public class WeightPainterPanelUxmlTraits : UxmlTraits {}
+#endif
         public static readonly string kNone = "None";
 
         private WeightPainterMode m_PaintMode;

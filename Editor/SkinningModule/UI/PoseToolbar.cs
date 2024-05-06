@@ -4,7 +4,10 @@ using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class PoseToolbar : Toolbar
+#if ENABLE_UXML_SERIALIZED_DATA
+    [UxmlElement]
+#endif
+    internal partial class PoseToolbar : Toolbar
     {
         private const string k_UxmlPath = "SkinningModule/PoseToolbar.uxml";
         private const string k_UssPath = "SkinningModule/PoseToolbarStyle.uss";
@@ -14,15 +17,17 @@ namespace UnityEditor.U2D.Animation
         private const string k_RestorePoseId = "RestorePose";
         private const string k_CharacterPivotId = "PivotPose";
 
+#if ENABLE_UXML_TRAITS
         public class CustomUXMLFactor : UxmlFactory<PoseToolbar, UxmlTraits> {}
-        
-        public event Action<Tools> SetMeshTool = (mode) => {};
-        public event Action<Tools> SetSkeletonTool = (mode) => {};
-    
-        public event Action ActivateEditPoseTool = () => {};
-        
-        SkinningCache skinningCache { get; set; }      
-        
+#endif
+
+        public event Action<Tools> SetMeshTool = (mode) => { };
+        public event Action<Tools> SetSkeletonTool = (mode) => { };
+
+        public event Action ActivateEditPoseTool = () => { };
+
+        SkinningCache skinningCache { get; set; }
+
         private Button m_PreviewBtn;
         private Button m_RestoreBtn;
         private Button m_PivotBtn;
