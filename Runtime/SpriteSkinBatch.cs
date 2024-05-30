@@ -226,18 +226,12 @@ namespace UnityEngine.U2D.Animation
 
         void OnBoneTransformChanged()
         {
-            if (this.enabled)
-            {
-                CacheBoneTransformIds(true);
-            }
+            CacheBoneTransformIds(true);
         }
 
         void OnRootBoneTransformChanged()
         {
-            if (this.enabled)
-            {
-                CacheBoneTransformIds(true);
-            }
+            CacheBoneTransformIds(true);
         }
 
         void OnBeforeSerializeBatch()

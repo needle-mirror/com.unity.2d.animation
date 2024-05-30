@@ -105,7 +105,7 @@ namespace UnityEngine.U2D.IK
                 {
                     var startLocalPosition = (Vector2)m_Chain.transforms[i + 1].localPosition;
                     var endLocalPosition = (Vector2)m_Chain.transforms[i].InverseTransformPoint(m_WorldPositions[i + 1]);
-                    m_Chain.transforms[i].localRotation *= Quaternion.FromToRotation(startLocalPosition, endLocalPosition);
+                    m_Chain.transforms[i].localRotation *= Quaternion.AngleAxis(Vector2.SignedAngle(startLocalPosition, endLocalPosition), Vector3.forward);
                 }
             }
 

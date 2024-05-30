@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.1.1] - 2024-05-30
+### Fixed
+- Fixed the IK bones flipped at certain angels. (case DANB-594)
+
+### Added
+- Added safety checks to SpriteSkin's APIs.
+
 ## [7.1.0] - 2023-12-14
 ### Fixed
 - Adjust the copy-paste logic to not paste sprite mesh to the same sprite twice. (case DANB-531)

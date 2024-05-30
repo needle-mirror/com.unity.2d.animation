@@ -93,7 +93,8 @@ namespace UnityEngine.U2D.Animation
             set
             {
                 m_AutoRebind = value;
-                CacheCurrentSprite(m_AutoRebind);
+                if(isActiveAndEnabled)
+                    CacheCurrentSprite(m_AutoRebind);
             }
             
         }
@@ -305,7 +306,7 @@ namespace UnityEngine.U2D.Animation
 #endif
         {
             CacheCurrentSprite(m_AutoRebind);
-            if (isValid && !batchSkinning && this.enabled && (this.alwaysUpdate || this.spriteRenderer.isVisible))
+            if (isValid && !batchSkinning && this.isActiveAndEnabled && (this.alwaysUpdate || this.spriteRenderer.isVisible))
             {
                 var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
                 var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
@@ -344,7 +345,7 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        internal Sprite sprite => spriteRenderer.sprite;
+        internal Sprite sprite => m_SpriteRenderer != null ? m_SpriteRenderer.sprite : null;
 
         internal SpriteRenderer spriteRenderer => m_SpriteRenderer;
 
@@ -359,8 +360,11 @@ namespace UnityEngine.U2D.Animation
             internal set
             {
                 m_BoneTransforms = value;
-                CacheValidFlag();
-                OnBoneTransformChanged();
+                if (isActiveAndEnabled)
+                {
+                    CacheValidFlag();
+                    OnBoneTransformChanged();
+                }
             }
         }
 
@@ -374,8 +378,11 @@ namespace UnityEngine.U2D.Animation
             internal set
             {
                 m_RootBone = value;
-                CacheValidFlag();
-                OnRootBoneTransformChanged();
+                if (isActiveAndEnabled)
+                {
+                    CacheValidFlag();
+                    OnRootBoneTransformChanged();
+                }
             }
         }
 
@@ -471,11 +478,15 @@ namespace UnityEngine.U2D.Animation
 
         internal void DeactivateSkinning()
         {
-            var sprite = spriteRenderer.sprite;
-            if (sprite != null)
-                InternalEngineBridge.SetLocalAABB(spriteRenderer, sprite.bounds);
+            if (m_SpriteRenderer != null)
+            {
+                var currentSprite = m_SpriteRenderer.sprite;
+                if (currentSprite != null)
+                    InternalEngineBridge.SetLocalAABB(m_SpriteRenderer, currentSprite.bounds);
 
-            spriteRenderer.DeactivateDeformableBuffer();
+                m_SpriteRenderer.DeactivateDeformableBuffer();
+            }
+
             m_TransformsHash = 0;
         }
 
