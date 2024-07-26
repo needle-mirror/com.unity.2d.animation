@@ -1,5 +1,20 @@
 # Changelog
 
+## [10.1.3] - 2024-07-26
+### Fixed
+- Sprite Swap overlay Label selection not reacting to mouse clicks. (case DANB-627)
+- Sprite Swap overlay selection lock behavior. (case DANB-629)
+- Sprite Bone Influence tab bone reordering. (case DANB-634)
+- Documentation, comments, and other requirements to conform to Package Validation. (DANB-653)
+- Wrong Label is deleted when a newly created Label is deleted in the Sprite Library Editor. (case DANB-665)
+- Cannot select multiple Labels in the Sprite Library Editor when using Grid View. (case DANB-670)
+- Documentation, comments, and other requirements to conform to Package Validation. (DANB-653)
+- Support for renaming Sprite Library Editor entries with 'F2' on Windows. (DANB-674)
+- Renaming functionality for Labels is available to users when multiple Labels are selected. (case DANB-668)
+- Fixed SpriteSkin's playmode test failures. (case DANB-678)
+- Modifying the Sprite Skin component through public API.
+- Skinning Editor bone and mesh Visibility sliders too short. (case DANB-681)
+
 ## [10.1.2] - 2024-05-06
 ### Fixed
 - Sprite Library's labels and categories cannot be reordered. (case DANB-593)
@@ -46,7 +61,7 @@
 
 ### Fixed
 - Fixed an issue where the FK doesn't blend correctly with the IK if solver solves from the bind pose. (case DANB-484)
-- Fixed an issue where GPU-deformed Sprites will not animated after scene reload. (case DANB-461) 
+- Fixed an issue where GPU-deformed Sprites will not animated after scene reload. (case DANB-461)
 - Added correct help documentation link to Sprite Library Asset. (case DANB-487)
 
 ### Changed
@@ -55,7 +70,7 @@
 
 ## [10.0.2] - 2023-05-04
 ### Added
-- Updated IK parameter names and comments in public APIs. 
+- Updated IK parameter names and comments in public APIs.
 
 ### Fixed
 - Fixed Sprite Resolver inspector not able to set category to 'No Category' if it contains the old hash value. (case DANB-396)
@@ -65,7 +80,7 @@
 
 ## [10.0.1] - 2023-05-03
 ### Added
-- Added console log when Skinning Editor is overwriting mesh from Custom Outline module. Logs can be enabled or disabled from 2D Animation user settings. 
+- Added console log when Skinning Editor is overwriting mesh from Custom Outline module. Logs can be enabled or disabled from 2D Animation user settings.
 - Added support for the Collections 2.X packages.
 
 ### Fixed
@@ -98,7 +113,7 @@
 ### Fixed
 - Fixed an issue where body parts could not be selected from UI dropdowns in a sample scene '2 Part Swap'. (case DANB-262)
 - Fixed case where IndexOutOfRangeException occurs when auto-generating mesh with a specific settings and bones. (Case DANB-244)
-- Split the batch deformation into two, GPU & CPU deformation, which allows renderers to be placed into the deformation system most suitable for the renderer. 
+- Split the batch deformation into two, GPU & CPU deformation, which allows renderers to be placed into the deformation system most suitable for the renderer.
 - Optimized the bone gizmo rendering in the scene view.
 - Replace obsolete API calls.
 
@@ -116,7 +131,7 @@
 
 ### Fixed
 - Fixed a case where moving vertices forcefully in the Skinning editor could cause a quad reset of the mesh. (case DANB-7)
-- Fixed a case where pasting bones in the Skinning Editor would move bones rather than copy them. (case DANB-99) 
+- Fixed a case where pasting bones in the Skinning Editor would move bones rather than copy them. (case DANB-99)
 - Fixed an issue where selecting bones in the Skinning Editor after removing any bone in the skeleton will throw an exception. (Case DANB-124)
 - Fixed a case where setting IKManager2D's or Solver2D's weight to '0' doesn't update solver's effector position. (DANB-139)
 - Fixed a case where multi selecting Sprite Skins would cause a null reference exception to be thrown. (case DANB-126)
@@ -129,7 +144,7 @@
 ### Changed
 - Refactored internal triangulation and tessellation APIs.
 - Disabled Sprite Library modification in the Component's Inspector and added a button to export changes to an Asset.
-- Pasting unassociated data to Skinning Editor doesn't throw console errors. 
+- Pasting unassociated data to Skinning Editor doesn't throw console errors.
 - Expand and frame on bone selection.
 
 ## [9.0.0-pre.3] - 2022-05-31
@@ -324,7 +339,7 @@
 - Combined 2D IK package with 2D Animation package.
 
 ### Fixed
-- Remove unused XR dependency. (case 1249390) 
+- Remove unused XR dependency. (case 1249390)
 - Fixed NullReferenceException when creating prefab with SpriteSkin component. (case 1245149)
 
 ## [4.2.4] - 2020-05-19
@@ -413,19 +428,19 @@
 ## [4.0.0] - 2019-11-06
 ### Changed
 - Version bump for Unity 2020.1
-- Improve optional performance boost by installing Burst and Collections package. Currently tested with 
-    - com.unity.collections 0.1.1-preview
-    - com.unity.burst 1.1.2
+- Improve optional performance boost by installing Burst and Collections package. Currently tested with
+  - com.unity.collections 0.1.1-preview
+  - com.unity.burst 1.1.2
 
 ### Added
 - Skinning Module now persists the following state after Apply or Revert is clicked in Sprite Editor Window
-    - Current view mode i.e. Character or Spritesheet Mode
-    - Sprite Selection
-    - Bone Selection
-    - Preview Pose
-    - Vertex Selection
-    - Visibililty Tool Active State
-    - Weight Brush Settings
+  - Current view mode i.e. Character or Spritesheet Mode
+  - Sprite Selection
+  - Bone Selection
+  - Preview Pose
+  - Vertex Selection
+  - Visibililty Tool Active State
+  - Weight Brush Settings
 
 ### Fixed
 - Update to use new UIElements ListView API
@@ -494,8 +509,8 @@
 - BoneGizmos can be toggled in the SceneView Gizmos dropdown
 - Scrollbar does not show for toolbar when required to scroll
 - Change Sprite Library implementation.
- - APIs redesigned. This will cause compilation errors if previous APIs are used
- - Data serialization change. Previous Asset and Component data will not be compatible
+- APIs redesigned. This will cause compilation errors if previous APIs are used
+- Data serialization change. Previous Asset and Component data will not be compatible
 
 ## [2.2.0-preview.2] - 2019-05-10
 ### Added
@@ -569,4 +584,3 @@
 - Improved Scene View gizmos for better manipulation of bone rotation and position
 - Added notification when Sprites are imported with incorrect weights
 - Fixed bug where textures with max texture size could not generate geometry
-

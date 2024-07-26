@@ -39,11 +39,7 @@ namespace UnityEditor.U2D.Animation
             set { skinningCache.selectedTool = value; }
         }
 
-        private BaseTool previousTool
-        {
-            get;
-            set;
-        }
+        private BaseTool previousTool { get; set; }
 
         public override string moduleName
         {
@@ -54,11 +50,11 @@ namespace UnityEditor.U2D.Animation
         {
             m_SkinningCache = Cache.Create<SkinningCache>();
             m_WorkspaceBackgroundTexture = new Texture2D(1, 1, TextureFormat.RGBAHalf, false, true);
-                        
+
             m_WorkspaceBackgroundTexture.hideFlags = HideFlags.HideAndDontSave;
             m_WorkspaceBackgroundTexture.SetPixel(1, 1, new Color(0, 0, 0, 0));
             m_WorkspaceBackgroundTexture.Apply();
-            
+
             AddMainUI(spriteEditor.GetMainVisualContainer());
 
             using (skinningCache.DisableUndoScope())
@@ -103,6 +99,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     skinningCache.GetTool(Tools.SwitchMode).Activate();
                 }
+
                 SetupSpriteEditor(true);
 
                 m_HorizontalToggleTools = new HorizontalToggleTools(skinningCache)
@@ -120,12 +117,12 @@ namespace UnityEditor.U2D.Animation
                 m_Analytics = new AnimationAnalytics(new UnityAnalyticsStorage(),
                     skinningCache.events,
                     new SkinningModuleAnalyticsModel(skinningCache),
-                    ai ==  null ? -1 : ai.GetInstanceID());
+                    ai == null ? -1 : ai.GetInstanceID());
 
                 UpdateCollapseToolbar();
             }
-        }    
-  
+        }
+
         public override void OnModuleDeactivate()
         {
             if (m_SpriteOutlineRenderer != null)
@@ -151,10 +148,10 @@ namespace UnityEditor.U2D.Animation
             RestoreSpriteEditor();
             m_Analytics.Dispose();
             m_Analytics = null;
-            
+
             Cache.Destroy(m_SkinningCache);
         }
-        
+
         void PlayModeStateChanged(PlayModeStateChange newState)
         {
             if (newState == PlayModeStateChange.ExitingEditMode && m_HasUnsavedChanges)
@@ -162,7 +159,7 @@ namespace UnityEditor.U2D.Animation
                 var shouldApply = EditorUtility.DisplayDialog(TextContent.savePopupTitle, TextContent.savePopupMessage, TextContent.savePopupOptionYes, TextContent.savePopupOptionNo);
                 spriteEditor.ApplyOrRevertModification(shouldApply);
             }
-        }        
+        }
 
         private void UpdateCollapseToolbar()
         {
@@ -207,9 +204,9 @@ namespace UnityEditor.U2D.Animation
 
         private void OnBoneColorChanged(BoneCache bone)
         {
-            DataModified();            
+            DataModified();
         }
-        
+
         private void OnMeshChanged(MeshCache mesh)
         {
             DataModified();
@@ -219,7 +216,7 @@ namespace UnityEditor.U2D.Animation
         {
             DataModified();
         }
-        
+
         void DataModified()
         {
             spriteEditor.SetDataModified();
@@ -313,7 +310,7 @@ namespace UnityEditor.U2D.Animation
             m_MeshPreviewTool.DoGUI();
             m_MeshPreviewTool.DrawOverlay();
 
-            if(Event.current.type == EventType.Repaint)
+            if (Event.current.type == EventType.Repaint)
                 m_SpriteOutlineRenderer.RenderSpriteOutline(spriteEditor, skinningCache.selectedSprite);
 
             m_MeshPreviewTool.OverlayWireframe();
@@ -409,6 +406,7 @@ namespace UnityEditor.U2D.Animation
         }
 
         #region CharacterConsistency
+
         //TODO: Bring this to a better place, maybe CharacterController
         private void SkeletonPreviewPoseChanged(SkeletonCache skeleton)
         {
@@ -496,7 +494,7 @@ namespace UnityEditor.U2D.Animation
             ApplyCharacter(skinningCache, dataProvider);
             skinningCache.applyingChanges = false;
         }
-        
+
         private void DoApplyAnalytics()
         {
             var sprites = skinningCache.GetSprites();
@@ -570,13 +568,13 @@ namespace UnityEditor.U2D.Animation
                         spritePosition = new RectInt((int)x.position.x, (int)x.position.y, (int)x.sprite.textureRect.width, (int)x.sprite.textureRect.height),
                         bones = x.bones.Select(bone => Array.IndexOf(characterBones, bone)).Where(bone => bone != -1).ToArray()
                     }
-                    ).ToArray();
+                ).ToArray();
 
                 characterDataProvider.SetCharacterData(data);
-                
+
             }
         }
-        
+
         void OnMeshPreviewBehaviourChange(IMeshPreviewBehaviour meshPreviewBehaviour)
         {
             m_MeshPreviewBehaviourOverride = meshPreviewBehaviour;
@@ -603,7 +601,7 @@ namespace UnityEditor.U2D.Animation
             m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.CopyPaste), () => currentTool = skinningCache.GetTool(Tools.CopyPaste));
             m_ModuleToolGroup.AddToolToGroup(1, skinningCache.GetTool(Tools.CharacterPivotTool), () =>
             {
-                if(skinningCache.hasCharacter)
+                if (skinningCache.hasCharacter)
                     currentTool = skinningCache.GetTool(Tools.CharacterPivotTool);
                 else
                     ActivateTool(skinningCache.GetTool(Tools.EditPose));
@@ -611,4 +609,3 @@ namespace UnityEditor.U2D.Animation
         }
     }
 }
-

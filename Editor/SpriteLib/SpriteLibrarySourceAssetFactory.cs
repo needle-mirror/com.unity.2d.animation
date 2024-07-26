@@ -19,7 +19,7 @@ namespace UnityEditor.U2D.Animation
         public string name => m_Name;
 
         /// <summary>
-        /// Sprite associated with the label. 
+        /// Sprite associated with the label.
         /// </summary>
         public Sprite sprite => m_Sprite;
 

@@ -20,17 +20,22 @@ namespace UnityEditor.U2D.Animation
     internal class SkinningCache : Cache
     {
         [Serializable]
-        class SpriteMap : SerializableDictionary<string, SpriteCache> {}
+        class SpriteMap : SerializableDictionary<string, SpriteCache> { }
+
         [Serializable]
-        class MeshMap : SerializableDictionary<SpriteCache, MeshCache> {}
+        class MeshMap : SerializableDictionary<SpriteCache, MeshCache> { }
+
         [Serializable]
-        class SkeletonMap : SerializableDictionary<SpriteCache, SkeletonCache> {}
+        class SkeletonMap : SerializableDictionary<SpriteCache, SkeletonCache> { }
+
         [Serializable]
-        class ToolMap : SerializableDictionary<Tools, BaseTool> {}
+        class ToolMap : SerializableDictionary<Tools, BaseTool> { }
+
         [Serializable]
-        class MeshPreviewMap : SerializableDictionary<SpriteCache, MeshPreviewCache> {}
+        class MeshPreviewMap : SerializableDictionary<SpriteCache, MeshPreviewCache> { }
+
         [Serializable]
-        class CharacterPartMap : SerializableDictionary<SpriteCache, CharacterPartCache> {}
+        class CharacterPartMap : SerializableDictionary<SpriteCache, CharacterPartCache> { }
 
         [SerializeField]
         SkinningEvents m_Events = new SkinningEvents();
@@ -62,11 +67,11 @@ namespace UnityEditor.U2D.Animation
         SpriteCache m_SelectedSprite;
         [SerializeField]
         SkeletonSelection m_SkeletonSelection = new SkeletonSelection();
-        [SerializeField] 
+        [SerializeField]
         ISkinningCachePersistentState m_State;
 
         StringBuilder m_StringBuilder = new StringBuilder();
-        
+
         public BaseTool selectedTool
         {
             get => m_SelectedTool;
@@ -127,7 +132,7 @@ namespace UnityEditor.U2D.Animation
             get => m_State.lastVisibilityToolIndex;
             set => m_State.lastVisibilityToolIndex = value;
         }
-        
+
         public SkeletonSelection skeletonSelection => m_SkeletonSelection;
 
         public IndexedSelection vertexSelection => m_State.lastVertexSelection;
@@ -147,11 +152,7 @@ namespace UnityEditor.U2D.Animation
 
         public bool bonesReadOnly => m_BonesReadOnly;
 
-        public bool applyingChanges
-        {
-            get;
-            set;
-        }
+        public bool applyingChanges { get; set; }
 
         SkinningMode CheckModeConsistency(SkinningMode skinningMode)
         {
@@ -286,6 +287,7 @@ namespace UnityEditor.U2D.Animation
                         selectionChanged = true;
                     }
                 }
+
                 if (selectionChanged)
                     events.boneSelectionChanged.Invoke();
             }
@@ -296,6 +298,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     UpdatePoseFromPersistentState(character.skeleton, null);
                 }
+
                 foreach (var sprite in m_SkeletonMap.Keys)
                 {
                     UpdatePoseFromPersistentState(m_SkeletonMap[sprite], sprite);
@@ -352,10 +355,11 @@ namespace UnityEditor.U2D.Animation
                     poseChanged = true;
                 }
             }
+
             if (poseChanged)
             {
                 skeleton.SetPosePreview();
-                events.skeletonPreviewPoseChanged.Invoke(skeleton);    
+                events.skeletonPreviewPoseChanged.Invoke(skeleton);
             }
         }
 
@@ -386,6 +390,7 @@ namespace UnityEditor.U2D.Animation
             {
                 sb.Append(0);
             }
+
             return Animator.StringToHash(sb.ToString());
         }
 
@@ -396,6 +401,7 @@ namespace UnityEditor.U2D.Animation
                 BuildBoneName(sb, bone.parentBone);
                 sb.Append(k_NameSeparator);
             }
+
             sb.Append(bone.name);
         }
 
@@ -413,6 +419,7 @@ namespace UnityEditor.U2D.Animation
                 BuildGroupName(sb, characterCache.groups[group.parentGroup], characterCache);
                 sb.Append(k_NameSeparator);
             }
+
             sb.Append(group.order);
         }
 
@@ -437,6 +444,7 @@ namespace UnityEditor.U2D.Animation
             {
                 StorePersistentStatePoseForSkeleton(character.skeleton, null);
             }
+
             foreach (var sprite in m_SkeletonMap.Keys)
             {
                 StorePersistentStatePoseForSkeleton(m_SkeletonMap[sprite], sprite);
@@ -470,6 +478,7 @@ namespace UnityEditor.U2D.Animation
             {
                 StorePersistentStateVisibilityForSkeleton(character.skeleton, null);
             }
+
             foreach (var sprite in m_SkeletonMap.Keys)
             {
                 StorePersistentStateVisibilityForSkeleton(m_SkeletonMap[sprite], sprite);
@@ -498,7 +507,7 @@ namespace UnityEditor.U2D.Animation
                     if (character.skeleton.bones.Contains(bone))
                     {
                         var id = GetBoneNameHash(m_StringBuilder, bone, null);
-                        m_State.lastBoneExpansion[id] = true;    
+                        m_State.lastBoneExpansion[id] = true;
                     }
                 }
             }
@@ -511,7 +520,7 @@ namespace UnityEditor.U2D.Animation
                     if (skeleton.bones.Contains(bone))
                     {
                         var id = GetBoneNameHash(m_StringBuilder, bone, sprite);
-                        m_State.lastBoneExpansion[id] = true;    
+                        m_State.lastBoneExpansion[id] = true;
                     }
                 }
             }
@@ -530,9 +539,10 @@ namespace UnityEditor.U2D.Animation
                         if (m_State.lastBoneExpansion.TryGetValue(id, out var expanded))
                         {
                             expandedBones.Add(bone);
-                        }    
+                        }
                     }
                 }
+
                 foreach (var sprite in m_SkeletonMap.Keys)
                 {
                     var skeleton = m_SkeletonMap[sprite];
@@ -542,10 +552,11 @@ namespace UnityEditor.U2D.Animation
                         if (m_State.lastBoneExpansion.TryGetValue(id, out var expanded))
                         {
                             expandedBones.Add(bone);
-                        }    
+                        }
                     }
                 }
             }
+
             return expandedBones.ToArray();
         }
 
@@ -756,7 +767,7 @@ namespace UnityEditor.U2D.Animation
 
             mesh.sprite = sprite;
             mesh.SetCompatibleBoneSet(skeleton.bones);
-            
+
             var metaVertices = meshProvider.GetVertices(guid);
             if (metaVertices.Length > 0)
             {
@@ -775,11 +786,11 @@ namespace UnityEditor.U2D.Animation
             else
             {
                 GenerateOutline(sprite, textureDataProvider, out var vertices, out var indices, out var edges);
-                
+
                 var vertexWeights = new EditableBoneWeight[vertices.Length];
                 for (var i = 0; i < vertexWeights.Length; ++i)
                     vertexWeights[i] = new EditableBoneWeight();
-                
+
                 mesh.SetVertices(vertices, vertexWeights);
                 mesh.SetIndices(indices);
                 mesh.SetEdges(edges);
@@ -790,7 +801,7 @@ namespace UnityEditor.U2D.Animation
             m_MeshMap[sprite] = mesh;
         }
 
-        static void GenerateOutline(SpriteCache sprite, ITextureDataProvider textureDataProvider, 
+        static void GenerateOutline(SpriteCache sprite, ITextureDataProvider textureDataProvider,
             out Vector2[] vertices, out int[] indices, out int2[] edges)
         {
             if (textureDataProvider == null ||
@@ -807,15 +818,15 @@ namespace UnityEditor.U2D.Animation
 
             var smd = new SpriteMeshData();
             smd.SetFrame(sprite.textureRect);
-            
+
             var meshDataController = new SpriteMeshDataController
             {
                 spriteMeshData = smd
             };
-            
+
             meshDataController.OutlineFromAlpha(new OutlineGenerator(), textureDataProvider, detail, alphaTolerance);
             meshDataController.Triangulate(new Triangulator());
-            
+
             vertices = smd.vertices;
             indices = smd.indices;
             edges = smd.edges;
@@ -849,7 +860,7 @@ namespace UnityEditor.U2D.Animation
                 var skeleton = CreateCache<SkeletonCache>();
 
                 var characterBones = characterData.bones;
-                
+
                 skeleton.SetBones(CreateBoneCacheFromSpriteBones(characterBones, 1.0f));
                 skeleton.position = Vector3.zero;
 
@@ -875,6 +886,7 @@ namespace UnityEditor.U2D.Animation
 
                     m_CharacterPartMap.Add(characterPart.sprite, characterPart);
                 }
+
                 if (characterData.characterGroups != null)
                 {
                     m_Character.groups = characterData.characterGroups.Select(x =>
@@ -890,7 +902,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     m_Character.groups = new CharacterGroupCache[0];
                 }
-                
+
                 m_Character.parts = characterParts.ToArray();
                 m_Character.skeleton = skeleton;
                 m_Character.dimension = characterData.dimension;
@@ -922,7 +934,7 @@ namespace UnityEditor.U2D.Animation
                 tool.skeletonTool = skeletonTool;
                 m_ToolMap.Add(Tools.BoneInfluence, tool);
             }
-            
+
             {
                 var tool = CreateTool<BoneSpriteInfluenceTool>();
                 tool.Initialize(layoutOverlay);
@@ -1046,14 +1058,14 @@ namespace UnityEditor.U2D.Animation
 
             var selectedElement = selectedTool.layoutOverlay.panel.Pick(point);
             return selectedElement != null
-                   && selectedElement.pickingMode != PickingMode.Ignore
-                   && selectedElement.FindCommonAncestor(overlay) == overlay;
+                && selectedElement.pickingMode != PickingMode.Ignore
+                && selectedElement.FindCommonAncestor(overlay) == overlay;
         }
-        
+
         void ToolChanged(ITool tool)
         {
             var visibilityTool = GetTool(Tools.Visibility);
-            if ((ITool) visibilityTool == tool)
+            if ((ITool)visibilityTool == tool)
             {
                 m_State.lastVisibilityToolActive = visibilityTool.isActive;
             }

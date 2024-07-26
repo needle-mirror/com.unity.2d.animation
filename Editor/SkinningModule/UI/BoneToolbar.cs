@@ -10,18 +10,17 @@ namespace UnityEditor.U2D.Animation
     internal partial class BoneToolbar : Toolbar
     {
         private const string k_UxmlPath = "SkinningModule/BoneToolbar.uxml";
-        private const string k_ToolbarId = "BoneToolbar";        
-        
+        private const string k_ToolbarId = "BoneToolbar";
         private const string k_EditJointsId = "EditJoints";
         private const string k_CreateBoneId = "CreateBone";
         private const string k_SplitBoneId = "SplitBone";
 
 #if ENABLE_UXML_TRAITS
-        public class BoneToolbarFactory : UxmlFactory<BoneToolbar, BoneToolbarUxmlTraits> {}
-        public class BoneToolbarUxmlTraits : UxmlTraits {}
+        public class BoneToolbarFactory : UxmlFactory<BoneToolbar, BoneToolbarUxmlTraits> { }
+        public class BoneToolbarUxmlTraits : UxmlTraits { }
 #endif
 
-        public event Action<Tools> SetSkeletonTool = (mode) => {};
+        public event Action<Tools> SetSkeletonTool = (mode) => { };
         public SkinningCache skinningCache { get; private set; }
 
         public static BoneToolbar GenerateFromUXML()
@@ -33,7 +32,7 @@ namespace UnityEditor.U2D.Animation
             clone.AddShortcutsToToolTips();
             return clone;
         }
-        
+
         public BoneToolbar()
         {
             styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/BoneToolbarStyle.uss"));
@@ -50,18 +49,18 @@ namespace UnityEditor.U2D.Animation
             var splitBone = this.Q<Button>(k_SplitBoneId);
             splitBone.clickable.clicked += () => { SetSkeletonTool(Tools.SplitBone); };
         }
-        
+
         private void SetupShortcutUtility()
         {
             m_ShortcutUtility = new ShortcutUtility(ShortcutIds.editBone,
-                                                    ShortcutIds.createBone,
-                                                    ShortcutIds.splitBone);
+                ShortcutIds.createBone,
+                ShortcutIds.splitBone);
             m_ShortcutUtility.OnShortcutChanged = () =>
             {
                 RestoreButtonTooltips(k_UxmlPath, k_ToolbarId);
                 AddShortcutsToToolTips();
-            };            
-        }         
+            };
+        }
 
         public void Setup(SkinningCache s)
         {
@@ -78,7 +77,7 @@ namespace UnityEditor.U2D.Animation
                     this.Q<Button>(k_EditJointsId).SetEnabled(false);
                     this.Q<Button>(k_CreateBoneId).SetEnabled(false);
                     this.Q<Button>(k_SplitBoneId).SetEnabled(false);
-                    
+
                     if (skinningCache.GetTool(Tools.EditJoints).isActive
                         || skinningCache.GetTool(Tools.CreateBone).isActive
                         || skinningCache.GetTool(Tools.SplitBone).isActive)
@@ -107,7 +106,7 @@ namespace UnityEditor.U2D.Animation
 
             OnSkinningModeChange(skinningCache.mode);
         }
-        
+
         private void AddShortcutsToToolTips()
         {
             m_ShortcutUtility.AddShortcutToButtonTooltip(this, k_EditJointsId, ShortcutIds.editBone);

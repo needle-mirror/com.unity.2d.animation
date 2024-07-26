@@ -61,7 +61,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// Triggerred to create a new Sprite Library Asset at given location.
         /// </summary>
         public UnityEvent<string> onCreateNewSpriteLibraryAsset { get; } = new();
-        
+
         /// <summary>
         /// Main UI Split Pane View size changed.
         /// </summary>

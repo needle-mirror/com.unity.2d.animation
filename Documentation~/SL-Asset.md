@@ -17,7 +17,7 @@ Select the Sprite Library Asset and go to its Inspector window to view the follo
 
 ![](images/2D-animation-SLAsset-properties.png)
 
-Property  |Description  
+Property  |Description
 --|--
 **Open in Sprite Library Editor**  |   Select this to open the [Sprite Library Editor window](SL-Editor.md) to edit the content of this asset.
 **Main Library**  |  Leave this property empty to have this Sprite Library Asset refer to its own Categories and Labels. Assign a different Sprite Library Asset to have it become the [Main Library](SL-Editor-UI.md#main-library) of the selected Sprite Library Asset, which will now refer to the second asset's Categories and Labels instead. Doing so also [converts](#convert-a-sprite-library-asset-into-a-variant) the selected Sprite Library Asset into a Variant asset of the Sprite Library Asset set as the **Main Library**.

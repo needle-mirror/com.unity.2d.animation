@@ -12,7 +12,7 @@ After assigning a Sprite Library Asset, the Inspector window shows a **Open Spri
 
 ![](images/2D-animation-SLComp-Open.png)
 
-To edit the contents of a Sprite Library Asset, use the [Sprite Library Editor window](SL-Editor.md).  
+To edit the contents of a Sprite Library Asset, use the [Sprite Library Editor window](SL-Editor.md).
 
 ## Overriding entries
 You can't override Sprite Library entries directly in the **Inspector** window starting from version 9 of the 2D Animation package. To override Sprite Library entries, use these [public methods](xref:UnityEngine.U2D.Animation.SpriteLibrary#methods) instead.
@@ -23,4 +23,4 @@ To save the overrides to a separate asset, select **Export to Sprite Library Ass
 
 ## Additional resources
 - [Swapping Sprite Library Assets](SLASwap.md)
-- [Overrides to the Main Library](SL-Main-Library.md) 
+- [Overrides to the Main Library](SL-Main-Library.md)

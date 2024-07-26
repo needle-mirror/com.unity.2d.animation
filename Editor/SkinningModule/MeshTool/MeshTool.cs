@@ -83,8 +83,8 @@ namespace UnityEditor.U2D.Animation
         {
             var mesh = sprite.GetMesh();
 
-            if (m_Mesh != null 
-                && m_Mesh != mesh 
+            if (m_Mesh != null
+                && m_Mesh != mesh
                 && selection.Count > 0)
                 selection.Clear();
 
@@ -139,7 +139,7 @@ namespace UnityEditor.U2D.Animation
 
             EndPositionOverride();
         }
-        
+
         public void BeginPositionOverride()
         {
             if (m_Mesh != null)
@@ -160,7 +160,7 @@ namespace UnityEditor.U2D.Animation
 
         public void EndPositionOverride()
         {
-            if(m_Mesh != null)
+            if (m_Mesh != null)
                 m_Mesh.ClearVertexPositionOverride();
         }
 
@@ -176,7 +176,7 @@ namespace UnityEditor.U2D.Animation
 
         void InvokeMeshChanged()
         {
-            if(m_Mesh != null)
+            if (m_Mesh != null)
                 skinningCache.events.meshChanged.Invoke(m_Mesh);
         }
     }

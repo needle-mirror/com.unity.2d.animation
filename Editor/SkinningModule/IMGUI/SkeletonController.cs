@@ -16,9 +16,10 @@ namespace UnityEditor.U2D.Animation
         Vector3 m_CreateBoneStartPosition;
         [SerializeField]
         BoneCache m_PrevCreatedBone;
-        
+
         SkeletonCache m_Skeleton;
         bool m_Moved = false;
+
         ISkeletonStyle style
         {
             get
@@ -37,11 +38,13 @@ namespace UnityEditor.U2D.Animation
             get => selection.activeElement.ToSpriteSheetIfNeeded();
             set => selection.activeElement = value.ToCharacterIfNeeded();
         }
+
         BoneCache[] selectedBones
         {
             get => selection.elements.ToSpriteSheetIfNeeded();
             set => selection.elements = value.ToCharacterIfNeeded();
         }
+
         BoneCache rootBone => selection.root.ToSpriteSheetIfNeeded();
         BoneCache[] rootBones => selection.roots.ToSpriteSheetIfNeeded();
 
@@ -49,11 +52,13 @@ namespace UnityEditor.U2D.Animation
         public ISkeletonStyle styleOverride { get; set; }
         public IBoneSelection selection { get; set; }
         public bool editBindPose { get; set; }
+
         public SkeletonCache skeleton
         {
             get => m_Skeleton;
             set => SetSkeleton(value);
         }
+
         public BoneCache hoveredBone => GetBone(view.hoveredBoneID);
         public BoneCache hoveredTail => GetBone(view.hoveredTailID);
         public BoneCache hoveredBody => GetBone(view.hoveredBodyID);
@@ -106,7 +111,7 @@ namespace UnityEditor.U2D.Animation
             DrawSplitBonePreview();
             DrawCreateBonePreview();
             DrawCursors();
-            
+
             BatchedDrawing.Draw();
         }
 
@@ -262,7 +267,7 @@ namespace UnityEditor.U2D.Animation
 
                 if (hoveredJoint != null && hoveredJoint.parent == hotBone)
                     endPosition = hoveredJoint.position;
-                
+
                 m_Skeleton.SetEndPosition(hotBone, endPosition);
                 InvokePoseChanged();
             }
@@ -464,13 +469,13 @@ namespace UnityEditor.U2D.Animation
                     var color = style.GetOutlineColor(hoveredBone, false, false);
                     if (color.a > 0f)
                         view.DrawBoneOutline(hoveredBone.position, hoveredBone.right, Vector3.forward, splitLength, style.GetOutlineColor(hoveredBone, isSelected, true), style.GetOutlineScale(false));
-                    
+
                 }
                 {
                     var color = style.GetPreviewOutlineColor(skeleton.boneCount);
                     if (color.a > 0f)
                         view.DrawBoneOutline(position, hoveredBone.right, Vector3.forward, length, style.GetPreviewOutlineColor(skeleton.boneCount), style.GetOutlineScale(false));
-                    
+
                 }
 
                 view.DrawBone(hoveredBone.position,
@@ -551,7 +556,7 @@ namespace UnityEditor.U2D.Animation
 
             return $"{inheritedName}_{++nameCounter}";
         }
-        
+
         public static string AutoNameBoneCopy(string originalBoneName, IEnumerable<BoneCache> bones)
         {
             DissectBoneName(originalBoneName, out var inheritedName, out _);
@@ -572,9 +577,10 @@ namespace UnityEditor.U2D.Animation
                 if (counter > autoNameCounter)
                     autoNameCounter = counter;
             }
+
             return autoNameCounter;
         }
-        
+
         static int FindBiggestNameCounterForBone(string boneName, IEnumerable<BoneCache> bones)
         {
             var autoNameCounter = 0;
@@ -589,6 +595,7 @@ namespace UnityEditor.U2D.Animation
                     }
                 }
             }
+
             return autoNameCounter;
         }
 

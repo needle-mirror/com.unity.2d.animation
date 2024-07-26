@@ -2,7 +2,7 @@
 
 2D Character Animation
 
-Editor tools and runtime scripts to support the authoring of 2D Animated Characters.  
+Editor tools and runtime scripts to support the authoring of 2D Animated Characters.
 
 Editor Tooling
 - Skinning Editor

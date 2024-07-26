@@ -2,7 +2,7 @@
 
 ## Overview
 
-The 2D [Inverse Kinematics](https://docs.unity3d.com/Manual/InverseKinematics.html) (IK) feature set allows you to apply __2D IK__ to the bones and Transforms of your characters’ animation skeletons. __2D IK__ automatically calculates for the positions and rotations of a chain of bones moving towards a target position. This makes it easier to pose and animate character limbs for animation, or to manipulate a skeleton in real-time.  
+The 2D [Inverse Kinematics](https://docs.unity3d.com/Manual/InverseKinematics.html) (IK) feature set allows you to apply __2D IK__ to the bones and Transforms of your characters’ animation skeletons. __2D IK__ automatically calculates for the positions and rotations of a chain of bones moving towards a target position. This makes it easier to pose and animate character limbs for animation, or to manipulate a skeleton in real-time.
 
 ## Applying 2D IK to character skeletons
 The following workflow continues from the __2D Animation__ package [animation workflow](CharacterRig.md), and demonstrates how to apply __2D IK__ to your character skeletons.
@@ -40,7 +40,7 @@ For example, if the arm bone is the child of the torso bone,   then the torso's 
 Weight measures the degree that a Solver’s solution affects the positions of the bones/Transforms in the chain. The __IK Manager 2D__ has a master Weight property that affects all Solvers it controls. It is applied in addition to the Solver’s individual Weight settings.
 
 ### Always Update
-Used for performance optimization. When checked, IK Manager 2D will always update its solvers. When unchecked, it will only update solvers if any of the [Sprite Skins](#SpriteSkin) that are driven by bones from all IK Solvers' chains are visible. 
+Used for performance optimization. When checked, IK Manager 2D will always update its solvers. When unchecked, it will only update solvers if any of the [Sprite Skins](#SpriteSkin) that are driven by bones from all IK Solvers' chains are visible.
 
 ### Restore Default Pose
 Select this to reset all bones and Transforms back to their original positions.
@@ -90,7 +90,7 @@ Follow the steps below to set a __Target__:
 
 1. Select the last bone in the chain.
    ![](images/2D_IK_Image4.png)
-<br/>
+   <br/>
 2. Create an empty Transform (right-click > **Create Empty**). It is automatically created as a child of the highlighted bone.
    <br/>
 3. Move the position of the Transform to the tip of the last bone in the chain.

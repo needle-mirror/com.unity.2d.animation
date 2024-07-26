@@ -11,7 +11,8 @@ namespace UnityEditor.U2D.Layout
     internal partial class ScrollableToolbar : VisualElement
     {
 #if ENABLE_UXML_TRAITS
-        public class ScrollableToolbarFactory : UxmlFactory<ScrollableToolbar, ScrollableToolbarUxmlTraits> {}
+        public class ScrollableToolbarFactory : UxmlFactory<ScrollableToolbar, ScrollableToolbarUxmlTraits> { }
+
         public class ScrollableToolbarUxmlTraits : UxmlTraits
         {
             UxmlBoolAttributeDescription m_IsHorizontal;
@@ -56,19 +57,19 @@ namespace UnityEditor.U2D.Layout
         {
             set => m_ScrollView.verticalScrollerVisibility = value;
         }
-        
+
         public ScrollerVisibility horizontalScrollerVisibility
         {
             set => m_ScrollView.horizontalScrollerVisibility = value;
-        }        
-
-        public ScrollableToolbar() : this(false)
-        {
         }
+
+        public ScrollableToolbar()
+            : this(false) { }
 
         public ScrollableToolbar(bool isHorizontal)
         {
-            m_ScrollView = new ScrollView() {name = "ScrollView"};;
+            m_ScrollView = new ScrollView() { name = "ScrollView" };
+            ;
             m_ScrollView.StretchToParentSize();
             hierarchy.Add(m_ScrollView);
 
@@ -85,7 +86,7 @@ namespace UnityEditor.U2D.Layout
             m_ScrollView.contentViewport.pickingMode = PickingMode.Ignore;
             m_ScrollView.contentContainer.pickingMode = PickingMode.Ignore;
         }
-  
+
         public void AddToContainer(VisualElement element)
         {
             m_ScrollView.contentContainer.Add(element);
@@ -143,6 +144,7 @@ namespace UnityEditor.U2D.Layout
                 else if (evt.delta.y > 0)
                     m_ScrollView.horizontalScroller.ScrollPageDown();
             }
+
             evt.StopPropagation();
         }
     }

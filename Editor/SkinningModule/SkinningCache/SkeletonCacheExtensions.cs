@@ -12,7 +12,7 @@ namespace UnityEditor.U2D.Animation
             {
                 Debug.Assert(bone != null);
                 Debug.Assert(skeleton.Contains(bone));
-                
+
                 bone.localRotation *= Quaternion.AngleAxis(deltaAngle, Vector3.forward);
             }
         }
@@ -98,7 +98,7 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(skeleton.Contains(boneToSplit));
             Debug.Assert(boneToSplit.length > splitLength);
-            
+
             var endPosition = boneToSplit.endPosition;
             var chainedChild = boneToSplit.chainedChild;
             var splitPosition = boneToSplit.position + boneToSplit.right * splitLength;

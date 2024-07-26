@@ -68,7 +68,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override void Apply()
         {
-            // Make sure that all changes are Saved / Reverted by the user if there is an instance of SpriteLibraryEditorWindow open. 
+            // Make sure that all changes are Saved / Reverted by the user if there is an instance of SpriteLibraryEditorWindow open.
             SpriteLibraryEditor.SpriteLibraryEditorWindow.HandleUnsavedChangesOnApply();
             base.Apply();
 

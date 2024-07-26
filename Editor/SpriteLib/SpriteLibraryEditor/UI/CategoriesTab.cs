@@ -91,6 +91,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             m_LocalListView = new RenamableListView
             {
+                CanRenameAtIndex = CanRenameAtId,
                 selectionType = SelectionType.Multiple,
                 fixedItemHeight = k_ListItemHeight,
                 reorderable = true,
@@ -423,6 +424,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_AddButton.tooltip = m_IsFiltered ? TextContent.spriteLibraryAddCategoryTooltipNotAvailable : TextContent.spriteLibraryAddCategoryTooltip;
         }
 
+        bool CanRenameAtId(int i)
+        {
+            var selectionCount = m_LocalListView.selectedIndices?.Count() ?? 0;
+            return selectionCount == 1;
+        }
+
         void ContextualManipulatorAddActions(ContextualMenuPopulateEvent evt)
         {
             if (!CanModifyCategories())
@@ -431,9 +438,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             evt.menu.AppendAction(TextContent.spriteLibraryCreateCategory, _ => CreateNewCategory());
 
             var selectionCount = m_LocalListView.selectedIndices?.Count() ?? 0;
-            var canRenameStatus = selectionCount == 1 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Hidden;
+            var canRenameStatus = selectionCount == 1 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
             evt.menu.AppendAction(TextContent.spriteLibraryRenameCategory, _ => RenameSelected(), canRenameStatus);
-            var canDeleteCategoryStatus = selectionCount > 0 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Hidden;
+            var canDeleteCategoryStatus = selectionCount > 0 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
             evt.menu.AppendAction(TextContent.spriteLibraryDeleteCategories, _ => DeleteSelected(), canDeleteCategoryStatus);
         }
     }

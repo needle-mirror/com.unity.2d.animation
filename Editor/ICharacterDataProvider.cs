@@ -16,6 +16,7 @@ namespace UnityEditor.U2D.Animation
         /// </summary>
         /// <returns>CharacterData data</returns>
         CharacterData GetCharacterData();
+
         /// <summary>
         /// Sets the CharacterData structure that represents to the data provider
         /// </summary>
@@ -34,7 +35,7 @@ namespace UnityEditor.U2D.Animation
         /// SpriteBones influencing the Character
         /// </summary>
         public SpriteBone[] bones;
-        
+
         /// <summary>
         /// Parts of the character
         /// </summary>
@@ -48,21 +49,21 @@ namespace UnityEditor.U2D.Animation
         /// </summary>
         public CharacterGroup[] characterGroups;
         /// <summary>
-        /// Character pivot. The value is a normalized value between (0,0) and (1,1) where (1,1) represents the value in CharacterData.dimension 
+        /// Character pivot. The value is a normalized value between (0,0) and (1,1) where (1,1) represents the value in CharacterData.dimension
         /// </summary>
         public Vector2 pivot;
         /// <summary>
         /// Bones are readonly
         /// </summary>
         [Obsolete("boneReadOnly is no longer part of CharacterData. To check if character has Main Skeleton assigned to it, please use IMainSkeletonDataProvider instead.")]
-        public bool boneReadOnly; 
+        public bool boneReadOnly;
     }
 
     internal interface ICharacterOrder
     {
-        int order { get; set;}
+        int order { get; set; }
     }
-    
+
     /// <summary>
     /// Data structure representing CharacterPart grouping
     /// </summary>
@@ -115,7 +116,7 @@ namespace UnityEditor.U2D.Animation
         /// CharacterGroup that the part belongs to
         /// </summary>
         public int parentGroup;
-        
+
         [SerializeField]
         int m_Order;
 

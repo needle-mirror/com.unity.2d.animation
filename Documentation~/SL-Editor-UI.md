@@ -13,7 +13,7 @@ D: Enter a text string here to filter the Categories or Labels by name. Select t
 
 ![](images/sl-editor-save-options.png)
 
-Property  | Description  
+Property  | Description
 --|--
 **Revert** | Select this to discard all unsaved changes and to return to the last saved state of the asset.
 **Save** | Select this to keep all unsaved changes and include them in the saved state of the asset.

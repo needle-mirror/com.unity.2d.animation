@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -8,7 +8,8 @@ namespace UnityEngine.U2D.Animation
 {
     internal struct NativeCustomSlice<T> where T : struct
     {
-        [NativeDisableUnsafePtrRestriction] public IntPtr data;
+        [NativeDisableUnsafePtrRestriction]
+        public IntPtr data;
         public int length;
         public int stride;
 
@@ -28,7 +29,7 @@ namespace UnityEngine.U2D.Animation
             length = nativeSlice.Length;
             stride = nativeSlice.Stride;
         }
-        
+
         public unsafe NativeCustomSlice(NativeSlice<byte> slice, int length, int stride)
         {
             this.data = new IntPtr(slice.GetUnsafeReadOnlyPtr());
@@ -68,13 +69,14 @@ namespace UnityEngine.U2D.Animation
         {
             return GetEnumerator();
         }
-        
+
         public bool MoveNext()
         {
             if (++index < nativeCustomSlice.length)
             {
                 return true;
             }
+
             return false;
         }
 
@@ -87,6 +89,6 @@ namespace UnityEngine.U2D.Animation
 
         object IEnumerator.Current => Current;
 
-        void IDisposable.Dispose() {}
+        void IDisposable.Dispose() { }
     }
 }

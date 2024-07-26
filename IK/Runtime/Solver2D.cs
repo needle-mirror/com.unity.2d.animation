@@ -179,7 +179,7 @@ namespace UnityEngine.U2D.IK
             var finalWeight = globalWeight * weight;
             var weightValueChanged = Math.Abs(finalWeight - m_LastFinalWeight) > 0.0001f;
             m_LastFinalWeight = finalWeight;
-            
+
             if (finalWeight == 0f && !weightValueChanged)
                 return;
 
@@ -231,7 +231,7 @@ namespace UnityEngine.U2D.IK
         /// Override to return the IKChain2D at the given index.
         /// </summary>
         /// <param name="index">Index of the IKChain2D.</param>
-        /// <returns></returns>
+        /// <returns>A chain at a given index.</returns>
         public abstract IKChain2D GetChain(int index);
 
         /// <summary>

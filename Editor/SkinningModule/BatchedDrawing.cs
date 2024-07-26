@@ -42,9 +42,9 @@ namespace UnityEditor.U2D.Animation
 
         // Unity's max index limit for meshes.
         const int k_MaxIndexLimit = 65535;
-        
+
         static readonly int s_HandleSize = Shader.PropertyToID("_HandleSize");
-        
+
         static readonly List<Batch> s_Batches = new List<Batch>(1) { new Batch() };
         static Mesh s_Mesh;
         static NativeArray<float3> s_VertexTmpCache = default;
@@ -57,7 +57,7 @@ namespace UnityEditor.U2D.Animation
             const int dataToAdd = 6;
             var batch = GetBatch(dataToAdd);
             var startIndex = batch.vertices.Length;
-            
+
             batch.indices.Resize(startIndex + dataToAdd);
             batch.vertexColors.Resize(startIndex + dataToAdd);
             batch.vertices.Resize(startIndex + dataToAdd);
@@ -69,7 +69,7 @@ namespace UnityEditor.U2D.Animation
             vertexPtr[startIndex + 3] = p1 + up * (widthP1 * 0.5f);
             vertexPtr[startIndex + 4] = p2 - up * (widthP2 * 0.5f);
             vertexPtr[startIndex + 5] = p2 + up * (widthP2 * 0.5f);
-            
+
             for (var i = 0; i < dataToAdd; ++i)
             {
                 batch.indices.Ptr[startIndex + i] = startIndex + i;
@@ -96,11 +96,11 @@ namespace UnityEditor.U2D.Animation
             var dataToAdd = (numSamples - 1) * 3;
             var batch = GetBatch(dataToAdd);
             var startIndex = batch.vertices.Length;
-            
+
             batch.indices.Resize(startIndex + dataToAdd);
             batch.vertexColors.Resize(startIndex + dataToAdd);
             batch.vertices.Resize(startIndex + dataToAdd);
-            
+
             CreateSolidArcVertices(ref batch.vertices, startIndex, in s_VertexTmpCache, in center, numSamples, radius);
 
             for (var i = 0; i < dataToAdd; ++i)
@@ -126,7 +126,7 @@ namespace UnityEditor.U2D.Animation
                 vertexPtr[index] = center;
                 vertexPtr[index + 1] = center + vertexCache[i - 1] * radius;
                 vertexPtr[index + 2] = center + vertexCache[i] * radius;
-            }            
+            }
         }
 
         public static unsafe void RegisterSolidArcWithOutline(float3 center, float3 normal, float3 from, float angle,
@@ -141,24 +141,24 @@ namespace UnityEditor.U2D.Animation
             var dataToAdd = (numSamples - 1) * 6;
             var batch = GetBatch(dataToAdd);
             var startIndex = batch.vertices.Length;
-            
+
             batch.indices.Resize(startIndex + dataToAdd);
             batch.vertexColors.Resize(startIndex + dataToAdd);
             batch.vertices.Resize(startIndex + dataToAdd);
-            
+
             // var vertexPtr = batch.vertices.Ptr + startIndex;
             CreateSolidArcWithOutlineVertices(ref batch.vertices, startIndex, in s_VertexTmpCache, in center, numSamples, outlineScale, radius);
-            
+
             for (var i = 0; i < dataToAdd; ++i)
             {
                 batch.indices.Ptr[startIndex + i] = startIndex + i;
                 batch.vertexColors.Ptr[startIndex + i] = color;
             }
         }
-        
+
         [BurstCompile]
         static void CreateSolidArcWithOutlineVertices(
-            ref UnsafeList<float3> vertexPtr, 
+            ref UnsafeList<float3> vertexPtr,
             int startIndex,
             in NativeArray<float3> vertexCache,
             in float3 center,
@@ -176,15 +176,15 @@ namespace UnityEditor.U2D.Animation
                 vertexPtr[index + 3] = center + vertexCache[i - 1] * (radius * outlineScale);
                 vertexPtr[index + 4] = center + vertexCache[i] * radius;
                 vertexPtr[index + 5] = center + vertexCache[i] * (radius * outlineScale);
-            }            
-        }    
-        
+            }
+        }
+
         [BurstCompile]
         static void SetDiscSectionPoints(ref NativeArray<float3> dest, int count, in float3 normal, in float3 from, float angle)
         {
-            var angleInRadians = math.degrees(angle / (float) (count - 1));
+            var angleInRadians = math.degrees(angle / (float)(count - 1));
             var rotation = quaternion.AxisAngle(normal, angleInRadians);
-            
+
             var vector = math.normalize(from);
             for (var i = 0; i < count; i++)
             {
@@ -221,7 +221,7 @@ namespace UnityEditor.U2D.Animation
                 DrawBatch(s_Batches[i]);
                 s_Batches[i].Clear();
             }
-            
+
             s_VertexTmpCache.DisposeIfCreated();
             s_VertexTmpCache = default;
         }
@@ -231,7 +231,7 @@ namespace UnityEditor.U2D.Animation
             var vertexPtr = batch.vertices.Ptr;
             var indexPtr = batch.indices.Ptr;
             var vertexColorPtr = batch.vertexColors.Ptr;
-            
+
             var vertexCount = batch.vertices.Length;
 
             var vertexArr = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<Vector3>(vertexPtr, vertexCount, batch.vertices.Allocator.ToAllocator);
@@ -241,12 +241,12 @@ namespace UnityEditor.U2D.Animation
             NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref vertexArr, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
             NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref indexArr, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
             NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref colorArr, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
-            
+
             if (s_Mesh == null)
                 s_Mesh = new Mesh();
             else
                 s_Mesh.Clear();
-            
+
             s_Mesh.SetVertices(vertexArr);
             s_Mesh.SetIndices(indexArr, MeshTopology.Triangles, 0);
             s_Mesh.SetColors(colorArr);

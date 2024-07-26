@@ -22,7 +22,7 @@ namespace UnityEditor.U2D.Animation
             get => m_TextureRect;
             set => m_TextureRect = value;
         }
-        
+
         public Vector2 pivotRectSpace => Vector2.Scale(textureRect.size, m_PivotNormalized);
     }
 }

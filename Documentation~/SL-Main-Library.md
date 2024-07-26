@@ -20,7 +20,7 @@ The Sprite Library Editor window [displays a vertical white line](SL-Editor-UI.m
 
 ### Change the sprite reference
 
-You can change a Label's sprite reference by selecting a different sprite from the object picker next to the [Sprite object field](SL-Editor-UI.md#categories-and-labels-columns). You can also change the sprite reference by [dragging](SL-Drag.md) the desired sprite directly onto to a Label. 
+You can change a Label's sprite reference by selecting a different sprite from the object picker next to the [Sprite object field](SL-Editor-UI.md#categories-and-labels-columns). You can also change the sprite reference by [dragging](SL-Drag.md) the desired sprite directly onto to a Label.
 
 To revert sprite reference changes made to selected Labels, right-click the Label(s) and select **Revert Selected Overrides** from the [context menu](SL-Editor-UI.md#label-context-menu) to restore all sprite references back to their original inherited state from the Main Library.
 

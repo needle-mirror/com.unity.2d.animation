@@ -26,7 +26,7 @@ namespace UnityEditor.U2D.Animation
                 UnityEngine.Object.DestroyImmediate(obj);
             }
         }
-        
+
         public static BaseObject InstanceIDToObject(int instanceID)
         {
             var obj = default(BaseObject);
@@ -47,8 +47,8 @@ namespace UnityEditor.U2D.Animation
             s_Objects.Add(m_InstanceID, this);
         }
 
-        internal virtual void OnEnable() {}
-        internal virtual void OnDestroy() {}
+        internal virtual void OnEnable() { }
+        internal virtual void OnDestroy() { }
 
         public int GetInstanceID()
         {
@@ -59,7 +59,7 @@ namespace UnityEditor.U2D.Animation
         {
             if ((other == null))
                 return false;
-            
+
             return object.ReferenceEquals(this, other);
         }
 
@@ -68,7 +68,7 @@ namespace UnityEditor.U2D.Animation
             return m_InstanceID.GetHashCode();
         }
 
-        public static bool operator==(BaseObject t1, BaseObject t2)
+        public static bool operator ==(BaseObject t1, BaseObject t2)
         {
             if (object.ReferenceEquals(t1, null))
                 return object.ReferenceEquals(t2, null);
@@ -76,7 +76,7 @@ namespace UnityEditor.U2D.Animation
             return object.ReferenceEquals(t1, t2);
         }
 
-        public static bool operator!=(BaseObject t1, BaseObject t2)
+        public static bool operator !=(BaseObject t1, BaseObject t2)
         {
             return !(t1 == t2);
         }
@@ -99,8 +99,8 @@ namespace UnityEditor.U2D.Animation
             return EditorUtility.InstanceIDToObject(instanceID) as BaseObject;
         }
 
-        internal virtual void OnEnable() {}
-        internal virtual void OnDestroy() {}
+        internal virtual void OnEnable() { }
+        internal virtual void OnDestroy() { }
     }
 #endif
 }

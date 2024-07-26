@@ -158,7 +158,7 @@ namespace UnityEngine.U2D.Animation
         int m_DataIndex = -1;
         bool m_BoneCacheUpdateToDate = false;
 
-        internal Dictionary<int, List<TransformData>> m_HierarchyCache = new Dictionary<int, List<TransformData>>();
+        internal Dictionary<int, List<TransformData>> hierarchyCache = new Dictionary<int, List<TransformData>>();
 
         NativeArray<int> m_OutlineIndexCache;
         NativeArray<Vector3> m_StaticOutlineVertexCache;
@@ -177,6 +177,7 @@ namespace UnityEngine.U2D.Animation
         /// The indices are sorted and laid out with line topology.
         /// </summary>
         internal NativeArray<int> outlineIndices => m_OutlineIndexCache;
+
         /// <summary>
         /// Returns an array of the deformed outline vertices.
         /// </summary>
@@ -184,7 +185,7 @@ namespace UnityEngine.U2D.Animation
 #endif
 
         /// <summary>
-        /// Returns a hash which is updated every time the mesh is deformed. 
+        /// Returns a hash which is updated every time the mesh is deformed.
         /// </summary>
         internal int vertexDeformationHash => m_VertexDeformationHash;
 
@@ -206,11 +207,21 @@ namespace UnityEngine.U2D.Animation
             get => m_AutoRebind;
             set
             {
+                if (m_AutoRebind == value)
+                    return;
+
                 m_AutoRebind = value;
                 if (isActiveAndEnabled)
                 {
                     CacheHierarchy();
+
+                    m_CurrentDeformSprite = 0;
                     CacheCurrentSprite(m_AutoRebind);
+                }
+                else
+                {
+                    hierarchyCache.Clear();
+                    CacheValidFlag();
                 }
             }
         }
@@ -219,7 +230,6 @@ namespace UnityEngine.U2D.Animation
         /// Returns the Transform Components that are used for deformation.
         /// Do not modify elements of the returned array.
         /// </summary>
-        /// <returns>An array of Transform Components.</returns>
         public Transform[] boneTransforms => m_BoneTransforms;
 
         /// <summary>
@@ -231,17 +241,17 @@ namespace UnityEngine.U2D.Animation
         {
             m_BoneTransforms = boneTransformsArray;
 
-            var result = CacheValidFlag();
             if (isActiveAndEnabled)
                 OnBoneTransformChanged();
+            else
+                CacheValidFlag();
 
-            return result;
+            return m_State;
         }
 
         /// <summary>
         /// Returns the Transform Component that represents the root bone for deformation.
         /// </summary>
-        /// <returns>A Transform Component.</returns>
         public Transform rootBone => m_RootBone;
 
         /// <summary>
@@ -253,14 +263,18 @@ namespace UnityEngine.U2D.Animation
         {
             m_RootBone = rootBoneTransform;
 
-            var result = CacheValidFlag();
             if (isActiveAndEnabled)
             {
                 CacheHierarchy();
-                OnRootBoneTransformChanged();
+                OnBoneTransformChanged();
+            }
+            else
+            {
+                hierarchyCache.Clear();
+                CacheValidFlag();
             }
 
-            return result;
+            return m_State;
         }
 
         internal Bounds bounds
@@ -351,10 +365,10 @@ namespace UnityEngine.U2D.Animation
 
             Awake();
 
-            CacheCurrentSprite(false);
+            CacheCurrentSprite(m_AutoRebind);
             UpdateSpriteDeformationData();
 
-            if (m_HierarchyCache.Count == 0)
+            if (hierarchyCache.Count == 0)
                 CacheHierarchy();
 
             RefreshBoneTransforms();
@@ -422,12 +436,6 @@ namespace UnityEngine.U2D.Animation
         }
 
         void OnBoneTransformChanged()
-        {
-            RefreshBoneTransforms();
-            SpriteSkinContainer.instance.BoneTransformsChanged(this);
-        }
-
-        void OnRootBoneTransformChanged()
         {
             RefreshBoneTransforms();
             SpriteSkinContainer.instance.BoneTransformsChanged(this);
@@ -543,7 +551,7 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Gets a byte array to the currently deformed vertices for this SpriteSkin. 
+        /// Gets a byte array to the currently deformed vertices for this SpriteSkin.
         /// </summary>
         /// <returns>Returns a reference to the currently deformed vertices. This is valid only for this calling frame.</returns>
         /// <exception cref="InvalidOperationException">
@@ -633,7 +641,7 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Gets an enumerable to iterate through all deformed vertex tangents of this SpriteSkin. 
+        /// Gets an enumerable to iterate through all deformed vertex tangents of this SpriteSkin.
         /// </summary>
         /// <returns>Returns an IEnumerable to deformed vertex tangents.</returns>
         /// <exception cref="InvalidOperationException">
@@ -796,13 +804,13 @@ namespace UnityEngine.U2D.Animation
                 return;
             if (!HasCurrentDeformedVertices())
                 return;
-            
+
             var buffer = GetCurrentDeformedVertices();
             var indexCache = m_OutlineIndexCache;
             var vertexCache = m_DeformedOutlineVertexCache;
             BurstedSpriteSkinUtilities.SetVertexPositionFromByteBuffer(in buffer, in indexCache, ref vertexCache, m_SpriteVertexStreamSize);
             m_DeformedOutlineVertexCache = vertexCache;
-        } 
+        }
 
         void CacheSpriteOutline()
         {
@@ -836,14 +844,15 @@ namespace UnityEngine.U2D.Animation
                 if (indexY > maxIndex)
                     maxIndex = indexY;
             }
-            edgeNativeArr.Dispose();            
+
+            edgeNativeArr.Dispose();
         }
 
         void CacheOutlineVertices(int cacheSize)
         {
             m_DeformedOutlineVertexCache = new NativeArray<Vector3>(cacheSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
             m_StaticOutlineVertexCache = new NativeArray<Vector3>(cacheSize, Allocator.Persistent);
-                
+
             var vertices = sprite.GetVertexAttribute<Vector3>(VertexAttribute.Position);
             var vertexCache = m_StaticOutlineVertexCache;
             for (var i = 0; i < m_OutlineIndexCache.Length; ++i)
@@ -852,7 +861,7 @@ namespace UnityEngine.U2D.Animation
                 vertexCache[index] = vertices[index];
             }
 
-            m_StaticOutlineVertexCache = vertexCache;            
+            m_StaticOutlineVertexCache = vertexCache;
         }
 #endif
         internal void CopyToSpriteSkinData(ref SpriteSkinData data, int spriteSkinIndex)
@@ -898,15 +907,15 @@ namespace UnityEngine.U2D.Animation
         {
             using (Profiling.cacheHierarchy.Auto())
             {
-                m_HierarchyCache.Clear();
+                hierarchyCache.Clear();
                 if (rootBone == null || !m_AutoRebind)
                     return;
 
                 var boneCount = CountChildren(rootBone);
-                m_HierarchyCache.EnsureCapacity(boneCount + 1);
-                SpriteSkinHelpers.CacheChildren(rootBone, m_HierarchyCache);
+                hierarchyCache.EnsureCapacity(boneCount + 1);
+                SpriteSkinHelpers.CacheChildren(rootBone, hierarchyCache);
 
-                foreach (var entry in m_HierarchyCache)
+                foreach (var entry in hierarchyCache)
                 {
                     if (entry.Value.Count == 1)
                         continue;

@@ -22,8 +22,7 @@ namespace UnityEditor.U2D.Animation
         Vector2 m_ScrollPos;
         Styles m_Style;
         const int kTargetPreviewSize = 64;
-        public SpriteSelectorWidget()
-        {}
+        public SpriteSelectorWidget() { }
 
         public void UpdateContents(Sprite[] sprites)
         {
@@ -37,23 +36,24 @@ namespace UnityEditor.U2D.Animation
             UpdateSpritePreviews();
         }
 
-        
+
         public int ShowGUI(int selectedIndex)
         {
             if (m_Style == null)
                 m_Style = new Styles();
 
             UpdateSpritePreviews();
-            
-            var drawRect = EditorGUILayout.GetControlRect(false, kTargetPreviewSize + 10f, new[] {GUILayout.ExpandWidth(true)});
-            if(Event.current.type == EventType.Repaint)
+
+            var drawRect = EditorGUILayout.GetControlRect(false, kTargetPreviewSize + 10f, new[] { GUILayout.ExpandWidth(true) });
+            if (Event.current.type == EventType.Repaint)
                 GUI.skin.box.Draw(drawRect, false, false, false, false);
             if (m_SpriteList == null || m_SpriteList.Length == 0)
             {
                 return selectedIndex;
             }
+
             selectedIndex = (selectedIndex > m_SpriteList.Length) ? 0 : selectedIndex;
-            
+
             float columnF;
             int columnCount, rowCount;
             GetRowColumnCount(drawRect.width - 20, kTargetPreviewSize, m_SpriteList.Length, out columnCount, out rowCount, out columnF);
@@ -61,13 +61,14 @@ namespace UnityEditor.U2D.Animation
             {
                 float contentSize = (columnF * kTargetPreviewSize) / columnCount;
                 var gridRect = new Rect(drawRect.x, drawRect.y, drawRect.width - 20, rowCount * contentSize);
-                m_ScrollPos = GUI.BeginScrollView(drawRect,m_ScrollPos, gridRect, false, false,  GUIStyle.none, GUI.skin.verticalScrollbar);
-            
+                m_ScrollPos = GUI.BeginScrollView(drawRect, m_ScrollPos, gridRect, false, false, GUIStyle.none, GUI.skin.verticalScrollbar);
+
                 m_Style.gridListStyle.fixedWidth = contentSize;
                 m_Style.gridListStyle.fixedHeight = contentSize;
-                selectedIndex = GUI.SelectionGrid( gridRect, selectedIndex, m_SpritePreviews, columnCount, m_Style.gridListStyle);
+                selectedIndex = GUI.SelectionGrid(gridRect, selectedIndex, m_SpritePreviews, columnCount, m_Style.gridListStyle);
                 GUI.EndScrollView();
             }
+
             return selectedIndex;
         }
 
@@ -85,13 +86,13 @@ namespace UnityEditor.U2D.Animation
         {
             return m_SpritePreviewNeedFetching.Count > 0;
         }
-        
+
         void UpdateSpritePreviews()
         {
             for (int i = 0; i < m_SpritePreviewNeedFetching.Count; ++i)
             {
                 var index = m_SpritePreviewNeedFetching[i];
-                if(m_SpriteList[index] == null)
+                if (m_SpriteList[index] == null)
                     m_SpritePreviews[index] = EditorGUIUtility.Load("icons/console.warnicon.png") as Texture2D;
                 else
                     m_SpritePreviews[index] = AssetPreview.GetAssetPreview(m_SpriteList[index]);

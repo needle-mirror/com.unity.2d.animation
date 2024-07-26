@@ -1,4 +1,4 @@
-﻿using Unity.Profiling;
+using Unity.Profiling;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -7,12 +7,8 @@ namespace UnityEngine.U2D.Animation
     [ExecuteInEditMode]
     internal class DeformationManagerUpdater : MonoBehaviour
     {
-        public System.Action<GameObject> onDestroyingComponent
-        {
-            get; 
-            set;
-        }
-        
+        public System.Action<GameObject> onDestroyingComponent { get; set; }
+
         ProfilerMarker m_ProfilerMarker = new ProfilerMarker("DeformationManager.LateUpdate");
 
         void OnDestroy() => onDestroyingComponent?.Invoke(gameObject);
@@ -24,7 +20,7 @@ namespace UnityEngine.U2D.Animation
                 GameObject.DestroyImmediate(gameObject);
                 return;
             }
-            
+
             m_ProfilerMarker.Begin();
             DeformationManager.instance.Update();
             m_ProfilerMarker.End();

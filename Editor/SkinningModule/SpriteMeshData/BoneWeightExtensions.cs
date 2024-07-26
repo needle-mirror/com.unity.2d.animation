@@ -75,7 +75,7 @@ namespace UnityEditor.U2D.Animation
         public static BoneWeight Normalized(this BoneWeight boneWeight)
         {
             var sum = boneWeight.Sum();
-            
+
             if (sum == 0 || sum == 1f)
                 return boneWeight;
 

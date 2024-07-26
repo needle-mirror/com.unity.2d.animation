@@ -22,11 +22,11 @@ namespace UnityEditor.U2D.Animation
     [Serializable]
     internal abstract class BaseSpriteMeshData
     {
-        [SerializeField] 
+        [SerializeField]
         Vector2[] m_Vertices = new Vector2[0];
-        [SerializeField] 
+        [SerializeField]
         EditableBoneWeight[] m_VertexWeights = new EditableBoneWeight[0];
-        [SerializeField] 
+        [SerializeField]
         int[] m_Indices = new int[0];
         [SerializeField]
         int2[] m_Edges = new int2[0];
@@ -34,12 +34,12 @@ namespace UnityEditor.U2D.Animation
         int2[] m_OutlineEdges = new int2[0];
 
         Vector2[] m_VertexPositionsOverride = null;
-        
+
         public abstract Rect frame { get; }
-        
+
         public Vector2[] vertices => m_VertexPositionsOverride ?? m_Vertices;
         public EditableBoneWeight[] vertexWeights => m_VertexWeights;
-        
+
         public int[] indices => m_Indices;
 
         public int2[] edges => m_Edges;
@@ -60,14 +60,14 @@ namespace UnityEditor.U2D.Animation
             var indicesNativeArr = new NativeArray<ushort>(m_Indices.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
             for (var i = 0; i < indicesNativeArr.Length; ++i)
                 indicesNativeArr[i] = (ushort)m_Indices[i];
-            
+
             var outlineNativeArr = MeshUtilities.GetOutlineEdges(indicesNativeArr);
             m_OutlineEdges = outlineNativeArr.Length > 0 ? outlineNativeArr.ToArray() : new int2[0];
-            
+
             outlineNativeArr.Dispose();
             indicesNativeArr.Dispose();
         }
-        
+
         public void SetEdges(int2[] newEdges)
         {
             m_Edges = newEdges;
@@ -88,7 +88,7 @@ namespace UnityEditor.U2D.Animation
         /// <param name="vertexPositionsOverride">Array of new vertex positions.</param>
         public void SetVertexPositionsOverride(Vector2[] vertexPositionsOverride)
         {
-            if(vertexCount == vertexPositionsOverride.Length)
+            if (vertexCount == vertexPositionsOverride.Length)
                 m_VertexPositionsOverride = vertexPositionsOverride;
         }
 
@@ -146,7 +146,7 @@ namespace UnityEditor.U2D.Animation
     {
         [SerializeField]
         List<SpriteBoneData> m_Bones = new List<SpriteBoneData>();
-        
+
         [SerializeField]
         Rect m_Frame;
 

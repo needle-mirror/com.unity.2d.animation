@@ -52,13 +52,14 @@ namespace UnityEditor.U2D.Animation
         internal interface ISpriteVisibilityItem
         {
             bool visibility { get; set; }
-            ICharacterOrder characterOrder { get;}
+            ICharacterOrder characterOrder { get; }
         }
 
         internal class SpriteVisibilityGroupItem : ISpriteVisibilityItem
         {
             public CharacterGroupCache group;
             public ISpriteVisibilityItem[] childItems;
+
             bool ISpriteVisibilityItem.visibility
             {
                 get { return group.isVisible; }
@@ -69,27 +70,36 @@ namespace UnityEditor.U2D.Animation
                         foreach (var item in childItems)
                             item.visibility = value;
                     }
+
                     group.isVisible = value;
                 }
             }
-            
-            public ICharacterOrder characterOrder { get { return group; } }
+
+            public ICharacterOrder characterOrder
+            {
+                get { return group; }
+            }
         }
 
         internal class SpriteVisibilitySpriteItem : ISpriteVisibilityItem
         {
             public CharacterPartCache sprite;
+
             bool ISpriteVisibilityItem.visibility
             {
                 get { return sprite.isVisible; }
                 set { sprite.isVisible = value; }
             }
-            public ICharacterOrder characterOrder { get { return sprite; } }
+
+            public ICharacterOrder characterOrder
+            {
+                get { return sprite; }
+            }
         }
 
         ISpriteVisibilityToolModel m_Model;
         SkinningEvents m_Events;
-        public event Action OnAvailabilityChangeListeners = () => {};
+        public event Action OnAvailabilityChangeListeners = () => { };
 
         public SpriteVisibilityToolController(ISpriteVisibilityToolModel model, SkinningEvents events)
         {
@@ -189,13 +199,14 @@ namespace UnityEditor.U2D.Animation
                     rows.Add(ii);
                 }
             }
+
             rows.Sort((x, y) =>
             {
                 var x1 = (TreeViewItemBase<ISpriteVisibilityItem>)x;
                 var y1 = (TreeViewItemBase<ISpriteVisibilityItem>)y;
                 return SpriteVisibilityItemOrderSort(x1.customData, y1.customData);
             });
-            
+
             return rows;
         }
 
@@ -203,7 +214,7 @@ namespace UnityEditor.U2D.Animation
         {
             return x.characterOrder.order.CompareTo(y.characterOrder.order);
         }
-        
+
         private List<TreeViewItem> CreateTreeGroup(int level, CharacterGroupCache[] groups, CharacterPartCache[] parts, int depth)
         {
             var items = new List<TreeViewItem>();
@@ -217,6 +228,7 @@ namespace UnityEditor.U2D.Animation
                     });
                     items.Add(item);
                     var children = new List<ISpriteVisibilityItem>();
+
                     // find all sprite that has this group
                     var groupParts = parts.Where(x => x.parentGroup == j);
                     foreach (var part in groupParts)
@@ -236,9 +248,11 @@ namespace UnityEditor.U2D.Animation
                         if (visibilityItem != null)
                             children.Add(visibilityItem.customData);
                     }
+
                     (item.customData as SpriteVisibilityGroupItem).childItems = children.ToArray();
                 }
             }
+
             return items;
         }
 
@@ -276,7 +290,7 @@ namespace UnityEditor.U2D.Animation
                         foreach (var group in character.groups)
                             group.isVisible = !visible;
                     }
-                    
+
                     characterPart.visibility = visible;
                 }
             }
@@ -322,7 +336,11 @@ namespace UnityEditor.U2D.Animation
 
         private SpriteVisibilityToolData m_Data;
         private SkinningCache m_SkinningCache;
-        public SkinningCache skinningCache { get { return m_SkinningCache; } }
+
+        public SkinningCache skinningCache
+        {
+            get { return m_SkinningCache; }
+        }
 
         public SpriteVisibilityTool(SkinningCache s)
         {
@@ -335,8 +353,7 @@ namespace UnityEditor.U2D.Animation
             };
         }
 
-        public void Setup()
-        {}
+        public void Setup() { }
 
         public void Dispose()
         {
@@ -367,14 +384,42 @@ namespace UnityEditor.U2D.Animation
             m_Controller.OnAvailabilityChangeListeners += callback;
         }
 
-        ISpriteVisibilityToolView ISpriteVisibilityToolModel.view { get {return m_View;} }
+        ISpriteVisibilityToolView ISpriteVisibilityToolModel.view
+        {
+            get { return m_View; }
+        }
 
-        bool ISpriteVisibilityToolModel.hasCharacter { get { return skinningCache.hasCharacter; } }
-        SpriteCache ISpriteVisibilityToolModel.selectedSprite { get { return skinningCache.selectedSprite; } }
-        CharacterCache ISpriteVisibilityToolModel.character { get { return skinningCache.character; } }
-        bool ISpriteVisibilityToolModel.previousVisibility { get { return m_Data.previousVisibility; } set { m_Data.previousVisibility = value; } }
-        bool ISpriteVisibilityToolModel.allVisibility { get { return m_Data.allVisibility; } set { m_Data.allVisibility = value; } }
-        SkinningMode ISpriteVisibilityToolModel.mode { get { return skinningCache.mode; } }
+        bool ISpriteVisibilityToolModel.hasCharacter
+        {
+            get { return skinningCache.hasCharacter; }
+        }
+
+        SpriteCache ISpriteVisibilityToolModel.selectedSprite
+        {
+            get { return skinningCache.selectedSprite; }
+        }
+
+        CharacterCache ISpriteVisibilityToolModel.character
+        {
+            get { return skinningCache.character; }
+        }
+
+        bool ISpriteVisibilityToolModel.previousVisibility
+        {
+            get { return m_Data.previousVisibility; }
+            set { m_Data.previousVisibility = value; }
+        }
+
+        bool ISpriteVisibilityToolModel.allVisibility
+        {
+            get { return m_Data.allVisibility; }
+            set { m_Data.allVisibility = value; }
+        }
+
+        SkinningMode ISpriteVisibilityToolModel.mode
+        {
+            get { return skinningCache.mode; }
+        }
 
         UndoScope ISpriteVisibilityToolModel.UndoScope(string description)
         {
@@ -514,7 +559,7 @@ namespace UnityEditor.U2D.Animation
 
             base.OnGUI(rect);
         }
-        
+
         void CellGUI(Rect cellRect, TreeViewItem item, int column, ref RowGUIArgs args)
         {
             CenterRectUsingSingleLineHeight(ref cellRect);
@@ -550,7 +595,7 @@ namespace UnityEditor.U2D.Animation
             base.RowGUI(args);
         }
 
-        
+
         protected override void RowGUI(RowGUIArgs args)
         {
             var item = args.item;
@@ -570,7 +615,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override TreeViewItem BuildRoot()
         {
-            var root = new TreeViewItem {id = 0, depth = -1, displayName = "Root"};
+            var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
             var rows = GetController() != null ? GetController().BuildTreeView() : new List<TreeViewItem>();
             SetupParentsAndChildrenFromDepths(root, rows);
             return root;

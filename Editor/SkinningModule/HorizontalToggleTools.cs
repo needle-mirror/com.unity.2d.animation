@@ -30,7 +30,7 @@ namespace UnityEditor.U2D.Animation
             get { return collapseToolbar ? Styles.spriteSheetCollapseIcon : Styles.spriteSheetIcon; }
         }
 
-        internal Action<BaseTool> onActivateTool = (b) => {};
+        internal Action<BaseTool> onActivateTool = (b) => { };
 
         public bool collapseToolbar { get; set; }
 
@@ -45,13 +45,13 @@ namespace UnityEditor.U2D.Animation
             {
                 GUILayout.BeginArea(drawArea);
                 EditorGUILayout.BeginHorizontal();
-                
+
                 DoModeToggle();
                 GUILayout.FlexibleSpace();
                 DoVisibilityToggle(currentTool);
 
                 EditorGUILayout.EndHorizontal();
-                GUILayout.EndArea();                
+                GUILayout.EndArea();
             }
         }
 
@@ -60,7 +60,7 @@ namespace UnityEditor.U2D.Animation
             if (skinningCache.hasCharacter)
             {
                 EditorGUI.BeginChangeCheck();
-                var isActive = GUILayout.Toggle(switchmodeTool.isActive , spriteSheetIcon, EditorStyles.toolbarButton);
+                var isActive = GUILayout.Toggle(switchmodeTool.isActive, spriteSheetIcon, EditorStyles.toolbarButton);
                 if (EditorGUI.EndChangeCheck())
                 {
                     using (skinningCache.UndoScope(TextContent.setMode))
@@ -82,7 +82,7 @@ namespace UnityEditor.U2D.Animation
                 ToggleVisibilityTool(currentTool);
         }
 
-        GUIContent visbilityIcon { get { return collapseToolbar ? Styles.visibilityCollapseIcon : Styles.visibilityIcon; } }
+        GUIContent visbilityIcon => collapseToolbar ? Styles.visibilityCollapseIcon : Styles.visibilityIcon;
 
         internal void ToggleVisibilityTool(BaseTool currentTool)
         {

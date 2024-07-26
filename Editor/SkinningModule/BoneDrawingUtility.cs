@@ -30,7 +30,7 @@ namespace UnityEditor.U2D.Animation
             var up = Vector3.Cross(right, forward).normalized;
             var radius = GetBoneRadius(position, scale) * 0.5f;
             var numSamples = 12;
-            
+
             if (v.sqrMagnitude <= radius * radius)
                 BatchedDrawing.RegisterSolidArc(position, -forward, up, 360f, radius, color, numSamples * 2);
             else
@@ -54,11 +54,11 @@ namespace UnityEditor.U2D.Animation
             var radius = GetBoneRadius(position, scale) * 0.5f;
             var outlineWidth = radius * (outlineScale - 1f);
             const int numSamples = 12;
-            
+
             if (v.sqrMagnitude <= radius * radius)
                 BatchedDrawing.RegisterSolidArcWithOutline(position, -forward, up, 360f, radius, outlineScale, color, numSamples * 2);
             else
-            {    
+            {
                 BatchedDrawing.RegisterSolidArcWithOutline(position, -forward, up, 180f, radius, outlineScale, color, numSamples);
                 BatchedDrawing.RegisterSolidArcWithOutline(endPosition, -forward, -up, 180f, outlineWidth, 0f, color, numSamples);
                 BatchedDrawing.RegisterLine(position + up * (radius + outlineWidth * 0.5f), endPosition + up * (outlineWidth * 0.5f), forward, outlineWidth, outlineWidth, color);

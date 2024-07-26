@@ -14,7 +14,7 @@ namespace UnityEditor.U2D.Animation
             return other.weight.CompareTo(weight);
         }
     }
-    
+
     internal static class EditableBoneWeightUtility
     {
         private static List<BoneWeightData> s_BoneWeightDataList = new List<BoneWeightData>();

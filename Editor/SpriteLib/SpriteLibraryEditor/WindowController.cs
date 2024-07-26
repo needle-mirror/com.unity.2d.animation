@@ -8,13 +8,19 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 {
     internal enum ActionType
     {
-        SelectCategory, SelectLabels,
-        RenameCategory, RenameLabel,
-        CreateCategory, CreateLabel,
-        DeleteCategories, DeleteLabels,
-        ReorderCategories, ReorderLabels,
-        ModifiedCategories, ModifiedLabels,
-     
+        SelectCategory,
+        SelectLabels,
+        RenameCategory,
+        RenameLabel,
+        CreateCategory,
+        CreateLabel,
+        DeleteCategories,
+        DeleteLabels,
+        ReorderCategories,
+        ReorderLabels,
+        ModifiedCategories,
+        ModifiedLabels,
+
         SetMainLibrary,
         SetLabelSprite,
 
@@ -23,7 +29,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
     internal enum ViewType
     {
-        List, Grid
+        List,
+        Grid
     }
 
     internal struct ViewData
@@ -88,8 +95,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_ViewEvents = viewEvents;
 
             m_Model = model;
-
-            m_SelectedAssetPath = AssetDatabase.GetAssetPath(SpriteLibrarySourceAssetImporter.GetAssetFromSelection());
 
             AddAssetPostprocessorListeners();
             AddViewEventListeners();
@@ -198,7 +203,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             SpriteLibraryAssetPostprocessor.OnMovedAssetFromTo -= OnAssetMoved;
         }
 
-        void CreateNewSpriteLibraryAsset(string newAssetPath)
+        static void CreateNewSpriteLibraryAsset(string newAssetPath)
         {
             if (string.IsNullOrEmpty(newAssetPath) || !string.Equals(Path.GetExtension(newAssetPath), SpriteLibrarySourceAsset.extension, StringComparison.OrdinalIgnoreCase))
                 return;

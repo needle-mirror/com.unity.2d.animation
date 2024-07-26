@@ -92,11 +92,11 @@ namespace UnityEditor.U2D.Animation
             {
                 cacheObject = CacheObject.Create<T>(this);
             }
-            
+
             m_CacheObjects.Add(cacheObject);
 
             cacheObject.OnCreate();
-            
+
             return cacheObject;
         }
 

@@ -14,6 +14,7 @@ namespace UnityEditor.U2D.Animation
             get { return m_AllVisibility; }
             set { m_AllVisibility = value; }
         }
+
         public bool previousVisiblity
         {
             get { return m_PreviousVisibility; }
@@ -56,11 +57,11 @@ namespace UnityEditor.U2D.Animation
         {
             return (int)bone.depth;
         }
-        
+
         public Color GetBoneColor(BoneCache bone)
         {
             return bone.bindPoseColor;
-        }        
+        }
 
         public SkeletonCache GetSelectedSkeleton()
         {
@@ -119,23 +120,23 @@ namespace UnityEditor.U2D.Animation
         {
             var characterBone = bone.ToCharacterIfNeeded();
             characterBone.depth = depth;
-            
+
             if (characterBone != bone || skinningCache.mode == SkinningMode.Character)
                 skinningCache.SyncSpriteSheetSkeletons();
 
             skinningCache.events.boneDepthChanged.Invoke(bone);
         }
-        
+
         public void SetBoneColor(BoneCache bone, Color color)
         {
             var characterBone = bone.ToCharacterIfNeeded();
             characterBone.bindPoseColor = color;
-            
+
             if (characterBone != bone || skinningCache.mode == SkinningMode.Character)
                 skinningCache.SyncSpriteSheetSkeletons();
-            
+
             skinningCache.events.boneColorChanged.Invoke(bone);
-        }        
+        }
 
         public void SetName(BoneCache bone, string name)
         {
@@ -163,8 +164,15 @@ namespace UnityEditor.U2D.Animation
             skinningCache.BoneVisibilityChanged();
         }
 
-        public bool hasCharacter {get { return skinningCache.hasCharacter; } }
-        public SkinningMode mode {get { return skinningCache.mode; } }
+        public bool hasCharacter
+        {
+            get { return skinningCache.hasCharacter; }
+        }
+
+        public SkinningMode mode
+        {
+            get { return skinningCache.mode; }
+        }
     }
 
 

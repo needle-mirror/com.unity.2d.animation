@@ -7,8 +7,8 @@ namespace UnityEditor.U2D.Animation
     [Serializable]
     internal abstract class SerializableSelection<T> : ISelection<T>, ISerializationCallbackReceiver
     {
-        internal readonly static int kInvalidID = -1;
-        
+        internal static readonly int kInvalidID = -1;
+
         [SerializeField]
         private T[] m_Keys = new T[0];
 
@@ -16,10 +16,7 @@ namespace UnityEditor.U2D.Animation
         private HashSet<T> m_TemporalSelection = new HashSet<T>();
         private bool m_SelectionInProgress = false;
 
-        public int Count
-        {
-            get { return m_Selection.Count + m_TemporalSelection.Count; }
-        }
+        public int Count => m_Selection.Count + m_TemporalSelection.Count;
 
         public T activeElement
         {
@@ -41,7 +38,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     var union = new HashSet<T>(m_Selection);
                     union.UnionWith(m_TemporalSelection);
-                    set = union; 
+                    set = union;
                 }
 
                 return new List<T>(set).ToArray();
@@ -49,7 +46,7 @@ namespace UnityEditor.U2D.Animation
             set
             {
                 Clear();
-                foreach(var element in value)
+                foreach (var element in value)
                     Select(element, true);
             }
         }
@@ -81,7 +78,7 @@ namespace UnityEditor.U2D.Animation
 
         public void Select(T element, bool select)
         {
-            if(EqualityComparer<T>.Default.Equals(element, GetInvalidElement()))
+            if (EqualityComparer<T>.Default.Equals(element, GetInvalidElement()))
                 return;
 
             if (select)
@@ -107,7 +104,7 @@ namespace UnityEditor.U2D.Animation
         {
             T element = First(m_Selection);
 
-            if(EqualityComparer<T>.Default.Equals(element, GetInvalidElement()))
+            if (EqualityComparer<T>.Default.Equals(element, GetInvalidElement()))
                 element = First(m_TemporalSelection);
 
             return element;
@@ -115,9 +112,9 @@ namespace UnityEditor.U2D.Animation
 
         private T First(HashSet<T> set)
         {
-            if(set.Count == 0)
+            if (set.Count == 0)
                 return GetInvalidElement();
-            
+
             using (var enumerator = set.GetEnumerator())
             {
                 Debug.Assert(enumerator.MoveNext());

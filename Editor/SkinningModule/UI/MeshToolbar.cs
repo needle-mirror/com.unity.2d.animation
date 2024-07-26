@@ -19,11 +19,12 @@ namespace UnityEditor.U2D.Animation
         private const string k_GenerateGeometryId = "GenerateGeometry";
 
 #if ENABLE_UXML_TRAITS
-        public class MeshToolbarFactory : UxmlFactory<MeshToolbar, MeshToolbarUxmlTraits> {}
-        public class MeshToolbarUxmlTraits : UxmlTraits {}
+        public class MeshToolbarFactory : UxmlFactory<MeshToolbar, MeshToolbarUxmlTraits> { }
+
+        public class MeshToolbarUxmlTraits : UxmlTraits { }
 #endif
 
-        public event Action<Tools> SetMeshTool = (mode) => {};
+        public event Action<Tools> SetMeshTool = (mode) => { };
         public SkinningCache skinningCache { get; set; }
 
         public static MeshToolbar GenerateFromUXML()
@@ -34,8 +35,8 @@ namespace UnityEditor.U2D.Animation
             clone.LocalizeTextInChildren();
             clone.AddShortcutsToToolTips();
             return clone;
-        }        
-        
+        }
+
         public MeshToolbar()
         {
             styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/MeshToolbarStyle.uss"));
@@ -58,7 +59,7 @@ namespace UnityEditor.U2D.Animation
             button = this.Q<Button>(k_GenerateGeometryId);
             button.clickable.clicked += () => { SetMeshTool(Tools.GenerateGeometry); };
         }
-        
+
         private void SetupShortcutUtility()
         {
             m_ShortcutUtility = new ShortcutUtility(ShortcutIds.editGeometry,
@@ -70,7 +71,7 @@ namespace UnityEditor.U2D.Animation
             {
                 RestoreButtonTooltips(k_UxmlPath, k_ToolbarId);
                 AddShortcutsToToolTips();
-            };            
+            };
         }
 
         public void UpdateToggleState()
@@ -91,7 +92,7 @@ namespace UnityEditor.U2D.Animation
             button = this.Q<Button>(k_GenerateGeometryId);
             SetButtonChecked(button, skinningCache.GetTool(Tools.GenerateGeometry).isActive);
         }
-        
+
         private void AddShortcutsToToolTips()
         {
             m_ShortcutUtility.AddShortcutToButtonTooltip(this, k_SelectGeometryId, ShortcutIds.editGeometry);

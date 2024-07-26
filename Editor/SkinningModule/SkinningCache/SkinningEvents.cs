@@ -4,78 +4,92 @@ namespace UnityEditor.U2D.Animation
 {
     internal class SkinningEvents
     {
-        // The re-implemented virtual methods in these classes are there so that 
+        // The re-implemented virtual methods in these classes are there so that
         // they can be mocked in tests.
         public class SpriteEvent : UnityEvent<SpriteCache>
         {
             public new virtual void AddListener(UnityAction<SpriteCache> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<SpriteCache> listener) => base.RemoveListener(listener);
         }
+
         public class SkeletonEvent : UnityEvent<SkeletonCache>
         {
             public new virtual void AddListener(UnityAction<SkeletonCache> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<SkeletonCache> listener) => base.RemoveListener(listener);
         }
+
         public class MeshEvent : UnityEvent<MeshCache>
         {
             public new virtual void AddListener(UnityAction<MeshCache> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<MeshCache> listener) => base.RemoveListener(listener);
         }
+
         public class MeshPreviewEvent : UnityEvent<MeshPreviewCache>
         {
             public new virtual void AddListener(UnityAction<MeshPreviewCache> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<MeshPreviewCache> listener) => base.RemoveListener(listener);
         }
+
         public class SkinningModuleModeEvent : UnityEvent<SkinningMode>
         {
             public new virtual void AddListener(UnityAction<SkinningMode> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<SkinningMode> listener) => base.RemoveListener(listener);
         }
+
         public class BoneSelectionEvent : UnityEvent
         {
             public new virtual void AddListener(UnityAction listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction listener) => base.RemoveListener(listener);
         }
+
         public class BoneEvent : UnityEvent<BoneCache>
         {
             public new virtual void AddListener(UnityAction<BoneCache> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<BoneCache> listener) => base.RemoveListener(listener);
         }
+
         public class CharacterPartEvent : UnityEvent<CharacterPartCache>
         {
             public new virtual void AddListener(UnityAction<CharacterPartCache> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<CharacterPartCache> listener) => base.RemoveListener(listener);
         }
+
         public class ToolChangeEvent : UnityEvent<ITool>
         {
             public new virtual void AddListener(UnityAction<ITool> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<ITool> listener) => base.RemoveListener(listener);
         }
+
         public class RestoreBindPoseEvent : UnityEvent
         {
             public new virtual void AddListener(UnityAction listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction listener) => base.RemoveListener(listener);
         }
+
         public class CopyEvent : UnityEvent
         {
             public new virtual void AddListener(UnityAction listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction listener) => base.RemoveListener(listener);
         }
+
         public class PasteEvent : UnityEvent<bool, bool, bool, bool>
         {
             public new virtual void AddListener(UnityAction<bool, bool, bool, bool> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<bool, bool, bool, bool> listener) => base.RemoveListener(listener);
         }
+
         public class ShortcutEvent : UnityEvent<string>
         {
             public new virtual void AddListener(UnityAction<string> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<string> listener) => base.RemoveListener(listener);
         }
+
         public class BoneVisibilityEvent : UnityEvent<string>
         {
             public new virtual void AddListener(UnityAction<string> listener) => base.AddListener(listener);
             public new virtual void RemoveListener(UnityAction<string> listener) => base.RemoveListener(listener);
         }
+
         public class MeshPreviewBehaviourChangeEvent : UnityEvent<IMeshPreviewBehaviour>
         {
             public new virtual void AddListener(UnityAction<IMeshPreviewBehaviour> listener) => base.AddListener(listener);

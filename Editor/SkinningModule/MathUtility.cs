@@ -7,14 +7,14 @@ namespace UnityEditor.U2D.Animation
     {
         public static float DistanceToSegmentClamp(Vector3 p, Vector3 p1, Vector3 p2)
         {
-            float l2 = (p2 - p1).sqrMagnitude;    // i.e. |b-a|^2 -  avoid a sqrt
+            float l2 = (p2 - p1).sqrMagnitude; // i.e. |b-a|^2 -  avoid a sqrt
             if (l2 == 0.0)
-                return float.MaxValue;       // a == b case
+                return float.MaxValue; // a == b case
             float t = Vector3.Dot(p - p1, p2 - p1) / l2;
             if (t < 0.0)
-                return float.MaxValue;       // Beyond the 'a' end of the segment
+                return float.MaxValue; // Beyond the 'a' end of the segment
             if (t > 1.0)
-                return float.MaxValue;         // Beyond the 'b' end of the segment
+                return float.MaxValue; // Beyond the 'b' end of the segment
             Vector3 projection = p1 + t * (p2 - p1); // Projection falls on the segment
             return (p - projection).magnitude;
         }
@@ -102,7 +102,7 @@ namespace UnityEditor.U2D.Animation
         //From: https://answers.unity.com/questions/861719/a-fast-triangle-triangle-intersection-algorithm-fo.html
         public static bool Intersect(Vector3 p1, Vector3 p2, Vector3 p3, Ray ray)
         {
-            Vector3 e1, e2;  
+            Vector3 e1, e2;
             Vector3 p, q, t;
             float det, invDet, u, v;
             e1 = p2 - p1;

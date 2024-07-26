@@ -37,7 +37,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
         public List<UpgradeEntry> UpgradeEntries;
         public string Log;
     }
-    
+
     internal class Logger
     {
         StringBuilder m_Log = new StringBuilder();
@@ -51,7 +51,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
     internal static class UpgradeUtilities
     {
         const string k_PsbImporterSignature = "UnityEditor.U2D.PSD.PSDImporter";
-        
+
         public static bool IsPsbImportedFile(string path)
         {
             return AssetImporter.GetAtPath(path).GetType().ToString() == k_PsbImporterSignature;

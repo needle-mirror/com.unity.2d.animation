@@ -27,7 +27,7 @@ namespace UnityEditor.U2D.Animation
                 // Injecting these bones a second time, because the Sprite Rect positions
                 // might have updated between OnPreprocessAsset and OnPostprocessSprites.
                 InjectMainSkeletonBones(ai);
-                
+
                 var definitionScale = CalculateDefinitionScale(texture, ai.GetDataProvider<ITextureDataProvider>());
                 ai.InitSpriteEditorDataProvider();
                 PostProcessBoneData(ai, definitionScale, sprites);
@@ -38,14 +38,14 @@ namespace UnityEditor.U2D.Animation
             // Get all SpriteSkin in scene and inform them to refresh their cache
             RefreshSpriteSkinCache();
         }
-        
+
         static void InjectMainSkeletonBones(ISpriteEditorDataProvider dataProvider)
         {
             var characterDataProvider = dataProvider.GetDataProvider<ICharacterDataProvider>();
             var mainSkeletonBonesDataProvider = dataProvider.GetDataProvider<IMainSkeletonDataProvider>();
             if (characterDataProvider == null || mainSkeletonBonesDataProvider == null)
                 return;
-            
+
             var skinningCache = Cache.Create<SkinningCache>();
             skinningCache.Create(dataProvider, new SkinningCachePersistentStateTemp());
 
@@ -66,13 +66,11 @@ namespace UnityEditor.U2D.Animation
             {
                 var characterPart = skinningCache.character.parts[i];
                 var useGuids = !skeletonBones.All(newBone => previousStateBones.All(oldBone => newBone.guid != oldBone.guid));
-                characterPart.bones = useGuids ?
-                    characterPart.bones.Select(partBone => Array.Find(skeletonBones, skeletonBone => partBone.guid == skeletonBone.guid)).ToArray() : 
-                    characterPart.bones.Select(partBone => skeletonBones.ElementAtOrDefault(Array.FindIndex(previousStateBones, oldBone => partBone.guid == oldBone.guid))).ToArray();
+                characterPart.bones = useGuids ? characterPart.bones.Select(partBone => Array.Find(skeletonBones, skeletonBone => partBone.guid == skeletonBone.guid)).ToArray() : characterPart.bones.Select(partBone => skeletonBones.ElementAtOrDefault(Array.FindIndex(previousStateBones, oldBone => partBone.guid == oldBone.guid))).ToArray();
 
                 var mesh = skinningCache.GetMesh(characterPart.sprite);
-                 if (mesh != null)
-                     mesh.SetCompatibleBoneSet(characterPart.bones);
+                if (mesh != null)
+                    mesh.SetCompatibleBoneSet(characterPart.bones);
 
                 skinningCache.character.parts[i] = characterPart;
             }
@@ -114,6 +112,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     CalculateLocaltoWorldMatrix(sp.parentId, spriteRect, definitionScale, pixelsPerUnit, spriteBone, ref outpriteBone, ref bindPose);
                 }
+
                 var parentBindPose = bindPose[sp.parentId];
                 var invParentBindPose = Matrix4x4.Inverse(parentBindPose);
 
@@ -156,11 +155,12 @@ namespace UnityEditor.U2D.Animation
                     var spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
 
                     var bindPose = new NativeArray<Matrix4x4>(spriteBoneCount, Allocator.Temp);
-                    var outputSpriteBones = new UnityEngine.U2D.SpriteBone ? [spriteBoneCount];
+                    var outputSpriteBones = new UnityEngine.U2D.SpriteBone? [spriteBoneCount];
                     for (int i = 0; i < spriteBoneCount; ++i)
                     {
                         CalculateLocaltoWorldMatrix(i, spriteRect, definitionScale, sprite.pixelsPerUnit, spriteBone, ref outputSpriteBones, ref bindPose);
                     }
+
                     sprite.SetBindPoses(bindPose);
                     sprite.SetBones(outputSpriteBones.Select(x => x.Value).ToArray());
                     bindPose.Dispose();
@@ -221,7 +221,7 @@ namespace UnityEditor.U2D.Animation
                     for (int i = 0; i < indices.Length; ++i)
                         indicesArray[i] = (ushort)indices[i];
 
-                    if(showMeshOverwriteWarning && outlineDataProvider?.GetOutlines(guid)?.Count > 0)
+                    if (showMeshOverwriteWarning && outlineDataProvider?.GetOutlines(guid)?.Count > 0)
                         Debug.LogWarning(string.Format(TextContent.spriteMeshOverwriteWarning, sprite.name), assetImporter);
                     sprite.SetVertexCount(vertices.Length);
                     sprite.SetVertexAttribute<Vector3>(VertexAttribute.Position, vertexArray);
@@ -245,7 +245,7 @@ namespace UnityEditor.U2D.Animation
                     dataChanged = true;
 
                     if (hasBones && hasInvalidWeights)
-                        Debug.LogWarning(string.Format(TextContent.boneWeightsNotSumZeroWarning,spriteRect.name), assetImporter);
+                        Debug.LogWarning(string.Format(TextContent.boneWeightsNotSumZeroWarning, spriteRect.name), assetImporter);
                 }
                 else
                 {
@@ -276,6 +276,7 @@ namespace UnityEditor.U2D.Animation
                 float definitionScaleH = texture.height / (float)actualHeight;
                 definitionScale = Mathf.Min(definitionScaleW, definitionScaleH);
             }
+
             return definitionScale;
         }
 
@@ -285,7 +286,7 @@ namespace UnityEditor.U2D.Animation
             dataProviderFactories.Init();
             return dataProviderFactories.GetSpriteEditorDataProviderFromObject(AssetImporter.GetAtPath(assetPath));
         }
-        
+
         internal class SkinningCachePersistentStateTemp : ISkinningCachePersistentState
         {
             private string _lastSpriteId;

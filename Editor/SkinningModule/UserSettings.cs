@@ -9,16 +9,17 @@ namespace UnityEditor.U2D.Animation
         public const string kShowSpriteMeshOverwriteWarningKey = UserSettings.kSettingsUniqueKey + "AnimationEditorSetting.showSpriteMeshOverwriteWarning";
         public static readonly GUIContent kCompactToolbarLabel = EditorGUIUtility.TrTextContent("Hide Tool Text");
         public static readonly GUIContent kShowSpriteMeshOverwriteWarning = new GUIContent(TextContent.showSpriteMeshOverwriteWarning, TextContent.showSpriteMeshOverwriteWarningTip);
+
         public static bool compactToolBar
         {
-            get { return EditorPrefs.GetBool(kCompactToolbarKey, false); }
-            set { EditorPrefs.SetBool(kCompactToolbarKey, value); }
+            get => EditorPrefs.GetBool(kCompactToolbarKey, false);
+            set => EditorPrefs.SetBool(kCompactToolbarKey, value);
         }
-        
+
         public static bool showSpriteMeshOverwriteWarning
         {
-            get { return EditorPrefs.GetBool(kShowSpriteMeshOverwriteWarningKey, true); }
-            set { EditorPrefs.SetBool(kShowSpriteMeshOverwriteWarningKey, value); }
+            get => EditorPrefs.GetBool(kShowSpriteMeshOverwriteWarningKey, true);
+            set => EditorPrefs.SetBool(kShowSpriteMeshOverwriteWarningKey, value);
         }
 
         public void OnGUI()
@@ -27,7 +28,7 @@ namespace UnityEditor.U2D.Animation
             var c = EditorGUILayout.Toggle(kCompactToolbarLabel, compactToolBar);
             if (EditorGUI.EndChangeCheck())
                 compactToolBar = c;
-            
+
             EditorGUI.BeginChangeCheck();
             c = EditorGUILayout.Toggle(kShowSpriteMeshOverwriteWarning, showSpriteMeshOverwriteWarning);
             if (EditorGUI.EndChangeCheck())
@@ -39,16 +40,17 @@ namespace UnityEditor.U2D.Animation
     {
         public const string kBoneOpacitykey = UserSettings.kSettingsUniqueKey + "VisibilityToolSettings.boneOpacity";
         public const string kMeshOpacityKey = UserSettings.kSettingsUniqueKey + "VisibilityToolSettings.meshOpacity";
+
         public static float boneOpacity
         {
-            get { return EditorPrefs.GetFloat(kBoneOpacitykey, 1.0f); }
-            set { EditorPrefs.SetFloat(kBoneOpacitykey, value); }
+            get => EditorPrefs.GetFloat(kBoneOpacitykey, 1.0f);
+            set => EditorPrefs.SetFloat(kBoneOpacitykey, value);
         }
 
         public static float meshOpacity
         {
-            get { return EditorPrefs.GetFloat(kMeshOpacityKey, 0.5f); }
-            set { EditorPrefs.SetFloat(kMeshOpacityKey, value); }
+            get => EditorPrefs.GetFloat(kMeshOpacityKey, 0.5f);
+            set => EditorPrefs.SetFloat(kMeshOpacityKey, value);
         }
     }
 
@@ -64,26 +66,26 @@ namespace UnityEditor.U2D.Animation
 
         public static int outlineDetail
         {
-            get { return EditorPrefs.GetInt(kOutlineDetailKey, kDefaultOutlineDetail); }
-            set { EditorPrefs.SetInt(kOutlineDetailKey, value); }
+            get => EditorPrefs.GetInt(kOutlineDetailKey, kDefaultOutlineDetail);
+            set => EditorPrefs.SetInt(kOutlineDetailKey, value);
         }
 
         public static int alphaTolerance
         {
-            get { return EditorPrefs.GetInt(kAlphaToleranceKey, kDefaultAlphaTolerance); }
-            set { EditorPrefs.SetInt(kAlphaToleranceKey, value); }
+            get => EditorPrefs.GetInt(kAlphaToleranceKey, kDefaultAlphaTolerance);
+            set => EditorPrefs.SetInt(kAlphaToleranceKey, value);
         }
 
         public static int subdivide
         {
-            get { return EditorPrefs.GetInt(kSubdivideKey, kDefaultSubdivide); }
-            set { EditorPrefs.SetInt(kSubdivideKey, value); }
-        }        
+            get => EditorPrefs.GetInt(kSubdivideKey, kDefaultSubdivide);
+            set => EditorPrefs.SetInt(kSubdivideKey, value);
+        }
 
         public static bool generateWeights
         {
-            get { return EditorPrefs.GetBool(kGenerateWeightsKey, true); }
-            set { EditorPrefs.SetBool(kGenerateWeightsKey, value); }
+            get => EditorPrefs.GetBool(kGenerateWeightsKey, true);
+            set => EditorPrefs.SetBool(kGenerateWeightsKey, value);
         }
     }
 
@@ -102,16 +104,14 @@ namespace UnityEditor.U2D.Animation
 
         public static Color outlineColor
         {
-            get
-            {
-                return new Color()
+            get =>
+                new()
                 {
                     r = EditorPrefs.GetFloat(kSelectedOutlineRedKey, 1),
                     g = EditorPrefs.GetFloat(kSelectedOutlineGreenKey, 102.0f / 255.0f),
                     b = EditorPrefs.GetFloat(kSelectedOutlineBlueKey, 0),
                     a = EditorPrefs.GetFloat(kSelectedOutlineAlphaKey, 1)
                 };
-            }
             set
             {
                 EditorPrefs.SetFloat(kSelectedOutlineRedKey, value.r);
@@ -123,14 +123,14 @@ namespace UnityEditor.U2D.Animation
 
         public static int selectedSpriteOutlineSize
         {
-            get { return EditorPrefs.GetInt(kSelectedSpriteOutlineSize, 1); }
-            set { EditorPrefs.SetInt(kSelectedSpriteOutlineSize, value); }
+            get => EditorPrefs.GetInt(kSelectedSpriteOutlineSize, 1);
+            set => EditorPrefs.SetInt(kSelectedSpriteOutlineSize, value);
         }
 
         public static float selectedBoneOutlineSize
         {
-            get { return EditorPrefs.GetFloat(kSelectedBoneOutlineSize, 1); }
-            set { EditorPrefs.SetFloat(kSelectedBoneOutlineSize, value); }
+            get => EditorPrefs.GetFloat(kSelectedBoneOutlineSize, 1);
+            set => EditorPrefs.SetFloat(kSelectedBoneOutlineSize, value);
         }
 
         public void OnGUI()
@@ -158,7 +158,8 @@ namespace UnityEditor.U2D.Animation
         private static SelectionOutlineSettings s_SelectionOutlineSettings = new SelectionOutlineSettings();
         private static SkinningModuleSettings s_SkinningModuleSettings = new SkinningModuleSettings();
 
-        public UserSettings() : base("Preferences/2D/Animation", SettingsScope.User)
+        public UserSettings()
+            : base("Preferences/2D/Animation", SettingsScope.User)
         {
             guiHandler = OnGUI;
         }

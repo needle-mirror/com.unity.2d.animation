@@ -27,13 +27,13 @@ namespace UnityEngine.U2D.Animation
 
         [SerializeField]
         SpriteLibraryAsset m_SpriteLibraryAsset;
-        
+
         // Cache for combining data in sprite library asset and main library
         Dictionary<int, CategoryEntrySprite> m_CategoryEntryHashCache = null;
         Dictionary<string, HashSet<string>> m_CategoryEntryCache = null;
         int m_PreviousSpriteLibraryAsset;
         long m_PreviousModificationHash;
-        
+
         /// <summary>Get or Set the current SpriteLibraryAsset to use.</summary>
         public SpriteLibraryAsset spriteLibraryAsset
         {
@@ -53,9 +53,9 @@ namespace UnityEngine.U2D.Animation
         {
             CacheOverrides();
         }
-        
+
         /// <summary>
-        /// Empty method. Implemented for the IPreviewable interface. 
+        /// Empty method. Implemented for the IPreviewable interface.
         /// </summary>
         public void OnPreviewUpdate() { }
 
@@ -65,7 +65,7 @@ namespace UnityEngine.U2D.Animation
         /// <param name="category">Category name.</param>
         /// <param name="label">Label name.</param>
         /// <returns>Sprite associated to the name and index.</returns>
-        public Sprite GetSprite(string category, string label) 
+        public Sprite GetSprite(string category, string label)
         {
             return GetSprite(GetHashForCategoryAndEntry(category, label));
         }
@@ -79,7 +79,7 @@ namespace UnityEngine.U2D.Animation
 
         void UpdateCacheOverridesIfNeeded()
         {
-            if(m_CategoryEntryCache == null || 
+            if (m_CategoryEntryCache == null ||
                 m_PreviousSpriteLibraryAsset != m_SpriteLibraryAsset?.GetInstanceID() ||
                 m_PreviousModificationHash != m_SpriteLibraryAsset?.modificationHash)
                 CacheOverrides();
@@ -113,6 +113,7 @@ namespace UnityEngine.U2D.Animation
                 validEntry = true;
                 return m_CategoryEntryHashCache[hash].sprite;
             }
+
             validEntry = false;
             return null;
         }
@@ -151,7 +152,7 @@ namespace UnityEngine.U2D.Animation
 
             return entries[index];
         }
-        
+
         /// <summary>
         /// Add or replace an override when querying for the given Category and Label from a SpriteLibraryAsset.
         /// </summary>
@@ -184,6 +185,7 @@ namespace UnityEngine.U2D.Animation
                     var ent = cat.categoryList[i];
                     GetEntry(entries, ent.name, true).sprite = ent.sprite;
                 }
+
                 CacheOverrides();
             }
         }
@@ -309,14 +311,14 @@ namespace UnityEngine.U2D.Animation
                     }
                 }
             }
-            
+
             foreach (var category in m_Library)
             {
                 var catName = category.name;
-                if(!m_CategoryEntryCache.ContainsKey(catName))
+                if (!m_CategoryEntryCache.ContainsKey(catName))
                     m_CategoryEntryCache.Add(catName, new HashSet<string>());
                 var cacheEntryName = m_CategoryEntryCache[catName];
-                
+
                 foreach (var ent in category.categoryList)
                 {
                     if (!cacheEntryName.Contains(ent.name))

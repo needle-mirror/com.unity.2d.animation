@@ -12,7 +12,7 @@ namespace UnityEditor.U2D.Animation
         List<BoneCache> m_Bones = new List<BoneCache>();
         [SerializeField]
         SpriteCache m_Sprite;
-        
+
         public override string spriteName => sprite.name;
         public override int boneCount => m_Bones.Count;
         public override Rect frame => sprite.textureRect;
@@ -30,11 +30,11 @@ namespace UnityEditor.U2D.Animation
             get => m_Bones.ToArray();
             set => SetBones(value);
         }
-        
+
         public override SpriteBoneData GetBoneData(int index)
         {
             var worldToLocalMatrix = sprite.worldToLocalMatrix;
-            
+
             //We expect m_Bones to contain character's bones references if character exists. Sprite's skeleton bones otherwise.
             if (sprite.skinningCache.hasCharacter)
                 worldToLocalMatrix = sprite.GetCharacterPart().worldToLocalMatrix;

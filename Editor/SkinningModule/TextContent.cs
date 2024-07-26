@@ -121,7 +121,7 @@ namespace UnityEditor.U2D.Animation
         public static string spriteLibraryCreateNewAsset = L10n.Tr("Create new Sprite Library Asset");
         public static string spriteLibraryCreateTitle = L10n.Tr("New Sprite Library Asset");
         public static string spriteLibraryCreateMessage = L10n.Tr("Create a new Sprite Library Asset");
-        
+
         // Sprite Resolver
         public static readonly string emptyCategory = L10n.Tr("Category is Empty");
         public static readonly string noCategory = L10n.Tr("No Category");

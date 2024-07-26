@@ -209,7 +209,7 @@ namespace UnityEditor.U2D.Animation
                 }
             }
         }
-        
+
         public Color GetTreeItemColorValue(TreeViewItemBase<BoneCache> bone)
         {
             return m_Model.GetBoneColor(bone.customData);
@@ -225,7 +225,7 @@ namespace UnityEditor.U2D.Animation
                     m_SkinningEvents.boneColorChanged.Invoke(bone.customData);
                 }
             }
-        }        
+        }
 
         public void SetTreeViewBoneName(IList<TreeViewItem> items, BoneCache bone)
         {

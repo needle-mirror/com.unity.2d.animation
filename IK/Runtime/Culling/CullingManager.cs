@@ -5,7 +5,7 @@ using Unity.Profiling;
 namespace UnityEngine.U2D.IK
 {
     /// <summary>
-    /// Class used for checking visibility of SpriteSkins' bones. 
+    /// Class used for checking visibility of SpriteSkins' bones.
     /// </summary>
     [ExecuteInEditMode]
     internal class CullingManager : MonoBehaviour
@@ -40,7 +40,7 @@ namespace UnityEngine.U2D.IK
             var cullingManager = newGameObject.AddComponent<CullingManager>();
             return cullingManager;
         }
-        
+
         ProfilerMarker m_ProfilerMarker = new($"{nameof(CullingManager)}.{nameof(OnUpdate)}");
         Dictionary<Type, BaseCullingStrategy> m_CullingStrategies;
 

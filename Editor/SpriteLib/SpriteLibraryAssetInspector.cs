@@ -18,13 +18,13 @@ namespace UnityEditor.U2D.Animation
             if (spriteLibraryAsset != null)
             {
                 SpriteLibraryEditor.SpriteLibraryEditorWindow.OpenWindow();
-                
+
                 return true;
             }
-            
+
             return false;
         }
-        
+
         static class Style
         {
             public static GUIContent duplicateWarningText = EditorGUIUtility.TrTextContent("Duplicate name found or name hash clashes. Please use a different name");
@@ -127,6 +127,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     nameRect.width -= 20;
                 }
+
                 var newName = EditorGUI.DelayedTextField(
                     nameRect,
                     Style.nameLabel,
@@ -137,6 +138,7 @@ namespace UnityEditor.U2D.Animation
                     nameRect.width = 20;
                     GUI.Label(nameRect, Style.duplicateWarning);
                 }
+
                 if (EditorGUI.EndChangeCheck())
                 {
                     newName = newName.Trim();
@@ -154,9 +156,9 @@ namespace UnityEditor.U2D.Animation
             EditorGUILayout.HelpBox(Style.UpgradeHelpBox, MessageType.Info);
             if (GUILayout.Button(Style.UpgradeButton))
                 AssetUpgraderWindow.OpenWindow();
-            
+
             EditorGUILayout.Space(10);
-            
+
             serializedObject.Update();
             EditorGUI.BeginChangeCheck();
             if (EditorGUI.EndChangeCheck())

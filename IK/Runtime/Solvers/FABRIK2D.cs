@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.U2D.IK
@@ -164,7 +163,7 @@ namespace UnityEngine.U2D.IK
             return notSolved;
         }
 
-        static void Forward(Vector2 targetPosition, IList<float> lengths, ref Vector2[] positions)
+        static void Forward(Vector2 targetPosition, float[] lengths, ref Vector2[] positions)
         {
             var last = positions.Length - 1;
             positions[last] = targetPosition;
@@ -177,7 +176,7 @@ namespace UnityEngine.U2D.IK
             }
         }
 
-        static void Backward(Vector2 originPosition, IList<float> lengths, ref Vector2[] positions)
+        static void Backward(Vector2 originPosition, float[] lengths, ref Vector2[] positions)
         {
             positions[0] = originPosition;
             var last = positions.Length - 1;

@@ -13,7 +13,7 @@ The **Bone** tab displays the [Bone hierarchy](#bone-tab-and-hierarchy-tree) of 
 
 ## Bone tab and hierarchy tree
 
-![](images/bone_tree.PNG)<br/>The Bone tab selected.
+![](images/bone_tree.png)<br/>The Bone tab selected.
 
 Select the __Bone__ tab to view the list of bones in the character Prefab. The list reflects the hierarchy of bones you created with the [Bone tools](SkinEdToolsShortcuts.html#bone-tools). You can reparent and reorder bones directly from the bone tab by dragging selected bones up and down the list. Toggle the visibility of each bone by selecting the ![](images/visibility_icon.png) icon next to it.
 
@@ -27,6 +27,6 @@ Select the __Bone__ tab to view the list of bones in the character Prefab. The l
 
 ## Sprite tab
 
-Select the __Sprite tab__ to see the list of Sprites that make up the character Prefab in the Skinning editor window. The names  and order of the Sprites mirror their names, layer and grouping order in the original source file. Toggle the visibility of a Layer by selecting the ![](images/visibility_icon.png) icon next to it. Hold Alt (macOS: hold Option) to view it in isolation and hide every other Layer.  
+Select the __Sprite tab__ to see the list of Sprites that make up the character Prefab in the Skinning editor window. The names  and order of the Sprites mirror their names, layer and grouping order in the original source file. Toggle the visibility of a Layer by selecting the ![](images/visibility_icon.png) icon next to it. Hold Alt (macOS: hold Option) to view it in isolation and hide every other Layer.
 
 ![](images/2D-animation-v7-sprite-tab.png)

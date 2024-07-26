@@ -7,7 +7,7 @@ using Unity.Burst;
 
 namespace UnityEngine.U2D.Animation
 {
-   internal struct PerSkinJobData
+    internal struct PerSkinJobData
     {
         public int deformVerticesStartPos;
         public int2 bindPosesIndex;
@@ -28,9 +28,9 @@ namespace UnityEngine.U2D.Animation
         public int transformId;
         public NativeCustomSlice<int> boneTransformId;
     }
-    
+
     [BurstCompile]
-    internal struct PrepareDeformJob :IJob
+    internal struct PrepareDeformJob : IJob
     {
         [ReadOnly]
         public NativeArray<PerSkinJobData> perSkinJobData;
@@ -50,6 +50,7 @@ namespace UnityEngine.U2D.Animation
                 {
                     boneLookupData[j] = new int2(i, k);
                 }
+
                 for (int k = 0, j = jobData.verticesIndex.x; j < jobData.verticesIndex.y; ++j, ++k)
                 {
                     vertexLookupData[j] = new int2(i, k);
@@ -57,7 +58,7 @@ namespace UnityEngine.U2D.Animation
             }
         }
     }
-    
+
     [BurstCompile]
     internal struct BoneDeformBatchedJob : IJobParallelFor
     {
@@ -91,7 +92,7 @@ namespace UnityEngine.U2D.Animation
             finalBoneTransforms[i] = math.mul(rootTransform[cc], math.mul(aa, bb));
         }
     }
-    
+
     [BurstCompile]
     internal struct SkinDeformBatchedJob : IJobParallelFor
     {
@@ -143,7 +144,7 @@ namespace UnityEngine.U2D.Animation
                     math.mul(finalBoneTransforms[bone3], tangent) * influence.weight3;
                 deformableTangentsFloat4[k] = new float4(math.normalize(tangent.xyz), tangents.w);
             }
-            
+
             deformableVerticesFloat3[k] =
                 math.transform(finalBoneTransforms[bone0], srcVertex) * influence.weight0 +
                 math.transform(finalBoneTransforms[bone1], srcVertex) * influence.weight1 +
@@ -151,12 +152,12 @@ namespace UnityEngine.U2D.Animation
                 math.transform(finalBoneTransforms[bone3], srcVertex) * influence.weight3;
         }
     }
-    
+
     [BurstCompile]
     internal struct CalculateSpriteSkinAABBJob : IJobParallelFor
     {
         public NativeSlice<byte> vertices;
-        [ReadOnly] 
+        [ReadOnly]
         public NativeArray<bool> isSpriteSkinValidForDeformArray;
         [ReadOnly]
         public NativeArray<SpriteSkinData> spriteSkinData;
@@ -180,7 +181,7 @@ namespace UnityEngine.U2D.Animation
             bounds[i] = SpriteSkinUtility.CalculateSpriteSkinBounds(deformableVerticesFloat3);
         }
     }
-    
+
     [BurstCompile]
     internal struct FillPerSkinJobSingleThread : IJob
     {
@@ -212,6 +213,7 @@ namespace UnityEngine.U2D.Animation
                     vertexCount = spriteSkinData.spriteVertexCount;
                     bindPoseCount = spriteSkinData.bindPoses.Length;
                 }
+
                 combinedSkinBatch.verticesIndex.x = combinedSkinBatch.verticesIndex.y;
                 combinedSkinBatch.verticesIndex.y = combinedSkinBatch.verticesIndex.x + vertexCount;
                 combinedSkinBatch.bindPosesIndex.x = combinedSkinBatch.bindPosesIndex.y;
@@ -220,10 +222,11 @@ namespace UnityEngine.U2D.Animation
                 perSkinJobDataArray[index] = combinedSkinBatch;
                 combinedSkinBatch.deformVerticesStartPos += vertexBufferSize;
             }
+
             combinedSkinBatchArray[0] = combinedSkinBatch;
         }
     }
-    
+
     [BurstCompile]
     internal struct CopySpriteRendererBuffersJob : IJobParallelFor
     {
@@ -238,7 +241,7 @@ namespace UnityEngine.U2D.Animation
         public NativeArray<IntPtr> buffers;
         [WriteOnly]
         public NativeArray<int> bufferSizes;
-        
+
         public void Execute(int i)
         {
             var skinData = spriteSkinData[i];
@@ -249,6 +252,7 @@ namespace UnityEngine.U2D.Animation
                 startVertices = ptrVertices + skinData.deformVerticesStartPos;
                 vertexBufferLength = skinData.spriteVertexCount * skinData.spriteVertexStreamSize;
             }
+
             buffers[i] = startVertices;
             bufferSizes[i] = vertexBufferLength;
         }
@@ -283,6 +287,7 @@ namespace UnityEngine.U2D.Animation
                 startMatrix = ptrBoneTransforms + (skinJobData.bindPosesIndex.x * 64);
                 matrixLength = skinData.boneTransformId.Length;
             }
+
             buffers[i] = startMatrix;
             bufferSizes[i] = matrixLength;
         }

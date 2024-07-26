@@ -138,7 +138,7 @@ namespace UnityEditor.U2D.Animation
 
             if (!boneGizmoToggle.enableGizmos)
                 return;
-            
+
             PrepareBones();
             DoBoneGUI();
         }
@@ -146,7 +146,7 @@ namespace UnityEditor.U2D.Animation
         internal void FindSkinComponents()
         {
             m_SkinComponents.Clear();
-            
+
             foreach (var root in m_SelectionRoots)
             {
                 var components = root.GetComponentsInChildren<SpriteSkin>(false);
@@ -192,7 +192,7 @@ namespace UnityEditor.U2D.Animation
                 spriteBones = sprite.GetBones();
                 m_SpriteBones[sprite] = sprite.GetBones();
             }
-            
+
             return spriteBones;
         }
 
@@ -203,19 +203,19 @@ namespace UnityEditor.U2D.Animation
 
             if (!spriteSkin.isActiveAndEnabled || !spriteSkin.isValid || !spriteSkin.spriteRenderer.enabled)
                 return;
-            
+
             var boneTransforms = spriteSkin.boneTransforms;
             var spriteBones = GetSpriteBones(spriteSkin);
             const float alpha = 1f;
 
             if (spriteBones == null)
                 return;
-            
+
             for (var i = 0; i < boneTransforms.Length; ++i)
             {
                 var boneTransform = boneTransforms[i];
 
-                if (boneTransform == null ||  m_BoneData.ContainsKey(boneTransform))
+                if (boneTransform == null || m_BoneData.ContainsKey(boneTransform))
                     continue;
 
                 var bone = spriteBones[i];
@@ -278,7 +278,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     var objectList = new List<Object>(Selection.objects);
 
-                    if(objectList.Contains(bone.gameObject))
+                    if (objectList.Contains(bone.gameObject))
                         objectList.Remove(bone.gameObject);
                     else
                         objectList.Add(bone.gameObject);
@@ -311,9 +311,9 @@ namespace UnityEditor.U2D.Animation
             selectedTransform = transform;
             var selectedRoots = Selection.transforms;
 
-            foreach(var selectedRoot in selectedRoots)
+            foreach (var selectedRoot in selectedRoots)
             {
-                if(transform.IsDescendentOf(selectedRoot))
+                if (transform.IsDescendentOf(selectedRoot))
                 {
                     selectedTransform = selectedRoot;
                     return true;
@@ -321,8 +321,8 @@ namespace UnityEditor.U2D.Animation
             }
 
             return false;
-        }        
-        
+        }
+
         void HandleMoveBone()
         {
             if (m_View.DoMoveBone(out var deltaPosition))
@@ -333,11 +333,11 @@ namespace UnityEditor.U2D.Animation
         {
             foreach (var selectedTransform in Selection.transforms)
             {
-                if(!m_BoneData.ContainsKey(selectedTransform))
+                if (!m_BoneData.ContainsKey(selectedTransform))
                     continue;
-                
+
                 var boneTransform = selectedTransform;
-                
+
                 m_Undo.RecordObject(boneTransform, TextContent.moveBone);
                 boneTransform.position += deltaPosition;
             }
@@ -345,13 +345,13 @@ namespace UnityEditor.U2D.Animation
 
         void SetBoneRotation(float deltaAngle)
         {
-            foreach(var selectedGameObject in Selection.gameObjects)
+            foreach (var selectedGameObject in Selection.gameObjects)
             {
-                if(!m_BoneData.ContainsKey(selectedGameObject.transform))
+                if (!m_BoneData.ContainsKey(selectedGameObject.transform))
                     continue;
-                
+
                 var boneTransform = selectedGameObject.transform;
-                
+
                 m_Undo.RecordObject(boneTransform, TextContent.rotateBone);
                 boneTransform.Rotate(boneTransform.forward, deltaAngle, Space.World);
                 InternalEngineBridge.SetLocalEulerHint(boneTransform);
@@ -362,7 +362,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (!m_View.IsRepainting())
                 return;
-            
+
             DrawBoneOutlines();
             DrawBones();
         }
@@ -372,7 +372,7 @@ namespace UnityEditor.U2D.Animation
             var selectedOutlineColor = SelectionOutlineSettings.outlineColor;
             var selectedOutlineSize = SelectionOutlineSettings.selectedBoneOutlineSize;
             var defaultOutlineColor = Color.black.AlphaMultiplied(0.5f);
-            
+
             foreach (var boneData in m_BoneData)
             {
                 var bone = boneData.Key;
@@ -403,7 +403,7 @@ namespace UnityEditor.U2D.Animation
 
                 m_View.DrawBoneOutline(bone.position, bone.GetScaledRight(), bone.forward, length, color, outlineSize);
             }
-            
+
             BatchedDrawing.Draw();
         }
 
@@ -418,13 +418,13 @@ namespace UnityEditor.U2D.Animation
                 var value = boneData.Value;
                 var length = value.x;
                 var alpha = value.y;
-                
+
                 if (alpha == 0f || !bone.gameObject.activeInHierarchy)
                     continue;
 
                 DrawBone(bone, length, Color.white);
             }
-            
+
             BatchedDrawing.Draw();
         }
 

@@ -9,6 +9,7 @@ namespace UnityEditor.U2D.Animation
     {
         SkinningEvents m_Events;
         ISpriteBoneInfluenceToolModel m_Model;
+
         public SpriteBoneInfluenceToolController(ISpriteBoneInfluenceToolModel model, SkinningEvents events)
         {
             m_Events = events;
@@ -23,7 +24,7 @@ namespace UnityEditor.U2D.Animation
             m_Events.skeletonTopologyChanged.AddListener(OnSkeletonTopologyChanged);
             m_Events.meshChanged.AddListener(OnMeshChanged);
             m_Events.skinningModeChanged.AddListener(OnSkinningModeChanged);
-            
+
             ShowHideView(true);
         }
 
@@ -35,7 +36,7 @@ namespace UnityEditor.U2D.Animation
             m_Events.skeletonTopologyChanged.RemoveListener(OnSkeletonTopologyChanged);
             m_Events.meshChanged.RemoveListener(OnMeshChanged);
             m_Events.skinningModeChanged.RemoveListener(OnSkinningModeChanged);
-            
+
             ShowHideView(false);
         }
 
@@ -84,7 +85,7 @@ namespace UnityEditor.U2D.Animation
             if (m_Model.view.visible)
             {
                 UpdateSelectedSpriteBoneInfluence();
-                 
+
                 m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
                 m_Model.view.UpdateSelection(m_Model.selectedBones);
             }
@@ -102,10 +103,10 @@ namespace UnityEditor.U2D.Animation
             m_Model.view.onRemoveElement += RemoveSelectedBoneInfluenceFromSprite;
             m_Model.view.onReordered += OnReorderBoneInfluenceFromSprite;
             m_Model.view.onSelectionChanged += SelectedBonesFromList;
-            
+
             ShowHideView(false);
         }
-        
+
         void OnSkinningModeChanged(SkinningMode skinningMode)
         {
             UpdateAddRemoveButtons();
@@ -132,7 +133,7 @@ namespace UnityEditor.U2D.Animation
             {
                 characterPart.bones = characterBones.ToArray();
                 m_Events.characterPartChanged.Invoke(characterPart);
-                
+
                 UpdateSelectedSpriteBoneInfluence();
                 m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
                 m_Model.view.UpdateSelection(m_Model.selectedBones);
@@ -157,7 +158,7 @@ namespace UnityEditor.U2D.Animation
             {
                 characterPart.bones = characterBones.ToArray();
                 m_Events.characterPartChanged.Invoke(characterPart);
-                
+
                 characterPart.sprite.SmoothFill();
                 m_Events.meshChanged.Invoke(characterPart.sprite.GetMesh());
 
@@ -181,7 +182,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     characterPart.bones = boneCache.ToArray();
                     m_Events.characterPartChanged.Invoke(characterPart);
-                    
+
                     UpdateSelectedSpriteBoneInfluence();
                     m_Model.view.UpdateList(m_Model.selectionInfluencedBones);
                 }
@@ -255,6 +256,7 @@ namespace UnityEditor.U2D.Animation
                 var selectedBones = m_Model.selectedBones;
                 return hasSelectedSprite && selectedBones.FirstOrDefault(x => !m_Model.selectionInfluencedBones.Contains(x)) != null;
             }
+
             return false;
         }
 
@@ -300,13 +302,16 @@ namespace UnityEditor.U2D.Animation
         }
 
         List<TransformCache> ISpriteBoneInfluenceToolModel.selectionInfluencedBones { get; set; }
-        
+
         SpriteCache ISpriteBoneInfluenceToolModel.selectedSprite => skinningCache.selectedSprite;
         bool ISpriteBoneInfluenceToolModel.hasCharacter => skinningCache.hasCharacter;
         SkinningMode ISpriteBoneInfluenceToolModel.skinningMode => skinningCache.mode;
         SkeletonCache ISpriteBoneInfluenceToolModel.characterSkeleton => skinningCache.character != null ? skinningCache.character.skeleton : null;
 
-        UndoScope ISpriteBoneInfluenceToolModel.UndoScope(string description) { return skinningCache.UndoScope(description); }
+        UndoScope ISpriteBoneInfluenceToolModel.UndoScope(string description)
+        {
+            return skinningCache.UndoScope(description);
+        }
 
         protected override void OnActivate()
         {

@@ -37,6 +37,7 @@ namespace UnityEditor.U2D.Animation
                     if (!boneCache.Contains(b))
                         return;
                 }
+
                 m_Bones = boneCache.ToList();
             }
         }
@@ -45,9 +46,9 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(bone != null);
             Debug.Assert(Contains(bone));
-            
+
             m_Bones.Remove(bone);
-            
+
             var boneChildren = bone.children;
             foreach (var child in boneChildren)
                 child.SetParent(bone.parent);

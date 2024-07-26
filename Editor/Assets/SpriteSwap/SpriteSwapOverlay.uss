@@ -139,7 +139,7 @@
     width: 120px;
 }
 
-.unity-collection-view__item--selected > .sprite-swap-overlay__label-container:focus > * > .sprite-swap-overlay__label-selected {
+.unity-collection-view__item--selected .sprite-swap-overlay__label-selected {
     border-color: var(--unity-colors-input_field-border-focus);
 }
 

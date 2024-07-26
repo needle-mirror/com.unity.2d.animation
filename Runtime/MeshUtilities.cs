@@ -31,21 +31,22 @@ namespace UnityEngine.U2D.Animation
                 AddToEdgeMap(edge0, ref edges);
                 AddToEdgeMap(edge1, ref edges);
                 AddToEdgeMap(edge2, ref edges);
-            }    
-            
+            }
+
 #if COLLECTIONS_2_0_OR_ABOVE
-             var outlineEdges = new NativeList<int2>(edges.Count, Allocator.Temp);
+            var outlineEdges = new NativeList<int2>(edges.Count, Allocator.Temp);
 #else
             var outlineEdges = new NativeList<int2>(edges.Count(), Allocator.Temp);
 #endif
-            foreach(var edgePair in edges)
+            foreach (var edgePair in edges)
             {
                 // If an edge is only used in one triangle, it is an outline edge.
                 if (edgePair.Value.z == 1)
                     outlineEdges.Add(edgePair.Value.xy);
             }
+
             edges.Dispose();
-            
+
             SortEdges(outlineEdges.AsArray(), out var sortedEdges);
             return sortedEdges;
         }
@@ -55,7 +56,7 @@ namespace UnityEngine.U2D.Animation
         {
             var tmpEdge = math.min(edge.x, edge.y) == edge.x ? edge.xy : edge.yx;
             var hashCode = tmpEdge.GetHashCode();
-            
+
             // We store the hashCode as key, so that we can do less GetHashCode-calls.
             // Then we store the count the int3s z-value.
             if (!edgeMap.ContainsKey(hashCode))
@@ -67,7 +68,7 @@ namespace UnityEngine.U2D.Animation
                 edgeMap[hashCode] = val;
             }
         }
-        
+
         [BurstCompile]
         static void SortEdges(in NativeArray<int2> unsortedEdges, out NativeArray<int2> sortedEdges)
         {
@@ -82,7 +83,7 @@ namespace UnityEngine.U2D.Animation
                 edgeMap[unsortedEdges[i].x] = i;
                 usedEdges[i] = false;
             }
-            
+
             var findStartingEdge = true;
             var edgeIndex = -1;
             var startingEdge = 0;
@@ -93,7 +94,7 @@ namespace UnityEngine.U2D.Animation
                     edgeIndex = GetFirstUnusedIndex(usedEdges);
                     startingEdge = edgeIndex;
                     findStartingEdge = false;
-                    shapeStartingEdge.Add(i);                 
+                    shapeStartingEdge.Add(i);
                 }
 
                 usedEdges[edgeIndex] = true;
@@ -112,17 +113,17 @@ namespace UnityEngine.U2D.Animation
             {
                 var edgeStart = shapeStartingEdge[i];
                 var edgeEnd = (i + 1) == shapeStartingEdge.Length ? tmpEdges.Length : shapeStartingEdge[i + 1];
-                
+
                 for (var m = edgeStart; m < edgeEnd; ++m)
                     sortedEdges[count++] = tmpEdges[m];
             }
-            
+
             usedEdges.Dispose();
             edgeMap.Dispose();
             shapeStartingEdge.Dispose();
             tmpEdges.Dispose();
         }
-        
+
         [BurstCompile]
         static int GetFirstUnusedIndex(in NativeArray<bool> usedValues)
         {
@@ -133,6 +134,6 @@ namespace UnityEngine.U2D.Animation
             }
 
             return -1;
-        }        
+        }
     }
 }

@@ -7,13 +7,13 @@ namespace UnityEditor.U2D.Animation.Upgrading
 {
     internal static class UpgradeLogWriter
     {
-        const string k_LogSavePath = "/Logs/";        
-        
+        const string k_LogSavePath = "/Logs/";
+
         public static string Generate(string content)
         {
             if (string.IsNullOrEmpty(content))
                 return string.Empty;
-            
+
             var path = Path.GetDirectoryName(Application.dataPath);
             path = Path.Join(path, k_LogSavePath);
 

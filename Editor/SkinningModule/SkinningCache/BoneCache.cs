@@ -31,12 +31,12 @@ namespace UnityEditor.U2D.Animation
             return position.GetHashCode() ^ rotation.GetHashCode();
         }
 
-        public static bool operator==(Pose p1, Pose p2)
+        public static bool operator ==(Pose p1, Pose p2)
         {
             return p1.position == p2.position && p1.rotation == p2.rotation;
         }
 
-        public static bool operator!=(Pose p1, Pose p2)
+        public static bool operator !=(Pose p1, Pose p2)
         {
             return !(p1 == p2);
         }
@@ -68,12 +68,12 @@ namespace UnityEditor.U2D.Animation
             return pose.GetHashCode() ^ length.GetHashCode();
         }
 
-        public static bool operator==(BonePose p1, BonePose p2)
+        public static bool operator ==(BonePose p1, BonePose p2)
         {
             return p1.pose == p2.pose && Mathf.Abs(p1.length - p2.length) < Mathf.Epsilon;
         }
 
-        public static bool operator!=(BonePose p1, BonePose p2)
+        public static bool operator !=(BonePose p1, BonePose p2)
         {
             return !(p1 == p2);
         }
@@ -95,13 +95,14 @@ namespace UnityEditor.U2D.Animation
         float m_LocalLength = 1f;
         [SerializeField]
         bool m_IsVisible = true;
-        [SerializeField] 
+        [SerializeField]
         string m_Guid;
+
         public bool NotInDefaultPose()
         {
             return localPosition != m_DefaultPose.pose.position
-                   || localRotation != m_DefaultPose.pose.rotation
-                   || Mathf.Abs(localLength - m_DefaultPose.length) > Mathf.Epsilon;
+                || localRotation != m_DefaultPose.pose.rotation
+                || Mathf.Abs(localLength - m_DefaultPose.length) > Mathf.Epsilon;
         }
 
         public bool isVisible
@@ -146,7 +147,7 @@ namespace UnityEditor.U2D.Animation
                     if (value == null || value.parentBone == this)
                     {
                         m_ChainedChild = value;
-                        if(m_ChainedChild != null)
+                        if (m_ChainedChild != null)
                             OrientToChainedChild(false);
                     }
                 }
@@ -160,9 +161,9 @@ namespace UnityEditor.U2D.Animation
             get => localToWorldMatrix.MultiplyPoint3x4(localEndPosition);
             set
             {
-                if (chainedChild != null) 
+                if (chainedChild != null)
                     return;
-                
+
                 var direction = value - position;
                 right = direction;
                 length = direction.magnitude;
@@ -197,8 +198,8 @@ namespace UnityEditor.U2D.Animation
         {
             get => m_Guid;
             set => m_Guid = value;
-        }        
-        
+        }
+
         public float depth
         {
             get => m_Depth;
@@ -230,7 +231,7 @@ namespace UnityEditor.U2D.Animation
             for (var i = 0; i < childrenArray.Length; ++i)
             {
                 var child = childrenArray[i];
-                var pose= worldPoses[i];
+                var pose = worldPoses[i];
 
                 child.position = pose.position;
                 child.rotation = pose.rotation;

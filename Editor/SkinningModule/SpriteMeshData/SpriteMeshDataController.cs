@@ -165,7 +165,7 @@ namespace UnityEditor.U2D.Animation
 
         public void CreateQuad()
         {
-            var frame = new Rect(Vector2.zero,  spriteMeshData.frame.size);
+            var frame = new Rect(Vector2.zero, spriteMeshData.frame.size);
             var verts = new Vector2[]
             {
                 new Vector2(frame.xMin, frame.yMin),
@@ -174,7 +174,7 @@ namespace UnityEditor.U2D.Animation
                 new Vector2(frame.xMax, frame.yMax)
             };
 
-            for(var i = 0; i < verts.Length; ++i)
+            for (var i = 0; i < verts.Length; ++i)
                 CreateVertex(verts[i]);
 
             var tris = new int[]
@@ -228,7 +228,7 @@ namespace UnityEditor.U2D.Animation
                 spriteMeshData.AddVertex(m_VerticesTemp[i], boneWeight);
             }
 
-            if(hasNewVertices && hasWeightData)
+            if (hasNewVertices && hasWeightData)
                 CalculateWeights(new BoundedBiharmonicWeightsGenerator(), null, 0.01f);
         }
 
@@ -261,11 +261,12 @@ namespace UnityEditor.U2D.Animation
 
                 for (var i = 0; i < m_VerticesTemp.Length; ++i)
                     spriteMeshData.AddVertex(m_VerticesTemp[i], default(BoneWeight));
-                
+
                 spriteMeshData.SetIndices(indices);
                 spriteMeshData.SetEdges(m_EdgesTemp);
             }
             catch (Exception) { }
+
             return default(JobHandle);
         }
 
@@ -317,11 +318,11 @@ namespace UnityEditor.U2D.Animation
 
                 vertexIndexBase += numPathVertices;
             }
-            
+
             var vertexWeights = new EditableBoneWeight[vertices.Count];
             for (var i = 0; i < vertexWeights.Length; ++i)
                 vertexWeights[i] = new EditableBoneWeight();
-            
+
             spriteMeshData.SetVertices(vertices.ToArray(), vertexWeights);
             spriteMeshData.SetEdges(edges.ToArray());
         }
@@ -386,7 +387,8 @@ namespace UnityEditor.U2D.Animation
 
             vertexSelector.spriteMeshData = spriteMeshData;
             vertexSelector.selection = tempSelection;
-            vertexSelector.SelectionCallback = (int i) => {
+            vertexSelector.SelectionCallback = (int i) =>
+            {
                 return spriteMeshData.vertexWeights[i].Sum() == 0f && (selection == null || selection.Count == 0 || selection.Contains(i));
             };
             vertexSelector.Select();
@@ -486,6 +488,7 @@ namespace UnityEditor.U2D.Animation
                 newIndices[indexCount + 1] = triangle.p2;
                 newIndices[indexCount + 2] = triangle.p3;
             }
+
             spriteMeshData.SetIndices(newIndices);
         }
 
@@ -544,7 +547,7 @@ namespace UnityEditor.U2D.Animation
         }
 
         public void SetMultiEditChannelData(ISelection<int> selection, int channel,
-            bool oldEnabled, bool newEnabled,  int oldBoneIndex, int newBoneIndex, float oldWeight, float newWeight)
+            bool oldEnabled, bool newEnabled, int oldBoneIndex, int newBoneIndex, float oldWeight, float newWeight)
         {
             Debug.Assert(spriteMeshData != null);
 
@@ -649,7 +652,8 @@ namespace UnityEditor.U2D.Animation
 
             vertexSelector.spriteMeshData = spriteMeshData;
             vertexSelector.selection = tempSelection;
-            vertexSelector.SelectionCallback = (int i) => {
+            vertexSelector.SelectionCallback = (int i) =>
+            {
                 var sum = spriteMeshData.vertexWeights[i].Sum();
                 currentWeightSum += sum;
                 return sum < 0.99f;
@@ -663,8 +667,7 @@ namespace UnityEditor.U2D.Animation
 
                 if (tempSelection.Count > 0)
                     SmoothWeights(1, tempSelection);
-            }
-            while (currentWeightSum - prevWeightSum > 0.001f);
+            } while (currentWeightSum - prevWeightSum > 0.001f);
 
             if (tempSelection.Count > 0)
                 NormalizeWeights(tempSelection);

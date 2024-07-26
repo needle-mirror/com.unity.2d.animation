@@ -38,7 +38,6 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         public SpriteResolverSelector(INavigableElement categoryContainer, INavigableElement labelContainer)
         {
-            focusable = true;
             AddToClassList(Styles.selector);
 
             m_SpriteResolverLabel = new Label();
@@ -68,7 +67,6 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             Add(labelContainerVisual);
 
             RegisterCallback<KeyDownEvent>(OnKeyDown);
-            RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
         }
 
         public void Select()
@@ -81,22 +79,22 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             UpdateAnimationColor();
         }
 
-        void OnDetachFromPanel(DetachFromPanelEvent evt)
-        {
-            SetSpriteResolver(null);
-        }
-
         public void SetSpriteResolver(SpriteResolver newSpriteResolver)
         {
             this.Unbind();
 
-            if (newSpriteResolver == null)
-                return;
-
-            m_SerializedResolver = new SerializedObject(newSpriteResolver);
-            m_SpriteHashProperty = m_SerializedResolver.FindProperty(SpriteResolver.spriteHashPropertyName);
-            this.TrackPropertyValue(m_SpriteHashProperty, OnResolvedSprite);
-            ReadCategoryAndLabelFromSelection();
+            if (newSpriteResolver != null)
+            {
+                m_SerializedResolver = new SerializedObject(newSpriteResolver);
+                m_SpriteHashProperty = m_SerializedResolver.FindProperty(SpriteResolver.spriteHashPropertyName);
+                this.TrackPropertyValue(m_SpriteHashProperty, OnResolvedSprite);
+                ReadCategoryAndLabelFromSelection();
+            }
+            else
+            {
+                m_SerializedResolver = null;
+                m_SpriteHashProperty = null;
+            }
         }
 
         void OnResolvedSprite(SerializedProperty serializedProperty)
@@ -166,6 +164,8 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
             m_SpriteHashProperty.intValue = SpriteLibrary.GetHashForCategoryAndEntry(categoryName, labelName);
             m_SerializedResolver.ApplyModifiedProperties();
+
+            ReadCategoryAndLabelFromSelection();
         }
 
         void OnLabelSelected(int newSelection)
@@ -181,6 +181,8 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             m_SpriteHashProperty.intValue = SpriteLibrary.GetHashForCategoryAndEntry(m_Category, labelName);
             m_SerializedResolver.ApplyModifiedProperties();
             m_LabelNameLabel.text = m_LabelNameLabel.tooltip = labelName;
+
+            ReadCategoryAndLabelFromSelection();
         }
 
         void OnKeyDown(KeyDownEvent evt)

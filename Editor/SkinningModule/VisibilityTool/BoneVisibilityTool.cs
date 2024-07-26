@@ -11,8 +11,13 @@ namespace UnityEditor.U2D.Animation
     {
         private BoneTreeWidgetController m_Controller;
 
-        VisualElement IVisibilityTool.view { get { return (VisualElement)m_View; } }
+        VisualElement IVisibilityTool.view
+        {
+            get { return (VisualElement)m_View; }
+        }
+
         public string name => TextContent.bone;
+
         public bool isAvailable
         {
             get { return true; }
@@ -26,7 +31,7 @@ namespace UnityEditor.U2D.Animation
         public void Setup()
         {
             m_Data = skinningCache.CreateCache<BoneVisibilityToolData>();
-            m_Controller = new BoneReparentToolController(this, skinningCache.events);//new BoneTreeWidgetController(this, skinningCache.events);
+            m_Controller = new BoneReparentToolController(this, skinningCache.events); //new BoneTreeWidgetController(this, skinningCache.events);
             m_View = new BoneReparentToolView()
             {
                 GetModel = () => this,
@@ -34,8 +39,7 @@ namespace UnityEditor.U2D.Animation
             };
         }
 
-        public void Dispose()
-        {}
+        public void Dispose() { }
 
         public void Activate()
         {
@@ -51,8 +55,7 @@ namespace UnityEditor.U2D.Animation
             m_Controller.Deactivate();
         }
 
-        public void SetAvailabilityChangeCallback(Action callback)
-        {}
+        public void SetAvailabilityChangeCallback(Action callback) { }
     }
 
 
@@ -182,7 +185,7 @@ namespace UnityEditor.U2D.Animation
 
             SetExpanded(expandIds.Union(GetExpanded()).ToList());
         }
-        
+
         public void OnBoneNameChanged(BoneCache bone)
         {
             GetController().SetTreeViewBoneName(GetRows(), bone);
@@ -226,18 +229,18 @@ namespace UnityEditor.U2D.Animation
         void DrawDepthCell(Rect cellRect, TreeViewItem item)
         {
             var boneItemView = DrawCell(cellRect, item);
-            
+
             EditorGUI.BeginChangeCheck();
             var depth = GetController().GetTreeItemDepthValue(boneItemView);
             depth = EditorGUI.IntField(cellRect, depth);
             if (EditorGUI.EndChangeCheck())
                 GetController().SetTreeItemDepthValue(boneItemView, depth);
         }
-        
+
         void DrawColorCell(Rect cellRect, TreeViewItem item)
         {
             var boneItemView = DrawCell(cellRect, item);
-            
+
             EditorGUI.BeginChangeCheck();
             var color = GetController().GetTreeItemColorValue(boneItemView);
             color = EditorGUI.ColorField(cellRect, color);
@@ -248,7 +251,7 @@ namespace UnityEditor.U2D.Animation
         static TreeViewItemBase<BoneCache> DrawCell(Rect cellRect, TreeViewItem item)
         {
             const int width = 30;
-            
+
             var boneItemView = item as TreeViewItemBase<BoneCache>;
             cellRect.height = EditorGUIUtility.singleLineHeight;
             cellRect.x += (cellRect.width - width) * 0.5f;
@@ -295,7 +298,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override TreeViewItem BuildRoot()
         {
-            var root = new TreeViewItem {id = 0, depth = -1, displayName = "Root"};
+            var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
             List<TreeViewItem> rows = GetController() != null ? GetController().BuildTreeView() : new List<TreeViewItem>();
             SetupParentsAndChildrenFromDepths(root, rows);
             return root;
@@ -315,6 +318,7 @@ namespace UnityEditor.U2D.Animation
 
         // dragging
         const string k_GenericDragID = "GenericDragColumnDragging";
+
         protected override bool CanStartDrag(CanStartDragArgs args)
         {
             return true;
@@ -327,7 +331,7 @@ namespace UnityEditor.U2D.Animation
                 DragAndDrop.PrepareStartDrag();
                 var draggedRows = GetRows().Where(item => args.draggedItemIDs.Contains(item.id)).ToList();
                 DragAndDrop.SetGenericData(k_GenericDragID, draggedRows);
-                DragAndDrop.objectReferences = new UnityEngine.Object[] {};   // this IS required for dragging to work
+                DragAndDrop.objectReferences = new UnityEngine.Object[] { }; // this IS required for dragging to work
                 string title = draggedRows.Count == 1 ? draggedRows[0].displayName : "< Multiple >";
                 DragAndDrop.StartDrag(title);
             }
@@ -358,6 +362,7 @@ namespace UnityEditor.U2D.Animation
                         SetSelection(selectedIDs, TreeViewSelectionOptions.RevealAndFrame);
                         SelectionChanged(selectedIDs);
                     }
+
                     return validDrag ? DragAndDropVisualMode.Move : DragAndDropVisualMode.None;
                 }
             }

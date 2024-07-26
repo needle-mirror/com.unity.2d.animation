@@ -10,10 +10,10 @@ You can import [sample projects](Examples.md) for the 2D Animation package by se
 Sprite Swap requires the following Assets and component, which are available with the 2D Animation package:
 
 * [Sprite Library Asset](SL-Asset.md):  The Sprite Library Asset contains a set of selected Sprites which are assigned to different [Categories](SL-Editor.md#categories) and [Labels](SL-Editor.md#labels).
-<br/>
+  <br/>
 
 * [Sprite Library component](SL-component.md): The Sprite Library component determines which Sprite Library Asset a GameObject refers to.
-<br/>
+  <br/>
 
 * [Sprite Resolver component](SL-Resolver.md): The Sprite Resolver component requests a Sprite registered to the Sprite Library Asset by referring to the **Category** and **Label** value of the desired Sprite.
 
@@ -28,10 +28,10 @@ If you want to [animate your actor](Animating-actor.md) and use Sprite Swap with
 ### Animator limitations
 In a single [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html), you can't have one [Animation Clip](https://docs.unity3d.com/Manual/AnimationClips.html) animating the [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) assigned sprite while another [Animation Clip](https://docs.unity3d.com/Manual/AnimationClips.html) animates the [Sprite Resolver’s](SL-Resolver.md) sprite hash. If these two clips are in the same [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html), they will conflict with each other and cause unwanted playback results.
 
-Use the following recommended methods to resolve this issue. 
+Use the following recommended methods to resolve this issue.
 
 1. The first method is to separate the [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) into separate [Animator Controllers](https://docs.unity3d.com/Manual/AnimatorControllers.html) that contain only clips that animate either a [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) sprite or the [Sprite Resolver’s](SL-Resolver.md) sprite hash but not both types in the same [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html).
-<br/>
+   <br/>
 
 2. The second method is to update all [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) to the same type so that they can all remain in a single [Animator Controller](https://docs.unity3d.com/Manual/AnimatorControllers.html). To do so, convert all clips animating a [Sprite Renderer’s](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) sprite to animating a [Sprite Resolver’s](SL-Resolver.md) sprite hash, or vice versa.
 

@@ -88,11 +88,13 @@ MeshVisibilityToolView {
 
 #BoneOpacitySliderGroup {
     flex-direction:row;
+    flex-grow: 1;
     height : 16px;
 }
 
 #MeshOpacitySliderGroup {
     flex-direction:row;
+    flex-grow: 1;
     height : 16px;
 }
 

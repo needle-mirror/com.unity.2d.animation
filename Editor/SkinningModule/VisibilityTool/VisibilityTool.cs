@@ -13,7 +13,7 @@ namespace UnityEditor.U2D.Animation
     internal partial class VisibilityToolWindow : VisualElement, IVisibilityToolWindow
     {
 #if ENABLE_UXML_TRAITS
-        public class CustomUxmlFactory : UxmlFactory<VisibilityToolWindow, UxmlTraits> {}
+        public class CustomUxmlFactory : UxmlFactory<VisibilityToolWindow, UxmlTraits> { }
 #endif
 
         VisualElement m_SelectorContainer;
@@ -21,16 +21,16 @@ namespace UnityEditor.U2D.Animation
         Slider m_BoneOpacitySlider;
         Slider m_MeshOpacitySlider;
         private LayoutOverlay m_Layout;
-        
+
         List<Button> m_Tabs;
         int m_CurrentSelectedTab = 0;
 
-        public event Action<float> onBoneOpacitySliderChange = (f) => {};
-        public event Action<float> onMeshOpacitySliderChange = (f) => {};
-        public event Action onBoneOpacitySliderChangeBegin = () => {};
-        public event Action onBoneOpacitySliderChangeEnd = () => {};
-        public event Action onMeshOpacitySliderChangeBegin = () => {};
-        public event Action onMeshOpacitySliderChangeEnd = () => {};
+        public event Action<float> onBoneOpacitySliderChange = (f) => { };
+        public event Action<float> onMeshOpacitySliderChange = (f) => { };
+        public event Action onBoneOpacitySliderChangeBegin = () => { };
+        public event Action onBoneOpacitySliderChangeEnd = () => { };
+        public event Action onMeshOpacitySliderChangeBegin = () => { };
+        public event Action onMeshOpacitySliderChangeEnd = () => { };
 
         public static VisibilityToolWindow CreateFromUXML()
         {
@@ -56,6 +56,7 @@ namespace UnityEditor.U2D.Animation
             m_MeshOpacitySlider.RegisterValueChangedCallback(OnMeshOpacitySliderValueChangd);
             RegisterCallback<MouseDownEvent>(OpacityChangeBegin, TrickleDown.TrickleDown);
             RegisterCallback<MouseCaptureOutEvent>(OpacityChangeEnd, TrickleDown.TrickleDown);
+
             // case 1200857 StopPropagation when bubbling up so that main IMGUI doesn't get the event
             RegisterCallback<MouseDownEvent>(evt => evt.StopPropagation());
             m_Tabs = new List<Button>();
@@ -92,6 +93,7 @@ namespace UnityEditor.U2D.Animation
                     return true;
                 ve = ve.parent;
             }
+
             return false;
         }
 
@@ -182,14 +184,15 @@ namespace UnityEditor.U2D.Animation
         public SkeletonTool skeletonTool { set; private get; }
 
         VisibilityToolController m_Controller;
+
         internal override void OnCreate()
         {
             m_ToolView = VisibilityToolWindow.CreateFromUXML();
             m_Controller = new VisibilityToolController(this, new IVisibilityTool[]
-            {
-                new BoneVisibilityTool(skinningCache),
-                new SpriteVisibilityTool(skinningCache)
-            },
+                {
+                    new BoneVisibilityTool(skinningCache),
+                    new SpriteVisibilityTool(skinningCache)
+                },
                 () => skeletonTool,
                 () => previewBehaviour);
         }
@@ -225,38 +228,20 @@ namespace UnityEditor.U2D.Animation
 
         int IVisibilityToolModel.currentToolIndex
         {
-            get
-            {
-                return skinningCache.visibilityToolIndex;
-            }
-            set
-            {
-                skinningCache.visibilityToolIndex = value;
-            }
+            get { return skinningCache.visibilityToolIndex; }
+            set { skinningCache.visibilityToolIndex = value; }
         }
 
         float IVisibilityToolModel.boneOpacityValue
         {
-            get
-            {
-                return VisibilityToolSettings.boneOpacity;
-            }
-            set
-            {
-                VisibilityToolSettings.boneOpacity = value;
-            }
+            get { return VisibilityToolSettings.boneOpacity; }
+            set { VisibilityToolSettings.boneOpacity = value; }
         }
 
         float IVisibilityToolModel.meshOpacityValue
         {
-            get
-            {
-                return VisibilityToolSettings.meshOpacity;
-            }
-            set
-            {
-                VisibilityToolSettings.meshOpacity = value;
-            }
+            get { return VisibilityToolSettings.meshOpacity; }
+            set { VisibilityToolSettings.meshOpacity = value; }
         }
 
         UndoScope IVisibilityToolModel.UndoScope(string value)
@@ -269,8 +254,15 @@ namespace UnityEditor.U2D.Animation
             skinningCache.BeginUndoOperation(value);
         }
 
-        IVisibilityToolWindow IVisibilityToolModel.view { get { return m_ToolView;} }
-        SkinningCache IVisibilityToolModel.skinningCache { get { return skinningCache;} }
+        IVisibilityToolWindow IVisibilityToolModel.view
+        {
+            get { return m_ToolView; }
+        }
+
+        SkinningCache IVisibilityToolModel.skinningCache
+        {
+            get { return skinningCache; }
+        }
     }
 
     internal interface IVisibilityToolModel
@@ -309,7 +301,7 @@ namespace UnityEditor.U2D.Animation
         Func<SkeletonTool> m_SkeletonTool;
         Func<IMeshPreviewBehaviour> m_MeshPreviewBehaviour;
         bool m_DeactivateBoneaTool = false;
-        
+
         private IVisibilityTool currentTool
         {
             get { return m_Model.currentToolIndex == -1 ? null : m_Tools[m_Model.currentToolIndex]; }
@@ -334,6 +326,7 @@ namespace UnityEditor.U2D.Animation
                 model.view.AddToolTab(tool.name, () => ActivateToolWithUndo(tool));
                 model.view.SetToolAvailable(i, tool.isAvailable);
             }
+
             m_SkeletonTool = skeletonTool;
             m_MeshPreviewBehaviour = meshPreviewBehaviour;
         }
@@ -384,7 +377,7 @@ namespace UnityEditor.U2D.Animation
                 m_SkeletonTool().Activate();
                 m_DeactivateBoneaTool = true;
             }
-                
+
         }
 
         void OnBoneOpacityChangeEnd()

@@ -1,5 +1,5 @@
 # Setting up for Sprite Swap
-The following steps 
+The following steps
 Follow the steps below to create a [Sprite Library Asset](SL-Asset.md), and choose which GameObjects refer to the Asset:
 
 1. Select the Sprite Library Asset from the Asset creation menu by going to **Asset > Create > 2D > Sprite Library Asset**<br/>![](images/2D-animation-SLAsset-dropdown.png)

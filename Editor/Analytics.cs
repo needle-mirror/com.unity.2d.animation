@@ -52,7 +52,7 @@ namespace UnityEditor.U2D.Animation
     }
 
     [Serializable]
-    struct AnimationEvent 
+    struct AnimationEvent
 #if USE_NEW_EDITOR_ANALYTICS
         : IAnalytic.IData
 #endif
@@ -66,13 +66,13 @@ namespace UnityEditor.U2D.Animation
     }
 
     [Serializable]
-    struct AnimationToolUsageEvent 
+    struct AnimationToolUsageEvent
 #if USE_NEW_EDITOR_ANALYTICS
         : IAnalytic.IData
 #endif
     {
         public const string name = "u2dAnimationToolUsage";
-        
+
         [SerializeField]
         public int instance_id;
         [SerializeField]
@@ -86,10 +86,10 @@ namespace UnityEditor.U2D.Animation
         [SerializeField]
         public List<AnimationEvent> animation_events;
     }
-    
+
 #if USE_NEW_EDITOR_ANALYTICS
-    [AnalyticInfo(eventName: "u2dAnimationToolUsage", 
-        vendorKey: UnityAnalyticsStorage.vendorKey, 
+    [AnalyticInfo(eventName: "u2dAnimationToolUsage",
+        vendorKey: UnityAnalyticsStorage.vendorKey,
         version: UnityAnalyticsStorage.version,
         maxEventsPerHour: AnalyticConstant.k_MaxEventsPerHour,
         maxNumberOfElements: AnalyticConstant.k_MaxNumberOfElements)]
@@ -107,9 +107,9 @@ namespace UnityEditor.U2D.Animation
             return true;
         }
     }
-    
+
     [AnalyticInfo(eventName: nameof(AnimationEvent),
-        vendorKey: UnityAnalyticsStorage.vendorKey, 
+        vendorKey: UnityAnalyticsStorage.vendorKey,
         version: UnityAnalyticsStorage.version,
         maxEventsPerHour: AnalyticConstant.k_MaxEventsPerHour,
         maxNumberOfElements: AnalyticConstant.k_MaxNumberOfElements)]
@@ -129,7 +129,7 @@ namespace UnityEditor.U2D.Animation
     }
 
     [AnalyticInfo(eventName: AnimationToolApplyEvent.name,
-        vendorKey: UnityAnalyticsStorage.vendorKey, 
+        vendorKey: UnityAnalyticsStorage.vendorKey,
         version: UnityAnalyticsStorage.version,
         maxEventsPerHour: AnalyticConstant.k_MaxEventsPerHour,
         maxNumberOfElements: AnalyticConstant.k_MaxNumberOfElements)]
@@ -151,7 +151,7 @@ namespace UnityEditor.U2D.Animation
 #endif
 
     [Serializable]
-    struct AnimationToolApplyEvent 
+    struct AnimationToolApplyEvent
 #if USE_NEW_EDITOR_ANALYTICS
         : IAnalytic.IData
 #endif

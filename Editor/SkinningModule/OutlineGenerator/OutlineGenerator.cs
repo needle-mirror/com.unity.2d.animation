@@ -66,7 +66,7 @@ namespace UnityEditor.U2D.Animation
             clipper.AddPaths(subj, PolyType.ptSubject, true);
             clipper.Execute(ClipType.ctUnion, solution, PolyFillType.pftNonZero, PolyFillType.pftNonZero);
             paths = ToVector2(solution);
-            m_CurrentAlphaTolerance = alphaTolerance;            
+            m_CurrentAlphaTolerance = alphaTolerance;
         }
 
         private void ClipPaths(ref Vector2[][] paths)
@@ -156,6 +156,7 @@ namespace UnityEditor.U2D.Animation
                 var p1 = path[nextIndex];
                 sum += Vector2.Distance(p0, p1);
             }
+
             return sum;
         }
 
@@ -238,6 +239,7 @@ namespace UnityEditor.U2D.Animation
                                 lastPoint = newPoint;
                             }
                         }
+
                         accDistance = remainingDistance;
                     }
                     else
@@ -246,6 +248,7 @@ namespace UnityEditor.U2D.Animation
                     }
                 }
             }
+
             return dst;
         }
 
@@ -263,28 +266,28 @@ namespace UnityEditor.U2D.Animation
             var cosTolerance = Mathf.Cos(minAngle * Mathf.Deg2Rad);
 
             for (int iteration = 0; iteration < iterations; ++iteration)
-                for (int i = 0; i < path.Length; ++i)
-                {
-                    var prevPoint = path[PreviousIndex(i, path.Length)];
-                    var point = path[i];
-                    var nextPoint = path[NextIndex(i, path.Length)];
+            for (int i = 0; i < path.Length; ++i)
+            {
+                var prevPoint = path[PreviousIndex(i, path.Length)];
+                var point = path[i];
+                var nextPoint = path[NextIndex(i, path.Length)];
 
-                    var t1 = prevPoint - point;
-                    var t2 = nextPoint - point;
+                var t1 = prevPoint - point;
+                var t2 = nextPoint - point;
 
-                    var dot = Vector2.Dot(t1.normalized, t2.normalized);
+                var dot = Vector2.Dot(t1.normalized, t2.normalized);
 
-                    if (dot > cosTolerance)
-                        continue;
+                if (dot > cosTolerance)
+                    continue;
 
-                    var w1 = 1f / (point - prevPoint).magnitude;
-                    var w2 = 1f / (point - nextPoint).magnitude;
-                    var laplacian = (w1 * prevPoint + w2 * nextPoint) / (w1 + w2) - point;
-                    point += laplacian * velocity;
+                var w1 = 1f / (point - prevPoint).magnitude;
+                var w2 = 1f / (point - nextPoint).magnitude;
+                var laplacian = (w1 * prevPoint + w2 * nextPoint) / (w1 + w2) - point;
+                point += laplacian * velocity;
 
-                    if (!IsLineOverImage(point, nextPoint) && !IsLineOverImage(point, prevPoint))
-                        path[i] = point;
-                }
+                if (!IsLineOverImage(point, nextPoint) && !IsLineOverImage(point, prevPoint))
+                    path[i] = point;
+            }
         }
 
         private Vector2Int ToVector2Int(Vector2 v)
@@ -339,6 +342,7 @@ namespace UnityEditor.U2D.Animation
                 x1 = y1;
                 y1 = t;
             }
+
             if (x0 > x1)
             {
                 int t;
@@ -349,6 +353,7 @@ namespace UnityEditor.U2D.Animation
                 y0 = y1;
                 y1 = t;
             }
+
             int dx = x1 - x0;
             int dy = Mathf.Abs(y1 - y0);
             int error = dx / 2;
@@ -364,6 +369,7 @@ namespace UnityEditor.U2D.Animation
                     error += dx;
                 }
             }
+
             yield break;
         }
 

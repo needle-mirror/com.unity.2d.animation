@@ -19,10 +19,10 @@ namespace UnityEditor.U2D.Animation
         private const string k_SpriteInfluenceWidgetId = "SpriteInfluenceWidget";
 
 #if ENABLE_UXML_TRAITS
-        public class CustomUXMLFactor : UxmlFactory<WeightToolbar, UxmlTraits> {}
+        public class CustomUXMLFactor : UxmlFactory<WeightToolbar, UxmlTraits> { }
 #endif
 
-        public event Action<Tools> SetWeightTool = (mode) => {};
+        public event Action<Tools> SetWeightTool = (mode) => { };
         public SkinningCache skinningCache { get; set; }
 
         public static WeightToolbar GenerateFromUXML()
@@ -34,7 +34,7 @@ namespace UnityEditor.U2D.Animation
             clone.AddShortcutsToToolTips();
             return clone;
         }
-        
+
         public WeightToolbar()
         {
             styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/WeightToolbarStyle.uss"));
@@ -63,11 +63,11 @@ namespace UnityEditor.U2D.Animation
 
             button = this.Q<Button>(k_BoneInfluenceWidgetId);
             button.clickable.clicked += () => SetWeightTool(Tools.BoneInfluence);
-            
+
             button = this.Q<Button>(k_SpriteInfluenceWidgetId);
             button.clickable.clicked += () => SetWeightTool(Tools.SpriteInfluence);
         }
-        
+
         private void SetupShortcutUtility()
         {
             m_ShortcutUtility = new ShortcutUtility(ShortcutIds.autoWeights,
@@ -79,28 +79,28 @@ namespace UnityEditor.U2D.Animation
             {
                 RestoreButtonTooltips(k_UxmlPath, k_ToolbarId);
                 AddShortcutsToToolTips();
-            };            
-        }          
+            };
+        }
 
         public void UpdateToggleState()
         {
             //TODO: Make UI not be aware of BaseTool, Cache, etc. Use Tool enum
             var button = this.Q<Button>(k_AutoGenerateWeightId);
-            SetButtonChecked(button, skinningCache.GetTool(Tools.GenerateWeights).isActive);            
-            
+            SetButtonChecked(button, skinningCache.GetTool(Tools.GenerateWeights).isActive);
+
             button = this.Q<Button>(k_WeightPainterSliderId);
             SetButtonChecked(button, skinningCache.GetTool(Tools.WeightSlider).isActive);
 
             button = this.Q<Button>(k_WeightPainterBrushId);
             SetButtonChecked(button, skinningCache.GetTool(Tools.WeightBrush).isActive);
-            
+
             button = this.Q<Button>(k_BoneInfluenceWidgetId);
             SetButtonChecked(button, skinningCache.GetTool(Tools.BoneInfluence).isActive);
-            
+
             button = this.Q<Button>(k_SpriteInfluenceWidgetId);
             SetButtonChecked(button, skinningCache.GetTool(Tools.SpriteInfluence).isActive);
         }
-        
+
         private void AddShortcutsToToolTips()
         {
             m_ShortcutUtility.AddShortcutToButtonTooltip(this, k_AutoGenerateWeightId, ShortcutIds.autoWeights);

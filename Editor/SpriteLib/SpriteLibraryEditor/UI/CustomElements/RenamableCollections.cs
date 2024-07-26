@@ -75,6 +75,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 evt.StopPropagation();
                 EndRename(true);
             }
+
+#if UNITY_EDITOR_WIN || UNITY_EDITOR_LINUX
+            if (evt.keyCode == KeyCode.F2)
+            {
+                evt.StopPropagation();
+                schedule.Execute(StartRename);
+            }
+#endif
         }
 
         public void SetSourceItems(IList sourceList)
@@ -184,6 +192,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 evt.StopPropagation();
                 EndRename(true);
             }
+
+#if UNITY_EDITOR_WIN || UNITY_EDITOR_LINUX
+            if (evt.keyCode == KeyCode.F2)
+            {
+                evt.StopPropagation();
+                schedule.Execute(StartRename);
+            }
+#endif
         }
 
         void OnItemChosen(IEnumerable<object> obj)

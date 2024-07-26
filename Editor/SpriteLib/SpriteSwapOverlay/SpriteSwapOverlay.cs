@@ -99,12 +99,11 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         public SpriteSwapVisualElement mainVisualElement => m_MainVisualElement;
 
+        internal SpriteResolver[] selection => m_Selection;
+
         bool isViewInitialized => m_MainVisualElement != null;
 
-        GameObject[] m_GameObjectSelection;
-        SpriteResolver[] m_Selection;
-
-        internal SpriteResolver[] selection => m_Selection;
+        SpriteResolver[] m_Selection = Array.Empty<SpriteResolver>();
 
         SpriteSwapVisualElement m_MainVisualElement;
 
@@ -135,6 +134,8 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             Selection.selectionChanged += OnSelectionChanged;
             SceneView.duringSceneGui += OnSceneGUI;
+
+            UpdateSelection(true);
         }
 
         public override void OnWillBeDestroyed()
@@ -156,21 +157,28 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         internal void OnSelectionChanged()
         {
-            if (Settings.locked)
-                return;
-
             UpdateSelection();
         }
 
         void OnHierarchyChanged()
         {
-            UpdateSelection();
+            var needUpdate = false;
+            foreach (var spriteResolver in m_Selection)
+            {
+                if (spriteResolver == null)
+                {
+                    needUpdate = true;
+                    break;
+                }
+            }
+
+            UpdateSelection(needUpdate);
         }
 
         void OnPlayModeStateChanged(PlayModeStateChange newState)
         {
-            if (newState is PlayModeStateChange.EnteredEditMode or PlayModeStateChange.EnteredPlayMode)
-                UpdateSelection();
+            if (newState is PlayModeStateChange.EnteredEditMode)
+                UpdateSelection(true);
         }
 
         void OnAttachToPanel(AttachToPanelEvent evt)
@@ -186,7 +194,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
                     m_MainVisualElement.style.height = m_MainVisualElement.style.maxHeight = Settings.preferredHeight;
                 }
 
-                SetSelection(GetSelectedSpriteResolvers());
+                UpdateResolverList();
             }
         }
 
@@ -218,7 +226,10 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
             Settings.filter = filter;
 
-            UpdateVisuals();
+            if (!isViewInitialized)
+                return;
+
+            UpdateResolverList();
         }
 
         void OnLockToggled(bool locked)
@@ -238,7 +249,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
             Settings.thumbnailSize = newSize;
 
-            UpdateVisuals();
+            RefreshResolverList();
         }
 
         void OnResetThumbnailSize()
@@ -248,29 +259,37 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
             Settings.thumbnailSize = Settings.defaultThumbnailSize;
 
-            UpdateVisuals();
+            RefreshResolverList();
         }
 
-        void UpdateSelection()
+        void UpdateSelection(bool force = false)
         {
-            m_GameObjectSelection = Selection.gameObjects.Where(go => go.activeInHierarchy).ToArray();
-            SetSelection(GetSelectedSpriteResolvers());
+            if (Settings.locked && !force)
+                return;
+
+            var gameObjects = Selection.gameObjects.Where(go => go.activeInHierarchy).ToArray();
+            m_Selection = GetSelectedSpriteResolvers(gameObjects);
+
+            UpdateResolverList();
         }
 
-        void SetSelection(SpriteResolver[] newSelection)
+        void UpdateResolverList()
         {
-            m_Selection = newSelection;
+            if (!isViewInitialized)
+                return;
 
-            if (isViewInitialized)
-                UpdateVisuals();
-        }
-
-        void UpdateVisuals()
-        {
             var filtered = false;
             var filteredSelection = Settings.filter ? FilterSelection(out filtered) : selection;
             m_MainVisualElement.SetSpriteResolvers(filteredSelection);
             m_MainVisualElement.SetFiltered(filtered);
+        }
+
+        void RefreshResolverList()
+        {
+            if (!isViewInitialized)
+                return;
+
+            m_MainVisualElement.RefreshSpriteResolvers();
         }
 
         SpriteResolver[] FilterSelection(out bool filtered)
@@ -307,14 +326,14 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             return filteredSelection.ToArray();
         }
 
-        SpriteResolver[] GetSelectedSpriteResolvers()
+        static SpriteResolver[] GetSelectedSpriteResolvers(GameObject[] selectedGameObjects)
         {
             var spriteResolvers = new HashSet<SpriteResolver>();
-            if (m_GameObjectSelection != null)
+            if (selectedGameObjects != null)
             {
-                for (var o = 0; o < m_GameObjectSelection.Length; o++)
+                for (var o = 0; o < selectedGameObjects.Length; o++)
                 {
-                    var gameObject = m_GameObjectSelection[o];
+                    var gameObject = selectedGameObjects[o];
                     if (gameObject == null || !gameObject.activeSelf)
                         continue;
 

@@ -34,12 +34,15 @@ namespace UnityEngine.U2D.Animation
                 m_Hash = SpriteLibraryUtility.GetStringHash(m_Name);
             }
         }
+
         public int hash => m_Hash;
-        public Sprite sprite 
+
+        public Sprite sprite
         {
             get => m_Sprite;
             set => m_Sprite = value;
         }
+
         public void UpdateHash()
         {
             m_Hash = SpriteLibraryUtility.GetStringHash(m_Name);
@@ -88,9 +91,9 @@ namespace UnityEngine.U2D.Animation
         {
             SpriteLibraryAsset.RenameDuplicate(m_CategoryList,
                 (originalName, newName)
-                =>
+                    =>
                 {
-                    if(log)
+                    if (log)
                         Debug.LogWarning(string.Format("Label {0} renamed to {1} due to hash clash", originalName, newName));
                 });
         }
@@ -99,10 +102,10 @@ namespace UnityEngine.U2D.Animation
     /// <summary>
     /// A custom Asset that stores Sprites grouping.
     /// </summary>
-    /// <Description>
+    /// <remarks>
     /// Sprites are grouped under a given category as categories. Each category and label needs to have
     /// a name specified so that it can be queried.
-    /// </Description>
+    /// </remarks>
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/AssetUpgrader.html%23upgrading-sprite-libraries")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     [Icon(IconUtility.IconPath + "Animation.SpriteLibrary.png")]
@@ -126,7 +129,7 @@ namespace UnityEngine.U2D.Animation
             asset.version = 1;
             return asset;
         }
-        
+
         internal List<SpriteLibCategory> categories
         {
             get => m_Labels;
@@ -136,9 +139,9 @@ namespace UnityEngine.U2D.Animation
                 ValidateCategories();
             }
         }
-        
+
         /// <summary>
-        /// Hash to quickly check if the library has any changes made to it. 
+        /// Hash to quickly check if the library has any changes made to it.
         /// </summary>
         internal long modificationHash
         {
@@ -153,7 +156,7 @@ namespace UnityEngine.U2D.Animation
         {
             set => m_Version = value;
         }
-        
+
         void OnEnable()
         {
             if (m_Version < 1)
@@ -163,7 +166,7 @@ namespace UnityEngine.U2D.Animation
         void UpdateToVersionOne()
         {
             UpdateHashes();
-            m_Version = 1; 
+            m_Version = 1;
         }
 
         internal Sprite GetSprite(int categoryHash, int labelHash)
@@ -192,7 +195,7 @@ namespace UnityEngine.U2D.Animation
                     break;
                 }
             }
-            
+
             if (category != null)
             {
                 SpriteCategoryEntry spritelabel = null;
@@ -204,12 +207,14 @@ namespace UnityEngine.U2D.Animation
                         break;
                     }
                 }
+
                 if (spritelabel != null)
                 {
                     validEntry = true;
                     return spritelabel.sprite;
                 }
             }
+
             validEntry = false;
             return null;
         }
@@ -219,7 +224,7 @@ namespace UnityEngine.U2D.Animation
         /// </summary>
         /// <param name="category">Category string value.</param>
         /// <param name="label">Label string value.</param>
-        /// <returns></returns>
+        /// <returns>An instance of a Sprite, or null if there is no such Category, or Label.</returns>
         public Sprite GetSprite(string category, string label)
         {
             var categoryHash = SpriteLibraryUtility.GetStringHash(category);
@@ -270,7 +275,7 @@ namespace UnityEngine.U2D.Animation
             label = label?.Trim();
             if (string.IsNullOrEmpty(category))
                 throw new ArgumentException("Cannot add empty or null Category string");
-            
+
             var catHash = SpriteLibraryUtility.GetStringHash(category);
             SpriteCategoryEntry categorylabel = null;
             SpriteLibCategory libCategory = null;
@@ -278,7 +283,7 @@ namespace UnityEngine.U2D.Animation
 
             if (libCategory != null)
             {
-                if(string.IsNullOrEmpty(label))
+                if (string.IsNullOrEmpty(label))
                     throw new ArgumentException("Cannot add empty or null Label string");
                 Assert.AreEqual(libCategory.name, category, "Category string  hash clashes with another existing Category. Please use another string");
 
@@ -314,9 +319,10 @@ namespace UnityEngine.U2D.Animation
                         sprite = sprite
                     });
                 }
+
                 m_Labels.Add(slc);
             }
-            
+
 #if UNITY_EDITOR
             EditorUtility.SetDirty(this);
 #endif
@@ -340,7 +346,7 @@ namespace UnityEngine.U2D.Animation
                 libCategory.categoryList.RemoveAll(x => x.hash == labelHash);
                 if (deleteCategory && libCategory.categoryList.Count == 0)
                     m_Labels.RemoveAll(x => x.hash == libCategory.hash);
-                
+
 #if UNITY_EDITOR
                 EditorUtility.SetDirty(this);
 #endif
@@ -360,10 +366,10 @@ namespace UnityEngine.U2D.Animation
         {
             RenameDuplicate(m_Labels, (originalName, newName)
                 =>
-                {
-                    if(log)
-                        Debug.LogWarning($"Category {originalName} renamed to {newName} due to hash clash");
-                });
+            {
+                if (log)
+                    Debug.LogWarning($"Category {originalName} renamed to {newName} due to hash clash");
+            });
             for (var i = 0; i < m_Labels.Count; ++i)
             {
                 // Verify categories have no hash clash
@@ -399,6 +405,7 @@ namespace UnityEngine.U2D.Animation
                             categoryClash.name = name;
                             break;
                         }
+
                         ++increment;
                     }
                 }

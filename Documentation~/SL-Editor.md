@@ -8,7 +8,7 @@ A Sprite Library Asset groups the sprites it contains into [Categories](#categor
 
 ![](images/2D-animation-SLAsset-add-category.png)<br/>_Creating a new Category in the Categories column._
 
-Use **Categories** to contain and group **Labels** together for a common purpose to make it easier to organize your sprites. For example, you can create a Category named 'Hat' for Labels which refer to sprites of hats for your character. 
+Use **Categories** to contain and group **Labels** together for a common purpose to make it easier to organize your sprites. For example, you can create a Category named 'Hat' for Labels which refer to sprites of hats for your character.
 
 To create a new Category, select **Add (+)** in the Categories column, or [drag](SL-Drag.md) sprites directly into the Sprite Library Editor window. Give each Category a unique name to ensure that the editor correctly identifies each individual Category.
 

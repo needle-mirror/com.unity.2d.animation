@@ -15,7 +15,7 @@ namespace UnityEditor.U2D.Animation
                 (e.x == element.x && e.y == element.y) ||
                 (e.y == element.x && e.x == element.y)) != -1;
         }
-        
+
         public static int2[] ToInt2(Vector2Int[] source) => Array.ConvertAll(source, e => new int2(e.x, e.y));
         public static Vector2Int[] ToVector2Int(int2[] source) => Array.ConvertAll(source, e => new Vector2Int(e.x, e.y));
         public static float2[] ToFloat2(Vector2[] source) => Array.ConvertAll(source, e => (float2)e);

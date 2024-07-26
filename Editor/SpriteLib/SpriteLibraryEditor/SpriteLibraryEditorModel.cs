@@ -389,7 +389,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             {
                 m_CurrentLibrary = new List<SpriteLibCategoryOverride>(sourceAsset.library);
 
-                // Update hashes to make sure name hashes are correct. 
+                // Update hashes to make sure name hashes are correct.
                 foreach (var categoryOverride in m_CurrentLibrary)
                     categoryOverride.UpdateHash();
 

@@ -7,7 +7,7 @@ namespace UnityEditor.U2D.Animation
     {
         public static readonly Color spriteBorderColor = new Color(0.25f, 0.5f, 1f, 0.75f);
         static readonly int s_AdjustLinearForGamma = Shader.PropertyToID("_AdjustLinearForGamma");
-        
+
         static Vector3[] s_VertexTmpCache;
 
         public static void BeginLines(Color color)
@@ -154,6 +154,7 @@ namespace UnityEditor.U2D.Animation
                 case 2: return new Vector2(rect.xMax, rect.yMin);
                 case 3: return new Vector2(rect.xMin, rect.yMin);
             }
+
             return Vector3.zero;
         }
     }

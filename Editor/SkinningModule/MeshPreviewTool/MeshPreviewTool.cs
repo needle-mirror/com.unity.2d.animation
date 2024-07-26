@@ -12,6 +12,7 @@ namespace UnityEditor.U2D.Animation
         private IMeshPreviewBehaviour m_DefaultPreviewBehaviour = new DefaultPreviewBehaviour();
 
         public IMeshPreviewBehaviour previewBehaviourOverride { get; set; }
+
         public override IMeshPreviewBehaviour previewBehaviour
         {
             get
@@ -134,7 +135,7 @@ namespace UnityEditor.U2D.Animation
         {
             DirtyColorsAll();
         }
-        
+
         private void DirtyColorsAll()
         {
             foreach (var sprite in m_Sprites)
@@ -144,7 +145,7 @@ namespace UnityEditor.U2D.Animation
                 if (meshPreview != null)
                     meshPreview.SetColorsDirty();
             }
-        }        
+        }
 
         private void DirtyMeshesAll()
         {

@@ -18,7 +18,7 @@ namespace UnityEditor.U2D.Animation
         private const string k_CharacterPivotId = "PivotPose";
 
 #if ENABLE_UXML_TRAITS
-        public class CustomUXMLFactor : UxmlFactory<PoseToolbar, UxmlTraits> {}
+        public class CustomUXMLFactor : UxmlFactory<PoseToolbar, UxmlTraits> { }
 #endif
 
         public event Action<Tools> SetMeshTool = (mode) => { };
@@ -31,7 +31,7 @@ namespace UnityEditor.U2D.Animation
         private Button m_PreviewBtn;
         private Button m_RestoreBtn;
         private Button m_PivotBtn;
-        
+
         public static PoseToolbar GenerateFromUXML()
         {
             var clone = GetClone(k_UxmlPath, k_ToolbarId) as PoseToolbar;
@@ -41,7 +41,7 @@ namespace UnityEditor.U2D.Animation
             clone.AddShortcutsToToolTips();
             return clone;
         }
-        
+
         public PoseToolbar()
         {
             styleSheets.Add(ResourceLoader.Load<StyleSheet>(k_UssPath));
@@ -53,15 +53,15 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.skinningModeChanged.AddListener(OnSkinningModeChange);
             OnSkinningModeChange(s.mode);
         }
-        
+
         private void BindElements()
         {
             m_PreviewBtn = this.Q<Button>(k_PreviewPoseId);
             m_PreviewBtn.clickable.clicked += () => { ActivateEditPoseTool(); };
-            
+
             m_RestoreBtn = this.Q<Button>(k_RestorePoseId);
             m_RestoreBtn.clickable.clicked += RestorePose;
-            
+
             m_PivotBtn = this.Q<Button>(k_CharacterPivotId);
             m_PivotBtn.clickable.clicked += PivotPose;
         }
@@ -70,7 +70,7 @@ namespace UnityEditor.U2D.Animation
         {
             SetMeshTool(Tools.CharacterPivotTool);
         }
-        
+
         private void OnSkinningModeChange(SkinningMode mode)
         {
             if (skinningCache.hasCharacter)
@@ -95,7 +95,7 @@ namespace UnityEditor.U2D.Animation
                     SetSkeletonTool(Tools.EditPose);
             }
         }
-        
+
         private void RestorePose()
         {
             using (skinningCache.UndoScope(TextContent.restorePose))
@@ -104,16 +104,16 @@ namespace UnityEditor.U2D.Animation
                 skinningCache.events.restoreBindPose.Invoke();
             }
         }
-        
+
         private void SetupShortcutUtility()
         {
             m_ShortcutUtility = new ShortcutUtility(ShortcutIds.previewPose,
-                                                    ShortcutIds.restoreBindPose);
+                ShortcutIds.restoreBindPose);
             m_ShortcutUtility.OnShortcutChanged = () =>
             {
                 RestoreButtonTooltips(k_UxmlPath, k_ToolbarId);
                 AddShortcutsToToolTips();
-            };            
+            };
         }
 
         public void UpdateToggleState()
@@ -128,12 +128,12 @@ namespace UnityEditor.U2D.Animation
             var isResetEnabled = skeleton != null && skeleton.isPosePreview;
             m_RestoreBtn.SetEnabled(isResetEnabled);
         }
-        
+
         private void AddShortcutsToToolTips()
         {
             m_ShortcutUtility.AddShortcutToButtonTooltip(this, k_PreviewPoseId, ShortcutIds.previewPose);
             m_ShortcutUtility.AddShortcutToButtonTooltip(this, k_RestorePoseId, ShortcutIds.restoreBindPose);
             m_ShortcutUtility.AddShortcutToButtonTooltip(this, k_CharacterPivotId, ShortcutIds.characterPivot);
-        }        
+        }
     }
 }

@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -13,7 +12,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (bones == null)
                 return;
-                
+
             foreach (var bone in bones)
             {
                 if (!bone.isVisible)
@@ -27,7 +26,7 @@ namespace UnityEditor.U2D.Animation
                     MathUtility.SegmentIntersection(new Vector2(rect.xMax, rect.yMin), new Vector2(rect.xMax, rect.yMax), p1, p2, ref point) ||
                     MathUtility.SegmentIntersection(new Vector2(rect.xMax, rect.yMax), new Vector2(rect.xMin, rect.yMax), p1, p2, ref point) ||
                     MathUtility.SegmentIntersection(new Vector2(rect.xMin, rect.yMax), new Vector2(rect.xMin, rect.yMin), p1, p2, ref point)
-                    )
+                   )
                     selection.Select(bone.ToCharacterIfNeeded(), true);
             }
         }

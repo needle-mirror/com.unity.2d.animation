@@ -1,8 +1,7 @@
-﻿using Unity.Collections;
+using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Burst;
-
 
 namespace UnityEngine.U2D.Animation
 {
@@ -53,7 +52,6 @@ namespace UnityEngine.U2D.Animation
                     extents = new Vector3(extents.x, extents.y, extents.z)
                 };
             }
-
         }
     }
 }

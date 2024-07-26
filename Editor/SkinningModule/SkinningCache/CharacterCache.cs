@@ -16,7 +16,7 @@ namespace UnityEditor.U2D.Animation
         List<CharacterGroupCache> m_Groups = new List<CharacterGroupCache>();
         [SerializeField]
         Vector2 m_Pivot;
-        
+
         public SkeletonCache skeleton
         {
             get => m_Skeleton;
@@ -46,7 +46,7 @@ namespace UnityEditor.U2D.Animation
             get => m_Pivot;
             set => m_Pivot = value;
         }
-        
+
         public IEnumerator<CharacterPartCache> GetEnumerator()
         {
             return ((IEnumerable<CharacterPartCache>)m_Parts).GetEnumerator();

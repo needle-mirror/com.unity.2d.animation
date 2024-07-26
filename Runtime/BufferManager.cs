@@ -12,20 +12,20 @@ namespace UnityEngine.U2D.Animation
     {
         /// <summary>
         /// Number of buffers currently allocated.
-        /// </summary>        
+        /// </summary>
         public int bufferCount => m_Buffers.Length;
-        
+
         private readonly int m_Id;
         private bool m_IsActive = true;
         private int m_DeactivateFrame = -1;
-        
+
         private NativeByteArray[] m_Buffers;
         private int m_ActiveIndex = 0;
 
         public VertexBuffer(int id, int size, bool needDoubleBuffering)
         {
             m_Id = id;
-            
+
             var noOfBuffers = needDoubleBuffering ? 2 : 1;
             m_Buffers = new NativeByteArray[noOfBuffers];
             for (var i = 0; i < noOfBuffers; i++)
@@ -46,7 +46,7 @@ namespace UnityEngine.U2D.Animation
             m_ActiveIndex = (m_ActiveIndex + 1) % m_Buffers.Length;
             if (m_Buffers[m_ActiveIndex].Length != size)
                 ResizeBuffer(m_ActiveIndex, size);
-                
+
             return m_Buffers[m_ActiveIndex];
         }
 
@@ -59,8 +59,8 @@ namespace UnityEngine.U2D.Animation
         public void Deactivate()
         {
             if (!m_IsActive)
-                    return;
-            
+                return;
+
             m_IsActive = false;
             m_DeactivateFrame = GetCurrentFrame();
         }
@@ -73,7 +73,7 @@ namespace UnityEngine.U2D.Animation
                     m_Buffers[i].Dispose();
             }
         }
-        
+
         public bool IsSafeToDispose() => !m_IsActive && GetCurrentFrame() > m_DeactivateFrame;
     }
 
@@ -87,7 +87,7 @@ namespace UnityEngine.U2D.Animation
         /// <summary>
         /// Number of buffers currently allocated.
         /// </summary>
-        public int bufferCount 
+        public int bufferCount
         {
             get
             {
@@ -99,13 +99,9 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Creates two buffers instead of one if enabled. 
+        /// Creates two buffers instead of one if enabled.
         /// </summary>
-        public bool needDoubleBuffering
-        {
-            get;
-            set;
-        }
+        public bool needDoubleBuffering { get; set; }
 
         public static BufferManager instance
         {
@@ -120,22 +116,23 @@ namespace UnityEngine.U2D.Animation
                         s_Instance = ScriptableObject.CreateInstance<BufferManager>();
                     s_Instance.hideFlags = HideFlags.HideAndDontSave;
                 }
+
                 return s_Instance;
             }
         }
-        
+
         private void OnEnable()
         {
             if (s_Instance == null)
                 s_Instance = this;
-            
+
             needDoubleBuffering = SystemInfo.renderingThreadingMode != RenderingThreadingMode.Direct;
 #if UNITY_EDITOR
             EditorApplication.update += Update;
 #else
             Application.onBeforeRender += Update;
 #endif
-        }        
+        }
 
         private void OnDisable()
         {
@@ -143,12 +140,12 @@ namespace UnityEngine.U2D.Animation
                 s_Instance = null;
 
             ForceClearBuffers();
-            
-#if UNITY_EDITOR            
+
+#if UNITY_EDITOR
             EditorApplication.update -= Update;
 #else
             Application.onBeforeRender -= Update;
-#endif            
+#endif
         }
 
         private void ForceClearBuffers()
@@ -172,7 +169,7 @@ namespace UnityEngine.U2D.Animation
             Profiler.EndSample();
             return buffer?.GetBuffer(bufferSize);
         }
-        
+
         private VertexBuffer CreateBuffer(int id, int bufferSize)
         {
             if (bufferSize < 1)
@@ -185,7 +182,7 @@ namespace UnityEngine.U2D.Animation
             m_Buffers.Add(id, buffer);
 
             return buffer;
-        }        
+        }
 
         public void ReturnBuffer(int id)
         {

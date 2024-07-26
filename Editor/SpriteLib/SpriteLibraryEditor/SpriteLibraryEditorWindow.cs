@@ -137,6 +137,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             HandleEditorPrefs();
 
+            var currentSelection = SpriteLibrarySourceAssetImporter.GetAssetFromSelection();
+            if (!m_LockTracker.IsLocked() && m_Controller.GetSelectedAsset() != currentSelection)
+                m_Controller.SelectAsset(currentSelection);
+
             EditorApplication.playModeStateChanged += PlayModeStateChanged;
         }
 
@@ -185,10 +189,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         public void HandleUnsavedChanges()
         {
             if (EditorUtility.DisplayDialog(
-                TextContent.savePopupTitle,
-                TextContent.savePopupMessage,
-                TextContent.savePopupOptionYes,
-                TextContent.savePopupOptionNo))
+                    TextContent.savePopupTitle,
+                    TextContent.savePopupMessage,
+                    TextContent.savePopupOptionYes,
+                    TextContent.savePopupOptionNo))
                 SaveChanges();
             else
                 DiscardChanges();
@@ -197,10 +201,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         public void HandleRevertChanges()
         {
             if (EditorUtility.DisplayDialog(
-                TextContent.savePopupTitle,
-                TextContent.spriteLibraryRevertMessage,
-                TextContent.savePopupOptionYes,
-                TextContent.savePopupOptionNo))
+                    TextContent.savePopupTitle,
+                    TextContent.spriteLibraryRevertMessage,
+                    TextContent.savePopupOptionYes,
+                    TextContent.savePopupOptionNo))
                 m_Controller.RevertChanges();
         }
 

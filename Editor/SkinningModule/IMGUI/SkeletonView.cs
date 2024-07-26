@@ -6,7 +6,7 @@ namespace UnityEditor.U2D.Animation
     {
         internal const string deleteCommandName = "Delete";
         internal const string softDeleteCommandName = "SoftDelete";
-        
+
         const float k_PickingRadius = 5f;
         static readonly int k_BodyHashCode = "Body".GetHashCode();
         static readonly int k_JointHashCode = "Joint".GetHashCode();
@@ -114,7 +114,7 @@ namespace UnityEditor.U2D.Animation
                 m_HoveredTailID = m_NearestTailId;
             }
 
-            if ((m_GUIWrapper.eventType == EventType.Layout && m_PrevHoveredBoneID != m_HoveredBoneID) || m_GUIWrapper.eventType == EventType.MouseMove) 
+            if ((m_GUIWrapper.eventType == EventType.Layout && m_PrevHoveredBoneID != m_HoveredBoneID) || m_GUIWrapper.eventType == EventType.MouseMove)
                 m_GUIWrapper.Repaint();
         }
 
@@ -162,8 +162,8 @@ namespace UnityEditor.U2D.Animation
 
             if (isChainEnd &&
                 (IsCapable(SkeletonAction.ChangeLength) ||
-                IsCapable(SkeletonAction.MoveEndPosition) ||
-                IsCapable(SkeletonAction.CreateBone)))
+                    IsCapable(SkeletonAction.MoveEndPosition) ||
+                    IsCapable(SkeletonAction.CreateBone)))
             {
                 var distance = m_GUIWrapper.DistanceToCircle(endPosition, GetBoneRadiusForPicking(endPosition));
 
@@ -429,8 +429,8 @@ namespace UnityEditor.U2D.Animation
 
             if (action == SkeletonAction.Select)
                 return (m_GUIWrapper.IsControlNearest(m_HoveredBodyControlID) && !canSplitBone) ||
-                        m_GUIWrapper.IsControlNearest(m_HoveredJointControlID) ||
-                        (m_GUIWrapper.IsControlNearest(m_HoveredTailControlID) && !canCreateBone);
+                    m_GUIWrapper.IsControlNearest(m_HoveredJointControlID) ||
+                    (m_GUIWrapper.IsControlNearest(m_HoveredTailControlID) && !canCreateBone);
 
             if (action == SkeletonAction.Remove)
                 return true;
@@ -542,7 +542,7 @@ namespace UnityEditor.U2D.Animation
 
             if (!isChained &&
                 (IsCapable(SkeletonAction.ChangeLength) ||
-                IsCapable(SkeletonAction.MoveEndPosition)))
+                    IsCapable(SkeletonAction.MoveEndPosition)))
             {
                 if (isTailHovered)
                     tailColor = hoveredColor;

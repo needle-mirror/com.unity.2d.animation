@@ -150,11 +150,12 @@ namespace UnityEditor.U2D.Animation
 
             return parent.m_Children.IndexOf(this);
         }
+
         void SetSiblingIndex(int index)
         {
-            if (parent == null) 
+            if (parent == null)
                 return;
-            
+
             var currentIndex = parent.m_Children.IndexOf(this);
             var indexToRemove = index < currentIndex ? currentIndex + 1 : currentIndex;
             parent.InsertChildAt(index, this);

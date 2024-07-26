@@ -30,7 +30,7 @@ namespace UnityEditor.U2D.Animation
                 return;
 
             m_Disposed = true;
-            
+
             if (m_CacheUndo != null)
                 m_CacheUndo.undoOverride = m_UndoOverride;
 

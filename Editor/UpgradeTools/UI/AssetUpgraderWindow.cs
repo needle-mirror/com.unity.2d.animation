@@ -38,7 +38,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
             public const string DarkArea = "DarkArea";
             public const string AssetImage = "AssetImage";
         }
-        
+
         static class Contents
         {
             public static readonly string WindowTitle = L10n.Tr("2D Anim Asset Upgrader");
@@ -54,13 +54,13 @@ namespace UnityEditor.U2D.Animation.Upgrading
             public static readonly string SpriteLibraries = L10n.Tr("Sprite Libraries");
             public static readonly string AnimationClips = L10n.Tr("Animation Clips");
         }
-        
+
         const string k_UiUxml = "AssetUpgrader/AssetUpgrader.uxml";
         const string k_UiUss = "AssetUpgrader/AssetUpgrader.uss";
         const string k_IconWarningId = "WarningIcon_Small";
         const string k_IconFailId = "ErrorIcon_Small";
         const string k_IconSuccessId = "GreenCheck";
-        
+
         Texture2D m_IconWarn;
         Texture2D m_IconFail;
         Texture2D m_IconSuccess;
@@ -87,7 +87,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
         List<string> m_UpgradeTooltips = new List<string>();
         HashSet<int> m_SelectedObjs = new HashSet<int>();
         string m_UpgradeLogPath;
-        
+
         [MenuItem("Window/2D/2D Animation Asset Upgrader")]
         internal static void OpenWindow()
         {
@@ -113,7 +113,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
             m_IconFail = EditorIconUtility.LoadIconResource(k_IconFailId, EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath);
             m_IconSuccess = EditorIconUtility.LoadIconResource(k_IconSuccessId, EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath);
         }
-        
+
         void SetupUI()
         {
             SetupTopContainer();
@@ -129,7 +129,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
             m_ModeSelector.focusable = false;
             m_ModeSelector.AddButton(Contents.SpriteLibraries);
             m_ModeSelector.AddButton(Contents.AnimationClips);
-            
+
             m_ModeSelector.SetValueWithoutNotify((int)m_SelectedMode);
             m_ModeSelector.RegisterValueChangedCallback(_ => OnChangeUpgradeMode());
 
@@ -154,7 +154,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
         void SetupCenterContainer()
         {
             m_CenterInfo = rootVisualElement.Q<Label>(ElementIds.CenterInfo);
-            
+
             m_ListHeaderContainer = rootVisualElement.Q<VisualElement>(ElementIds.ListHeader);
             m_SelectAllToggle = rootVisualElement.Q<Toggle>(ElementIds.SelectAll);
             m_SelectAllToggle.RegisterCallback<ChangeEvent<bool>>(OnSelectAll);
@@ -171,7 +171,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
         void SetupInfoContainer()
         {
             m_InfoContainer = rootVisualElement.Q<VisualElement>(ElementIds.InfoContainer);
-            m_InfoBox = rootVisualElement.Q<HelpBox>(ElementIds.InfoBox);   
+            m_InfoBox = rootVisualElement.Q<HelpBox>(ElementIds.InfoBox);
         }
 
         void SetupBottomContainer()
@@ -179,7 +179,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
             var scanBtn = rootVisualElement.Q<Button>(ElementIds.Scan);
             scanBtn.clicked += OnScanClicked;
             scanBtn.SetEnabled(CanUseTool());
-            
+
             m_UpgradeSelectedBtn = rootVisualElement.Q<Button>(ElementIds.UpgradeSelected);
             m_UpgradeSelectedBtn.clicked += OnUpgradeSelectedClicked;
 
@@ -187,7 +187,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
             m_OpenLogBtn.clicked += OnOpenLogClicked;
         }
 
-        static bool CanUseTool() => EditorSettings.serializationMode == SerializationMode.ForceText; 
+        static bool CanUseTool() => EditorSettings.serializationMode == SerializationMode.ForceText;
 
         void OnChangeUpgradeMode()
         {
@@ -198,12 +198,12 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 m_AssetHeader.text = Contents.SpriteLibraries;
             else
                 m_AssetHeader.text = Contents.AnimationClips;
-            
+
             m_AssetList.Clear();
             m_UpgradeResultList.Clear();
             m_UpgradeTooltips.Clear();
             m_AssetListView.Rebuild();
-            
+
             m_CenterInfo.text = Contents.ScanToBegin;
             m_CenterInfo.SetHiddenFromLayout(false);
             m_ListHeaderContainer.SetHiddenFromLayout(true);
@@ -215,7 +215,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
             ResetConversionResultCounters();
             ResetInfoBox();
-            
+
             switch (m_SelectedMode)
             {
                 case UpgradeMode.SpriteLibrary:
@@ -226,7 +226,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                     break;
             }
         }
-        
+
         void ResetInfoBox()
         {
             if (CanUseTool())
@@ -236,8 +236,8 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 m_InfoContainer.SetHiddenFromLayout(false);
                 m_InfoBox.text = string.Format(Contents.UnsupportedSerializeMode, EditorSettings.serializationMode.ToString());
                 m_InfoBox.messageType = HelpBoxMessageType.Error;
-            }            
-        }        
+            }
+        }
 
         void OnScanClicked()
         {
@@ -252,20 +252,20 @@ namespace UnityEditor.U2D.Animation.Upgrading
             }
 
             ResetConversionResultCounters();
-            
+
             m_CenterInfo.SetHiddenFromLayout(m_AssetList.Count > 0);
             if (m_CenterInfo.enabledSelf)
                 m_CenterInfo.text = Contents.NoAssetsRequireUpgrade;
-            
+
             m_ListHeaderContainer.SetHiddenFromLayout(m_AssetList.Count == 0);
             m_AssetListView.SetHiddenFromLayout(m_AssetList.Count == 0);
             m_ListFooterContainer.SetHiddenFromLayout(m_AssetList.Count == 0);
             m_InfoContainer.SetHiddenFromLayout(true);
             m_SelectedObjs.Clear();
-            
+
             m_SelectAllToggle.SetValueWithoutNotify(true);
             for (var i = 0; i < m_AssetList.Count; ++i)
-                AddRemoveSelectedObject(i, true);            
+                AddRemoveSelectedObject(i, true);
 
             m_AssetListView.itemsSource = m_AssetList;
             m_AssetListView.makeItem = () =>
@@ -288,7 +288,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 var imgContainer = new VisualElement();
                 imgContainer.AddToClassList(ElementIds.DarkArea);
                 container.Add(imgContainer);
-                
+
                 var imgField = new Image();
                 imgField.name = ElementIds.ObjectImage;
                 imgField.AddToClassList(ElementIds.AssetImage);
@@ -306,7 +306,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 var toggle = element.Q<Toggle>(ElementIds.ObjectToggle);
                 toggle.RegisterCallback<ChangeEvent<bool>, int>(OnToggleObject, i);
                 toggle.SetEnabled(m_UpgradeResultList[i] == UpgradeResult.None);
-                
+
                 var isToggled = m_SelectedObjs.Contains(i);
                 toggle.SetValueWithoutNotify(isToggled);
 
@@ -314,7 +314,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 resultImage.image = GetResultImage(m_UpgradeResultList[i]);
                 resultImage.tooltip = m_UpgradeTooltips[i];
             };
-            
+
             m_AssetListView.Rebuild();
         }
 
@@ -325,7 +325,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 if (m_UpgradeResultList[i] == UpgradeResult.None)
                     AddRemoveSelectedObject(i, value.newValue);
             }
-            
+
             m_AssetListView.RefreshItems();
         }
 
@@ -339,9 +339,9 @@ namespace UnityEditor.U2D.Animation.Upgrading
         {
             if (shouldAdd && !m_SelectedObjs.Contains(index))
                 m_SelectedObjs.Add(index);
-            else if(!shouldAdd)
+            else if (!shouldAdd)
                 m_SelectedObjs.Remove(index);
-            
+
             m_UpgradeSelectedBtn.SetEnabled(m_SelectedObjs.Count > 0);
         }
 
@@ -349,17 +349,17 @@ namespace UnityEditor.U2D.Animation.Upgrading
         {
             if (!EditorUtility.DisplayDialog(Contents.UpgradeDialogTitle, Contents.UpgradeDialogMessage, Contents.UpgradeDialogYes, Contents.UpgradeDialogNo))
                 return;
-            
+
             var selectedObjs = new List<ObjectIndexPair>();
             foreach (var index in m_SelectedObjs)
             {
-                selectedObjs.Add(new ObjectIndexPair() 
-                    {
-                        Target = m_AssetList[index],
-                        Index = index
-                    });
+                selectedObjs.Add(new ObjectIndexPair()
+                {
+                    Target = m_AssetList[index],
+                    Index = index
+                });
             }
-            
+
             m_SelectAllToggle.SetValueWithoutNotify(false);
             m_SelectedObjs.Clear();
             m_UpgradeSelectedBtn.SetEnabled(false);
@@ -401,7 +401,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                     return null;
             }
         }
-        
+
         void UpdateConversionResultCounters()
         {
             var noOfWarnings = 0;
@@ -421,7 +421,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
             m_ErrorCountLabel.text = noOfErrors.ToString();
             m_SuccessCountLabel.text = noOfSuccesses.ToString();
         }
-        
+
         void UpdateInfoBox(UpgradeReport report)
         {
             var successCount = 0;
@@ -434,7 +434,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 else if (entry.Result == UpgradeResult.Warning)
                     warningCount++;
                 else if (entry.Result == UpgradeResult.Error)
-                    errorCount++;                
+                    errorCount++;
             }
 
             var summary = "";
@@ -456,29 +456,29 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 summary += " Open the upgrade log to get more information regarding the failures.";
                 m_InfoBox.messageType = HelpBoxMessageType.Error;
             }
-            else if(successCount > 0)
+            else if (successCount > 0)
             {
-                if(successCount == 1)
+                if (successCount == 1)
                     summary = $"{successCount} asset was upgraded successfully.";
                 else
                     summary = $"{successCount} assets were upgraded successfully.";
                 m_InfoBox.messageType = HelpBoxMessageType.Info;
             }
-            
+
             m_InfoBox.text = summary;
             m_InfoContainer.SetHiddenFromLayout(false);
-        }        
+        }
 
         void ResetConversionResultCounters()
         {
             m_WarningCountLabel.text = "0";
             m_ErrorCountLabel.text = "0";
-            m_SuccessCountLabel.text = "0";     
+            m_SuccessCountLabel.text = "0";
         }
 
         void OnOpenLogClicked()
         {
-            if(!string.IsNullOrEmpty(m_UpgradeLogPath))
+            if (!string.IsNullOrEmpty(m_UpgradeLogPath))
                 EditorUtility.OpenWithDefaultApp(m_UpgradeLogPath);
         }
     }

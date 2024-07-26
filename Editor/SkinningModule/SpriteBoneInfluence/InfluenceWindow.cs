@@ -16,13 +16,13 @@ namespace UnityEditor.U2D.Animation
         void SetHiddenFromLayout(bool hide);
         void SetTooltips(string addButtonTooltip, string removeButtonTooltip);
         bool visible { get; }
-        
+
         event Action onAddElement;
         event Action onRemoveElement;
         event Action<IEnumerable<TransformCache>> onReordered;
         event Action<IEnumerable<object>> onSelectionChanged;
     }
-    
+
 #if ENABLE_UXML_SERIALIZED_DATA
     [UxmlElement]
 #endif
@@ -32,20 +32,20 @@ namespace UnityEditor.U2D.Animation
         public class CustomUxmlFactory : UxmlFactory<InfluenceWindow, UxmlTraits> { }
 #endif
 
-        public event Action onAddElement = () => {};
-        public event Action onRemoveElement = () => {};
-        public event Action<IEnumerable<TransformCache>> onReordered = _ => {};
-        public event Action<IEnumerable<object>> onSelectionChanged = _ => {};
+        public event Action onAddElement = () => { };
+        public event Action onRemoveElement = () => { };
+        public event Action<IEnumerable<TransformCache>> onReordered = _ => { };
+        public event Action<IEnumerable<object>> onSelectionChanged = _ => { };
 
         UnityEngine.UIElements.PopupWindow m_HeaderLabel;
-        
+
         Label m_ListLabel;
-        
+
         IEnumerable<TransformCache> m_Selection;
-        
+
         ListView m_ListView;
         List<TransformCache> m_Influences = new List<TransformCache>();
-        
+
         Button m_AddButton;
         Button m_RemoveButton;
         bool m_IgnoreSelectionChange = false;
@@ -71,7 +71,7 @@ namespace UnityEditor.U2D.Animation
         internal static InfluenceWindow CreateFromUxml()
         {
             var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/InfluenceWindow.uxml");
-            var ve = (InfluenceWindow)visualTree.CloneTree().Q("InfluenceWindow"); 
+            var ve = (InfluenceWindow)visualTree.CloneTree().Q("InfluenceWindow");
             ve.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/InfluenceWindowStyle.uss"));
             if (EditorGUIUtility.isProSkin)
                 ve.AddToClassList("Dark");
@@ -125,6 +125,7 @@ namespace UnityEditor.U2D.Animation
             };
 
             m_ListView.selectionChanged += OnListViewSelectionChanged;
+            m_ListView.itemIndexChanged += OnItemIndexChanged;
             m_AddButton = this.Q<Button>("AddButton");
             m_AddButton.clickable.clicked += () =>
             {
@@ -135,8 +136,6 @@ namespace UnityEditor.U2D.Animation
             {
                 onRemoveElement.Invoke();
             };
-            
-            RegisterCallback<DragPerformEvent>(x => onReordered(m_Influences) );
         }
 
         public void UpdateList(List<TransformCache> transformsList)
@@ -149,25 +148,30 @@ namespace UnityEditor.U2D.Animation
         public void UpdateSelection(IEnumerable<TransformCache> newSelection)
         {
             m_Selection = newSelection;
-            
+
             m_IgnoreSelectionChange = true;
             m_ListView.ClearSelection();
             foreach (var selection in newSelection)
             {
                 var index = m_Influences.IndexOf(selection);
-                if(index >= 0)
+                if (index >= 0)
                     m_ListView.AddToSelection(index);
             }
 
             m_IgnoreSelectionChange = false;
         }
-        
+
         private void OnListViewSelectionChanged(IEnumerable<object> newSelection)
         {
             if (m_IgnoreSelectionChange)
                 return;
 
             onSelectionChanged(newSelection);
+        }
+
+        void OnItemIndexChanged(int prevIndex, int newIndex)
+        {
+            onReordered(m_Influences);
         }
 
         public void ToggleAddButton(bool enabled)

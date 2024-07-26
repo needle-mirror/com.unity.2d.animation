@@ -35,14 +35,14 @@ namespace UnityEngine.U2D.Animation
         public void AddSpriteSkin(SpriteSkin spriteSkin)
         {
             m_SpriteSkin.Add(spriteSkin);
-            
+
             onAddedSpriteSkin?.Invoke(spriteSkin);
         }
 
         public void RemoveSpriteSkin(SpriteSkin spriteSkin)
         {
             m_SpriteSkin.Remove(spriteSkin);
-            
+
             onRemovedSpriteSkin?.Invoke(spriteSkin);
         }
 

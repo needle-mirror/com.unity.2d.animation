@@ -25,12 +25,12 @@ namespace UnityEditor.U2D.Animation
         {
             return HandleDropHierarchyInternal(DragAndDrop.objectReferences, dropTargetInstanceID, dropMode, perform);
         }
-        
+
         static DragAndDropVisualMode HandleDropScene(Object dropUpon, Vector3 worldPosition, Vector2 viewportPosition, Transform parentForDraggedObjects, bool perform)
         {
             return HandleDropSceneInternal(DragAndDrop.objectReferences, dropUpon, worldPosition, perform);
         }
-        
+
         internal static DragAndDropVisualMode HandleDropInspectorInternal(Object[] draggedObjects, Object[] targets, bool perform)
         {
             var spriteLibraryAsset = GetSpriteLibraryAsset(draggedObjects);
@@ -49,7 +49,7 @@ namespace UnityEditor.U2D.Animation
 
             return DragAndDropVisualMode.Copy;
         }
-        
+
         internal static DragAndDropVisualMode HandleDropHierarchyInternal(Object[] draggedObjects, int dropTargetInstanceID, HierarchyDropFlags dropMode, bool perform)
         {
             var spriteLibraryAsset = GetSpriteLibraryAsset(draggedObjects);
@@ -77,7 +77,7 @@ namespace UnityEditor.U2D.Animation
 
             return DragAndDropVisualMode.None;
         }
-        
+
         internal static DragAndDropVisualMode HandleDropSceneInternal(Object[] draggedObjects, Object dropUpon, Vector3 worldPosition, bool perform)
         {
             var spriteLibraryAsset = GetSpriteLibraryAsset(draggedObjects);

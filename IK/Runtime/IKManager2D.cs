@@ -46,7 +46,7 @@ namespace UnityEngine.U2D.IK
         /// Get the Solvers that are managed by this manager.
         /// </summary>
         public List<Solver2D> solvers => m_Solvers;
-        
+
         int[] m_TransformIdCache;
 
         /// <summary>
@@ -65,24 +65,24 @@ namespace UnityEngine.U2D.IK
         void OnEnable()
         {
             ToggleCulling(!m_AlwaysUpdate);
-            
-            #if UNITY_EDITOR
+
+#if UNITY_EDITOR
             onEnabledEditor?.Invoke(this);
-            #endif
+#endif
         }
 
         void OnDisable()
         {
             ToggleCulling(false);
-            
-            #if UNITY_EDITOR
+
+#if UNITY_EDITOR
             onDisabledEditor?.Invoke(this);
-            #endif
+#endif
         }
 
         void ToggleCulling(bool enableCulling)
         {
-            if(m_CullingStrategy != null && m_CullingEnabled == enableCulling)
+            if (m_CullingStrategy != null && m_CullingEnabled == enableCulling)
                 return;
 
             m_CullingEnabled = enableCulling;
@@ -150,14 +150,14 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         public void UpdateManager()
         {
-            if(m_Solvers.Count == 0)
+            if (m_Solvers.Count == 0)
                 return;
 
             var profilerMarker = new ProfilerMarker("IKManager2D.UpdateManager");
             profilerMarker.Begin();
 
             ToggleCulling(!m_AlwaysUpdate);
-            
+
             var solverInitialized = false;
             for (var i = 0; i < m_Solvers.Count; i++)
             {
@@ -168,10 +168,10 @@ namespace UnityEngine.U2D.IK
                 if (!solver.isValid)
                 {
                     solver.Initialize();
-                    solverInitialized = true;    
+                    solverInitialized = true;
                 }
 
-                if(!m_CullingEnabled)
+                if (!m_CullingEnabled)
                     solver.UpdateIK(m_Weight);
             }
 
@@ -209,7 +209,7 @@ namespace UnityEngine.U2D.IK
                     for (var b = 0; b < chain.transformCount; b++)
                     {
                         var boneTransform = chain.transforms[b];
-                        if(boneTransform != null)
+                        if (boneTransform != null)
                             transformCache.Add(boneTransform.GetInstanceID());
                     }
                 }

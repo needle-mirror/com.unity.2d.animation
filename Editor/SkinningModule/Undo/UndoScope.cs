@@ -12,11 +12,11 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(cacheUndo != null);
 
-            if(cacheUndo.isUndoOperationSet == false)
+            if (cacheUndo.isUndoOperationSet == false)
             {
                 m_CacheUndo = cacheUndo;
 
-                if(incrementGroup)
+                if (incrementGroup)
                     m_CacheUndo.IncrementCurrentGroup();
 
                 m_CacheUndo.BeginUndoOperation(operationName);
@@ -35,7 +35,7 @@ namespace UnityEditor.U2D.Animation
                 return;
 
             m_Disposed = true;
-            
+
             if (m_CacheUndo != null)
                 m_CacheUndo.EndUndoOperation();
 

@@ -18,8 +18,7 @@ namespace UnityEngine.U2D.Animation
         public bool IsCreated => array.IsCreated;
         public byte this[int index] => array[index];
 
-        public NativeArray<byte> array
-        { get; }
+        public NativeArray<byte> array { get; }
 
         public NativeByteArray(NativeArray<byte> array)
         {
@@ -33,16 +32,16 @@ namespace UnityEngine.U2D.Animation
     {
         internal static bool CanUseGpuDeformation()
         {
-            return SystemInfo.supportsComputeShaders;            
+            return SystemInfo.supportsComputeShaders;
         }
 
         internal static bool IsUsingGpuDeformation()
         {
-#if ENABLE_URP            
+#if ENABLE_URP
             return CanUseGpuDeformation() &&
-                   GraphicsSettings.currentRenderPipeline != null &&
-                   UniversalRenderPipeline.asset.useSRPBatcher &&
-                   InternalEngineBridge.IsGPUSkinningEnabled();
+                GraphicsSettings.currentRenderPipeline != null &&
+                UniversalRenderPipeline.asset.useSRPBatcher &&
+                InternalEngineBridge.IsGPUSkinningEnabled();
 #else
             return false;
 #endif
@@ -51,9 +50,9 @@ namespace UnityEngine.U2D.Animation
         internal static bool CanSpriteSkinUseGpuDeformation(SpriteSkin spriteSkin)
         {
             return IsUsingGpuDeformation() &&
-                   GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
+                GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
         }
-        
+
         internal static SpriteSkinState Validate(this SpriteSkin spriteSkin)
         {
             var sprite = spriteSkin.sprite;
@@ -74,7 +73,7 @@ namespace UnityEngine.U2D.Animation
 
             if (bindPoseCount != spriteSkin.boneTransforms.Length)
                 return SpriteSkinState.InvalidTransformArrayLength;
-            
+
             foreach (var boneTransform in spriteSkin.boneTransforms)
             {
                 if (boneTransform == null)
@@ -84,7 +83,7 @@ namespace UnityEngine.U2D.Animation
             var boneWeights = spriteSkin.spriteBoneWeights;
             if (!BurstedSpriteSkinUtilities.ValidateBoneWeights(in boneWeights, bindPoseCount))
                 return SpriteSkinState.InvalidBoneWeights;
-            
+
             return SpriteSkinState.Ready;
         }
 
@@ -118,13 +117,13 @@ namespace UnityEngine.U2D.Animation
             return vertexStreamSize;
         }
 
-        internal static int GetVertexStreamOffset(this Sprite sprite, Rendering.VertexAttribute channel )
+        internal static int GetVertexStreamOffset(this Sprite sprite, Rendering.VertexAttribute channel)
         {
             var hasPosition = sprite.HasVertexAttribute(Rendering.VertexAttribute.Position);
             var hasNormals = sprite.HasVertexAttribute(Rendering.VertexAttribute.Normal);
             var hasTangents = sprite.HasVertexAttribute(Rendering.VertexAttribute.Tangent);
 
-            switch(channel)
+            switch (channel)
             {
                 case Rendering.VertexAttribute.Position:
                     return hasPosition ? 0 : -1;
@@ -133,6 +132,7 @@ namespace UnityEngine.U2D.Animation
                 case Rendering.VertexAttribute.Tangent:
                     return hasTangents ? (hasNormals ? 24 : 12) : -1;
             }
+
             return -1;
         }
 
@@ -179,6 +179,7 @@ namespace UnityEngine.U2D.Animation
                 boneTransformHash ^= GetHash(transform.localToWorldMatrix) >> bits;
                 bits = (bits + 1) % 8;
             }
+
             return boneTransformHash;
         }
 
@@ -191,9 +192,9 @@ namespace UnityEngine.U2D.Animation
             var spriteVertexStreamSize = sprite.GetVertexStreamSize();
             var boneTransformsFloat4x4 = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float4x4>(boneTransforms.GetUnsafePtr(), boneTransforms.Length, Allocator.None);
 
-            byte* deformedPosOffset = (byte*)NativeArrayUnsafeUtility.GetUnsafePtr(deformableVertices);            
+            byte* deformedPosOffset = (byte*)NativeArrayUnsafeUtility.GetUnsafePtr(deformableVertices);
             NativeSlice<float3> deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset, spriteVertexStreamSize, spriteVertexCount);
-            NativeSlice<float4> deformableTangentsFloat4 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float4>(deformedPosOffset, spriteVertexStreamSize, 1);   // Just Dummy.
+            NativeSlice<float4> deformableTangentsFloat4 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float4>(deformedPosOffset, spriteVertexStreamSize, 1); // Just Dummy.
             if (sprite.HasVertexAttribute(Rendering.VertexAttribute.Tangent))
             {
                 byte* deformedTanOffset = deformedPosOffset + sprite.GetVertexStreamOffset(Rendering.VertexAttribute.Tangent);
@@ -248,14 +249,14 @@ namespace UnityEngine.U2D.Animation
 
         internal static void Deform(float4x4 rootInv, NativeSlice<float3> vertices, NativeSlice<float4> tangents, NativeSlice<BoneWeight> boneWeights, NativeArray<float4x4> boneTransforms, NativeSlice<float4x4> bindPoses, NativeSlice<float3> deformed, NativeSlice<float4> deformedTangents)
         {
-            if(boneTransforms.Length == 0)
+            if (boneTransforms.Length == 0)
                 return;
 
             for (var i = 0; i < boneTransforms.Length; i++)
             {
                 var bindPoseMat = bindPoses[i];
                 var boneTransformMat = boneTransforms[i];
-                boneTransforms[i] = math.mul(rootInv,  math.mul(boneTransformMat, bindPoseMat));
+                boneTransforms[i] = math.mul(rootInv, math.mul(boneTransformMat, bindPoseMat));
             }
 
             for (var i = 0; i < vertices.Length; i++)
@@ -264,7 +265,7 @@ namespace UnityEngine.U2D.Animation
                 var bone1 = boneWeights[i].boneIndex1;
                 var bone2 = boneWeights[i].boneIndex2;
                 var bone3 = boneWeights[i].boneIndex3;
-                
+
                 var vertex = vertices[i];
                 deformed[i] =
                     math.transform(boneTransforms[bone0], vertex) * boneWeights[i].weight0 +
@@ -288,15 +289,15 @@ namespace UnityEngine.U2D.Animation
         {
             Debug.Assert(sprite != null);
             Debug.Assert(sprite.GetVertexCount() == (deformVertexData.Length / sprite.GetVertexStreamSize()));
-            
+
             var vertices = sprite.GetVertexAttribute<Vector3>(UnityEngine.Rendering.VertexAttribute.Position);
             var tangents = sprite.GetVertexAttribute<Vector4>(UnityEngine.Rendering.VertexAttribute.Tangent);
             var boneWeights = sprite.GetVertexAttribute<BoneWeight>(UnityEngine.Rendering.VertexAttribute.BlendWeight);
             var bindPoses = sprite.GetBindPoses();
-            
+
             Debug.Assert(bindPoses.Length == boneTransformsArray.Length);
             Debug.Assert(boneWeights.Length == sprite.GetVertexCount());
-            
+
             var boneTransforms = new NativeArray<Matrix4x4>(boneTransformsArray.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
             for (var i = 0; i < boneTransformsArray.Length; ++i)
@@ -306,7 +307,7 @@ namespace UnityEngine.U2D.Animation
 
             boneTransforms.Dispose();
         }
-        
+
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
         static AtomicSafetyHandle CreateSafetyChecks<T>(ref NativeArray<T> array) where T : struct
         {
@@ -346,14 +347,14 @@ namespace UnityEngine.U2D.Animation
         {
             Debug.Assert(spriteSkin.isValid);
             var sprite = spriteSkin.sprite;
-            
+
             var deformVertexData = new NativeArray<byte>(sprite.GetVertexStreamSize() * sprite.GetVertexCount(), Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             var dataPtr = deformVertexData.GetUnsafePtr();
             var deformedPosSlice = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<Vector3>(dataPtr, sprite.GetVertexStreamSize(), sprite.GetVertexCount());
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformedPosSlice, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(deformVertexData));
 #endif
-            
+
             spriteSkin.Bake(deformVertexData);
             UpdateBounds(spriteSkin, deformVertexData);
             deformVertexData.Dispose();
@@ -369,7 +370,7 @@ namespace UnityEngine.U2D.Animation
                 min = math.min(min, deformablePositions[j]);
                 max = math.max(max, deformablePositions[j]);
             }
-            
+
             var ext = (max - min) * 0.5F;
             var ctr = min + ext;
             var bounds = new Bounds();
@@ -380,30 +381,30 @@ namespace UnityEngine.U2D.Animation
 
         internal static unsafe void UpdateBounds(this SpriteSkin spriteSkin, NativeArray<byte> deformedVertices)
         {
-            var deformedPosOffset = (byte*)NativeArrayUnsafeUtility.GetUnsafePtr(deformedVertices);            
+            var deformedPosOffset = (byte*)NativeArrayUnsafeUtility.GetUnsafePtr(deformedVertices);
             var spriteVertexCount = spriteSkin.sprite.GetVertexCount();
-            var spriteVertexStreamSize = spriteSkin.sprite.GetVertexStreamSize();            
+            var spriteVertexStreamSize = spriteSkin.sprite.GetVertexStreamSize();
             var deformedPositions = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset, spriteVertexStreamSize, spriteVertexCount);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             var handle = CreateSafetyChecks<float3>(ref deformedPositions);
 #endif
             spriteSkin.bounds = CalculateSpriteSkinBounds(deformedPositions);
-            
+
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             DisposeSafetyChecks(handle);
-#endif           
+#endif
             InternalEngineBridge.SetLocalAABB(spriteSkin.spriteRenderer, spriteSkin.bounds);
         }
     }
-    
+
     [BurstCompile]
     internal static class BurstedSpriteSkinUtilities
     {
         [BurstCompile]
         internal static bool ValidateBoneWeights(in NativeCustomSlice<BoneWeight> boneWeights, int bindPoseCount)
         {
-            var boneWeightCount = boneWeights.Length; 
+            var boneWeightCount = boneWeights.Length;
             for (var i = 0; i < boneWeightCount; ++i)
             {
                 var boneWeight = boneWeights[i];
@@ -411,7 +412,7 @@ namespace UnityEngine.U2D.Animation
                 var idx1 = boneWeight.boneIndex1;
                 var idx2 = boneWeight.boneIndex2;
                 var idx3 = boneWeight.boneIndex3;
-                
+
                 if ((idx0 < 0 || idx0 >= bindPoseCount) ||
                     (idx1 < 0 || idx1 >= bindPoseCount) ||
                     (idx2 < 0 || idx2 >= bindPoseCount) ||
@@ -420,8 +421,8 @@ namespace UnityEngine.U2D.Animation
             }
 
             return true;
-        } 
-        
+        }
+
         [BurstCompile]
         internal static void SetVertexPositionFromByteBuffer(in NativeArray<byte> buffer, in NativeArray<int> indices, ref NativeArray<Vector3> vertices, int stride)
         {
@@ -435,6 +436,6 @@ namespace UnityEngine.U2D.Animation
                     vertices[index] = *vertexPtr;
                 }
             }
-        }        
-    }    
+        }
+    }
 }

@@ -9,23 +9,23 @@ namespace UnityEditor.U2D.Animation
     {
         private BoneInspectorPanel m_BoneInspectorPanel;
 
-        public event Action<BoneCache, string> onBoneNameChanged = (b, s) => {};
-        public event Action<BoneCache, int> onBoneDepthChanged = (b, i) => {};
-        public event Action<BoneCache, float> onBoneRotationChanged = (b, i) => {};
-        public event Action<BoneCache, Vector2> onBonePositionChanged = (b, i) => {};
-        public event Action<BoneCache, Color32> onBoneColorChanged = (b, i) => {};
+        public event Action<BoneCache, string> onBoneNameChanged = (b, s) => { };
+        public event Action<BoneCache, int> onBoneDepthChanged = (b, i) => { };
+        public event Action<BoneCache, float> onBoneRotationChanged = (b, i) => { };
+        public event Action<BoneCache, Vector2> onBonePositionChanged = (b, i) => { };
+        public event Action<BoneCache, Color32> onBoneColorChanged = (b, i) => { };
 
         public SkeletonToolView()
         {
             m_BoneInspectorPanel = BoneInspectorPanel.GenerateFromUXML();
-            m_BoneInspectorPanel.onBoneNameChanged += (b, n) =>  onBoneNameChanged(b, n);
+            m_BoneInspectorPanel.onBoneNameChanged += (b, n) => onBoneNameChanged(b, n);
             m_BoneInspectorPanel.onBoneDepthChanged += (b, d) => onBoneDepthChanged(b, d);
-            m_BoneInspectorPanel.onBoneRotationChanged += (b, n) =>  onBoneRotationChanged(b, n);
+            m_BoneInspectorPanel.onBoneRotationChanged += (b, n) => onBoneRotationChanged(b, n);
             m_BoneInspectorPanel.onBonePositionChanged += (b, d) => onBonePositionChanged(b, d);
             m_BoneInspectorPanel.onBoneColorChanged += (b, d) => onBoneColorChanged(b, d);
             Hide();
         }
-        
+
         public void Initialize(LayoutOverlay layout)
         {
             layout.rightOverlay.Add(m_BoneInspectorPanel);
@@ -38,8 +38,8 @@ namespace UnityEditor.U2D.Animation
             var readOnlyProperty = BoneInspectorPanel.PropertyReadOnly.None;
             if (isReadOnly)
                 readOnlyProperty = BoneInspectorPanel.PropertyReadOnly.Name |
-                                   BoneInspectorPanel.PropertyReadOnly.Depth |
-                                   BoneInspectorPanel.PropertyReadOnly.Color;
+                    BoneInspectorPanel.PropertyReadOnly.Depth |
+                    BoneInspectorPanel.PropertyReadOnly.Color;
             m_BoneInspectorPanel.SetReadOnly(readOnlyProperty);
         }
 

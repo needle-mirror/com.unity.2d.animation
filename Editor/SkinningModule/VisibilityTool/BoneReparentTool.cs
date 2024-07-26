@@ -9,8 +9,8 @@ namespace UnityEditor.U2D.Animation
 {
     internal class BoneReparentToolController : BoneTreeWidgetController
     {
-        public BoneReparentToolController(IBoneTreeViewModel model, SkinningEvents eventSystem) : base(model, eventSystem)
-        {}
+        public BoneReparentToolController(IBoneTreeViewModel model, SkinningEvents eventSystem)
+            : base(model, eventSystem) { }
 
         public override bool CanDrag()
         {
@@ -49,6 +49,7 @@ namespace UnityEditor.U2D.Animation
             {
                 m_View = BoneReparentToolWindow.CreateFromUXML();
             }
+
             m_Model = new BoneReparentToolModel(skinningCache, m_View);
             m_Controller = new BoneReparentToolController(m_Model, skinningCache.events);
             m_View.GetController = () => m_Controller;
@@ -138,7 +139,10 @@ namespace UnityEditor.U2D.Animation
             ((IBoneVisibilityToolView)toolView).OnSelectionChange(skeleton);
         }
 
-        BoneReparentToolView toolView { get {return m_ToolView; } }
+        BoneReparentToolView toolView
+        {
+            get { return m_ToolView; }
+        }
 
         public void Deactivate()
         {
@@ -178,7 +182,7 @@ namespace UnityEditor.U2D.Animation
                 autoResize = true,
                 allowToggleVisibility = false
             };
-            
+
             columns[2] = new MultiColumnHeaderState.Column
             {
                 headerContent = new GUIContent(TextContent.depth),
@@ -189,7 +193,7 @@ namespace UnityEditor.U2D.Animation
                 autoResize = true,
                 allowToggleVisibility = true
             };
-            
+
             columns[3] = new MultiColumnHeaderState.Column
             {
                 headerContent = new GUIContent(TextContent.color),
@@ -199,8 +203,8 @@ namespace UnityEditor.U2D.Animation
                 maxWidth = 50,
                 autoResize = true,
                 allowToggleVisibility = true
-            };            
-            
+            };
+
             var multiColumnHeaderState = new MultiColumnHeaderState(columns);
             return new VisibilityToolColumnHeader(multiColumnHeaderState)
             {

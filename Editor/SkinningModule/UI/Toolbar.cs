@@ -13,12 +13,13 @@ namespace UnityEditor.U2D.Animation
         private const string k_UssPath = "SkinningModule/ToolbarStyle.uss";
 
 #if ENABLE_UXML_TRAITS
-        public class ToolbarFactory : UxmlFactory<Toolbar, ToolbarUxmlTraits> {}
-        public class ToolbarUxmlTraits : UxmlTraits {}
+        public class ToolbarFactory : UxmlFactory<Toolbar, ToolbarUxmlTraits> { }
+
+        public class ToolbarUxmlTraits : UxmlTraits { }
 #endif
 
         protected ShortcutUtility m_ShortcutUtility;
-        
+
         protected static Toolbar GetClone(string uxmlPath, string toolbarId)
         {
             var visualTree = ResourceLoader.Load<VisualTreeAsset>(uxmlPath);
@@ -50,6 +51,7 @@ namespace UnityEditor.U2D.Animation
                 }
                 else
                     button.RemoveFromClassList("Checked");
+
                 button.SetChecked(check);
             }
         }
@@ -73,7 +75,7 @@ namespace UnityEditor.U2D.Animation
             {
                 originalButtons[i].tooltip = clonedButtons[i].tooltip;
                 originalButtons[i].LocalizeTextInChildren();
-            }            
+            }
         }
     }
 }

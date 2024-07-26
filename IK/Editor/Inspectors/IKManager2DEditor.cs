@@ -23,13 +23,13 @@ namespace UnityEditor.U2D.IK
             public static readonly string listHeaderLabel = "IK Solvers";
             public static readonly string createSolverString = "Create Solver";
             public static readonly string restoreDefaultPoseString = "Restore Default Pose";
-            public static readonly GUIContent gizmoColorTooltip = new GUIContent("","Customizes the IK Chain's Gizmo color");
+            public static readonly GUIContent gizmoColorTooltip = new GUIContent("", "Customizes the IK Chain's Gizmo color");
             public static int showGizmoPropertyWidth = 20;
             public static int solverPropertyWidth = 100;
             public static int solverColorPropertyWidth = 40;
-            public static readonly GUIContent gizmoVisibilityToolTip  = new GUIContent("",L10n.Tr("Show/Hide Gizmo"));
+            public static readonly GUIContent gizmoVisibilityToolTip = new GUIContent("", L10n.Tr("Show/Hide Gizmo"));
             public readonly GUIStyle visibilityToggleStyle;
-            
+
             public Contents()
             {
                 visibilityToggleStyle = new GUIStyle();
@@ -66,71 +66,71 @@ namespace UnityEditor.U2D.IK
         {
             m_ReorderableList = new ReorderableList(serializedObject, m_SolversProperty, true, true, true, true);
             m_ReorderableList.drawHeaderCallback = (Rect rect) =>
-                {
-                    GUI.Label(rect, Contents.listHeaderLabel);
-                };
+            {
+                GUI.Label(rect, Contents.listHeaderLabel);
+            };
             m_ReorderableList.elementHeightCallback = (int index) =>
-                {
-                    return EditorGUIUtility.singleLineHeight + 6;
-                };
+            {
+                return EditorGUIUtility.singleLineHeight + 6;
+            };
             m_ReorderableList.drawElementCallback = (Rect rect, int index, bool isactive, bool isfocused) =>
-                {
-                    rect.y += 2f;
-                    rect.height = EditorGUIUtility.singleLineHeight;
-                    SerializedProperty element = m_SolversProperty.GetArrayElementAtIndex(index);
-                    SerializedProperty elementData = m_SolverEditorDataProperty.GetArrayElementAtIndex(index);
-                    var width = rect.width;
-                    rect.width = width > Contents.showGizmoPropertyWidth ? Contents.showGizmoPropertyWidth : width;
-                    var showGizmoProperty = elementData.FindPropertyRelative("showGizmo");
-                    showGizmoProperty.boolValue = GUI.Toggle(rect, showGizmoProperty.boolValue, Contents.gizmoVisibilityToolTip, s_Contents.visibilityToggleStyle);
-                    rect.x += rect.width;
-                    width -= rect.width;
-                    rect.width = width > Contents.solverPropertyWidth ? width - Contents.solverColorPropertyWidth  : Contents.solverPropertyWidth;
-                    EditorGUI.PropertyField(rect, element, GUIContent.none);
-                    rect.x += rect.width;
-                    width -= 100;
-                    rect.width = width > Contents.solverColorPropertyWidth ? Contents.solverColorPropertyWidth : width;
-                    EditorGUI.PropertyField(rect, elementData.FindPropertyRelative("color"), Contents.gizmoColorTooltip);
-                };
+            {
+                rect.y += 2f;
+                rect.height = EditorGUIUtility.singleLineHeight;
+                SerializedProperty element = m_SolversProperty.GetArrayElementAtIndex(index);
+                SerializedProperty elementData = m_SolverEditorDataProperty.GetArrayElementAtIndex(index);
+                var width = rect.width;
+                rect.width = width > Contents.showGizmoPropertyWidth ? Contents.showGizmoPropertyWidth : width;
+                var showGizmoProperty = elementData.FindPropertyRelative("showGizmo");
+                showGizmoProperty.boolValue = GUI.Toggle(rect, showGizmoProperty.boolValue, Contents.gizmoVisibilityToolTip, s_Contents.visibilityToggleStyle);
+                rect.x += rect.width;
+                width -= rect.width;
+                rect.width = width > Contents.solverPropertyWidth ? width - Contents.solverColorPropertyWidth : Contents.solverPropertyWidth;
+                EditorGUI.PropertyField(rect, element, GUIContent.none);
+                rect.x += rect.width;
+                width -= 100;
+                rect.width = width > Contents.solverColorPropertyWidth ? Contents.solverColorPropertyWidth : width;
+                EditorGUI.PropertyField(rect, elementData.FindPropertyRelative("color"), Contents.gizmoColorTooltip);
+            };
             m_ReorderableList.onAddCallback = (ReorderableList list) =>
+            {
+                var menu = new GenericMenu();
+
+                foreach (Type type in m_SolverTypes)
                 {
-                    var menu = new GenericMenu();
+                    Solver2DMenuAttribute attribute = Attribute.GetCustomAttribute(type, typeof(Solver2DMenuAttribute)) as Solver2DMenuAttribute;
 
-                    foreach (Type type in m_SolverTypes)
-                    {
-                        Solver2DMenuAttribute attribute = Attribute.GetCustomAttribute(type, typeof(Solver2DMenuAttribute)) as Solver2DMenuAttribute;
-
-                        if (attribute != null)
-                            menu.AddItem(new GUIContent(attribute.menuPath), false, OnSelectMenu, type);
-                        else
-                            menu.AddItem(new GUIContent(type.Name), false, OnSelectMenu, type);
-                    }
-
-                    menu.ShowAsContext();
-                };
-            m_ReorderableList.onRemoveCallback = (ReorderableList list) =>
-                {
-                    Solver2D solver = m_Manager.solvers[list.index];
-                    if (solver)
-                    {
-                        Undo.RegisterCompleteObjectUndo(m_Manager, Undo.GetCurrentGroupName());
-
-                        m_Manager.RemoveSolver(solver);
-
-                        GameObject solverGO = solver.gameObject;
-
-                        if (solverGO.transform.childCount == 0)
-                            Undo.DestroyObjectImmediate(solverGO);
-                        else
-                            Undo.DestroyObjectImmediate(solver);
-
-                        EditorUtility.SetDirty(m_Manager);
-                    }
+                    if (attribute != null)
+                        menu.AddItem(new GUIContent(attribute.menuPath), false, OnSelectMenu, type);
                     else
-                    {
-                        ReorderableList.defaultBehaviours.DoRemoveButton(list);
-                    }
-                };
+                        menu.AddItem(new GUIContent(type.Name), false, OnSelectMenu, type);
+                }
+
+                menu.ShowAsContext();
+            };
+            m_ReorderableList.onRemoveCallback = (ReorderableList list) =>
+            {
+                Solver2D solver = m_Manager.solvers[list.index];
+                if (solver)
+                {
+                    Undo.RegisterCompleteObjectUndo(m_Manager, Undo.GetCurrentGroupName());
+
+                    m_Manager.RemoveSolver(solver);
+
+                    GameObject solverGO = solver.gameObject;
+
+                    if (solverGO.transform.childCount == 0)
+                        Undo.DestroyObjectImmediate(solverGO);
+                    else
+                        Undo.DestroyObjectImmediate(solver);
+
+                    EditorUtility.SetDirty(m_Manager);
+                }
+                else
+                {
+                    ReorderableList.defaultBehaviours.DoRemoveButton(list);
+                }
+            };
         }
 
         void OnSelectMenu(object param)
@@ -170,7 +170,7 @@ namespace UnityEditor.U2D.IK
             EditorGUILayout.Space();
 
             EditorGUILayout.PropertyField(m_WeightProperty, Contents.weightLabel);
-            
+
             EditorGUILayout.PropertyField(m_AlwaysUpdate, Contents.alwaysUpdate);
 
             EditorGUILayout.BeginHorizontal();
@@ -194,14 +194,14 @@ namespace UnityEditor.U2D.IK
 
                     IKEditorManager.instance.Record(manager, Contents.restoreDefaultPoseString);
 
-                    foreach(var solver in manager.solvers)
+                    foreach (var solver in manager.solvers)
                     {
-                        for(int i = 0; i < solver.chainCount; ++i)
+                        for (int i = 0; i < solver.chainCount; ++i)
                         {
                             var chain = solver.GetChain(i);
                             chain.RestoreDefaultPose(solver.constrainRotation);
-                            
-                            if(chain.target)
+
+                            if (chain.target)
                             {
                                 chain.target.position = chain.effector.position;
                                 chain.target.rotation = chain.effector.rotation;
@@ -213,7 +213,7 @@ namespace UnityEditor.U2D.IK
                 }
             }
         }
-        
+
         static List<Type> GetDerivedTypes<T>() where T : class
         {
             var typeCollection = TypeCache.GetTypesDerivedFrom<T>();

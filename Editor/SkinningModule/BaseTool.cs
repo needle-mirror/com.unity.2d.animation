@@ -4,19 +4,16 @@ using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal interface ITool {}
+    internal interface ITool { }
 
     internal abstract class BaseTool : SkinningObject, ITool
     {
-        [SerializeField] 
+        [SerializeField]
         private LayoutOverlay m_LayoutOverlay;
 
         internal LayoutOverlay layoutOverlay
         {
-            get
-            {
-                return m_LayoutOverlay;                
-            }
+            get { return m_LayoutOverlay; }
         }
 
         [SerializeField]
@@ -61,8 +58,9 @@ namespace UnityEditor.U2D.Animation
         {
             m_LayoutOverlay = layout;
         }
-        protected virtual void OnActivate() {}
-        protected virtual void OnDeactivate() {}
-        protected virtual void OnGUI() {}
+
+        protected virtual void OnActivate() { }
+        protected virtual void OnDeactivate() { }
+        protected virtual void OnGUI() { }
     }
 }

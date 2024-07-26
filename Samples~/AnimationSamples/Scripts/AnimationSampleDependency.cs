@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Unity.U2D.Animation.Sample.Dependency
 {
@@ -11,14 +11,16 @@ namespace Unity.U2D.Animation.Sample.Dependency
             PsdImporter,
             AssetBundle
         }
-        
-        [SerializeField] GameObject errorUI = null;
-        [SerializeField] Dependency dependency = Dependency.None;
+
+        [SerializeField]
+        GameObject errorUI = null;
+        [SerializeField]
+        Dependency dependency = Dependency.None;
 
         void Update()
         {
             var hasDependencyInstalled = HasDependencyInstalled();
-            if(errorUI != null)
+            if (errorUI != null)
                 errorUI.SetActive(!hasDependencyInstalled);
         }
 
@@ -44,4 +46,3 @@ namespace Unity.U2D.Animation.Sample.Dependency
         }
     }
 }
-

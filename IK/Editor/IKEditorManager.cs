@@ -12,7 +12,7 @@ namespace UnityEditor.U2D.IK
     internal class IKEditorManager : ScriptableObject
     {
         static IKEditorManager s_Instance;
-        
+
         readonly HashSet<IKManager2D> m_DirtyManagers = new HashSet<IKManager2D>();
         readonly HashSet<IKManager2D> m_IKManagers = new HashSet<IKManager2D>();
         readonly Dictionary<IKChain2D, Vector3> m_ChainPositionOverrides = new Dictionary<IKChain2D, Vector3>();
@@ -20,7 +20,7 @@ namespace UnityEditor.U2D.IK
 
         GameObject m_Helper;
         GameObject[] m_SelectedGameobjects;
-        
+
         internal bool isDraggingATool { get; private set; }
 
         bool m_Initialized;
@@ -30,7 +30,7 @@ namespace UnityEditor.U2D.IK
         {
             if (s_Instance != null)
                 return;
-            
+
             var ikManagers = Resources.FindObjectsOfTypeAll<IKEditorManager>();
             if (ikManagers.Length > 0)
                 s_Instance = ikManagers[0];
@@ -38,7 +38,7 @@ namespace UnityEditor.U2D.IK
                 s_Instance = ScriptableObject.CreateInstance<IKEditorManager>();
             s_Instance.hideFlags = HideFlags.HideAndDontSave;
         }
-        
+
         public static IKEditorManager instance
         {
             get
@@ -93,7 +93,7 @@ namespace UnityEditor.U2D.IK
 
             if (!m_Initialized)
                 Initialize();
-            
+
             m_IKManagers.Add(manager);
         }
 
@@ -228,18 +228,18 @@ namespace UnityEditor.U2D.IK
 
                     if (record)
                     {
-                        foreach(var t in chain.transforms)
+                        foreach (var t in chain.transforms)
                             Undo.RecordObject(t, undoName);
 
-                        if(chain.target)
+                        if (chain.target)
                             Undo.RecordObject(chain.target, undoName);
                     }
                     else
                     {
-                        foreach(var t in chain.transforms)
+                        foreach (var t in chain.transforms)
                             Undo.RegisterCompleteObjectUndo(t, undoName);
 
-                        if(chain.target)
+                        if (chain.target)
                             Undo.RegisterCompleteObjectUndo(chain.target, undoName);
                     }
                 }
@@ -299,7 +299,7 @@ namespace UnityEditor.U2D.IK
                         SetDirtySolversAffectedByTransform(gameObject.transform);
                 }
 
-                if(m_DirtyManagers.Count > 0 && !isDraggingATool)
+                if (m_DirtyManagers.Count > 0 && !isDraggingATool)
                 {
                     isDraggingATool = true;
                     Undo.SetCurrentGroupName("IK Update");
@@ -308,7 +308,7 @@ namespace UnityEditor.U2D.IK
                 }
             }
 
-            if(GUIUtility.hotControl == 0)
+            if (GUIUtility.hotControl == 0)
                 isDraggingATool = false;
         }
 
@@ -334,7 +334,7 @@ namespace UnityEditor.U2D.IK
                     var solvers = manager.solvers;
                     for (var s = 0; s < solvers.Count; s++)
                     {
-                        if(dirty)
+                        if (dirty)
                             break;
 
                         var solver = solvers[s];
@@ -344,7 +344,7 @@ namespace UnityEditor.U2D.IK
                             {
                                 var chain = solver.GetChain(c);
 
-                                if(chain.target == null)
+                                if (chain.target == null)
                                     continue;
 
                                 if (!(IKUtility.IsDescendentOf(chain.target, transform) && IKUtility.IsDescendentOf(chain.rootTransform, transform)) &&
@@ -385,9 +385,9 @@ namespace UnityEditor.U2D.IK
                     if (!solver.isValid)
                         continue;
 
-                    if(solver.allChainsHaveTargets)
+                    if (solver.allChainsHaveTargets)
                         solver.UpdateIK(manager.weight);
-                    else if(PrepareTargetOverrides(solver))
+                    else if (PrepareTargetOverrides(solver))
                         solver.UpdateIK(m_TargetPositions, manager.weight);
 
                     for (int i = 0; i < solver.chainCount; ++i)
@@ -397,7 +397,7 @@ namespace UnityEditor.U2D.IK
                         if (recordRootLoops)
                             InternalEngineBridge.SetLocalEulerHint(chain.rootTransform);
 
-                        if(solver.constrainRotation && chain.target != null)
+                        if (solver.constrainRotation && chain.target != null)
                             InternalEngineBridge.SetLocalEulerHint(chain.effector);
                     }
                 }

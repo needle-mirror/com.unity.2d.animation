@@ -28,7 +28,7 @@ namespace UnityEditor.U2D.Animation
 
         WeightEditorMode currentMode { get; set; }
         bool useRelativeValues { get; set; }
-        
+
         SpriteMeshDataController m_SpriteMeshDataController = new SpriteMeshDataController();
         const int k_MaxSmoothIterations = 8;
         float[] m_SmoothValues;
@@ -44,7 +44,7 @@ namespace UnityEditor.U2D.Animation
         public void OnEditStart(bool relative)
         {
             Validate();
-            
+
             RegisterUndo();
             currentMode = mode;
             useRelativeValues = relative;

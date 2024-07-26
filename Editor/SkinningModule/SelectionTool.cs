@@ -15,6 +15,7 @@ namespace UnityEditor.U2D.Animation
         public event Func<bool> CanSelect = () => true;
         List<SpriteCache> m_Sprites;
         public ISpriteEditor spriteEditor { get; set; }
+
         SpriteCache selectedSprite
         {
             get => skinningCache.selectedSprite;
@@ -119,7 +120,7 @@ namespace UnityEditor.U2D.Animation
         {
             HandleSpriteSelection();
         }
-        
+
         void HandleSpriteSelection()
         {
             Debug.Assert(Event.current != null);
@@ -136,7 +137,7 @@ namespace UnityEditor.U2D.Animation
                         {
                             selectedSprite = newSelected;
                         }
-                        
+
                         Event.current.Use();
                     }
                 }
@@ -154,7 +155,8 @@ namespace UnityEditor.U2D.Animation
 
             var currentSelectedIndex = m_Sprites.FindIndex(x => x == selectedSprite) + 1;
             var notVisiblePart = skinningCache.hasCharacter && skinningCache.mode == SkinningMode.Character
-                ? skinningCache.character.parts.Where(x => !x.isVisible).Select(x => x.sprite) : new SpriteCache[0];
+                ? skinningCache.character.parts.Where(x => !x.isVisible).Select(x => x.sprite)
+                : new SpriteCache[0];
             for (int index = 0; index < m_Sprites.Count; ++index)
             {
                 var sprite = m_Sprites[(currentSelectedIndex + index) % m_Sprites.Count];
@@ -199,7 +201,7 @@ namespace UnityEditor.U2D.Animation
 
             return null;
         }
-        
+
         bool IsSelectionRequested()
         {
             return Event.current.button == 0 && m_LastMouseButtonDown == 0 && GUIUtility.hotControl == 0 &&

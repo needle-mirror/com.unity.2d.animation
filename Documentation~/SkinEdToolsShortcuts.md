@@ -42,7 +42,7 @@ The __Pivot Panel__ appears when you enable the __Set Pivot__ tool.
 
 ![](images/2D-animation-v8-pose-pivot-panel.png)
 
-Property  | Function  
+Property  | Function
 --|--
 **Pivot**  | Select the desired location of the Pivot from the dropdown menu.
 **Position**  |  Enter a value from 0 to 1 to adjust the X and Y position of the pivot. This is a normalized value from 0 to 1, where (0,0) is lower left of workspace and (1,1) is the upper right of the workspace.
@@ -188,13 +188,13 @@ The order of the bones in the Bone Influences panel determines the order of the 
 
 ### Sprite Influences panel
 
- The __Sprite Influences panel__ displays a list of Sprite meshes that are currently being influenced by the selected bone.
+The __Sprite Influences panel__ displays a list of Sprite meshes that are currently being influenced by the selected bone.
 
- ![](images/SpriteInfluencesExample.png)
+![](images/SpriteInfluencesExample.png)
 
- When the __Skinning Editor__ is set to [Character mode](#editor-toolbar), the Sprite Influences panel allows you to remove an unwanted Sprite mesh from the list so that it’s not influenced by the selected bone. It’s also possible to add a selected Sprite to the list which will include the selected bone’s influence in its deformation.
+When the __Skinning Editor__ is set to [Character mode](#editor-toolbar), the Sprite Influences panel allows you to remove an unwanted Sprite mesh from the list so that it’s not influenced by the selected bone. It’s also possible to add a selected Sprite to the list which will include the selected bone’s influence in its deformation.
 
- To add a Sprite mesh to the list, select the bone in the Skinning Editor window as well as the Sprite you want to add, and then select __Add (+)__ at the lower right of the panel. To remove a Sprite from the list, select it  in the list or in the editor window and then select __Remove (-)__.
+To add a Sprite mesh to the list, select the bone in the Skinning Editor window as well as the Sprite you want to add, and then select __Add (+)__ at the lower right of the panel. To remove a Sprite from the list, select it  in the list or in the editor window and then select __Remove (-)__.
 
 ## Rig tools
 

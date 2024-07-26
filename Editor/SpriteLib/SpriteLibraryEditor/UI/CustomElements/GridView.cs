@@ -37,7 +37,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             None = 0,
 
             /// <summary>
-            /// Select all items. 
+            /// Select all items.
             /// </summary>
             SelectAll = 1 << 0,
 
@@ -891,7 +891,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_SelectedItems.Clear();
             m_SoftSelectIndex = -1;
             m_SoftSelectIndexWasPreviouslySelected = false;
-            m_PreviouslySelectedIndices.Clear();
             m_OriginalSelection.Clear();
 
             var newSelectedIds = new List<int>();
@@ -1069,6 +1068,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                         lastIndex = index;
                         count++;
                     }
+
                     if (count > 1)
                         indices = new[] { lastIndex };
                     break;

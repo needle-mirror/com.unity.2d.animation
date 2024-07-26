@@ -49,7 +49,7 @@ namespace UnityEditor.U2D.Animation
             get => m_Order;
             set => m_Order = value;
         }
-        
+
         public int parentGroup
         {
             get => m_ParentGroup;

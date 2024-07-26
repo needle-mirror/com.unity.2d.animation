@@ -93,9 +93,9 @@ namespace UnityEditor.U2D.Animation
             m_Brush.size = skinningCache.brushSize;
             m_Brush.hardness = skinningCache.brushHardness;
             m_Brush.step = skinningCache.brushStep;
-            m_WeightPainterPanel.size = (int) m_Brush.size;
-            m_WeightPainterPanel.hardness = (int) m_Brush.hardness;
-            m_WeightPainterPanel.step = (int) m_Brush.step;
+            m_WeightPainterPanel.size = (int)m_Brush.size;
+            m_WeightPainterPanel.hardness = (int)m_Brush.hardness;
+            m_WeightPainterPanel.step = (int)m_Brush.step;
 
             UpdatePanel();
         }
@@ -185,39 +185,39 @@ namespace UnityEditor.U2D.Animation
             layout.rightOverlay.Add(m_WeightPainterPanel);
 
             m_WeightPainterPanel.sliderStarted += () =>
-                {
-                    EditStart(skinningCache.vertexSelection, false);
-                };
+            {
+                EditStart(skinningCache.vertexSelection, false);
+            };
             m_WeightPainterPanel.sliderChanged += (value) =>
-                {
-                    EditWeights(value, true);
-                    meshTool.UpdateWeights();
-                };
+            {
+                EditWeights(value, true);
+                meshTool.UpdateWeights();
+            };
             m_WeightPainterPanel.sliderEnded += () =>
-                {
-                    EditEnd();
-                };
+            {
+                EditEnd();
+            };
             m_WeightPainterPanel.bonePopupChanged += (i) =>
+            {
+                var skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
+
+                if (skeleton != null)
                 {
-                    var skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
+                    BoneCache bone = null;
 
-                    if (skeleton != null)
+                    if (i != -1)
+                        bone = skeleton.GetBone(i).ToCharacterIfNeeded();
+
+                    if (bone != skinningCache.skeletonSelection.activeElement)
                     {
-                        BoneCache bone = null;
-
-                        if (i != -1)
-                            bone = skeleton.GetBone(i).ToCharacterIfNeeded();
-
-                        if(bone != skinningCache.skeletonSelection.activeElement)
+                        using (skinningCache.UndoScope(TextContent.boneSelection))
                         {
-                            using (skinningCache.UndoScope(TextContent.boneSelection))
-                            {
-                                skinningCache.skeletonSelection.activeElement = bone;
-                                InvokeBoneSelectionChanged();
-                            }
+                            skinningCache.skeletonSelection.activeElement = bone;
+                            InvokeBoneSelectionChanged();
                         }
                     }
-                };
+                }
+            };
             m_WeightPainterPanel.weightsChanged += () => meshTool.UpdateWeights();
         }
 
@@ -230,9 +230,9 @@ namespace UnityEditor.U2D.Animation
         {
             var mesh = meshTool.mesh;
 
-            if (skinningCache.hasCharacter 
+            if (skinningCache.hasCharacter
                 && skinningCache.mode == SkinningMode.Character
-                && m_WeightPainterPanel.boneIndex != -1 
+                && m_WeightPainterPanel.boneIndex != -1
                 && mesh != null)
             {
                 var skeleton = skinningCache.character.skeleton;
@@ -255,7 +255,7 @@ namespace UnityEditor.U2D.Animation
                 }
             }
         }
-        
+
         private void EditStart(ISelection<int> selection, bool relative)
         {
             AssociateSelectedBoneToCharacterPart();
@@ -328,7 +328,7 @@ namespace UnityEditor.U2D.Animation
 
         private void DrawBrush(Brush brush)
         {
-            var oldColor =  Handles.color;
+            var oldColor = Handles.color;
             Handles.color = Color.white;
 
             if (EditorGUI.actionKey)

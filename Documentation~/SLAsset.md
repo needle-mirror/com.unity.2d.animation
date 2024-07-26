@@ -14,7 +14,7 @@ Once the Sprite Library Asset is created, select the Asset and go to its Inspect
 
 ![](images/2D-animation-SLAsset-properties.png)<br/>Sprite Library Asset Inspector properties
 
-Property  |Function  
+Property  |Function
 --|--
 **Open in Sprite Library Editor**  |   Select this button to open a [Sprite Library Editor window](#Sprite-Library-Editor-window) where the content of the Asset can be edited.
 **Main Library**  |  Assign another Sprite Library Asset here to make it the main reference for the current Sprite Library Asset. The current Sprite Library Asset becomes a variant of the [Main Library](#main-library), which allows it to access the **Main Library**'s Categories and Entries.
@@ -41,7 +41,7 @@ Each Category can contain many Labels and each Label can reference a single Spri
 
 ![](images/2D-animation-SLAsset-add-label.png)Labels tab with the '__+__' button
 
-If the Label exist in the Inherited Category, it cannot be renamed to ensure that the Main Library and Assets that reference that Sprite Library contain the same Categories and Labels. To revert changes in the inherited Category, select the Labels you wish to revert and right-click to open the context menu and select __Revert Selected Overrides__ or __Revert All Overrides__ if you want to make the entire Category the same as it is in the Main Library.  
+If the Label exist in the Inherited Category, it cannot be renamed to ensure that the Main Library and Assets that reference that Sprite Library contain the same Categories and Labels. To revert changes in the inherited Category, select the Labels you wish to revert and right-click to open the context menu and select __Revert Selected Overrides__ or __Revert All Overrides__ if you want to make the entire Category the same as it is in the Main Library.
 
 ![](images/2D-animation-SLAsset-labels-revert-overrides.png)<br/>Changes to Labels in inherited Categories can be reverted in the Labels tab.
 
@@ -112,7 +112,7 @@ Drag and drop a Sprite to an existing Label.
 ## Main Library
 Assigning another existing Sprite Library Asset to the **Main Library** property of the current Sprite Library Asset allows the current Asset to access all Categories and Labels contained in the assigned Sprite Library Asset. Categories retrieved from the Main Library Asset are grouped under the **Inherited** foldout group, and all new Categories that exist only in the current Asset are grouped under the **Local** foldout group.
 
-The Labels of the Categories retrieved from the Main Library property can't be renamed or removed. However, you can add new Labels to a Category which was retrieved from the Sprite Library Asset assigned to the **Main Library** property.  
+The Labels of the Categories retrieved from the Main Library property can't be renamed or removed. However, you can add new Labels to a Category which was retrieved from the Sprite Library Asset assigned to the **Main Library** property.
 
 You can also edit a Label to change the Sprite that it refers to by selecting the object picker and choosing a different Sprite. It's also possible to [drag and drop](#Drag-and-drop) a Sprite to a Label to change its Sprite. To revert changes to a Sprite, select the Label, right-click and select **Revert Selected Overrides** to restore it to the original Sprite that was retrieved from the Main Library.
 

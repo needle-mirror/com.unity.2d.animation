@@ -26,14 +26,15 @@ namespace UnityEditor.U2D.Animation
 
         public ICacheUndo cacheUndo { get; set; }
         public ISelection<int> selection { get; set; }
-        public int controlID { get { return 0; } }
+
+        public int controlID
+        {
+            get { return 0; }
+        }
 
         private bool m_UndoRegistered = false;
 
-        protected ISpriteEditor spriteEditor
-        {
-            get; private set;
-        }
+        protected ISpriteEditor spriteEditor { get; private set; }
 
         public void OnInspectorGUI()
         {
@@ -50,10 +51,10 @@ namespace UnityEditor.U2D.Animation
                 var enabled = false;
                 var boneIndex = -1;
                 var weight = 0f;
-                var isChannelEnabledMixed  = false;
-                var isBoneIndexMixed  = false;
-                var isWeightMixed  = false;
-                
+                var isChannelEnabledMixed = false;
+                var isBoneIndexMixed = false;
+                var isWeightMixed = false;
+
                 if (spriteMeshData != null)
                     m_SpriteMeshDataController.GetMultiEditChannelData(selection, channel, out enabled, out boneIndex, out weight, out isChannelEnabledMixed, out isBoneIndexMixed, out isWeightMixed);
 

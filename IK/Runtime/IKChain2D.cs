@@ -32,9 +32,8 @@ namespace UnityEngine.U2D.IK
         Quaternion[] m_StoredLocalRotations;
 
         /// <summary>
-        /// Lengths of IK Chain.
+        /// Array of lengths in the IK Chain.
         /// </summary>
-        /// <returns>Array of lengths in the IK Chain.</returns>
         protected float[] m_Lengths;
 
         /// <summary>

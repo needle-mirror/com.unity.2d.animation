@@ -110,7 +110,7 @@ namespace UnityEditor.U2D.Animation
 
         void BoneDataChanged(BoneCache bone)
         {
-            if(m_SkeletonToolView.target == bone)
+            if (m_SkeletonToolView.target == bone)
                 m_SkeletonToolView.Update(bone.name, Mathf.RoundToInt(bone.depth), bone.position, bone.rotation.eulerAngles.z, bone.bindPoseColor);
         }
 
@@ -133,7 +133,7 @@ namespace UnityEditor.U2D.Animation
 
             if (enableBoneInspector && selectedBone != null && selectionCount == 1)
             {
-                m_SkeletonToolView.Update(selectedBone.name, Mathf.RoundToInt(selectedBone.depth),  selectedBone.position, selectedBone.rotation.eulerAngles.z, selectedBone.bindPoseColor);
+                m_SkeletonToolView.Update(selectedBone.name, Mathf.RoundToInt(selectedBone.depth), selectedBone.position, selectedBone.rotation.eulerAngles.z, selectedBone.bindPoseColor);
                 bool isReadOnly = skinningCache.bonesReadOnly;
                 m_SkeletonToolView.Show(selectedBone, isReadOnly);
             }
@@ -176,7 +176,7 @@ namespace UnityEditor.U2D.Animation
                 skinningCache.events.boneColorChanged.Invoke(selectedBone);
             }
         }
-        
+
         void BonePositionChanged(BoneCache selectedBone, Vector2 position)
         {
             if (selectedBone != null)
@@ -187,7 +187,7 @@ namespace UnityEditor.U2D.Animation
                 m_SkeletonController.InvokePoseChanged();
             }
         }
-        
+
         void BoneRotationChanged(BoneCache selectedBone, float rotation)
         {
             if (selectedBone != null)
@@ -208,7 +208,7 @@ namespace UnityEditor.U2D.Animation
                 if (string.Compare(selectedBone.name, name) == 0)
                     return;
 
-                if(string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
+                if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                     m_SkeletonToolView.Update(selectedBone.name, Mathf.RoundToInt(selectedBone.depth), selectedBone.position, selectedBone.rotation.eulerAngles.z, selectedBone.bindPoseColor);
                 else
                 {
@@ -232,7 +232,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     selectedBone.depth = depth;
                     skinningCache.events.boneDepthChanged.Invoke(selectedBone);
-                }   
+                }
             }
         }
     }

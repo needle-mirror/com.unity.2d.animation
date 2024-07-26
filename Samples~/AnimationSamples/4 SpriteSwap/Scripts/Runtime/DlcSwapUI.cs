@@ -68,7 +68,7 @@ namespace Unity.U2D.Animation.Sample
 
             library.spriteLibraryAsset = newAsset;
         }
-        
+
         void LoadAssetBundle()
         {
 #if ASSETBUNDLE_ENABLED

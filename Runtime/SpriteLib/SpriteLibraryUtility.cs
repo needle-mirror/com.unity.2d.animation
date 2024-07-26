@@ -6,12 +6,12 @@ namespace UnityEngine.U2D.Animation
     {
         // Allow delegate override for test
         internal static Func<string, int> GetStringHash = Bit30Hash_GetStringHash;
-        
+
         /// <summary>
         /// Used to convert Sprite Key to the new Sprite Hash.
         /// </summary>
         /// <param name="input">Sprite Key to convert</param>
-        /// <returns></returns>
+        /// <returns>A 30-bit long hash.</returns>
         internal static int Convert32BitTo30BitHash(int input)
         {
             var output = PreserveFirst30Bits(input);

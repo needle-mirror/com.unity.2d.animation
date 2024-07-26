@@ -50,7 +50,7 @@ namespace UnityEditor.U2D.Animation
                     {
                         sm.skinningCache.RestoreBindPose();
                         sm.skinningCache.events.shortcut.Invoke("#1");
-                    }   
+                    }
                 }
             }
         }
@@ -85,7 +85,7 @@ namespace UnityEditor.U2D.Animation
                 sm.skinningCache.events.shortcut.Invoke("#q");
             }
         }
-        
+
         [Shortcut(ShortcutIds.characterPivot, typeof(InternalEditorBridge.ShortcutContext), KeyCode.T, ShortcutModifiers.Shift)]
         private static void EditCharacterPivotKey(ShortcutArguments args)
         {
@@ -228,7 +228,7 @@ namespace UnityEditor.U2D.Animation
                 sm.skinningCache.events.shortcut.Invoke("#v");
             }
         }
-        
+
         [Shortcut(ShortcutIds.spriteInfluence, typeof(InternalEditorBridge.ShortcutContext), KeyCode.M, ShortcutModifiers.Shift)]
         private static void SpriteInfluenceKey(ShortcutArguments args)
         {
@@ -293,7 +293,7 @@ namespace UnityEditor.U2D.Animation
             if (m_ShortcutContext != null)
                 InternalEditorBridge.RegisterShortcutContext(m_ShortcutContext);
         }
-        
+
         private void DoViewGUI()
         {
             if (spriteEditor.editingDisabled == m_BoneToolbar.enabledSelf)
@@ -308,7 +308,7 @@ namespace UnityEditor.U2D.Animation
                 m_LayoutOverlay.rightOverlay.SetEnabled(!spriteEditor.editingDisabled);
                 m_LayoutOverlay.rightOverlay.visible = !spriteEditor.editingDisabled;
             }
-            
+
             m_PoseToolbar.UpdateResetButtonState();
             m_RigToolbar.UpdatePasteButtonEnabledState();
         }
@@ -323,13 +323,13 @@ namespace UnityEditor.U2D.Animation
             m_PoseToolbar = PoseToolbar.GenerateFromUXML();
             m_PoseToolbar.Setup(skinningCache);
             m_LayoutOverlay.verticalToolbar.AddToContainer(m_PoseToolbar);
-            
+
             m_PoseToolbar.SetMeshTool += SetMeshTool;
             m_PoseToolbar.SetSkeletonTool += SetSkeletonTool;
             m_PoseToolbar.ActivateEditPoseTool += ActivateEditPoseTool;
-            m_PoseToolbar.SetEnabled(!spriteEditor.editingDisabled);            
+            m_PoseToolbar.SetEnabled(!spriteEditor.editingDisabled);
         }
-        
+
         private void CreateBoneToolbar()
         {
             m_BoneToolbar = BoneToolbar.GenerateFromUXML();
@@ -363,11 +363,11 @@ namespace UnityEditor.U2D.Animation
         {
             m_RigToolbar = RigToolbar.GenerateFromUXML();
             m_RigToolbar.skinningCache = skinningCache;
-            m_LayoutOverlay.verticalToolbar.AddToContainer(m_RigToolbar);  
-            
+            m_LayoutOverlay.verticalToolbar.AddToContainer(m_RigToolbar);
+
             m_RigToolbar.ActivateCopyTool += ActivateCopyTool;
             m_RigToolbar.TogglePasteTool += TogglePasteTool;
-            m_RigToolbar.SetEnabled(!spriteEditor.editingDisabled);            
+            m_RigToolbar.SetEnabled(!spriteEditor.editingDisabled);
         }
 
         private void ActivateEditPoseTool()
@@ -400,7 +400,7 @@ namespace UnityEditor.U2D.Animation
 
         private void SetMeshTool(Tools toolType)
         {
-            var tool  = skinningCache.GetTool(toolType);
+            var tool = skinningCache.GetTool(toolType);
 
             if (currentTool == tool)
                 return;
@@ -440,19 +440,19 @@ namespace UnityEditor.U2D.Animation
             else if (previousTool != null)
                 ActivateTool(previousTool);
         }
-        
+
         private void StorePreviousTool()
         {
             if (currentTool is CopyTool || currentTool is VisibilityTool)
                 return;
-            
+
             previousTool = currentTool;
         }
 
         private void ActivateTool(BaseTool tool)
         {
             StorePreviousTool();
-            
+
             m_ModuleToolGroup.ActivateTool(tool);
             UpdateToggleState();
             skinningCache.events.toolChanged.Invoke(tool);

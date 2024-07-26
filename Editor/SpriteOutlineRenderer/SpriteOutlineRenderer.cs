@@ -17,7 +17,7 @@ namespace UnityEditor.U2D.Animation
         Material m_BitMaskMaterial;
         Material m_EdgeOutlineMaterial;
         Mesh m_CircleMesh;
-        Dictionary<string, OutlineRenderTexture> m_OutlineTextureCache = new ();
+        Dictionary<string, OutlineRenderTexture> m_OutlineTextureCache = new();
         SkinningEvents m_EventSystem;
 
         static readonly int k_OutlineColorProperty = Shader.PropertyToID("_OutlineColor");
@@ -31,7 +31,7 @@ namespace UnityEditor.U2D.Animation
             m_EdgeOutlineMaterial = new Material(Shader.Find("Hidden/2D-Animation-SpriteEdgeOutline")) { hideFlags = HideFlags.HideAndDontSave };
             m_BitMaskMaterial = new Material(Shader.Find("Hidden/2D-Animation-SpriteBitmask")) { hideFlags = HideFlags.HideAndDontSave };
             m_OutlineMaterial = new Material(Shader.Find("Hidden/2D-Animation-SpriteOutline")) { hideFlags = HideFlags.HideAndDontSave };
-            
+
             m_EventSystem = eventSystem;
             m_EventSystem.meshPreviewChanged.AddListener(OnMeshPreviewChanged);
             m_EventSystem.selectedSpriteChanged.AddListener(OnSelectionChanged);
@@ -42,7 +42,7 @@ namespace UnityEditor.U2D.Animation
         {
             DestroyMaterialsAndMeshes();
             DestroyTextures();
-            
+
             m_EventSystem.meshPreviewChanged.RemoveListener(OnMeshPreviewChanged);
             m_EventSystem.selectedSpriteChanged.RemoveListener(OnSelectionChanged);
         }
@@ -58,13 +58,13 @@ namespace UnityEditor.U2D.Animation
             var mesh = GetMesh(sprite);
             if (mesh == null)
                 return;
-                
+
             UnityEngine.Profiling.Profiler.BeginSample("SpriteOutlineRenderer::RenderSpriteOutline");
 
             var vertices = mesh.vertices;
             var edges = sprite.GetMesh().edges;
             var multMatrix = Handles.matrix * sprite.GetLocalToWorldMatrixFromMode();
-                
+
             var texture = spriteEditor.GetDataProvider<ITextureDataProvider>().texture;
             var outlineSize = SelectionOutlineSettings.selectedSpriteOutlineSize;
             var outlineColor = SelectionOutlineSettings.outlineColor;
@@ -89,7 +89,7 @@ namespace UnityEditor.U2D.Animation
             m_EdgeOutlineMaterial.SetColor(k_OutlineColorProperty, outlineColor);
             m_EdgeOutlineMaterial.SetFloat(k_AdjustLinearForGammaProperty, adjustForGamma);
             m_EdgeOutlineMaterial.SetPass(0);
-            
+
             var edgeCount = edges.Length;
             var vertexCount = vertices.Length;
 
@@ -101,7 +101,7 @@ namespace UnityEditor.U2D.Animation
                 var currentEdge = edges[i];
                 if (currentEdge.x < 0 || currentEdge.y < 0 || currentEdge.x >= vertexCount || currentEdge.y >= vertexCount)
                     continue;
-                
+
                 var start = vertices[edges[i].x];
                 var end = vertices[edges[i].y];
                 var direction = (end - start).normalized;
@@ -112,15 +112,16 @@ namespace UnityEditor.U2D.Animation
                 GL.Vertex(end + right);
                 GL.Vertex(end - right);
             }
+
             GL.End();
             GL.PopMatrix();
-            
+
             for (var i = 0; i < edgeCount; i++)
             {
                 var currentEdge = edges[i];
                 if (currentEdge.x < 0 || currentEdge.y < 0 || currentEdge.x >= vertexCount || currentEdge.y >= vertexCount)
                     continue;
-                
+
                 var start = vertices[edges[i].x];
                 var end = vertices[edges[i].y];
 
@@ -128,16 +129,16 @@ namespace UnityEditor.U2D.Animation
                 Graphics.DrawMeshNow(m_CircleMesh, multMatrix * Matrix4x4.TRS(end, Quaternion.identity, Vector3.one * outlineSize));
             }
         }
-        
+
         void DrawMeshOutline(Mesh mesh, SpriteCache spriteCache, Matrix4x4 multMatrix, float outlineSize, Color outlineColor, float adjustForGamma)
         {
             TryRegenerateMaskTexture(spriteCache);
-            
+
             m_OutlineMaterial.SetColor(k_OutlineColorProperty, outlineColor);
             m_OutlineMaterial.SetFloat(k_AdjustLinearForGammaProperty, adjustForGamma);
             m_OutlineMaterial.SetFloat(k_OutlineSizeProperty, outlineSize);
             m_OutlineMaterial.SetPass(0);
-            
+
             GL.PushMatrix();
             GL.MultMatrix(multMatrix);
 
@@ -174,7 +175,7 @@ namespace UnityEditor.U2D.Animation
             if (reuseRT == null || reuseRT.width != (int)bounds.size.x || reuseRT.height != (int)bounds.size.y)
             {
                 UnityEngine.Profiling.Profiler.BeginSample("SpriteOutlineRenderer::CreateRT");
-                if(reuseRT != null)
+                if (reuseRT != null)
                     Object.DestroyImmediate(reuseRT);
                 reuseRT = new RenderTexture((int)bounds.size.x, (int)bounds.size.y, 24, RenderTextureFormat.ARGBHalf) { filterMode = FilterMode.Bilinear };
                 UnityEngine.Profiling.Profiler.EndSample();
@@ -221,6 +222,7 @@ namespace UnityEditor.U2D.Animation
             {
                 verts[i] = Quaternion.Euler(0, 0, i * 360f / (verts.Length - 1)) * Vector3.up;
             }
+
             var indices = new int[(verts.Length - 1) * 3];
             var index = 0;
             for (var i = 1; i < triangleVerts; i++)
@@ -230,9 +232,9 @@ namespace UnityEditor.U2D.Animation
                 indices[index++] = i + 1 < triangleVerts ? i + 1 : 1;
             }
 
-            return new Mesh { vertices = verts, triangles = indices, hideFlags = HideFlags.HideAndDontSave};
+            return new Mesh { vertices = verts, triangles = indices, hideFlags = HideFlags.HideAndDontSave };
         }
-        
+
         void OnMeshPreviewChanged(MeshPreviewCache mesh)
         {
             AddOrUpdateMaskTexture(mesh.sprite, true);
@@ -245,17 +247,17 @@ namespace UnityEditor.U2D.Animation
 
         void DestroyMaterialsAndMeshes()
         {
-            if(m_EdgeOutlineMaterial != null)
+            if (m_EdgeOutlineMaterial != null)
                 Object.DestroyImmediate(m_EdgeOutlineMaterial);
             if (m_BitMaskMaterial != null)
                 Object.DestroyImmediate(m_BitMaskMaterial);
             if (m_OutlineMaterial != null)
                 Object.DestroyImmediate(m_OutlineMaterial);
-            
-            if(m_CircleMesh != null)
+
+            if (m_CircleMesh != null)
                 Object.DestroyImmediate(m_CircleMesh);
         }
-        
+
         void DestroyTextures()
         {
             if (m_OutlineTextureCache != null)
@@ -265,6 +267,7 @@ namespace UnityEditor.U2D.Animation
                     if (value != null && value.outlineTexture != null)
                         Object.DestroyImmediate(value.outlineTexture);
                 }
+
                 m_OutlineTextureCache.Clear();
             }
         }
@@ -274,7 +277,7 @@ namespace UnityEditor.U2D.Animation
             if (m_OutlineTextureCache != null && sprite != null)
             {
                 if (!m_OutlineTextureCache.ContainsKey(sprite.id))
-                    m_OutlineTextureCache.Add(sprite.id, new OutlineRenderTexture() {dirty = true});
+                    m_OutlineTextureCache.Add(sprite.id, new OutlineRenderTexture() { dirty = true });
 
                 var outlineTextureCache = m_OutlineTextureCache[sprite.id];
                 outlineTextureCache.dirty |= regenerate;
@@ -297,6 +300,7 @@ namespace UnityEditor.U2D.Animation
                         outlineTextureCache.dirty = false;
                     }
                 }
+
                 m_OutlineMaterial.mainTexture = outlineTextureCache.outlineTexture;
             }
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEditor.U2D.Common;
 using UnityEngine.UIElements;
 
@@ -10,11 +10,12 @@ namespace UnityEditor.U2D.Animation
     internal partial class PastePanel : VisualElement
     {
 #if ENABLE_UXML_TRAITS
-        public class PastePanelFactory : UxmlFactory<PastePanel, PastePanelUxmlTraits> {}
-        public class PastePanelUxmlTraits : UxmlTraits {}
+        public class PastePanelFactory : UxmlFactory<PastePanel, PastePanelUxmlTraits> { }
+
+        public class PastePanelUxmlTraits : UxmlTraits { }
 #endif
 
-        public event Action<bool, bool, bool, bool> onPasteActivated = (bones, mesh, flipX, flipY) => {};
+        public event Action<bool, bool, bool, bool> onPasteActivated = (bones, mesh, flipX, flipY) => { };
 
         private Toggle m_BonesToggle;
         private Toggle m_MeshToggle;
@@ -75,7 +76,7 @@ namespace UnityEditor.U2D.Animation
         {
             m_BonesToggle.SetEnabled(value);
         }
-        
+
         public static PastePanel GenerateFromUXML()
         {
             var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/PastePanel.uxml");

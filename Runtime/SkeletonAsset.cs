@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace UnityEngine.U2D.Animation
@@ -9,7 +7,8 @@ namespace UnityEngine.U2D.Animation
     /// </summary>
     public class SkeletonAsset : ScriptableObject
     {
-        [SerializeField] private SpriteBone[] m_SpriteBones;
+        [SerializeField]
+        private SpriteBone[] m_SpriteBones;
 
         /// <summary>
         /// Allows to get Skeleton bones.
@@ -28,6 +27,6 @@ namespace UnityEngine.U2D.Animation
         {
             m_SpriteBones = spriteBones;
         }
-    }    
+    }
 }
 

@@ -26,8 +26,8 @@
             </VisualElement>
         </VisualElement>
         <VisualElement name="InfoContainer">
-            <HelpBox name="InfoBox" />            
-        </VisualElement>        
+            <HelpBox name="InfoBox" />
+        </VisualElement>
         <VisualElement name="BottomContainer">
             <Button name="OpenLog" text="Open upgrade log" />
             <Button name="UpgradeSelected" text="Upgrade selected" />

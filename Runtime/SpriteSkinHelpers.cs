@@ -70,7 +70,7 @@ namespace UnityEngine.U2D.Animation
                 }
             }
 
-            var hierarchyCache = spriteSkin.m_HierarchyCache;
+            var hierarchyCache = spriteSkin.hierarchyCache;
             if (hierarchyCache.Count == 0)
                 spriteSkin.CacheHierarchy();
 

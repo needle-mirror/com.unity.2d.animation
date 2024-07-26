@@ -56,8 +56,6 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
                 nextButtonIcon = (Texture2D)EditorGUIUtility.IconContent(k_ScrollRightIcon).image;
             }
 
-            focusable = true;
-
             m_LabelImagesContainer = new ScrollView
             {
                 horizontalScrollerVisibility = ScrollerVisibility.Hidden,
@@ -137,10 +135,9 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             m_LabelImagesContainer.Clear();
         }
 
-        void OnItemSelected(PointerDownEvent evt)
+        void OnLabelPointerDown(PointerDownEvent evt)
         {
-            var image = (VisualElement)evt.currentTarget;
-            if (image != null)
+            if (evt.currentTarget is Image image)
                 Select(m_LabelImagesContainer.IndexOf(image));
         }
 
@@ -164,7 +161,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void UpdateNavigationButtons()
         {
-            var enableNavigationButtons = m_LabelImagesContainer.contentContainer.contentRect.width > m_LabelImagesContainer.contentRect.width; 
+            var enableNavigationButtons = m_LabelImagesContainer.contentContainer.contentRect.width > m_LabelImagesContainer.contentRect.width;
             m_PreviousButton.SetEnabled(enableNavigationButtons);
             m_NextButton.SetEnabled(enableNavigationButtons);
         }
@@ -174,7 +171,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             var image = new Image { name = labelName, tooltip = labelName, sprite = labelSprite };
             image.style.height = image.style.width = SpriteSwapOverlay.Settings.thumbnailSize;
             image.AddToClassList(Styles.labelVisual);
-            image.RegisterCallback<PointerDownEvent>(OnItemSelected);
+            image.RegisterCallback<PointerDownEvent>(OnLabelPointerDown);
             return image;
         }
 

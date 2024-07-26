@@ -7,7 +7,7 @@ namespace UnityEngine.U2D.Animation
         [SerializeField]
         [HideInInspector]
         string m_Guid;
-        
+
         public string guid
         {
             get => m_Guid;

@@ -3,7 +3,7 @@ If [swapping each Sprite of an actor individually](CharacterParts.md) takes too 
 
 The following example shows how to switch from a Sprite Library Asset of color Sprites to another one containing identical Sprites but in grayscale:
 
-![](images/bothsprites.PNG)<br/>__Left:__ An actor with the color Sprite Library Asset. __Right:__ The same actor with the grayscale Sprite Library Asset.
+![](images/bothsprites.png)<br/>__Left:__ An actor with the color Sprite Library Asset. __Right:__ The same actor with the grayscale Sprite Library Asset.
 
 1. Create visual variants of your actor's artwork. In this example, the original artwork is in color and a grayscale variant of it is created as an alternate Sprite set. Both should be saved to separate .psb files.
 

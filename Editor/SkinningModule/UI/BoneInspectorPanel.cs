@@ -18,13 +18,13 @@ namespace UnityEditor.U2D.Animation
             Name = 1,
             Depth = 1 << 2,
             Position = 1 << 3,
-            Rotation  = 1 << 4,
+            Rotation = 1 << 4,
             Color = 1 << 5
         }
 
 #if ENABLE_UXML_TRAITS
-        public class BoneInspectorPanelFactory : UxmlFactory<BoneInspectorPanel, BoneInspectorPanelUxmlTraits> {}
-        public class BoneInspectorPanelUxmlTraits : UxmlTraits {}
+        public class BoneInspectorPanelFactory : UxmlFactory<BoneInspectorPanel, BoneInspectorPanelUxmlTraits> { }
+        public class BoneInspectorPanelUxmlTraits : UxmlTraits { }
 #endif
 
         public event Action<BoneCache, int> onBoneDepthChanged = (bone, depth) => { };
@@ -38,7 +38,7 @@ namespace UnityEditor.U2D.Animation
         private FloatField m_BoneRotationField;
         private Vector2Field m_BonePositionField;
         private ColorField m_BoneColorField;
-        
+
         public string boneName
         {
             get { return m_BoneNameField.value; }
@@ -46,7 +46,7 @@ namespace UnityEditor.U2D.Animation
         }
 
         public BoneCache target { get; set; }
-        
+
         public int boneDepth
         {
             get { return m_BoneDepthField.value; }
@@ -56,19 +56,19 @@ namespace UnityEditor.U2D.Animation
         public Vector2 bonePosition
         {
             get { return m_BonePositionField.value; }
-            set { m_BonePositionField.SetValueWithoutNotify(value);}
+            set { m_BonePositionField.SetValueWithoutNotify(value); }
         }
-        
+
         public float boneRotation
         {
             get { return m_BoneRotationField.value; }
-            set { m_BoneRotationField.SetValueWithoutNotify(value);}
+            set { m_BoneRotationField.SetValueWithoutNotify(value); }
         }
 
         public Color32 boneColor
         {
             get => m_BoneColorField.value;
-            set { m_BoneColorField.SetValueWithoutNotify(value);}
+            set { m_BoneColorField.SetValueWithoutNotify(value); }
         }
 
         public BoneInspectorPanel()
@@ -126,6 +126,6 @@ namespace UnityEditor.U2D.Animation
             m_BoneRotationField.SetEnabled(!property.HasFlag(PropertyReadOnly.Rotation));
             m_BoneColorField.SetEnabled(!property.HasFlag(PropertyReadOnly.Color));
         }
-        
+
     }
 }

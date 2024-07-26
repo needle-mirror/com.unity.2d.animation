@@ -13,15 +13,15 @@ namespace UnityEditor.U2D.Animation
     {
         EnumField m_PivotAlignment;
         Vector2Field m_PivotPosition;
-        
+
 #if ENABLE_UXML_TRAITS
         public class CustomUxmlFactory : UxmlFactory<PivotInspectorPanel, UxmlTraits> { }
 #endif
-        
+
         internal static PivotInspectorPanel CreateFromUxml()
         {
             var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/PivotInspectorPanel.uxml");
-            var ve = (PivotInspectorPanel)visualTree.CloneTree().Q("PivotInspectorPanel"); 
+            var ve = (PivotInspectorPanel)visualTree.CloneTree().Q("PivotInspectorPanel");
             ve.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/PivotInspectorPanelStyle.uss"));
             if (EditorGUIUtility.isProSkin)
                 ve.AddToClassList("Dark");
@@ -70,7 +70,7 @@ namespace UnityEditor.U2D.Animation
         Rect m_PivotRect = Rect.zero;
 
         static bool CanSelectWhileInPivotTool() => false;
-        
+
         public override void Initialize(LayoutOverlay layout)
         {
             base.Initialize(layout);
@@ -116,7 +116,7 @@ namespace UnityEditor.U2D.Animation
                 skinningCache.events.pivotChange.Invoke();
             }
         }
-        
+
         protected override void OnActivate()
         {
             if (skinningCache.hasCharacter)
@@ -127,7 +127,7 @@ namespace UnityEditor.U2D.Animation
                 m_InspectorPanel.SetHiddenFromLayout(false);
                 m_Pivot = skinningCache.character.pivot;
                 UpdateViewFields();
-                
+
                 skinningCache.selectionTool.CanSelect += CanSelectWhileInPivotTool;
                 skinningCache.selectedSprite = null;
             }
@@ -151,37 +151,37 @@ namespace UnityEditor.U2D.Animation
             {
                 base.OnDeactivate();
                 m_InspectorPanel.SetHiddenFromLayout(true);
-                
+
                 skinningCache.selectionTool.CanSelect -= CanSelectWhileInPivotTool;
                 if (isActive)
                     skinningCache.selectedSprite = m_LastSelectedSprite;
             }
         }
-        
+
         void TranslatePivotPoint(Vector2 pivot, out SpriteAlignment alignment)
         {
             if (new Vector2(k_PivotNormalizedRect.xMin, k_PivotNormalizedRect.yMax) == pivot)
                 alignment = SpriteAlignment.TopLeft;
-            else if(new Vector2(k_PivotNormalizedRect.center.x, k_PivotNormalizedRect.yMax) == pivot)
+            else if (new Vector2(k_PivotNormalizedRect.center.x, k_PivotNormalizedRect.yMax) == pivot)
                 alignment = SpriteAlignment.TopCenter;
-            else if(new Vector2(k_PivotNormalizedRect.xMax, k_PivotNormalizedRect.yMax) == pivot)
+            else if (new Vector2(k_PivotNormalizedRect.xMax, k_PivotNormalizedRect.yMax) == pivot)
                 alignment = SpriteAlignment.TopRight;
-            else if(new Vector2(k_PivotNormalizedRect.xMin, k_PivotNormalizedRect.center.y) == pivot)
+            else if (new Vector2(k_PivotNormalizedRect.xMin, k_PivotNormalizedRect.center.y) == pivot)
                 alignment = SpriteAlignment.LeftCenter;
-            else if(new Vector2(k_PivotNormalizedRect.center.x, k_PivotNormalizedRect.center.y) == pivot)
+            else if (new Vector2(k_PivotNormalizedRect.center.x, k_PivotNormalizedRect.center.y) == pivot)
                 alignment = SpriteAlignment.Center;
-            else if(new Vector2(k_PivotNormalizedRect.xMax, k_PivotNormalizedRect.center.y) == pivot)
+            else if (new Vector2(k_PivotNormalizedRect.xMax, k_PivotNormalizedRect.center.y) == pivot)
                 alignment = SpriteAlignment.RightCenter;
-            else if(new Vector2(k_PivotNormalizedRect.xMin, k_PivotNormalizedRect.yMin) == pivot)
+            else if (new Vector2(k_PivotNormalizedRect.xMin, k_PivotNormalizedRect.yMin) == pivot)
                 alignment = SpriteAlignment.BottomLeft;
-            else if(new Vector2(k_PivotNormalizedRect.center.x, k_PivotNormalizedRect.yMin) == pivot)
+            else if (new Vector2(k_PivotNormalizedRect.center.x, k_PivotNormalizedRect.yMin) == pivot)
                 alignment = SpriteAlignment.BottomCenter;
-            else if(new Vector2(k_PivotNormalizedRect.xMax, k_PivotNormalizedRect.yMin) == pivot)
+            else if (new Vector2(k_PivotNormalizedRect.xMax, k_PivotNormalizedRect.yMin) == pivot)
                 alignment = SpriteAlignment.BottomRight;
             else
                 alignment = SpriteAlignment.Custom;
         }
-        
+
         Vector2 GetPivotPoint(SpriteAlignment alignment, Vector2 customPivot)
         {
             switch (alignment)
@@ -216,9 +216,10 @@ namespace UnityEditor.U2D.Animation
                 case SpriteAlignment.Custom:
                     return new Vector2(customPivot.x * k_PivotNormalizedRect.width, customPivot.y * k_PivotNormalizedRect.height);
             }
+
             return Vector2.zero;
         }
-        
+
         Vector2 PivotSlider(Rect sprite, Vector2 pos, GUIStyle pivotDot, GUIStyle pivotDotActive)
         {
             int id = GUIUtility.GetControlID(m_SlideHashCode, FocusType.Keyboard);
@@ -242,7 +243,7 @@ namespace UnityEditor.U2D.Animation
                     // am I closest to the thingy?
                     if (evt.button == 0 && handleScreenPos.Contains(Event.current.mousePosition) && !evt.alt)
                     {
-                        GUIUtility.hotControl = GUIUtility.keyboardControl = id;    // Grab mouse focus
+                        GUIUtility.hotControl = GUIUtility.keyboardControl = id; // Grab mouse focus
                         m_CurrentMousePosition = evt.mousePosition;
                         m_DragStartScreenPosition = evt.mousePosition;
                         Vector2 rectScreenCenter = Handles.matrix.MultiplyPoint(pos);
@@ -250,6 +251,7 @@ namespace UnityEditor.U2D.Animation
                         evt.Use();
                         EditorGUIUtility.SetWantsMouseJumping(1);
                     }
+
                     break;
                 case EventType.MouseDrag:
                     if (GUIUtility.hotControl == id)
@@ -262,6 +264,7 @@ namespace UnityEditor.U2D.Animation
                             GUI.changed = true;
                         evt.Use();
                     }
+
                     break;
                 case EventType.MouseUp:
                     if (GUIUtility.hotControl == id && (evt.button == 0 || evt.button == 2))
@@ -270,6 +273,7 @@ namespace UnityEditor.U2D.Animation
                         evt.Use();
                         EditorGUIUtility.SetWantsMouseJumping(0);
                     }
+
                     break;
                 case EventType.KeyDown:
                     if (GUIUtility.hotControl == id)
@@ -282,6 +286,7 @@ namespace UnityEditor.U2D.Animation
                             evt.Use();
                         }
                     }
+
                     break;
                 case EventType.Repaint:
                     EditorGUIUtility.AddCursorRect(handleScreenPos, MouseCursor.Arrow, id);

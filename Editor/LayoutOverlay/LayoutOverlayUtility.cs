@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEditor.U2D.Animation;
 using UnityEngine;
 using UnityEngine.UIElements;

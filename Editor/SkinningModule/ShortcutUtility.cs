@@ -26,13 +26,13 @@ namespace UnityEditor.U2D.Animation
         public const string visibilityPanel = "2D/Animation/Visibility Panel";
         public const string characterPivot = "2D/Animation/Character Pivot";
     }
-    
+
     internal class ShortcutUtility
     {
         public System.Action OnShortcutChanged;
-        
+
         private string[] m_ShortcutIds;
-        
+
         public ShortcutUtility(params string[] shortcutIds)
         {
             m_ShortcutIds = shortcutIds;
@@ -68,8 +68,8 @@ namespace UnityEditor.U2D.Animation
             var button = rootElement.Q<Button>(buttonName);
             var binding = ShortcutManager.instance.GetShortcutBinding(shortcutBindingId);
             var bindingString = binding.ToString();
-            
-            if(!string.IsNullOrEmpty(bindingString))
+
+            if (!string.IsNullOrEmpty(bindingString))
                 button.tooltip += $" ({bindingString})";
         }
     }

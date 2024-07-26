@@ -69,7 +69,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (!m_SpriteSkins.Contains(spriteSkin))
                 return;
-            
+
             m_LocalToWorldTransformAccessJob.AddTransform(spriteSkin.rootBone);
             if (spriteSkin.boneTransforms != null)
             {

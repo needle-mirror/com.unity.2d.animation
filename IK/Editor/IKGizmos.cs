@@ -71,7 +71,7 @@ namespace UnityEditor.U2D.IK
 
             if (EditorGUI.EndChangeCheck())
             {
-                if(!isDragging)
+                if (!isDragging)
                 {
                     isDragging = true;
                     IKEditorManager.instance.RegisterUndo(solver, "Move Target");
@@ -93,7 +93,7 @@ namespace UnityEditor.U2D.IK
                 return;
 
             if (HandleUtility.nearestControl == controlId && Event.current.type == EventType.MouseDown && Event.current.button == 0)
-                StoreSolverPositionOverrides(solver); 
+                StoreSolverPositionOverrides(solver);
 
             EditorGUI.BeginChangeCheck();
 
@@ -102,9 +102,9 @@ namespace UnityEditor.U2D.IK
 
             if (EditorGUI.EndChangeCheck())
             {
-                if(!isDragging)
+                if (!isDragging)
                     isDragging = true;
-                
+
                 IKEditorManager.instance.Record(solver, "IK Pose");
 
                 SetSolverPositionOverrides();
@@ -122,9 +122,9 @@ namespace UnityEditor.U2D.IK
             IKManager2D manager = IKEditorManager.instance.FindManager(solver);
             foreach (Solver2D l_solver in manager.solvers)
             {
-                if(l_solver == null || l_solver.allChainsHaveTargets)
+                if (l_solver == null || l_solver.allChainsHaveTargets)
                     continue;
-                    
+
                 for (int i = 0; i < l_solver.chainCount; ++i)
                 {
                     var chain = l_solver.GetChain(i);

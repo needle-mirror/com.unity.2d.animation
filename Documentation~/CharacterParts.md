@@ -3,13 +3,13 @@ You can use __Sprite Swap__ to change only one Sprite on the actor without affec
 
 In the following example, there are two Sprites that are variations of the actor’s scarf, with one being green and the other being blue. This workflow demonstrates how to switch from one to the other in the same actor:
 
-![](images/bothscarves.PNG)<br/>__Left:__ The original `green scarf` Sprite. __Right:__ An alternate `blue scarf` Sprite.
+![](images/bothscarves.png)<br/>__Left:__ The original `green scarf` Sprite. __Right:__ An alternate `blue scarf` Sprite.
 
 1. Place the Sprites for both scarves into the same [Sprite Library Asset](SL-Asset.md), and add them both to the same **Category** (named `Scarf`).
 
 2. Give each of the Sprites a unique __Label__ name (in this case `green scarf` and `blue scarf` respectively).
-This and the previous step can be automated by dragging and dropping sprites into the Categories tab empty space.
-<br/>![](images/2d-anim-change-parts-SLAsset.png)
+   This and the previous step can be automated by dragging and dropping sprites into the Categories tab empty space.
+   <br/>![](images/2d-anim-change-parts-SLAsset.png)
 
 3. In the Scene, select the [Instantiated Prefab](https://docs.unity3d.com/Manual/InstantiatingPrefabs.html) and then select the `Scarf` GameObject in the Hierarchy window.
 
@@ -27,7 +27,7 @@ Once the overlay is displayed, select a single or multiple game objects with Spr
 
 <br/>![](images/2D-animation-SResolver-overlay.png)
 
-To Sprite Swap, select Sprite Resolver's categories and labels using your mouse, or arrow keys on your keyboard when the overlay is in focus. 
+To Sprite Swap, select Sprite Resolver's categories and labels using your mouse, or arrow keys on your keyboard when the overlay is in focus.
 
 It's possible to filter the list of Sprite Resolvers to show only Resolvers that contain two or more labels in their selected category. Select the first button in the bottom-left corner of the overlay to toggle the filter.
 

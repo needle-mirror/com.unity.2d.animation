@@ -1,13 +1,12 @@
 #if UNITY_EDITOR
 using System;
-using UnityEditor;
 
 namespace UnityEngine.U2D.Animation
 {
     public partial class SpriteResolver : ISerializationCallbackReceiver
     {
         internal static string spriteHashPropertyName => nameof(m_SpriteHash);
-        
+
         bool m_SpriteLibChanged;
 
         /// <summary>

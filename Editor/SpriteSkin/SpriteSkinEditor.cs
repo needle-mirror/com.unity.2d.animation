@@ -30,11 +30,11 @@ namespace UnityEditor.U2D.Animation
         SerializedProperty m_BoneTransformsProperty;
         SerializedProperty m_AlwaysUpdateProperty;
         SerializedProperty m_AutoRebindProperty;
-        
+
         SpriteSkin[] m_SpriteSkins;
         Sprite[] m_CurrentSprites;
         ReorderableList m_ReorderableList;
-        
+
         bool m_NeedsRebind = false;
         bool m_BoneFold = true;
 
@@ -49,6 +49,7 @@ namespace UnityEditor.U2D.Animation
                     skin.OnEditorEnable();
                 }
             }
+
             m_SpriteSkins = listOfSkins.ToArray();
 
             m_RootBoneProperty = serializedObject.FindProperty("m_RootBone");
@@ -58,7 +59,7 @@ namespace UnityEditor.U2D.Animation
             m_AutoRebindProperty = serializedObject.FindProperty("m_AutoRebind");
 
             m_CurrentSprites = new Sprite[m_SpriteSkins.Length];
-            
+
             UpdateSpriteCache();
             SetupReorderableList();
 
@@ -74,21 +75,21 @@ namespace UnityEditor.U2D.Animation
         {
             UpdateSpriteCache();
         }
-        
+
         void UpdateSpriteCache()
         {
             for (var i = 0; i < m_SpriteSkins.Length; ++i)
             {
                 m_CurrentSprites[i] = m_SpriteSkins[i].sprite;
-            }   
+            }
         }
-        
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            
+
             EditorGUILayout.PropertyField(m_AlwaysUpdateProperty, Contents.alwaysUpdate);
-            
+
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(m_AutoRebindProperty, Contents.autoRebind);
             if (EditorGUI.EndChangeCheck() && m_AutoRebindProperty.boolValue)
@@ -110,7 +111,7 @@ namespace UnityEditor.U2D.Animation
                 InitializeBoneTransformArray();
                 SetupReorderableList();
             }
-            
+
             DoBoneFoldout();
 
             EditorGUILayout.BeginHorizontal();
@@ -156,7 +157,7 @@ namespace UnityEditor.U2D.Animation
         void DoBoneFoldout()
         {
             EditorGUILayout.Space();
-            
+
             m_BoneFold = EditorGUILayout.Foldout(m_BoneFold, Contents.listHeaderLabel, true);
             if (m_BoneFold)
             {
@@ -165,7 +166,7 @@ namespace UnityEditor.U2D.Animation
                 EditorGUI.EndDisabledGroup();
             }
         }
-        
+
         void InitializeBoneTransformArray()
         {
             var hasSameNumberOfBones = true;
@@ -196,10 +197,10 @@ namespace UnityEditor.U2D.Animation
                         m_BoneTransformsProperty.GetArrayElementAtIndex(i).objectReferenceValue = null;
 
                     m_NeedsRebind = true;
-                }                
+                }
             }
-        }  
-        
+        }
+
         void SetupReorderableList()
         {
             m_ReorderableList = new ReorderableList(serializedObject, m_BoneTransformsProperty, false, true, false, false);
@@ -219,30 +220,30 @@ namespace UnityEditor.U2D.Animation
                 rect.y += 2f;
                 rect.height = EditorGUIUtility.singleLineHeight;
                 var element = m_BoneTransformsProperty.GetArrayElementAtIndex(index);
-                
+
                 EditorGUI.showMixedValue = m_BoneTransformsProperty.hasMultipleDifferentValues;
                 EditorGUI.PropertyField(rect, element, content);
             };
         }
-        
+
 
         void Rebind()
         {
             foreach (var skin in m_SpriteSkins)
             {
-                if(skin.sprite == null || skin.rootBone == null)
+                if (skin.sprite == null || skin.rootBone == null)
                     continue;
                 if (!SpriteSkinHelpers.GetSpriteBonesTransforms(skin, out var transforms))
                     Debug.LogWarning($"Rebind failed for {skin.name}. Could not find all bones required by the Sprite: {skin.sprite.name}.");
                 skin.SetBoneTransforms(transforms);
-                
+
                 ResetBoundsIfNeeded(skin);
             }
 
             serializedObject.Update();
             m_NeedsRebind = false;
         }
-        
+
         void ResetBounds(string undoName = "Reset Bounds")
         {
             foreach (var skin in m_SpriteSkins)
@@ -271,6 +272,7 @@ namespace UnityEditor.U2D.Animation
                 if (sprite != null && skin.rootBone == null)
                     return true;
             }
+
             return false;
         }
 
@@ -286,6 +288,7 @@ namespace UnityEditor.U2D.Animation
                 if (skin.isValid)
                     return true;
             }
+
             return false;
         }
 

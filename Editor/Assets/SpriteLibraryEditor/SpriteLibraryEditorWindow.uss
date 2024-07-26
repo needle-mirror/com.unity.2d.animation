@@ -20,18 +20,18 @@
 }
 
 #CreateNewAssetButton {
-    
+
     align-self: center;
     max-width: 200px;
 }
 
 #EditorTopToolbar {
-    flex-grow: 0; 
+    flex-grow: 0;
     flex-shrink: 0;
 }
 
 #EditorBottomToolbar {
-    flex-grow: 0; 
+    flex-grow: 0;
     flex-shrink: 0;
 }
 
@@ -174,7 +174,7 @@
     justify-content: space-between;
 }
 #BottomRow {
-    flex-direction: row; 
+    flex-direction: row;
     justify-content: space-between;
 }
 .unity-toolbar-breadcrumbs {
@@ -192,15 +192,15 @@
 }
 
 #Saving {
-    flex-direction: row; 
+    flex-direction: row;
     align-self: flex-end;
 }
 #RevertButton {
-    max-height: 18px; 
+    max-height: 18px;
     flex-grow: 0;
 }
 #SaveButton {
-    max-height: 18px; 
+    max-height: 18px;
     flex-grow: 0;
 }
 

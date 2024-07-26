@@ -26,7 +26,7 @@ namespace UnityEditor.U2D.IK
 
         void SetupProperties()
         {
-            if(m_ConstrainRotationProperty == null || m_SolveFromDefaultPoseProperty == null || m_WeightProperty == null)
+            if (m_ConstrainRotationProperty == null || m_SolveFromDefaultPoseProperty == null || m_WeightProperty == null)
             {
                 m_ConstrainRotationProperty = serializedObject.FindProperty("m_ConstrainRotation");
                 m_SolveFromDefaultPoseProperty = serializedObject.FindProperty("m_SolveFromDefaultPose");
@@ -88,11 +88,11 @@ namespace UnityEditor.U2D.IK
                 if (!solver.isValid)
                     continue;
 
-                for(int i = 0; i < solver.chainCount; ++i)
+                for (int i = 0; i < solver.chainCount; ++i)
                 {
                     var chain = solver.GetChain(i);
 
-                    if(chain.target == null)
+                    if (chain.target == null)
                         return true;
                 }
             }
@@ -113,12 +113,12 @@ namespace UnityEditor.U2D.IK
 
                     IKEditorManager.instance.Record(solver, Contents.restoreDefaultPoseString);
 
-                    for(int i = 0; i < solver.chainCount; ++i)
+                    for (int i = 0; i < solver.chainCount; ++i)
                     {
                         var chain = solver.GetChain(i);
                         chain.RestoreDefaultPose(solver.constrainRotation);
-                        
-                        if(chain.target)
+
+                        if (chain.target)
                         {
                             chain.target.position = chain.effector.position;
                             chain.target.rotation = chain.effector.rotation;
@@ -141,11 +141,11 @@ namespace UnityEditor.U2D.IK
                     if (!solver.isValid)
                         continue;
 
-                    for(int i = 0; i < solver.chainCount; ++i)
+                    for (int i = 0; i < solver.chainCount; ++i)
                     {
                         var chain = solver.GetChain(i);
-                        
-                        if(chain.target == null)
+
+                        if (chain.target == null)
                         {
                             Undo.RegisterCompleteObjectUndo(solver, Contents.createTargetString);
 

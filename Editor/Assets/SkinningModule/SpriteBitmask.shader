@@ -1,4 +1,4 @@
-﻿Shader "Hidden/2D-Animation-SpriteBitmask"
+Shader "Hidden/2D-Animation-SpriteBitmask"
 {
     Properties
     {

@@ -8,12 +8,12 @@ namespace UnityEngine.U2D.Animation
     /// <summary>
     /// Updates a SpriteRenderer's Sprite reference on the Category and Label value it is set.
     /// </summary>
-    /// <Description>
+    /// <remarks>
     /// By setting the SpriteResolver's Category and Label value, it will request for a Sprite from
     /// a SpriteLibrary Component the Sprite that is registered for the Category and Label.
     /// If a SpriteRenderer is present in the same GameObject, the SpriteResolver will update the
     /// SpriteRenderer's Sprite reference to the corresponding Sprite.
-    /// </Description>
+    /// </remarks>
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Resolver")]
@@ -25,7 +25,7 @@ namespace UnityEngine.U2D.Animation
     {
         // SpriteHash is the new animation key.
         // We are keeping the old ones so that the animation clip doesn't break
-        
+
         // These are for animation
         [SerializeField]
         float m_CategoryHash = 0;
@@ -37,7 +37,7 @@ namespace UnityEngine.U2D.Animation
 
         [SerializeField, DiscreteEvaluation]
         int m_SpriteHash = 0;
-        
+
         // For comparing hash values
         int m_CategoryHashInt;
         int m_LabelHashInt;
@@ -51,13 +51,13 @@ namespace UnityEngine.U2D.Animation
         /// <summary>
         /// Raised when resolved to a new value.
         /// </summary>
-        internal event Action<SpriteResolver> onResolvedSprite; 
+        internal event Action<SpriteResolver> onResolvedSprite;
 
         void Reset()
         {
             // If the Sprite referred to by the SpriteRenderer exist in the library,
             // we select the Sprite
-            if(spriteRenderer)
+            if (spriteRenderer)
                 SetSprite(spriteRenderer.sprite);
         }
 
@@ -80,7 +80,7 @@ namespace UnityEngine.U2D.Animation
                 }
             }
         }
-        
+
         void OnEnable()
         {
             InitializeSerializedData();
@@ -93,7 +93,7 @@ namespace UnityEngine.U2D.Animation
             m_LabelHashInt = InternalEngineBridge.ConvertFloatToInt(m_labelHash);
             m_PreviousSpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(InternalEngineBridge.ConvertFloatToInt(m_SpriteKey));
             m_SpriteKey = InternalEngineBridge.ConvertIntToFloat(m_PreviousSpriteKeyInt);
-            
+
             if (m_SpriteHash == 0)
             {
                 if (m_SpriteKey != 0f)
@@ -101,8 +101,9 @@ namespace UnityEngine.U2D.Animation
                 else
                     m_SpriteHash = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, SpriteLibraryUtility.Convert32BitTo30BitHash(m_CategoryHashInt), SpriteLibraryUtility.Convert32BitTo30BitHash(m_LabelHashInt));
             }
-            m_PreviousSpriteHash = m_SpriteHash;     
-            
+
+            m_PreviousSpriteHash = m_SpriteHash;
+
             string newCat, newLab;
             if (spriteLibrary != null && spriteLibrary.GetCategoryAndEntryNameFromHash(m_SpriteHash, out newCat, out newLab))
             {
@@ -112,9 +113,9 @@ namespace UnityEngine.U2D.Animation
                 m_CategoryHash = InternalEngineBridge.ConvertIntToFloat(m_CategoryHashInt);
                 m_labelHash = InternalEngineBridge.ConvertIntToFloat(m_LabelHashInt);
             }
-            
+
             m_PreviousLabelHash = m_LabelHashInt;
-            m_PreviousCategoryHash = m_CategoryHashInt;       
+            m_PreviousCategoryHash = m_CategoryHashInt;
         }
 
         SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
@@ -166,14 +167,14 @@ namespace UnityEngine.U2D.Animation
         /// Property to get the SpriteLibrary the SpriteResolver is resolving from.
         /// </summary>
         public SpriteLibrary spriteLibrary => gameObject.GetComponentInParent<SpriteLibrary>(true);
-        
+
         /// <summary>
         /// Empty method. Implemented for the IPreviewable interface.
         /// </summary>
         public void OnPreviewUpdate() { }
 
         static bool IsInGUIUpdateLoop() => Event.current != null;
-        
+
         void LateUpdate()
         {
             ResolveUpdatedValue();
@@ -194,7 +195,7 @@ namespace UnityEngine.U2D.Animation
                 {
                     m_SpriteHash = SpriteLibraryUtility.Convert32BitTo30BitHash(spriteKeyInt);
                     m_PreviousSpriteKeyInt = spriteKeyInt;
-                    ResolveSpriteToSpriteRenderer();               
+                    ResolveSpriteToSpriteRenderer();
                 }
                 else
                 {
@@ -210,7 +211,7 @@ namespace UnityEngine.U2D.Animation
                             m_PreviousSpriteHash = m_SpriteHash;
                             ResolveSpriteToSpriteRenderer();
                         }
-                    }                    
+                    }
                 }
             }
         }
@@ -219,7 +220,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (library != null)
             {
-                foreach(var category in library.categoryNames)
+                foreach (var category in library.categoryNames)
                 {
                     if (categoryHash == SpriteLibraryUtility.GetStringHash(category))
                     {
@@ -240,7 +241,7 @@ namespace UnityEngine.U2D.Animation
 
             return 0;
         }
-        
+
         internal Sprite GetSprite(out bool validEntry)
         {
             var lib = spriteLibrary;
@@ -248,6 +249,7 @@ namespace UnityEngine.U2D.Animation
             {
                 return lib.GetSpriteFromCategoryAndEntryHash(m_SpriteHash, out validEntry);
             }
+
             validEntry = false;
             return null;
         }
@@ -263,12 +265,12 @@ namespace UnityEngine.U2D.Animation
             var sr = spriteRenderer;
             if (sr != null && (sprite != null || validEntry))
                 sr.sprite = sprite;
-            
+
             onResolvedSprite?.Invoke(this);
-            
+
             return validEntry;
         }
-        
+
         void OnTransformParentChanged()
         {
             ResolveSpriteToSpriteRenderer();

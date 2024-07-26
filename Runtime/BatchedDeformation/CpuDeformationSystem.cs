@@ -15,7 +15,7 @@ namespace UnityEngine.U2D.Animation
         internal override void Cleanup()
         {
             base.Cleanup();
-            
+
             m_BoundJobHandle.Complete();
             m_CopyJobHandle.Complete();
         }
@@ -31,11 +31,11 @@ namespace UnityEngine.U2D.Animation
         {
             BatchRemoveSpriteSkins();
             BatchAddSpriteSkins();
-            
+
             var count = m_SpriteSkins.Count;
             if (count == 0)
                 return;
-            
+
             Assert.AreEqual(m_IsSpriteSkinActiveForDeform.Length, count);
             Assert.AreEqual(m_PerSkinJobData.Length, count);
             Assert.AreEqual(m_SpriteSkinData.Length, count);
@@ -45,7 +45,7 @@ namespace UnityEngine.U2D.Animation
             Assert.AreEqual(m_BufferSizes.Length, count);
 
             PrepareDataForDeformation(out var localToWorldJobHandle, out var worldToLocalJobHandle);
-            
+
             if (!GotVerticesToDeform(out var vertexBufferSize))
             {
                 localToWorldJobHandle.Complete();
@@ -53,17 +53,17 @@ namespace UnityEngine.U2D.Animation
                 DeactivateDeformableBuffers();
                 return;
             }
-            
+
             var skinBatch = m_SkinBatchArray[0];
             ResizeBuffers(vertexBufferSize, in skinBatch);
-            
+
             var batchCount = m_SpriteSkinData.Length;
             var jobHandle = SchedulePrepareJob(batchCount);
 
             Profiling.scheduleJobs.Begin();
             jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle, jobHandle);
             jobHandle = ScheduleBoneJobBatched(jobHandle, skinBatch);
-            
+
             m_DeformJobHandle = ScheduleSkinDeformBatchedJob(jobHandle, skinBatch);
             m_CopyJobHandle = ScheduleCopySpriteRendererBuffersJob(jobHandle, batchCount);
             m_BoundJobHandle = ScheduleCalculateSpriteSkinAABBJob(m_DeformJobHandle, batchCount);
@@ -82,7 +82,7 @@ namespace UnityEngine.U2D.Animation
             {
                 var didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
                 spriteSkin.PostDeform(didDeform);
-                
+
             }
 
             DeactivateDeformableBuffers();

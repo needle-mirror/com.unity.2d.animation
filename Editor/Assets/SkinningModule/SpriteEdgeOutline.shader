@@ -18,7 +18,7 @@ Shader "Hidden/2D-Animation-SpriteEdgeOutline"
         Lighting Off
         ZTest Less
         Blend SrcAlpha OneMinusSrcAlpha
-        
+
         Pass
         {
             CGPROGRAM
@@ -40,7 +40,7 @@ Shader "Hidden/2D-Animation-SpriteEdgeOutline"
             uniform float4x4 unity_GUIClipTextureMatrix;
             sampler2D _GUIClipTexture;
             uniform bool _AdjustLinearForGamma;
-            
+
             v2f vert(appdata_t IN)
             {
                 v2f OUT;
@@ -50,7 +50,7 @@ Shader "Hidden/2D-Animation-SpriteEdgeOutline"
 
                 return OUT;
             }
-            
+
             fixed4 _OutlineColor;
 
             fixed4 frag(v2f i) : SV_Target
