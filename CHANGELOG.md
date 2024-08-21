@@ -1,5 +1,11 @@
 # Changelog
 
+## [9.1.2] - 2024-08-21
+### Fixed
+- Sprite Bone Influence tab bone reordering. (DANB-632)
+- Renaming functionality for Labels is available to users when multiple Labels are selected. (case DANB-672)
+- Fixed SpriteSkin's playmode test failures. (case DANB-691)
+
 ## [9.1.1] - 2024-05-06
 ### Fixed
 - Fixed the the memory leak in the SpriteSkin component. (case DANB-602)

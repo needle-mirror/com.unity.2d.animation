@@ -120,6 +120,7 @@ namespace UnityEditor.U2D.Animation
             };
 
             m_ListView.selectionChanged += OnListViewSelectionChanged;
+            m_ListView.itemIndexChanged += OnItemIndexChanged;
             m_AddButton = this.Q<Button>("AddButton");
             m_AddButton.clickable.clicked += () =>
             {
@@ -130,8 +131,6 @@ namespace UnityEditor.U2D.Animation
             {
                 onRemoveElement.Invoke();
             };
-            
-            RegisterCallback<DragPerformEvent>(x => onReordered(m_Influences) );
         }
 
         public void UpdateList(List<TransformCache> transformsList)
@@ -163,6 +162,11 @@ namespace UnityEditor.U2D.Animation
                 return;
 
             onSelectionChanged(newSelection);
+        }
+
+        void OnItemIndexChanged(int prevIndex, int newIndex)
+        {
+            onReordered(m_Influences);
         }
 
         public void ToggleAddButton(bool enabled)
