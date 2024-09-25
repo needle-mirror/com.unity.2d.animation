@@ -43,6 +43,8 @@ namespace UnityEditor.U2D.Animation
 
         public void OnEnable()
         {
+            m_SpriteSelectorWidget.Initialize(GetInstanceID());
+
             m_SpriteKey = serializedObject.FindProperty("m_SpriteKey");
             m_LabelHash = serializedObject.FindProperty("m_labelHash");
             m_CategoryHash = serializedObject.FindProperty("m_CategoryHash");
@@ -56,6 +58,11 @@ namespace UnityEditor.U2D.Animation
             spriteResolver.onDeserializedCallback -= SpriteResolverDeserializedCallback;
         }
 
+        void OnDestroy()
+        {
+            m_SpriteSelectorWidget.Dispose();
+        }
+
         void SpriteResolverDeserializedCallback()
         {
             if (!m_IgnoreNextDeserializeCallback)
@@ -63,7 +70,7 @@ namespace UnityEditor.U2D.Animation
                 m_ReInitOnNextGUI = true;
             }
         }
-        
+
         SpriteResolver spriteResolver => target as SpriteResolver;
 
         bool IsSpriteHashAssigned => SpriteResolver.ConvertFloatToInt(m_SpriteKey.floatValue) != 0;
@@ -87,25 +94,25 @@ namespace UnityEditor.U2D.Animation
                 }
             }
         }
-        
+
         void UpdateSpriteLibrary()
         {
             m_SpriteLibSelection.Clear();
-            
+
             var spriteLib = spriteResolver.spriteLibrary;
-            string categoryName ="", labelName ="";
+            string categoryName = "", labelName = "";
             if (spriteLib != null)
             {
                 GetCategoryAndLabelStringValue(out categoryName, out labelName);
                 var enumerator = spriteLib.categoryNames;
-                foreach(var category in spriteLib.categoryNames)
+                foreach (var category in spriteLib.categoryNames)
                 {
                     if (!m_SpriteLibSelection.ContainsKey(category))
                     {
                         var entries = spriteLib.GetEntryNames(category);
                         if (entries == null)
                             entries = new string[0];
-                        
+
                         var selectionList = new SpriteCategorySelectionList()
                         {
                             entryNames = entries.ToArray(),
@@ -117,10 +124,11 @@ namespace UnityEditor.U2D.Animation
                         };
 
                         m_SpriteLibSelection.Add(category, selectionList);
-                        
+
                     }
                 }
             }
+
             m_CategorySelection = new string[1 + m_SpriteLibSelection.Keys.Count];
             m_CategorySelection[0] = Style.noCategory.text;
             for (int i = 0; i < m_SpriteLibSelection.Keys.Count; ++i)
@@ -130,6 +138,7 @@ namespace UnityEditor.U2D.Animation
                 if (selection.categoryName == categoryName)
                     m_CategorySelectionIndex = i + 1;
             }
+
             ValidateCategorySelectionIndexValue();
             if (m_CategorySelectionIndex > 0)
             {
@@ -140,7 +149,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     var labelIndex = Array.FindIndex(m_SpriteLibSelection[categoryName].entryNames,
                         x => x == labelName);
-                    
+
                     if (labelIndex >= 0 ||
                         m_SpriteLibSelection[categoryName].entryNames.Length <= m_LabelSelectionIndex)
                     {
@@ -152,6 +161,7 @@ namespace UnityEditor.U2D.Animation
             {
                 m_SpriteSelectorWidget.UpdateContents(new Sprite[0]);
             }
+
             spriteResolver.spriteLibChanged = false;
         }
 
@@ -177,11 +187,11 @@ namespace UnityEditor.U2D.Animation
 
             m_CategorySelectionIndex = Array.FindIndex(m_CategorySelection, x => x == currentCategoryValue);
             ValidateCategorySelectionIndexValue();
-            
+
             EditorGUI.BeginChangeCheck();
             using (new EditorGUI.DisabledScope(m_CategorySelection.Length <= 1))
                 m_CategorySelectionIndex = EditorGUILayout.Popup(Style.categoryLabel, m_CategorySelectionIndex, m_CategorySelection);
-            
+
             SpriteCategorySelectionList selection;
             m_SpriteLibSelection.TryGetValue(m_CategorySelection[m_CategorySelectionIndex], out selection);
 
@@ -194,16 +204,16 @@ namespace UnityEditor.U2D.Animation
             {
                 if (entryNames.Length == 0)
                 {
-                    m_LabelSelectionIndex = EditorGUILayout.Popup(Style.labelLabel, 0, new [] {Style.categoryIsEmptyLabel});
+                    m_LabelSelectionIndex = EditorGUILayout.Popup(Style.labelLabel, 0, new[] { Style.categoryIsEmptyLabel });
                 }
                 else
                 {
                     m_LabelSelectionIndex = EditorGUILayout.Popup(Style.labelLabel, m_LabelSelectionIndex, entryNames);
                 }
             }
-                
+
             m_LabelSelectionIndex = m_SpriteSelectorWidget.ShowGUI(m_LabelSelectionIndex);
-            
+
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -248,10 +258,10 @@ namespace UnityEditor.U2D.Animation
             }
 
             ApplyModifiedProperty();
-            if (m_SpriteSelectorWidget.NeedUpdatePreview())
+            if (m_SpriteSelectorWidget.UpdateSpritePreviews())
                 this.Repaint();
         }
-        
+
         void ApplyModifiedProperty()
         {
             m_IgnoreNextDeserializeCallback = true;

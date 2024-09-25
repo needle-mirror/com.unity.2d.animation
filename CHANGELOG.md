@@ -1,5 +1,15 @@
 # Changelog
 
+## [7.1.2] - 2024-09-25
+### Fixed
+- Fixed SpriteSkin's playmode test failures. (case DANB-690)
+- Documentation, comments, and other requirements to conform to Package Validation. (DANB-709)
+- Sprite Resolver missing sprite previews when dealing with large number of entries. (DANB-715)
+- Misaligned label previews in Sprite Resolver's inspector. (DANB-720)
+- Sprite Resolver component not updated after Sprite Library Asset has been modified. (DANB-734)
+- IK gizmos are displayed in the SceneView when IKManager2D is active in Animation Preview window. (DANB-736)
+- IK solvers are misaligned when bones have different depths. (DANB-751)
+
 ## [7.1.1] - 2024-05-30
 ### Fixed
 - Fixed the IK bones flipped at certain angels. (case DANB-594)

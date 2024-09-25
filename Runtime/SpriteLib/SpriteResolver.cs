@@ -6,12 +6,12 @@ namespace UnityEngine.U2D.Animation
     /// <summary>
     /// Updates a SpriteRenderer's Sprite reference on the Category and Label value it is set
     /// </summary>
-    /// <Description>
+    /// <remarks>
     /// By setting the SpriteResolver's Category and Label value, it will request for a Sprite from
     /// a SpriteLibrary Component the Sprite that is registered for the Category and Label.
     /// If a SpriteRenderer is present in the same GameObject, the SpriteResolver will update the
     /// SpriteRenderer's Sprite reference to the corresponding Sprite.
-    /// </Description>
+    /// </remarks>
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Resolver")]
@@ -22,7 +22,7 @@ namespace UnityEngine.U2D.Animation
     {
         // SpriteKey is the new animation key.
         // We are keeping the old ones so that the animation clip doesn't break
-        
+
         // These are for animation
         [SerializeField]
         float m_CategoryHash = 0;
@@ -31,7 +31,7 @@ namespace UnityEngine.U2D.Animation
 
         [SerializeField]
         float m_SpriteKey = 0;
-        
+
         // For comparing hash values
         int m_CategoryHashInt;
         int m_LabelHashInt;
@@ -44,7 +44,15 @@ namespace UnityEngine.U2D.Animation
 
 #if UNITY_EDITOR
         bool m_SpriteLibChanged;
-        
+
+        long m_SpriteLibraryModificationHash;
+
+        internal bool spriteLibChanged
+        {
+            get => m_SpriteLibChanged;
+            set => m_SpriteLibChanged = value;
+        }
+
         /// <summary>
         /// Raised when object is deserialized in the Editor.
         /// </summary>
@@ -55,7 +63,7 @@ namespace UnityEngine.U2D.Animation
         {
             // If the Sprite referred to by the SpriteRenderer exist in the library,
             // we select the Sprite
-            if(spriteRenderer)
+            if (spriteRenderer)
                 SetSprite(spriteRenderer.sprite);
         }
 
@@ -78,14 +86,14 @@ namespace UnityEngine.U2D.Animation
                 }
             }
         }
-        
+
         void OnEnable()
         {
             m_CategoryHashInt = ConvertFloatToInt(m_CategoryHash);
             m_PreviousCategoryHash = m_CategoryHashInt;
             m_LabelHashInt = ConvertFloatToInt(m_labelHash);
             m_PreviousLabelHash = m_LabelHashInt;
-            
+
             m_SpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_SpriteKey));
             if (m_SpriteKeyInt == 0)
             {
@@ -102,6 +110,7 @@ namespace UnityEngine.U2D.Animation
                 m_CategoryHash = ConvertIntToFloat(m_CategoryHashInt);
                 m_labelHash = ConvertIntToFloat(m_LabelHashInt);
             }
+
             m_PreviousSpriteKeyInt = m_SpriteKeyInt;
             m_PreviousCategoryHash = m_CategoryHashInt;
             m_PreviousLabelHash = m_LabelHashInt;
@@ -159,6 +168,10 @@ namespace UnityEngine.U2D.Animation
 
         void LateUpdate()
         {
+#if UNITY_EDITOR
+            LateUpdateEditor();
+#endif
+
             m_SpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(ConvertFloatToInt(m_SpriteKey));
             if (m_SpriteKeyInt != m_PreviousSpriteKeyInt)
             {
@@ -188,7 +201,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (library != null)
             {
-                foreach(var category in library.categoryNames)
+                foreach (var category in library.categoryNames)
                 {
                     if (categoryHash == SpriteLibraryUtility.GetStringHash(category))
                     {
@@ -199,7 +212,7 @@ namespace UnityEngine.U2D.Animation
                             {
                                 if (labelHash == SpriteLibraryUtility.GetStringHash(entry))
                                 {
-                                    var spriteKey = SpriteLibrary.GetHashForCategoryAndEntry(category, entry); 
+                                    var spriteKey = SpriteLibrary.GetHashForCategoryAndEntry(category, entry);
                                     return ConvertIntToFloat(spriteKey);
                                 }
                             }
@@ -210,7 +223,7 @@ namespace UnityEngine.U2D.Animation
 
             return 0;
         }
-        
+
         internal Sprite GetSprite(out bool validEntry)
         {
             var lib = spriteLibrary;
@@ -218,6 +231,7 @@ namespace UnityEngine.U2D.Animation
             {
                 return lib.GetSpriteFromCategoryAndEntryHash(m_SpriteKeyInt, out validEntry);
             }
+
             validEntry = false;
             return null;
         }
@@ -233,7 +247,7 @@ namespace UnityEngine.U2D.Animation
             if (sr != null && (sprite != null || validEntry))
                 sr.sprite = sprite;
         }
-        
+
         void OnTransformParentChanged()
         {
             ResolveSpriteToSpriteRenderer();
@@ -266,20 +280,10 @@ namespace UnityEngine.U2D.Animation
             return *i;
         }
 
-#if UNITY_EDITOR
-        internal bool spriteLibChanged
-        {
-            get => m_SpriteLibChanged;
-            set => m_SpriteLibChanged = value;
-        }
-#endif
-        
         /// <summary>
         /// Called before object is serialized.
         /// </summary>
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
-        {
-        }
+        void ISerializationCallbackReceiver.OnBeforeSerialize() { }
 
         /// <summary>
         /// Called after object is deserialized.
@@ -288,7 +292,32 @@ namespace UnityEngine.U2D.Animation
         {
 #if UNITY_EDITOR
             onDeserializedCallback();
-#endif            
+#endif
         }
+
+#if UNITY_EDITOR
+        void LateUpdateEditor()
+        {
+            var newSpriteLibraryModificationHash = GetCurrentSpriteLibraryAssetModificationHash();
+            if (m_SpriteLibraryModificationHash != newSpriteLibraryModificationHash)
+            {
+                ResolveSpriteToSpriteRenderer();
+                spriteLibChanged = true;
+                m_SpriteLibraryModificationHash = newSpriteLibraryModificationHash;
+            }
+        }
+
+        long GetCurrentSpriteLibraryAssetModificationHash()
+        {
+            if (spriteLibrary != null)
+            {
+                var spriteLibraryAsset = spriteLibrary.spriteLibraryAsset;
+                if (spriteLibraryAsset != null)
+                    return spriteLibraryAsset.modificationHash;
+            }
+
+            return 0;
+        }
+#endif
     }
 }

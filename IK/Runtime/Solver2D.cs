@@ -233,15 +233,15 @@ namespace UnityEngine.U2D.IK
         /// Override to return the IKChain2D at the given index.
         /// </summary>
         /// <param name="index">Index of the IKChain2D.</param>
-        /// <returns></returns>
+        /// <returns>A chain at a given index.</returns>
         public abstract IKChain2D GetChain(int index);
-        
+
         /// <summary>
         /// Override to return the number of chains in the Solver.
         /// </summary>
         /// <returns>Number of chains in the solver.</returns>
         protected abstract int GetChainCount();
-        
+
         /// <summary>
         /// Override to perform Solver IK update.
         /// </summary>

@@ -1,6 +1,6 @@
 {
   "name": "com.unity.2d.animation",
-  "version": "7.1.1",
+  "version": "7.1.2",
   "unity": "2021.2",
   "unityRelease": "7f1",
   "displayName": "2D Animation",
@@ -11,14 +11,14 @@
   ],
   "category": "2D",
   "dependencies": {
-    "com.unity.2d.common": "6.0.7",
+    "com.unity.2d.common": "6.0.8",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.uielements": "1.0.0"
   },
   "relatedPackages": {
-    "com.unity.2d.animation.tests": "7.1.1",
-    "com.unity.2d.common.tests": "6.0.7",
+    "com.unity.2d.animation.tests": "7.1.2",
+    "com.unity.2d.common.tests": "6.0.8",
     "com.unity.2d.psdimporter": "6.0.9"
   },
   "samples": [
@@ -29,15 +29,15 @@
     }
   ],
   "_upm": {
-    "changelog": "### Fixed\n- Fixed the IK bones flipped at certain angels. (case DANB-594)\n\n### Added\n- Added safety checks to SpriteSkin's APIs."
+    "changelog": "### Fixed\n- Fixed SpriteSkin's playmode test failures. (case DANB-690)\n- Documentation, comments, and other requirements to conform to Package Validation. (DANB-709)\n- Sprite Resolver missing sprite previews when dealing with large number of entries. (DANB-715)\n- Misaligned label previews in Sprite Resolver's inspector. (DANB-720)\n- Sprite Resolver component not updated after Sprite Library Asset has been modified. (DANB-734)\n- IK gizmos are displayed in the SceneView when IKManager2D is active in Animation Preview window. (DANB-736)\n- IK solvers are misaligned when bones have different depths. (DANB-751)"
   },
   "upmCi": {
-    "footprint": "5980a1663daca7df3493cf20e415df365f1bfacb"
+    "footprint": "798bc7bf7212b8d080657f12f3fb275f08826afd"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.2d.animation@7.1/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
     "type": "git",
-    "revision": "4dea6a9bf91ef89b7e76aacfed6c4a996ce90cd5"
+    "revision": "a75cdc991b65925b7aeeae23d5da6151bd9a072c"
   }
 }
