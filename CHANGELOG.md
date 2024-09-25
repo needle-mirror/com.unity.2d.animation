@@ -1,10 +1,20 @@
 # Changelog
 
+## [9.1.3] - 2024-09-25
+### Fixed
+- Animation Preview window sometimes does not display deformed Sprites. (DANB-704)
+- Sprite Resolver missing sprite previews when dealing with large number of entries. (DANB-716)
+- Misaligned label previews in Sprite Resolver's inspector. (DANB-719)
+- Sprite Resolver component not updated after Sprite Library Asset has been modified. (DANB-732)
+- IK gizmos are displayed in the SceneView when IKManager2D is active in Animation Preview window. (DANB-737)
+- IK solvers are misaligned when bones have different depths. (DANB-750)
+
 ## [9.1.2] - 2024-08-21
 ### Fixed
 - Sprite Bone Influence tab bone reordering. (DANB-632)
 - Renaming functionality for Labels is available to users when multiple Labels are selected. (case DANB-672)
 - Fixed SpriteSkin's playmode test failures. (case DANB-691)
+- Documentation, comments, and other requirements to conform to Package Validation. (DANB-710)
 
 ## [9.1.1] - 2024-05-06
 ### Fixed

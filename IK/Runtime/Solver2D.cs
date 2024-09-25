@@ -234,7 +234,7 @@ namespace UnityEngine.U2D.IK
         /// Override to return the IKChain2D at the given index.
         /// </summary>
         /// <param name="index">Index of the IKChain2D.</param>
-        /// <returns></returns>
+        /// <returns>A chain at a given index.</returns>
         public abstract IKChain2D GetChain(int index);
 
         /// <summary>
