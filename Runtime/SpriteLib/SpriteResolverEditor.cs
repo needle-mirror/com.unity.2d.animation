@@ -14,6 +14,20 @@ namespace UnityEngine.U2D.Animation
         /// </summary>
         public event Action onDeserializedCallback = () => { };
 
+        long m_SpriteLibraryModificationHash;
+        internal long spriteLibraryModificationHash => m_SpriteLibraryModificationHash;
+
+        void LateUpdateEditor()
+        {
+            var newSpriteLibraryModificationHash = GetCurrentSpriteLibraryAssetModificationHash();
+            if (m_SpriteLibraryModificationHash != newSpriteLibraryModificationHash)
+            {
+                ResolveSpriteToSpriteRenderer();
+                spriteLibChanged = true;
+                m_SpriteLibraryModificationHash = newSpriteLibraryModificationHash;
+            }
+        }
+
         void OnDidApplyAnimationProperties()
         {
             if (IsInGUIUpdateLoop())
@@ -37,6 +51,18 @@ namespace UnityEngine.U2D.Animation
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             onDeserializedCallback();
+        }
+
+        long GetCurrentSpriteLibraryAssetModificationHash()
+        {
+            if (spriteLibrary != null)
+            {
+                var spriteLibraryAsset = spriteLibrary.spriteLibraryAsset;
+                if (spriteLibraryAsset != null)
+                    return spriteLibraryAsset.modificationHash;
+            }
+
+            return 0;
         }
     }
 }

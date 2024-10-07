@@ -136,7 +136,7 @@ namespace UnityEngine.U2D.Animation
         int m_CurrentDeformVerticesLength = 0;
         SpriteRenderer m_SpriteRenderer;
         int m_CurrentDeformSprite = 0;
-        int m_SpriteId = -1;
+        int m_SpriteId = 0;
         bool m_IsValid = false;
         SpriteSkinState m_State;
         int m_TransformsHash = 0;
@@ -197,6 +197,11 @@ namespace UnityEngine.U2D.Animation
         /// Gets the index of the SpriteSkin in the SpriteSkinComposite.
         /// </summary>
         internal int dataIndex => m_DataIndex;
+
+        internal void SetDataIndex(int index)
+        {
+            m_DataIndex = index;
+        }
 
         /// <summary>
         /// Get and set the Auto Rebind property.
@@ -309,7 +314,7 @@ namespace UnityEngine.U2D.Animation
                 if (isActiveAndEnabled)
                 {
                     UpdateSpriteDeformationData();
-                    DeformationManager.instance.CopyToSpriteSkinData(this);
+                    deformationSystem?.CopyToSpriteSkinData(this);
                 }
             }
         }
@@ -381,6 +386,8 @@ namespace UnityEngine.U2D.Animation
 
         void OnDisable()
         {
+            m_SpriteRenderer.UnregisterSpriteChangeCallback(OnSpriteChanged);
+
             DeactivateSkinning();
             BufferManager.instance.ReturnBuffer(GetInstanceID());
             deformationSystem?.RemoveSpriteSkin(this);
@@ -397,8 +404,6 @@ namespace UnityEngine.U2D.Animation
             DeformationManager.instance.AddSpriteSkinBoneTransform(this);
 
             CacheValidFlag();
-
-            DeformationManager.instance.CopyToSpriteSkinData(this);
         }
 
         void OnSpriteChanged(SpriteRenderer updatedSpriteRenderer)
@@ -438,6 +443,7 @@ namespace UnityEngine.U2D.Animation
         void OnBoneTransformChanged()
         {
             RefreshBoneTransforms();
+            deformationSystem?.CopyToSpriteSkinData(this);
             SpriteSkinContainer.instance.BoneTransformsChanged(this);
         }
 
@@ -484,9 +490,7 @@ namespace UnityEngine.U2D.Animation
         internal bool BatchValidate()
         {
             if (!m_BoneCacheUpdateToDate)
-            {
                 RefreshBoneTransforms();
-            }
 
             CacheCurrentSprite(m_AutoRebind);
             var hasSprite = m_CurrentDeformSprite != 0;
@@ -501,11 +505,9 @@ namespace UnityEngine.U2D.Animation
                 CacheValidFlag();
 
                 if (!m_BoneCacheUpdateToDate)
-                {
                     RefreshBoneTransforms();
-                }
 
-                DeformationManager.instance.CopyToSpriteSkinData(this);
+                deformationSystem?.CopyToSpriteSkinData(this);
             }
         }
 
@@ -689,12 +691,15 @@ namespace UnityEngine.U2D.Animation
 
         void Deform()
         {
+            if (m_SpriteRenderer.sprite != m_Sprite)
+                OnSpriteChanged(m_SpriteRenderer);
+
             CacheCurrentSprite(m_AutoRebind);
             if (isValid && enabled && (alwaysUpdate || m_SpriteRenderer.isVisible))
             {
                 var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
                 var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
-                if (spriteVertexCount > 0 && m_TransformsHash != transformHash)
+                if (spriteVertexCount > 0 && (m_TransformsHash != transformHash || vertexDeformationHash != GetNewVertexDeformationHash()))
                 {
                     var inputVertices = GetDeformedVertices(spriteVertexCount);
                     SpriteSkinUtility.Deform(sprite, gameObject.transform.worldToLocalMatrix, boneTransforms, inputVertices.array);
@@ -719,7 +724,7 @@ namespace UnityEngine.U2D.Animation
 #if ENABLE_URP
                 UpdateDeformedOutlineCache();
 #endif
-                m_VertexDeformationHash = Time.frameCount;
+                m_VertexDeformationHash = GetNewVertexDeformationHash();
             }
         }
 
@@ -732,7 +737,7 @@ namespace UnityEngine.U2D.Animation
             {
                 DeactivateSkinning();
                 m_CurrentDeformSprite = m_SpriteId;
-                if (rebind && m_CurrentDeformSprite > 0 && rootBone != null)
+                if (rebind && m_CurrentDeformSprite != 0 && rootBone != null)
                 {
                     if (!SpriteSkinHelpers.GetSpriteBonesTransforms(this, out var transforms))
                         Debug.LogWarning($"Rebind failed for {name}. Could not find all bones required by the Sprite: {sprite.name}.");
@@ -740,7 +745,7 @@ namespace UnityEngine.U2D.Animation
                 }
 
                 UpdateSpriteDeformationData();
-                DeformationManager.instance.CopyToSpriteSkinData(this);
+                deformationSystem?.CopyToSpriteSkinData(this);
 
                 CacheValidFlag();
                 m_TransformsHash = 0;
@@ -864,12 +869,10 @@ namespace UnityEngine.U2D.Animation
             m_StaticOutlineVertexCache = vertexCache;
         }
 #endif
-        internal void CopyToSpriteSkinData(ref SpriteSkinData data, int spriteSkinIndex)
+        internal void CopyToSpriteSkinData(ref SpriteSkinData data)
         {
             if (!m_BoneCacheUpdateToDate)
-            {
                 RefreshBoneTransforms();
-            }
 
             CacheCurrentSprite(m_AutoRebind);
 
@@ -883,7 +886,6 @@ namespace UnityEngine.U2D.Animation
             data.tangentVertexOffset = m_SpriteTangentVertexOffset;
             data.transformId = m_TransformId;
             data.boneTransformId = m_BoneTransformIdNativeSlice;
-            m_DataIndex = spriteSkinIndex;
         }
 
         internal bool NeedToUpdateDeformationCache()
@@ -895,8 +897,7 @@ namespace UnityEngine.U2D.Animation
                 if (rs)
                 {
                     UpdateSpriteDeformationData();
-                    deformationSystem.CopyToSpriteSkinData(this);
-                    DeformationManager.instance.CopyToSpriteSkinData(this);
+                    deformationSystem?.CopyToSpriteSkinData(this);
                 }
 
                 return rs;
@@ -965,5 +966,7 @@ namespace UnityEngine.U2D.Animation
 
             return count;
         }
+
+        static int GetNewVertexDeformationHash() => Time.frameCount;
     }
 }

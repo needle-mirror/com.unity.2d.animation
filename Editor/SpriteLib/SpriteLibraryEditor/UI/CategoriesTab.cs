@@ -76,6 +76,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_CategoryListsScrollContainer = this.Q<ScrollView>("CategoryListsScrollView");
             m_CategoryListsScrollContainer.pickingMode = PickingMode.Ignore;
             m_CategoryListsScrollContainer.Q<VisualElement>("unity-content-and-vertical-scroll-container").pickingMode = PickingMode.Ignore;
+            m_CategoryListsScrollContainer.contentContainer.pickingMode = PickingMode.Ignore;
+
             m_CategoryListsContainer = new VisualElement { name = "CategoryListsContainer", pickingMode = PickingMode.Ignore };
             m_CategoryListsScrollContainer.Add(m_CategoryListsContainer);
 

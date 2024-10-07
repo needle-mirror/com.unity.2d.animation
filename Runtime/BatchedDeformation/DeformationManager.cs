@@ -184,17 +184,6 @@ namespace UnityEngine.U2D.Animation
                 m_DeformationSystems[i].RemoveBoneTransforms(spriteSkin);
         }
 
-        internal void CopyToSpriteSkinData(SpriteSkin spriteSkin)
-        {
-            if (spriteSkin == null)
-                return;
-            var system = spriteSkin.deformationSystem;
-            if (system == null)
-                return;
-
-            system.CopyToSpriteSkinData(spriteSkin);
-        }
-
         internal void AddSpriteSkinBoneTransform(SpriteSkin spriteSkin)
         {
             if (spriteSkin == null)

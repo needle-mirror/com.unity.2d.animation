@@ -50,7 +50,8 @@ namespace UnityEngine.U2D.Animation
         internal static bool CanSpriteSkinUseGpuDeformation(SpriteSkin spriteSkin)
         {
             return IsUsingGpuDeformation() &&
-                GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
+                GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial) &&
+                spriteSkin.spriteRenderer.maskInteraction == SpriteMaskInteraction.None;
         }
 
         internal static SpriteSkinState Validate(this SpriteSkin spriteSkin)

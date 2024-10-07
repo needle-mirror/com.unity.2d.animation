@@ -1221,7 +1221,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         VisualElement CreateDummyItemElement()
         {
-            var item = new VisualElement();
+            var item = new VisualElement { pickingMode = PickingMode.Ignore };
             SetupItemElement(item);
             return item;
         }
@@ -1905,6 +1905,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             public RecycledRow(float height)
             {
                 AddToClassList(k_RowUssClassName);
+
+                pickingMode = PickingMode.Ignore;
+
                 style.height = height;
 
                 indices = new List<int>();

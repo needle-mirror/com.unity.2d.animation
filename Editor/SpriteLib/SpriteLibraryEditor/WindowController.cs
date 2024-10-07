@@ -136,6 +136,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public void SelectAsset(SpriteLibraryAsset asset, bool modifiedExternally = false)
         {
+            // Only allow .spriteLib files to be used in the editor.
+            // This is to prevent the user from opening the editor with .psd or .psb containing spriteLibs.
+            if (!AssetDatabase.GetAssetPath(asset).EndsWith(".spriteLib"))
+                return;
+            
             if (!modifiedExternally)
             {
                 if (asset == null || asset == m_Model.selectedAsset)

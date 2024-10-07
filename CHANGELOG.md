@@ -1,5 +1,22 @@
 # Changelog
 
+## [10.1.4] - 2024-10-07
+### Fixed
+- Animation Preview window sometimes does not display deformed Sprites. (DANB-705)
+- Sprite Resolver missing sprite previews when dealing with large number of entries. (DANB-714)
+- Misaligned label previews in Sprite Resolver's inspector. (DANB-722)
+- Sprite Resolver component not updated after Sprite Library Asset has been modified. (DANB-727)
+- Sprite Skin breaks in the animation preview window after sprite swap. (DANB-743)
+- IK gizmos are displayed in the SceneView when IKManager2D is active in Animation Preview window. (DANB-738)
+- IK solvers are misaligned when bones have different depths. (DANB-753)
+- Rendering issues with SRP Batching and Sprite mask. (DANB-760)
+- Unable to drag sprites into empty rows of the Sprite Library Editor. (DANB-749)
+- Sprite Skin deformation systems have outdated data after sprite swap. (DANB-766)
+- Setting incorrect computer buffer size. (DANB-768)
+- Reenable editor tests.
+- Bone buffer binding issues.
+- Sprite changed callback listeners.
+
 ## [10.1.3] - 2024-07-26
 ### Fixed
 - Sprite Swap overlay Label selection not reacting to mouse clicks. (case DANB-627)
@@ -14,6 +31,7 @@
 - Fixed SpriteSkin's playmode test failures. (case DANB-678)
 - Modifying the Sprite Skin component through public API.
 - Skinning Editor bone and mesh Visibility sliders too short. (case DANB-681)
+- Fixed an issue where opening a Sprite Library Asset, when it is a sub asset, in the Sprite Library Editor, would throw an exception.
 
 ## [10.1.2] - 2024-05-06
 ### Fixed

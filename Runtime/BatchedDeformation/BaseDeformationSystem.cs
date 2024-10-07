@@ -80,6 +80,7 @@ namespace UnityEngine.U2D.Animation
                 }
             }
         }
+
         internal virtual void UpdateMaterial(SpriteSkin spriteSkin) { }
 
         internal virtual bool AddSpriteSkin(SpriteSkin spriteSkin)
@@ -101,20 +102,18 @@ namespace UnityEngine.U2D.Animation
 
         internal void CopyToSpriteSkinData(SpriteSkin spriteSkin)
         {
-            CopyToSpriteSkinDataAtIndex(spriteSkin, spriteSkin.dataIndex);
-        }
-
-        void CopyToSpriteSkinDataAtIndex(SpriteSkin spriteSkin, int index)
-        {
-            if (index < 0 || index >= m_SpriteSkins.Count)
-                return;
             if (!m_SpriteSkinData.IsCreated)
+                throw new InvalidOperationException("Sprite Skin Data not initialized.");
+
+            var dataIndex = spriteSkin.dataIndex;
+            if(dataIndex < 0 || dataIndex >= m_SpriteSkinData.Length)
                 return;
 
             var spriteSkinData = default(SpriteSkinData);
-            spriteSkin.CopyToSpriteSkinData(ref spriteSkinData, index);
-            m_SpriteSkinData[index] = spriteSkinData;
-            m_SpriteRenderers[index] = spriteSkin.spriteRenderer;
+            spriteSkin.CopyToSpriteSkinData(ref spriteSkinData);
+
+            m_SpriteSkinData[dataIndex] = spriteSkinData;
+            m_SpriteRenderers[dataIndex] = spriteSkin.spriteRenderer;
         }
 
         internal void RemoveSpriteSkin(SpriteSkin spriteSkin)
@@ -156,7 +155,9 @@ namespace UnityEngine.U2D.Animation
             var count = 0;
             foreach (var spriteSkin in m_SpriteSkins)
             {
-                CopyToSpriteSkinDataAtIndex(spriteSkin, count++);
+                spriteSkin.SetDataIndex(count++);
+
+                CopyToSpriteSkinData(spriteSkin);
             }
         }
 
@@ -198,7 +199,10 @@ namespace UnityEngine.U2D.Animation
 
             var count = 0;
             foreach (var spriteSkin in m_SpriteSkins)
-                CopyToSpriteSkinDataAtIndex(spriteSkin, count++);
+            {
+                spriteSkin.SetDataIndex(count++);
+                CopyToSpriteSkinData(spriteSkin);
+            }
 
             Array.Resize(ref m_SpriteRenderers, updatedCount);
             ResizeAndCopyArrays(updatedCount);
@@ -212,10 +216,12 @@ namespace UnityEngine.U2D.Animation
             if (m_SpriteSkinsToAdd.Count == 0)
                 return;
 
+            if (!m_IsSpriteSkinActiveForDeform.IsCreated)
+                throw new InvalidOperationException("SpriteSkinActiveForDeform not initialized.");
+
             var updatedCount = m_SpriteSkins.Count + m_SpriteSkinsToAdd.Count;
             Array.Resize(ref m_SpriteRenderers, updatedCount);
-            if (m_IsSpriteSkinActiveForDeform.IsCreated)
-                ResizeAndCopyArrays(updatedCount);
+            ResizeAndCopyArrays(updatedCount);
 
             foreach (var spriteSkin in m_SpriteSkinsToAdd)
             {
@@ -232,11 +238,10 @@ namespace UnityEngine.U2D.Animation
                 m_SpriteRenderers[count - 1] = spriteSkin.spriteRenderer;
                 m_WorldToLocalTransformAccessJob.AddTransform(spriteSkin.transform);
 
-                if (m_IsSpriteSkinActiveForDeform.IsCreated)
-                {
-                    AddBoneTransforms(spriteSkin);
-                    CopyToSpriteSkinDataAtIndex(spriteSkin, count - 1);
-                }
+                AddBoneTransforms(spriteSkin);
+
+                spriteSkin.SetDataIndex(count - 1);
+                CopyToSpriteSkinData(spriteSkin);
             }
 
             m_SpriteSkinsToAdd.Clear();
@@ -302,15 +307,12 @@ namespace UnityEngine.U2D.Animation
 
         void ValidateSpriteSkinData()
         {
-            var count = 0;
             foreach (var spriteSkin in m_SpriteSkins)
             {
-                var i = count++;
-                m_IsSpriteSkinActiveForDeform[i] = spriteSkin.BatchValidate();
-                if (m_IsSpriteSkinActiveForDeform[i] && spriteSkin.NeedToUpdateDeformationCache())
-                {
-                    CopyToSpriteSkinDataAtIndex(spriteSkin, i);
-                }
+                var index = spriteSkin.dataIndex;
+                m_IsSpriteSkinActiveForDeform[index] = spriteSkin.BatchValidate();
+                if (m_IsSpriteSkinActiveForDeform[index] && spriteSkin.NeedToUpdateDeformationCache())
+                    CopyToSpriteSkinData(spriteSkin);
             }
         }
 

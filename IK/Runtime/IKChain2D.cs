@@ -167,8 +167,9 @@ namespace UnityEngine.U2D.IK
 
             while (currentTransform && index >= 0)
             {
-                if (currentTransform.parent && index > 0)
-                    m_Lengths[index - 1] = (currentTransform.position - currentTransform.parent.position).magnitude;
+                var parent = currentTransform.parent;
+                if (parent && index > 0)
+                    m_Lengths[index - 1] = parent.TransformVector((Vector2)currentTransform.localPosition).magnitude;
 
                 currentTransform = currentTransform.parent;
                 --index;

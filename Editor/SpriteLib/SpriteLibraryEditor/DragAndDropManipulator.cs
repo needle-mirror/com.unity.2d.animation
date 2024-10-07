@@ -61,39 +61,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 TryStartDrag();
         }
 
-        void TryStartDrag()
-        {
-            if (m_IsDragging)
-                return;
-
-            // Early out when list is reordered
-            if (DragAndDrop.GetGenericData("user_data") != null)
-                return;
-
-            var spritesData = RetrieveDraggedSprites(DragAndDrop.objectReferences);
-            if (spritesData.Count == 0)
-                return;
-
-            if (!m_CanStartDrag())
-                return;
-
-            m_IsDragging = true;
-
-            UpdateVisuals();
-        }
-
-        void StopDragging()
-        {
-            if (!m_IsDragging)
-                return;
-
-            m_IsDragging = false;
-
-            UpdateVisuals();
-        }
-
         void OnDragUpdate(DragUpdatedEvent evt)
         {
+            if (evt.currentTarget == evt.target)
+                TryStartDrag();
+
             m_IsChildDragged = evt.currentTarget != evt.target;
 
             if (isActiveDrag)
@@ -114,23 +86,105 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             StopDragging();
         }
 
-        void UpdateVisuals()
-        {
-            m_OverlayVisual.EnableInClassList(k_DragOverAddClassName, isActiveDrag);
-        }
-
         void OnDragPerform(DragPerformEvent evt)
         {
             if (!isActiveDrag)
                 return;
 
-            StopDragging();
-
+            DragAndDrop.AcceptDrag();
             var spritesData = RetrieveDraggedSprites(DragAndDrop.objectReferences);
-            if (spritesData.Count == 0)
+            if (spritesData.Count > 0)
+                onDragPerform?.Invoke(spritesData, evt.altKey);
+
+            DragAndDrop.objectReferences = new Object[] { };
+
+            StopDragging();
+        }
+
+        void TryStartDrag()
+        {
+            if (m_IsDragging)
                 return;
 
-            onDragPerform?.Invoke(spritesData, evt.altKey);
+            // Early out when list is reordered
+            if (DragAndDrop.GetGenericData("user_data") != null)
+                return;
+
+            if (!HasAnyDraggedSprites(DragAndDrop.objectReferences))
+                return;
+
+            if (!m_CanStartDrag())
+                return;
+
+            m_IsDragging = true;
+
+            UpdateVisuals();
+        }
+
+        void StopDragging()
+        {
+            if (!m_IsDragging)
+                return;
+
+            m_IsDragging = false;
+
+            UpdateVisuals();
+        }
+
+        void UpdateVisuals()
+        {
+            m_OverlayVisual.EnableInClassList(k_DragOverAddClassName, isActiveDrag);
+        }
+
+        static bool HasAnyDraggedSprites(Object[] objectReferences)
+        {
+            if (objectReferences == null || objectReferences.Length == 0)
+                return false;
+
+            foreach (var objectReference in objectReferences)
+            {
+                switch (objectReference)
+                {
+                    case Sprite:
+                        return true;
+                    case Texture2D texture2D:
+                    {
+                        var texturePath = AssetDatabase.GetAssetPath(texture2D);
+                        foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(texturePath))
+                        {
+                            if (obj is Sprite)
+                                return true;
+                        }
+
+                        break;
+                    }
+                    case GameObject gameObject:
+                    {
+                        var isPsdGameObjectRoot = gameObject.transform.parent != null;
+                        if (isPsdGameObjectRoot)
+                            continue;
+
+                        var psdFilePath = AssetDatabase.GetAssetPath(gameObject);
+                        if (string.IsNullOrEmpty(psdFilePath))
+                            continue;
+
+                        var ext = Path.GetExtension(psdFilePath);
+                        if (k_SupportedPsdExtensions.Contains(ext))
+                        {
+                            foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(psdFilePath))
+                            {
+                                var spriteObj = obj as Sprite;
+                                if (spriteObj != null)
+                                    return true;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            return true;
         }
 
         static List<DragAndDropData> RetrieveDraggedSprites(Object[] objectReferences)

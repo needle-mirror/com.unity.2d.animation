@@ -287,7 +287,18 @@ namespace UnityEditor.U2D.IK
             foreach (var ikManager2D in m_IKManagers)
             {
                 if (ikManager2D != null && ikManager2D.isActiveAndEnabled)
-                    IKGizmos.instance.DoSolversGUI(ikManager2D);
+                {
+                    if (!EditorSceneManager.IsPreviewSceneObject(ikManager2D))
+                    {
+                        if (PrefabStageUtility.GetCurrentPrefabStage() == null)
+                            IKGizmos.instance.DoSolversGUI(ikManager2D);
+                    }
+                    else
+                    {
+                        if (PrefabStageUtility.GetCurrentPrefabStage()?.scene == ikManager2D.gameObject.scene)
+                            IKGizmos.instance.DoSolversGUI(ikManager2D);
+                    }
+                }
             }
 
             if (!IKGizmos.instance.isDragging && IsDraggingATool())

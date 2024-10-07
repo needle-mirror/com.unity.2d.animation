@@ -45,6 +45,8 @@ namespace UnityEditor.U2D.Animation
 
         public void OnEnable()
         {
+            m_SpriteSelectorWidget.Initialize(GetInstanceID());
+
             m_SpriteHash = serializedObject.FindProperty("m_SpriteHash");
             m_SpriteKey = serializedObject.FindProperty("m_SpriteKey");
             m_LabelHash = serializedObject.FindProperty("m_labelHash");
@@ -59,6 +61,11 @@ namespace UnityEditor.U2D.Animation
         void OnDisable()
         {
             EditorApplication.focusChanged -= OnEditorFocusChanged;
+        }
+
+        void OnDestroy()
+        {
+            m_SpriteSelectorWidget.Dispose();
         }
 
         void SpriteResolverDeserializedCallback()
@@ -270,7 +277,7 @@ namespace UnityEditor.U2D.Animation
             }
 
             ApplyModifiedProperty();
-            if (m_SpriteSelectorWidget.NeedUpdatePreview())
+            if (m_SpriteSelectorWidget.UpdateSpritePreviews())
                 this.Repaint();
         }
 

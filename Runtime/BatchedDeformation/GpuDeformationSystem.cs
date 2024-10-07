@@ -13,12 +13,29 @@ namespace UnityEngine.U2D.Animation
     {
         const string k_GpuSkinningShaderKeyword = "SKINNED_SPRITE";
         const string k_GlobalSpriteBoneBufferId = "_SpriteBoneTransforms";
-        const int k_DefaultComputeBufferSize = 64;
 
         readonly Dictionary<int, Material> m_KeywordEnabledMaterials = new Dictionary<int, Material>();
 
         NativeArray<int> m_BoneTransformBufferSizes;
         ComputeBuffer m_BoneTransformsComputeBuffer;
+        static ComputeBuffer s_FallbackBuffer;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        static void CreateFallbackBuffer()
+        {
+            if (s_FallbackBuffer == null)
+                s_FallbackBuffer = new ComputeBuffer(UnsafeUtility.SizeOf<float4x4>(), UnsafeUtility.SizeOf<float4x4>(), ComputeBufferType.Default);
+
+            Shader.SetGlobalBuffer(k_GlobalSpriteBoneBufferId, s_FallbackBuffer);
+        }
+
+        static void ClearFallbackBuffer()
+        {
+            if(s_FallbackBuffer != null)
+                s_FallbackBuffer.Release();
+
+            s_FallbackBuffer = null;
+        }
 
         public override DeformationMethods deformationMethod => DeformationMethods.Gpu;
 
@@ -49,6 +66,8 @@ namespace UnityEngine.U2D.Animation
             const int startingCount = 0;
             m_BoneTransformBuffers = new NativeArray<IntPtr>(startingCount, Allocator.Persistent);
             m_BoneTransformBufferSizes = new NativeArray<int>(startingCount, Allocator.Persistent);
+
+            CreateFallbackBuffer();
         }
 
         internal override void Cleanup()
@@ -59,6 +78,8 @@ namespace UnityEngine.U2D.Animation
             m_BoneTransformBufferSizes.DisposeIfCreated();
 
             CleanupComputeResources();
+
+            ClearFallbackBuffer();
         }
 
         protected override void ResizeAndCopyArrays(int updatedCount)
@@ -80,6 +101,7 @@ namespace UnityEngine.U2D.Animation
             foreach (var material in m_KeywordEnabledMaterials.Values)
                 material.DisableKeyword(k_GpuSkinningShaderKeyword);
             m_KeywordEnabledMaterials.Clear();
+            Shader.SetGlobalBuffer(k_GlobalSpriteBoneBufferId, s_FallbackBuffer);
         }
 
         internal override void UpdateMaterial(SpriteSkin spriteSkin)
@@ -99,9 +121,6 @@ namespace UnityEngine.U2D.Animation
                 sharedMaterial.EnableKeyword(k_GpuSkinningShaderKeyword);
                 m_KeywordEnabledMaterials.TryAdd(sharedMaterial.GetInstanceID(), sharedMaterial);
             }
-
-            if (!IsComputeBufferValid(m_BoneTransformsComputeBuffer))
-                CreateComputeBuffer(k_DefaultComputeBufferSize);
 
             return success;
         }
@@ -163,7 +182,6 @@ namespace UnityEngine.U2D.Animation
 
             foreach (var spriteSkin in m_SpriteSkins)
             {
-
                 var didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
                 spriteSkin.PostDeform(didDeform);
             }

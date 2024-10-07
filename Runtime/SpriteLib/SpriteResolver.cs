@@ -48,10 +48,12 @@ namespace UnityEngine.U2D.Animation
         int m_PreviousSpriteKeyInt;
         int m_PreviousSpriteHash;
 
+#if UNITY_INCLUDE_TESTS
         /// <summary>
         /// Raised when resolved to a new value.
         /// </summary>
         internal event Action<SpriteResolver> onResolvedSprite;
+#endif
 
         void Reset()
         {
@@ -175,8 +177,11 @@ namespace UnityEngine.U2D.Animation
 
         static bool IsInGUIUpdateLoop() => Event.current != null;
 
-        void LateUpdate()
+        internal void LateUpdate()
         {
+#if UNITY_EDITOR
+            LateUpdateEditor();
+#endif
             ResolveUpdatedValue();
         }
 
@@ -266,7 +271,9 @@ namespace UnityEngine.U2D.Animation
             if (sr != null && (sprite != null || validEntry))
                 sr.sprite = sprite;
 
+#if UNITY_INCLUDE_TESTS
             onResolvedSprite?.Invoke(this);
+#endif
 
             return validEntry;
         }
