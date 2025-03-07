@@ -192,5 +192,4 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Button {
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow Toggle {
     align-self : center;
-    margin-bottom: 4px;
 }

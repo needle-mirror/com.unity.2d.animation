@@ -40,7 +40,7 @@ namespace UnityEngine.U2D.Animation
 #if ENABLE_URP
             return CanUseGpuDeformation() &&
                 GraphicsSettings.currentRenderPipeline != null &&
-                UniversalRenderPipeline.asset.useSRPBatcher &&
+                UniversalRenderPipeline.asset != null && UniversalRenderPipeline.asset.useSRPBatcher &&
                 InternalEngineBridge.IsGPUSkinningEnabled();
 #else
             return false;

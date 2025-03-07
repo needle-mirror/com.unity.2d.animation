@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using UnityEngine.Scripting;
 using UnityEngine.U2D.Common;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
 using UnityEngine.Rendering;
 using UnityEngine.Scripting.APIUpdating;
@@ -142,10 +141,10 @@ namespace UnityEngine.U2D.Animation
         int m_TransformsHash = 0;
         bool m_ForceCpuDeformation = false;
 
+        int m_TextureId;
         int m_TransformId;
         NativeArray<int> m_BoneTransformId;
         int m_RootBoneTransformId;
-        NativeCustomSlice<Vector2> m_SpriteUVs;
         NativeCustomSlice<Vector3> m_SpriteVertices;
         NativeCustomSlice<Vector4> m_SpriteTangents;
         NativeCustomSlice<BoneWeight> m_SpriteBoneWeights;
@@ -760,7 +759,7 @@ namespace UnityEngine.U2D.Animation
 
             if (sprite == null)
             {
-                m_SpriteUVs = NativeCustomSlice<Vector2>.Default();
+                m_TextureId = 0;
                 m_SpriteVertices = NativeCustomSlice<Vector3>.Default();
                 m_SpriteTangents = NativeCustomSlice<Vector4>.Default();
                 m_SpriteBoneWeights = NativeCustomSlice<BoneWeight>.Default();
@@ -772,6 +771,7 @@ namespace UnityEngine.U2D.Animation
             }
             else
             {
+                m_TextureId = sprite.texture != null ? sprite.texture.GetInstanceID() : 0;
                 var cacheFullMesh = currentDeformationMethod == DeformationMethods.Cpu || forceCpuDeformation;
                 if (cacheFullMesh)
                 {
@@ -794,7 +794,6 @@ namespace UnityEngine.U2D.Animation
                     m_SpriteTangentVertexOffset = 0;
                 }
 
-                m_SpriteUVs = new NativeCustomSlice<Vector2>(sprite.GetVertexAttribute<Vector2>(VertexAttribute.TexCoord0));
                 m_SpriteBoneWeights = new NativeCustomSlice<BoneWeight>(sprite.GetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight));
                 m_SpriteBindPoses = new NativeCustomSlice<Matrix4x4>(sprite.GetBindPoses());
             }
@@ -890,18 +889,15 @@ namespace UnityEngine.U2D.Animation
 
         internal bool NeedToUpdateDeformationCache()
         {
-            unsafe
+            var newTextureId = sprite.texture != null ? sprite.texture.GetInstanceID() : 0;
+            var needUpdate = newTextureId != m_TextureId;
+            if (needUpdate)
             {
-                var iptr = new IntPtr(sprite.GetVertexAttribute<Vector2>(VertexAttribute.TexCoord0).GetUnsafeReadOnlyPtr());
-                var rs = m_SpriteUVs.data != iptr;
-                if (rs)
-                {
-                    UpdateSpriteDeformationData();
-                    deformationSystem?.CopyToSpriteSkinData(this);
-                }
-
-                return rs;
+                UpdateSpriteDeformationData();
+                deformationSystem?.CopyToSpriteSkinData(this);
             }
+
+            return needUpdate;
         }
 
         internal void CacheHierarchy()

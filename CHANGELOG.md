@@ -1,5 +1,17 @@
 # Changelog
 
+## [10.2.0] - 2025-03-07
+### Changed
+- Update minimum Unity version.
+
+### Fixed
+- Sprite Skin's test instability. (DANB-772) 
+- Sprite Skin's null ref exception when HDRP is present in the project. (DANB-785)
+- Updating Skinning Plugin to work on Ubuntu versions >= 20.
+- Skinning Editor style fixes. (DANB-804)
+- Reset TransformAccessJob's cache. (DANB-807)
+- Asset Upgrader icons. (DANB-802)
+
 ## [10.1.4] - 2024-10-07
 ### Fixed
 - Animation Preview window sometimes does not display deformed Sprites. (DANB-705)

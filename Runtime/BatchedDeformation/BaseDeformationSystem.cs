@@ -46,8 +46,8 @@ namespace UnityEngine.U2D.Animation
         protected NativeArray<int2> m_VertexLookupData;
         protected NativeArray<PerSkinJobData> m_SkinBatchArray;
 
-        TransformAccessJob m_LocalToWorldTransformAccessJob;
-        TransformAccessJob m_WorldToLocalTransformAccessJob;
+        protected TransformAccessJob m_LocalToWorldTransformAccessJob;
+        protected TransformAccessJob m_WorldToLocalTransformAccessJob;
 
         protected JobHandle m_DeformJobHandle;
 
