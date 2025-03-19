@@ -57,10 +57,10 @@ namespace UnityEditor.U2D.Animation.Upgrading
         
         const string k_UiUxml = "AssetUpgrader/AssetUpgrader.uxml";
         const string k_UiUss = "AssetUpgrader/AssetUpgrader.uss";
-        const string k_IconWarningId = "WarningIcon_Small";
-        const string k_IconFailId = "ErrorIcon_Small";
-        const string k_IconSuccessId = "GreenCheck";
-        
+        const string k_IconWarningId = "Warning";
+        const string k_IconFailId = "False";
+        const string k_IconSuccessId = "True";
+
         Texture2D m_IconWarn;
         Texture2D m_IconFail;
         Texture2D m_IconSuccess;

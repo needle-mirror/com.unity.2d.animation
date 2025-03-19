@@ -32,22 +32,40 @@ namespace UnityEngine.U2D.Animation
 
         public TransformAccessJob()
         {
-            m_TransformMatrix = new NativeArray<float4x4>(1, Allocator.Persistent);
-            m_TransformData  = new NativeHashMap<int, TransformData>(1, Allocator.Persistent);
-            m_Transform = new Transform[0];
+            InitializeDataStructures();
+
             m_Dirty = false;
             m_JobHandle = default(JobHandle);
+        }
+
+        public void ResetCache()
+        {
+            ClearDataStructures();
+            InitializeDataStructures();
+        }
+
+        void InitializeDataStructures()
+        {
+            m_TransformMatrix = new NativeArray<float4x4>(1, Allocator.Persistent);
+            m_TransformData = new NativeHashMap<int, TransformData>(1, Allocator.Persistent);
+            m_Transform = Array.Empty<Transform>();
         }
 
         public void Destroy()
         {
             m_JobHandle.Complete();
+            ClearDataStructures();
+        }
+
+        void ClearDataStructures()
+        {
             if (m_TransformMatrix.IsCreated)
                 m_TransformMatrix.Dispose();
             if (m_TransformAccessArray.isCreated)
                 m_TransformAccessArray.Dispose();
             if (m_TransformData.IsCreated)
                 m_TransformData.Dispose();
+            m_Transform = null;
         }
 
         public NativeHashMap<int, TransformData> transformData
@@ -59,6 +77,10 @@ namespace UnityEngine.U2D.Animation
         {
             get { return m_TransformMatrix; }
         }
+
+#if UNITY_INCLUDE_TESTS
+        internal TransformAccessArray transformAccessArray => m_TransformAccessArray;
+#endif
 
         public void AddTransform(Transform t)
         {

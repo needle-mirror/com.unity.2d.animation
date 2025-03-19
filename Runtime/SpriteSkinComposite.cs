@@ -522,8 +522,12 @@ namespace UnityEngine.U2D.Animation
 
             var count = m_SpriteSkins.Count;
             if (count == 0)
+            {
+                m_LocalToWorldTransformAccessJob.ResetCache();
+                m_WorldToLocalTransformAccessJob.ResetCache();
                 return;
-            
+            }
+
             Profiling.prepareData.Begin();
             Assert.AreEqual(m_IsSpriteSkinActiveForDeform.Length, count);
             Assert.AreEqual(m_PerSkinJobData.Length, count);

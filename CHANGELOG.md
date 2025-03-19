@@ -1,5 +1,15 @@
 # Changelog
 
+## [9.2.0] - 2025-03-19
+
+### Changed
+- Update Unity minimum version.
+
+### Fixed
+- Asset Upgrader icons. (DANB-814)
+- Reset TransformAccessJob's cache. (DANB-805)
+- Fixed case where IndexOutOfRangeException occurs when auto-generating mesh with a specific settings and bones. (DANB-244)
+
 ## [9.1.3] - 2024-09-25
 ### Fixed
 - Animation Preview window sometimes does not display deformed Sprites. (DANB-704)
