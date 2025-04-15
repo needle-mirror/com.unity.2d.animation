@@ -103,9 +103,11 @@ namespace UnityEditor.U2D.Animation
         public static string vertexWeight = L10n.Tr("Vertex Weight");
         public static string vertexWeightToolTip = L10n.Tr("Adjust bone weights for selected vertex");
         public static string bone = L10n.Tr("Bone");
+        public static string boneTooltip = L10n.Tr("Show bone visibility tool");
         public static string depth = L10n.Tr("Depth");
         public static string color = L10n.Tr("Color");
         public static string sprite = L10n.Tr("Sprite");
+        public static string spriteTooltip = L10n.Tr("Show sprite visibility tool");
         public static string name = L10n.Tr("Name");
         public static string none = L10n.Tr("None");
         public static string size = L10n.Tr("Size");

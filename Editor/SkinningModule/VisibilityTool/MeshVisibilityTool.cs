@@ -33,6 +33,7 @@ namespace UnityEditor.U2D.Animation
 
         public VisualElement view => m_View;
         public string name => "Mesh";
+        public string tooltip => "Show mesh visibility tool";
 
         public void Activate()
         {

@@ -1,4 +1,13 @@
 # Changelog
+## [7.2.0] - 2025-04-15
+### Fixed
+- Fix the exception when generating geometry with hidden sprites. (DANB-841)
+- Added missing tooltips to visibility window (DANB-843)
+- Fixed misaligned text in 2D Animation preferences (DANB-879)
+- Sprite Resolver previews not visible after editor regained focus. (case DANB-565)
+
+### Changed
+- Update Unity minimum version.
 
 ## [7.1.2] - 2024-09-25
 ### Fixed

@@ -345,6 +345,7 @@ namespace UnityEditor.U2D.Animation
 
         public VisualElement view => m_View;
         public string name => TextContent.sprite;
+        public string tooltip => TextContent.spriteTooltip;
 
         public void Activate()
         {

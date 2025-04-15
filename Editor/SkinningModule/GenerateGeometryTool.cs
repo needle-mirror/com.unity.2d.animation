@@ -92,7 +92,7 @@ namespace UnityEditor.U2D.Animation
                 // Generate Base Mesh Threaded.
                 //
                 const int maxDataCount = 65536;
-                var spriteList = new List<SpriteJobData>();
+                var dictSpriteJobData = new Dictionary<SpriteCache, SpriteJobData>();
                 var jobHandles = new NativeArray<JobHandle>(validSpriteCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
                 int jobCount = 0;
 
@@ -117,7 +117,7 @@ namespace UnityEditor.U2D.Animation
                     sd.weights = new NativeArray<BoneWeight>(maxDataCount, Allocator.Persistent);
                     sd.result = new NativeArray<int4>(1, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
                     sd.result[0] = int4.zero;
-                    spriteList.Add(sd);
+                    dictSpriteJobData.Add(sprite, sd);
                     if (m_GenerateGeometryPanel.generateWeights)
                     {
                         jobHandles[jobCount] = m_SpriteMeshDataController.TriangulateJob(m_Triangulator, sd);
@@ -134,9 +134,8 @@ namespace UnityEditor.U2D.Animation
                 //
                 // Generate Base Mesh Fallback.
                 //
-                for (var i = 0; i < spriteList.Count; i++)
+                foreach (var sd in dictSpriteJobData.Values)
                 {
-                    var sd = spriteList[i];
                     if (math.all(sd.result[0].xy))
                     {
                         sd.spriteMesh.Clear();
@@ -164,7 +163,6 @@ namespace UnityEditor.U2D.Animation
                 //
                 // Subdivide.
                 //
-
                 jobCount = 0;
                 if (subdivide > 0f)
                 {
@@ -183,7 +181,7 @@ namespace UnityEditor.U2D.Animation
                         var mesh = sprite.GetMesh();
                         m_SpriteMeshDataController.spriteMeshData = mesh;
 
-                        var sd = spriteList[i];
+                        var sd = dictSpriteJobData[sprite];
                         sd.spriteMesh = mesh;
                         sd.result[0] = int4.zero;
                         m_SpriteMeshDataController.Subdivide(m_Triangulator, sd, largestAreaFactor, 0f);
@@ -211,7 +209,7 @@ namespace UnityEditor.U2D.Animation
                         if (cancelProgress)
                             break;
 
-                        var sd = spriteList[i];
+                        var sd = dictSpriteJobData[sprite];
                         jobHandles[jobCount] = GenerateWeights(sprite, sd);
                         jobCount++;
                     }
@@ -227,7 +225,7 @@ namespace UnityEditor.U2D.Animation
 
                         var mesh = sprite.GetMesh();
                         m_SpriteMeshDataController.spriteMeshData = mesh;
-                        var sd = spriteList[i];
+                        var sd = dictSpriteJobData[sprite];
 
                         for (var j = 0; j < mesh.vertexCount; ++j)
                         {
@@ -248,9 +246,8 @@ namespace UnityEditor.U2D.Animation
 
                 }
 
-                for (var i = 0; i < spriteList.Count; i++)
+                foreach (var sd in dictSpriteJobData.Values)
                 {
-                    var sd = spriteList[i];
                     sd.result.Dispose();
                     sd.indices.Dispose();
                     sd.edges.Dispose();

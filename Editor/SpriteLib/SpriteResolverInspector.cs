@@ -51,10 +51,13 @@ namespace UnityEditor.U2D.Animation
             m_SpriteSkin = (target as SpriteResolver).GetComponent<SpriteSkin>();
             UpdateSpriteLibrary();
             spriteResolver.onDeserializedCallback += SpriteResolverDeserializedCallback;
+
+            EditorApplication.update += OnEditorUpdate;
         }
 
         public void OnDisable()
         {
+            EditorApplication.update -= OnEditorUpdate;
             spriteResolver.onDeserializedCallback -= SpriteResolverDeserializedCallback;
         }
 
@@ -74,6 +77,23 @@ namespace UnityEditor.U2D.Animation
         SpriteResolver spriteResolver => target as SpriteResolver;
 
         bool IsSpriteHashAssigned => SpriteResolver.ConvertFloatToInt(m_SpriteKey.floatValue) != 0;
+
+        private static bool previousFocus = false;
+        void OnEditorUpdate()
+        {
+            bool currentFocus = UnityEditorInternal.InternalEditorUtility.isApplicationActive;
+            if (currentFocus != previousFocus)
+            {
+                OnEditorFocusChanged(currentFocus);
+                previousFocus = currentFocus;
+            }
+        }
+
+        void OnEditorFocusChanged(bool focused)
+        {
+            if (focused)
+                m_ReInitOnNextGUI = true;
+        }
 
         void GetCategoryAndLabelStringValue(out string categoryName, out string labelName)
         {

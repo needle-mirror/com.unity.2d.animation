@@ -128,11 +128,12 @@ namespace UnityEditor.U2D.Animation
             m_MeshOpacitySlider.MarkDirtyRepaint();
         }
 
-        public void AddToolTab(string name, Action onClick)
+        public void AddToolTab(string name, string tooltip, Action onClick)
         {
             var tab = new Button()
             {
-                text = name
+                text = name,
+                tooltip = tooltip
             };
             tab.AddToClassList("visibilityToolTab");
             if (EditorGUIUtility.isProSkin)
@@ -281,7 +282,7 @@ namespace UnityEditor.U2D.Animation
 
     internal interface IVisibilityToolWindow
     {
-        void AddToolTab(string name, Action callback);
+        void AddToolTab(string name, string tooltip, Action callback);
         void SetToolAvailable(int i, bool available);
         void SetBoneOpacitySliderValue(float value);
         void SetMeshOpacitySliderValue(float value);
@@ -326,7 +327,7 @@ namespace UnityEditor.U2D.Animation
                 var tool = m_Tools[i];
                 tool.SetAvailabilityChangeCallback(() => OnToolAvailabilityChange(index));
                 tool.Setup();
-                model.view.AddToolTab(tool.name, () => ActivateToolWithUndo(tool));
+                model.view.AddToolTab(tool.name, tool.tooltip, () => ActivateToolWithUndo(tool));
                 model.view.SetToolAvailable(i, tool.isAvailable);
             }
             m_SkeletonTool = skeletonTool;
