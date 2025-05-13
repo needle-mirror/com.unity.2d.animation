@@ -35,7 +35,7 @@ namespace UnityEditor.U2D.Animation
         {
             m_BoneInspectorPanel.target = target;
             m_BoneInspectorPanel.SetHiddenFromLayout(false);
-            var readOnlyProperty = BoneInspectorPanel.PropertyReadOnly.None;
+            BoneInspectorPanel.PropertyReadOnly readOnlyProperty = BoneInspectorPanel.PropertyReadOnly.None;
             if (isReadOnly)
                 readOnlyProperty = BoneInspectorPanel.PropertyReadOnly.Name |
                     BoneInspectorPanel.PropertyReadOnly.Depth |

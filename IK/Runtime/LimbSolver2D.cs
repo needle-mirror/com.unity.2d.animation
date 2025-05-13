@@ -57,7 +57,7 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         protected override void DoPrepare()
         {
-            var lengths = m_Chain.lengths;
+            float[] lengths = m_Chain.lengths;
             m_Positions[0] = m_Chain.transforms[0].position;
             m_Positions[1] = m_Chain.transforms[1].position;
             m_Positions[2] = m_Chain.transforms[2].position;
@@ -71,20 +71,20 @@ namespace UnityEngine.U2D.IK
         /// <param name="targetPositions">List of target positions.</param>
         protected override void DoUpdateIK(List<Vector3> targetPositions)
         {
-            var targetPosition = targetPositions[0];
-            var upperLimb = m_Chain.transforms[0];
-            var lowerLimb = m_Chain.transforms[1];
-            var effector = m_Chain.effector;
+            Vector3 targetPosition = targetPositions[0];
+            Transform upperLimb = m_Chain.transforms[0];
+            Transform lowerLimb = m_Chain.transforms[1];
+            Transform effector = m_Chain.effector;
 
-            var targetLocalPosition2D = (Vector2)upperLimb.InverseTransformPoint(targetPosition);
+            Vector2 targetLocalPosition2D = (Vector2)upperLimb.InverseTransformPoint(targetPosition);
             targetPosition = upperLimb.TransformPoint(targetLocalPosition2D);
 
             if (targetLocalPosition2D.sqrMagnitude > 0f && Limb.Solve(targetPosition, m_Lengths, m_Positions, ref m_Angles))
             {
-                var upperLimbRotationAngle = Vector2.SignedAngle(Vector2.right, targetLocalPosition2D) + Vector2.SignedAngle(lowerLimb.localPosition, Vector2.right) + (flip ? -1f : 1f) * m_Angles[0];
+                float upperLimbRotationAngle = Vector2.SignedAngle(Vector2.right, targetLocalPosition2D) + Vector2.SignedAngle(lowerLimb.localPosition, Vector2.right) + (flip ? -1f : 1f) * m_Angles[0];
                 upperLimb.localRotation *= Quaternion.AngleAxis(upperLimbRotationAngle, Vector3.forward);
 
-                var lowerLimbRotation = Vector2.SignedAngle(Vector2.right, lowerLimb.InverseTransformPoint(targetPosition)) + Vector2.SignedAngle(effector.localPosition, Vector2.right);
+                float lowerLimbRotation = Vector2.SignedAngle(Vector2.right, lowerLimb.InverseTransformPoint(targetPosition)) + Vector2.SignedAngle(effector.localPosition, Vector2.right);
                 m_Chain.transforms[1].localRotation *= Quaternion.AngleAxis(lowerLimbRotation, Vector3.forward);
             }
         }

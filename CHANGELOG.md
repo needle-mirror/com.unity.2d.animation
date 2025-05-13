@@ -1,16 +1,32 @@
 # Changelog
 
+## [11.0.0] - 2025-05-13
+### Changed
+- Update minimum Unity version.
+
+### Fixed
+- Fix the exception when generating geometry with hidden sprites. (DANB-841)
+- Added missing tooltips to visibility window (DANB-843)
+- Fixed InvalidOperationException occurs when playing in sample scene '3 Character' and 'Attachment Points'. (DANB-860)
+- Fix the issue of putting a warning string "Adding null Transform to TransformAccessArray will result in degraded performance." (DANB-931)
+- Fixed misaligned text in 2D Animation preferences (DANB-879)
+- Fixed blurry icons in Sprite Library Editor. (DANB-842)
+- Fixed unselectable pivot dropdown in skinning editor. (DANB-956)
+- Fixed incorrect scrollbars when adding a large number of categories to sprite library. (DANB-895)
+- Fixed blurry Sprite Library asset icons in Project window. (DANB-901)
+
 ## [10.2.0] - 2025-03-07
 ### Changed
 - Update minimum Unity version.
 
 ### Fixed
-- Sprite Skin's test instability. (DANB-772) 
+- Sprite Skin's test instability. (DANB-772)
 - Sprite Skin's null ref exception when HDRP is present in the project. (DANB-785)
 - Updating Skinning Plugin to work on Ubuntu versions >= 20.
 - Skinning Editor style fixes. (DANB-804)
 - Reset TransformAccessJob's cache. (DANB-807)
 - Asset Upgrader icons. (DANB-802)
+- Check for SRP Batching enabled from Backend.
 
 ## [10.1.4] - 2024-10-07
 ### Fixed

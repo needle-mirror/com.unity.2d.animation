@@ -4,12 +4,12 @@
     <ui:PopupWindow name="PopupWindow" text="Visibility">
         <ui:VisualElement name="OpacitySliderGroup">
             <ui:VisualElement name="BoneOpacitySliderGroup" >
-                <ui:Image name="BoneOpacitySliderIcon" tool-tip = "Adjust Bone opacity"/>
-                <ui:Slider name ="BoneOpacitySlider" low-value ="0" high-value="1" direction="Horizontal" tool-tip = "Adjust Bone opacity"/>
+                <ui:Image name="BoneOpacitySliderIcon" tooltip="Adjust Bone opacity"/>
+                <ui:Slider name ="BoneOpacitySlider" low-value="0" high-value="1" direction="Horizontal" tooltip="Adjust Bone opacity"/>
             </ui:VisualElement>
             <ui:VisualElement name="MeshOpacitySliderGroup">
-                <ui:Image name="MeshOpacitySliderIcon" tool-tip =" Adjust Weight opacity"/>
-                <ui:Slider name ="MeshOpacitySlider" low-value ="0" high-value="1" direction="Horizontal" tool-tip =" Adjust Weight opacity"/>
+                <ui:Image name="MeshOpacitySliderIcon" tooltip="Adjust Weight opacity"/>
+                <ui:Slider name ="MeshOpacitySlider" low-value="0" high-value="1" direction="Horizontal" tooltip="Adjust Weight opacity"/>
             </ui:VisualElement>
         </ui:VisualElement>
       <ui:VisualElement name ="VisibilityToolSelection" />

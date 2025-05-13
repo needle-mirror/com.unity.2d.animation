@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEditor.U2D.Common;
 using UnityEditor.U2D.Layout;
+using UnityEngine;
 using UnityEngine.U2D;
 
 namespace UnityEditor.U2D.Animation
@@ -47,7 +47,7 @@ namespace UnityEditor.U2D.Animation
         {
             get
             {
-                var hashCode = m_CopyToolStringStore.stringStore.GetHashCode();
+                int hashCode = m_CopyToolStringStore.stringStore.GetHashCode();
                 if (hashCode != m_LastCopyDataHash)
                 {
                     m_HasValidCopyData = IsValidCopyData(m_CopyToolStringStore.stringStore);
@@ -100,7 +100,7 @@ namespace UnityEditor.U2D.Animation
             skinningSpriteData.edges = meshTool.mesh.edges;
             skinningSpriteData.boneWeightGuids = new List<string>(meshTool.mesh.bones.Length);
             skinningSpriteData.boneWeightNames = new List<string>(meshTool.mesh.bones.Length);
-            foreach (var bone in meshTool.mesh.bones)
+            foreach (BoneCache bone in meshTool.mesh.bones)
             {
                 skinningSpriteData.boneWeightGuids.Add(bone.guid);
                 skinningSpriteData.boneWeightNames.Add(bone.name);
@@ -110,10 +110,10 @@ namespace UnityEditor.U2D.Animation
         public void OnCopyActivated()
         {
             SkinningCopyData skinningCopyData = null;
-            var selectedSprite = skinningCache.selectedSprite;
+            SpriteCache selectedSprite = skinningCache.selectedSprite;
             if (selectedSprite == null)
             {
-                var sprites = skinningCache.GetSprites();
+                SpriteCache[] sprites = skinningCache.GetSprites();
                 if (!skinningCache.character || sprites.Length > 1)
                     skinningCopyData = CopyAll();
                 else if (sprites.Length == 1)
@@ -131,7 +131,7 @@ namespace UnityEditor.U2D.Animation
 
         SkinningCopyData CopyAll()
         {
-            var skinningCopyData = new SkinningCopyData
+            SkinningCopyData skinningCopyData = new SkinningCopyData
             {
                 pixelsPerUnit = pixelsPerUnit,
                 isCharacterData = skinningCache.hasCharacter,
@@ -140,8 +140,8 @@ namespace UnityEditor.U2D.Animation
                     : null
             };
 
-            var sprites = skinningCache.GetSprites();
-            foreach (var sprite in sprites)
+            SpriteCache[] sprites = skinningCache.GetSprites();
+            foreach (SpriteCache sprite in sprites)
                 skinningCopyData.copyData.Add(GetDataForSprite(sprite));
 
             if (meshTool != null)
@@ -152,7 +152,7 @@ namespace UnityEditor.U2D.Animation
 
         SkinningCopyData CopySingle(SpriteCache sprite)
         {
-            var skinningCopyData = new SkinningCopyData
+            SkinningCopyData skinningCopyData = new SkinningCopyData
             {
                 pixelsPerUnit = pixelsPerUnit,
                 isCharacterData = false,
@@ -165,33 +165,33 @@ namespace UnityEditor.U2D.Animation
 
         SkinningCopySpriteData GetDataForSprite(SpriteCache sprite)
         {
-            var skinningSpriteData = new SkinningCopySpriteData();
+            SkinningCopySpriteData skinningSpriteData = new SkinningCopySpriteData();
             skinningSpriteData.spriteName = sprite.name;
 
             CopyMeshFromSpriteCache(sprite, skinningSpriteData);
 
             // Bones
-            var rootBones = new List<BoneCache>();
-            var boneCache = Array.Empty<BoneCache>();
+            List<BoneCache> rootBones = new List<BoneCache>();
+            BoneCache[] boneCache = Array.Empty<BoneCache>();
             if (skinningCache.hasCharacter)
             {
-                var characterPart = skinningCache.GetCharacterPart(sprite);
+                CharacterPartCache characterPart = skinningCache.GetCharacterPart(sprite);
                 if (characterPart != null && characterPart.bones != null)
                 {
                     boneCache = characterPart.bones;
-                    var bones = characterPart.bones.FindRoots();
-                    foreach (var bone in bones)
+                    BoneCache[] bones = characterPart.bones.FindRoots();
+                    foreach (BoneCache bone in bones)
                         rootBones.Add(bone);
                 }
             }
             else
             {
-                var skeleton = skinningCache.GetEffectiveSkeleton(sprite);
+                SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(sprite);
                 if (skeleton != null && skeleton.boneCount > 0)
                 {
                     boneCache = skeleton.bones;
-                    var bones = boneCache.FindRoots();
-                    foreach (var bone in bones)
+                    BoneCache[] bones = boneCache.FindRoots();
+                    foreach (BoneCache bone in bones)
                         rootBones.Add(bone);
                 }
             }
@@ -199,19 +199,19 @@ namespace UnityEditor.U2D.Animation
             if (rootBones.Count > 0)
             {
                 skinningSpriteData.spriteBones = new List<SpriteBoneCopyData>();
-                foreach (var rootBone in rootBones)
+                foreach (BoneCache rootBone in rootBones)
                 {
-                    var rootBoneIndex = skinningSpriteData.spriteBones.Count;
+                    int rootBoneIndex = skinningSpriteData.spriteBones.Count;
 
                     GetSpriteBoneDataRecursively(skinningSpriteData.spriteBones, rootBone, new List<BoneCache>(boneCache));
                     if (skinningCache.hasCharacter)
                     {
                         // Offset the bones based on the currently selected Sprite in Character mode
-                        var characterPart = sprite.GetCharacterPart();
+                        CharacterPartCache characterPart = sprite.GetCharacterPart();
                         if (characterPart != null)
                         {
-                            var offset = characterPart.position;
-                            var rootSpriteBone = skinningSpriteData.spriteBones[rootBoneIndex];
+                            Vector3 offset = characterPart.position;
+                            SpriteBoneCopyData rootSpriteBone = skinningSpriteData.spriteBones[rootBoneIndex];
                             rootSpriteBone.spriteBone.position -= offset;
                             skinningSpriteData.spriteBones[rootBoneIndex] = rootSpriteBone;
                         }
@@ -229,9 +229,9 @@ namespace UnityEditor.U2D.Animation
 
         static void AppendSpriteBoneDataRecursively(IList<SpriteBoneCopyData> bones, BoneCache currentBone, int parentIndex, List<BoneCache> boneCache)
         {
-            var currentParentIndex = bones.Count;
+            int currentParentIndex = bones.Count;
 
-            var boneCopyData = new SpriteBoneCopyData()
+            SpriteBoneCopyData boneCopyData = new SpriteBoneCopyData()
             {
                 spriteBone = new SpriteBone()
                 {
@@ -263,9 +263,9 @@ namespace UnityEditor.U2D.Animation
 
             boneCopyData.spriteBone.length = currentBone.localLength;
             bones.Add(boneCopyData);
-            foreach (var child in currentBone)
+            foreach (TransformCache child in currentBone)
             {
-                var childBone = child as BoneCache;
+                BoneCache childBone = child as BoneCache;
                 if (childBone != null)
                     AppendSpriteBoneDataRecursively(bones, childBone, currentParentIndex, boneCache);
             }
@@ -273,16 +273,16 @@ namespace UnityEditor.U2D.Animation
 
         public void OnPasteActivated(bool shouldPasteBones, bool shouldPasteMesh, bool shouldFlipX, bool shouldFlipY)
         {
-            var copyBuffer = m_CopyToolStringStore.stringStore;
+            string copyBuffer = m_CopyToolStringStore.stringStore;
             if (!IsValidCopyData(copyBuffer))
                 return;
 
-            var skinningCopyData = SkinningCopyUtility.DeserializeStringToSkinningCopyData(copyBuffer);
+            SkinningCopyData skinningCopyData = SkinningCopyUtility.DeserializeStringToSkinningCopyData(copyBuffer);
             if (skinningCopyData == null || skinningCopyData.copyData.Count == 0)
                 return;
 
-            var doesCopyContainMultipleSprites = skinningCopyData.copyData.Count > 1;
-            var sprites = skinningCache.GetSprites();
+            bool doesCopyContainMultipleSprites = skinningCopyData.copyData.Count > 1;
+            SpriteCache[] sprites = skinningCache.GetSprites();
 
             if (doesCopyContainMultipleSprites && skinningCopyData.copyData.Count != sprites.Length && shouldPasteMesh)
             {
@@ -290,24 +290,24 @@ namespace UnityEditor.U2D.Animation
                 return;
             }
 
-            var selectedSprite = skinningCache.selectedSprite;
+            SpriteCache selectedSprite = skinningCache.selectedSprite;
             using (skinningCache.UndoScope(TextContent.pasteData))
             {
-                var scale = skinningCopyData.pixelsPerUnit > 0f ? pixelsPerUnit / skinningCopyData.pixelsPerUnit : 1f;
-                var pastedBonesToSelect = new HashSet<BoneCache>();
+                float scale = skinningCopyData.pixelsPerUnit > 0f ? pixelsPerUnit / skinningCopyData.pixelsPerUnit : 1f;
+                HashSet<BoneCache> pastedBonesToSelect = new HashSet<BoneCache>();
 
-                var characterBones = Array.Empty<BoneCache>();
-                var replaceCharacterSkeleton = shouldPasteBones && skinningCache.hasCharacter && skinningCopyData.isCharacterData;
+                BoneCache[] characterBones = Array.Empty<BoneCache>();
+                bool replaceCharacterSkeleton = shouldPasteBones && skinningCache.hasCharacter && skinningCopyData.isCharacterData;
                 if (replaceCharacterSkeleton)
                 {
-                    var spriteBones = skinningCopyData.characterBones;
+                    SpriteBone[] spriteBones = skinningCopyData.characterBones;
                     characterBones = PasteBonesInCharacter(skinningCache, spriteBones, shouldFlipX, shouldFlipY, scale);
-                    foreach (var newBone in characterBones)
+                    foreach (BoneCache newBone in characterBones)
                         pastedBonesToSelect.Add(newBone);
                 }
 
-                var pastedToSprites = new List<SpriteCache>();
-                foreach (var copySpriteData in skinningCopyData.copyData)
+                List<SpriteCache> pastedToSprites = new List<SpriteCache>();
+                foreach (SkinningCopySpriteData copySpriteData in skinningCopyData.copyData)
                 {
                     SpriteCache sprite = null;
                     if (selectedSprite != null && !doesCopyContainMultipleSprites)
@@ -320,17 +320,17 @@ namespace UnityEditor.U2D.Animation
 
                     pastedToSprites.Add(sprite);
 
-                    var boneMapping = new Dictionary<string, string>();
+                    Dictionary<string, string> boneMapping = new Dictionary<string, string>();
                     if (shouldPasteBones && !replaceCharacterSkeleton)
                     {
-                        var bonesToPaste = GetBonesInCorrectOrder(copySpriteData.spriteBones);
-                        var boneStorage = PasteBonesInSprite(skinningCache, sprite, bonesToPaste, characterBones, shouldFlipX, shouldFlipY, scale);
+                        SpriteBone[] bonesToPaste = GetBonesInCorrectOrder(copySpriteData.spriteBones);
+                        BoneStorage boneStorage = PasteBonesInSprite(skinningCache, sprite, bonesToPaste, characterBones, shouldFlipX, shouldFlipY, scale);
                         if (boneStorage != null)
                         {
                             boneMapping = boneStorage.boneMapping;
                             if (skinningCache.hasCharacter || sprite == selectedSprite)
                             {
-                                foreach (var newBone in boneStorage.bones)
+                                foreach (BoneCache newBone in boneStorage.bones)
                                     pastedBonesToSelect.Add(newBone);
                             }
                         }
@@ -340,10 +340,10 @@ namespace UnityEditor.U2D.Animation
                         PasteMeshInSprite(meshTool, sprite, copySpriteData, shouldFlipX, shouldFlipY, scale, boneMapping);
                 }
 
-                var refreshSelection = skinningCache.hasCharacter || skinningCache.selectedSprite != null;
+                bool refreshSelection = skinningCache.hasCharacter || skinningCache.selectedSprite != null;
                 if (refreshSelection)
                 {
-                    var newBoneSelection = new BoneCache[pastedBonesToSelect.Count];
+                    BoneCache[] newBoneSelection = new BoneCache[pastedBonesToSelect.Count];
                     pastedBonesToSelect.CopyTo(newBoneSelection);
 
                     meshTool.SetupSprite(selectedSprite); // This is to refresh the selected Sprite in meshTool.
@@ -379,7 +379,7 @@ namespace UnityEditor.U2D.Animation
 
         static Quaternion GetFlippedBoneRotation(BoneCache bone, bool flipX, bool flipY)
         {
-            var euler = bone.rotation.eulerAngles;
+            Vector3 euler = bone.rotation.eulerAngles;
             if (flipX)
             {
                 if (euler.z <= 180)
@@ -395,14 +395,14 @@ namespace UnityEditor.U2D.Animation
 
         static void SetBonePositionAndRotation(BoneCache[] boneCache, TransformCache bone, Vector3[] position, Quaternion[] rotation)
         {
-            var index = Array.FindIndex(boneCache, x => x == bone);
+            int index = Array.FindIndex(boneCache, x => x == bone);
             if (index >= 0)
             {
                 bone.position = position[index];
                 bone.rotation = rotation[index];
             }
 
-            foreach (var child in bone.children)
+            foreach (TransformCache child in bone.children)
             {
                 SetBonePositionAndRotation(boneCache, child, position, rotation);
             }
@@ -413,26 +413,26 @@ namespace UnityEditor.U2D.Animation
             if (!skinningCache.hasCharacter)
                 return null;
 
-            var boneCache = skinningCache.CreateBoneCacheFromSpriteBones(spriteBones, scale);
+            BoneCache[] boneCache = skinningCache.CreateBoneCacheFromSpriteBones(spriteBones, scale);
             if (shouldFlipX || shouldFlipY)
             {
-                var characterRect = new Rect(Vector2.zero, skinningCache.character.dimension);
-                var newPositions = new Vector3[boneCache.Length];
-                var newRotations = new Quaternion[boneCache.Length];
-                for (var i = 0; i < boneCache.Length; ++i)
+                Rect characterRect = new Rect(Vector2.zero, skinningCache.character.dimension);
+                Vector3[] newPositions = new Vector3[boneCache.Length];
+                Quaternion[] newRotations = new Quaternion[boneCache.Length];
+                for (int i = 0; i < boneCache.Length; ++i)
                 {
                     newPositions[i] = GetFlippedBonePosition(boneCache[i], Vector2.zero, characterRect, shouldFlipX, shouldFlipY);
                     newRotations[i] = GetFlippedBoneRotation(boneCache[i], shouldFlipX, shouldFlipY);
                 }
 
-                for (var i = 0; i < boneCache.Length; ++i)
+                for (int i = 0; i < boneCache.Length; ++i)
                 {
                     boneCache[i].position = newPositions[i];
                     boneCache[i].rotation = newRotations[i];
                 }
             }
 
-            var skeleton = skinningCache.character.skeleton;
+            SkeletonCache skeleton = skinningCache.character.skeleton;
             skeleton.SetBones(boneCache);
             skinningCache.events.skeletonTopologyChanged.Invoke(skeleton);
 
@@ -444,17 +444,17 @@ namespace UnityEditor.U2D.Animation
             if (sprite == null || skinningCache.mode == SkinningMode.SpriteSheet && skinningCache.hasCharacter)
                 return null;
 
-            var spriteRect = sprite.textureRect;
-            var skeleton = skinningCache.GetEffectiveSkeleton(sprite);
+            Rect spriteRect = sprite.textureRect;
+            SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(sprite);
 
-            var newBonesCache = skinningCache.CreateBoneCacheFromSpriteBones(newBones, scale);
+            BoneCache[] newBonesCache = skinningCache.CreateBoneCacheFromSpriteBones(newBones, scale);
             if (newBonesCache.Length == 0)
                 return null;
 
             Vector2 rectPosition;
             if (skinningCache.mode == SkinningMode.Character)
             {
-                var characterPart = sprite.GetCharacterPart();
+                CharacterPartCache characterPart = sprite.GetCharacterPart();
                 if (characterPart == null)
                     return null;
                 rectPosition = characterPart.position;
@@ -462,15 +462,15 @@ namespace UnityEditor.U2D.Animation
             else
                 rectPosition = spriteRect.position;
 
-            var newPositions = new Vector3[newBonesCache.Length];
-            var newRotations = new Quaternion[newBonesCache.Length];
-            for (var i = 0; i < newBonesCache.Length; ++i)
+            Vector3[] newPositions = new Vector3[newBonesCache.Length];
+            Quaternion[] newRotations = new Quaternion[newBonesCache.Length];
+            for (int i = 0; i < newBonesCache.Length; ++i)
             {
                 newPositions[i] = GetFlippedBonePosition(newBonesCache[i], rectPosition, spriteRect, shouldFlipX, shouldFlipY);
                 newRotations[i] = GetFlippedBoneRotation(newBonesCache[i], shouldFlipX, shouldFlipY);
             }
 
-            foreach (var bone in newBonesCache)
+            foreach (BoneCache bone in newBonesCache)
             {
                 if (bone.parent == null)
                 {
@@ -480,7 +480,7 @@ namespace UnityEditor.U2D.Animation
                 }
             }
 
-            var boneNameMapping = new Dictionary<string, string>();
+            Dictionary<string, string> boneNameMapping = new Dictionary<string, string>();
             if (skinningCache.mode == SkinningMode.SpriteSheet)
             {
                 skeleton.SetBones(newBonesCache);
@@ -498,26 +498,26 @@ namespace UnityEditor.U2D.Animation
 
         static Dictionary<string, string> AddBonesToSkeletonWithUniqueNames(IList<BoneCache> characterBones, IList<BoneCache> newBones, SkeletonCache skeleton)
         {
-            var nameMapping = new Dictionary<string, string>();
+            Dictionary<string, string> nameMapping = new Dictionary<string, string>();
 
-            var existingBoneGuids = new HashSet<string>();
-            var existingBoneNames = new HashSet<string>(skeleton.boneCount);
-            for (var i = 0; i < characterBones.Count; i++)
+            HashSet<string> existingBoneGuids = new HashSet<string>();
+            HashSet<string> existingBoneNames = new HashSet<string>(skeleton.boneCount);
+            for (int i = 0; i < characterBones.Count; i++)
             {
                 if (!string.IsNullOrEmpty(characterBones[i].guid))
                     existingBoneGuids.Add(characterBones[i].guid);
             }
 
-            for (var i = 0; i < skeleton.boneCount; i++)
+            for (int i = 0; i < skeleton.boneCount; i++)
                 existingBoneNames.Add(skeleton.bones[i].name);
 
-            foreach (var newBone in newBones)
+            foreach (BoneCache newBone in newBones)
             {
-                var guid = newBone.guid;
+                string guid = newBone.guid;
                 if (string.IsNullOrEmpty(guid) || existingBoneGuids.Contains(guid))
                     continue;
 
-                var boneName = newBone.name;
+                string boneName = newBone.name;
                 if (existingBoneNames.Contains(boneName))
                     newBone.name = SkeletonController.AutoNameBoneCopy(boneName, skeleton.bones);
 
@@ -535,17 +535,17 @@ namespace UnityEditor.U2D.Animation
             if (meshTool == null || sprite == null)
                 return;
 
-            var vertices = copySpriteData.vertices ?? Array.Empty<Vector2>();
-            var vertexWeights = copySpriteData.vertexWeights ?? Array.Empty<EditableBoneWeight>();
+            Vector2[] vertices = copySpriteData.vertices ?? Array.Empty<Vector2>();
+            EditableBoneWeight[] vertexWeights = copySpriteData.vertexWeights ?? Array.Empty<EditableBoneWeight>();
 
             meshTool.SetupSprite(sprite);
             meshTool.mesh.SetVertices(vertices, vertexWeights);
             if (!Mathf.Approximately(scale, 1f) || shouldFlipX || shouldFlipY)
             {
-                var spriteRect = sprite.textureRect;
-                for (var i = 0; i < meshTool.mesh.vertexCount; ++i)
+                Rect spriteRect = sprite.textureRect;
+                for (int i = 0; i < meshTool.mesh.vertexCount; ++i)
                 {
-                    var position = meshTool.mesh.vertices[i];
+                    Vector2 position = meshTool.mesh.vertices[i];
                     if (!Mathf.Approximately(scale, 1f))
                         position *= scale;
                     if (shouldFlipX)
@@ -559,10 +559,10 @@ namespace UnityEditor.U2D.Animation
             meshTool.mesh.SetIndices(copySpriteData.indices);
             meshTool.mesh.SetEdges(copySpriteData.edges);
 
-            var skinningCache = meshTool.skinningCache;
-            var skeleton = skinningCache.GetEffectiveSkeleton(sprite);
-            var hasGuids = copySpriteData.boneWeightGuids.Count > 0;
-            for (var i = 0; i < copySpriteData.boneWeightGuids.Count; i++)
+            SkinningCache skinningCache = meshTool.skinningCache;
+            SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(sprite);
+            bool hasGuids = copySpriteData.boneWeightGuids.Count > 0;
+            for (int i = 0; i < copySpriteData.boneWeightGuids.Count; i++)
             {
                 if (string.IsNullOrEmpty(copySpriteData.boneWeightGuids[i]))
                 {
@@ -571,8 +571,8 @@ namespace UnityEditor.U2D.Animation
                 }
             }
 
-            var skeletonBones = skeleton.bones;
-            var influenceBones = hasGuids ? GetBonesFromGuids(copySpriteData, skeletonBones, boneMapping) : GetBonesFromNames(copySpriteData, skeletonBones, boneMapping);
+            BoneCache[] skeletonBones = skeleton.bones;
+            BoneCache[] influenceBones = hasGuids ? GetBonesFromGuids(copySpriteData, skeletonBones, boneMapping) : GetBonesFromNames(copySpriteData, skeletonBones, boneMapping);
 
             // Update associated bones for mesh
             meshTool.mesh.SetCompatibleBoneSet(influenceBones);
@@ -581,7 +581,7 @@ namespace UnityEditor.U2D.Animation
             // Update associated bones for character
             if (skinningCache.hasCharacter)
             {
-                var characterPart = sprite.GetCharacterPart();
+                CharacterPartCache characterPart = sprite.GetCharacterPart();
                 if (characterPart != null)
                 {
                     characterPart.bones = influenceBones;
@@ -594,10 +594,10 @@ namespace UnityEditor.U2D.Animation
 
         static BoneCache[] GetBonesFromGuids(SkinningCopySpriteData copySpriteData, IList<BoneCache> skeletonBones, Dictionary<string, string> boneMapping)
         {
-            var spriteBones = new List<BoneCache>();
-            for (var i = 0; i < copySpriteData.boneWeightGuids.Count; i++)
+            List<BoneCache> spriteBones = new List<BoneCache>();
+            for (int i = 0; i < copySpriteData.boneWeightGuids.Count; i++)
             {
-                var bone = FindBoneWithGuid(skeletonBones, copySpriteData.boneWeightGuids[i]);
+                BoneCache bone = FindBoneWithGuid(skeletonBones, copySpriteData.boneWeightGuids[i]);
                 if (bone == null)
                     continue;
 
@@ -616,14 +616,14 @@ namespace UnityEditor.U2D.Animation
 
         static BoneCache[] GetBonesFromNames(SkinningCopySpriteData copySpriteData, IList<BoneCache> skeletonBones, Dictionary<string, string> boneMapping)
         {
-            var spriteBones = new List<BoneCache>();
-            for (var i = 0; i < copySpriteData.boneWeightNames.Count; ++i)
+            List<BoneCache> spriteBones = new List<BoneCache>();
+            for (int i = 0; i < copySpriteData.boneWeightNames.Count; ++i)
             {
-                var boneName = copySpriteData.boneWeightNames[i];
+                string boneName = copySpriteData.boneWeightNames[i];
                 if (boneMapping != null && boneMapping.ContainsKey(boneName))
                     boneName = boneMapping[boneName];
 
-                var bone = FindBoneWithName(skeletonBones, boneName);
+                BoneCache bone = FindBoneWithName(skeletonBones, boneName);
                 if (bone == null)
                     continue;
 
@@ -635,14 +635,14 @@ namespace UnityEditor.U2D.Animation
 
         static SpriteBone[] GetBonesInCorrectOrder(IList<SpriteBoneCopyData> spriteBones)
         {
-            var orderedBones = new SpriteBone[spriteBones.Count];
-            for (var i = 0; i < spriteBones.Count; ++i)
+            SpriteBone[] orderedBones = new SpriteBone[spriteBones.Count];
+            for (int i = 0; i < spriteBones.Count; ++i)
             {
-                var order = spriteBones[i].order;
+                int order = spriteBones[i].order;
                 if (order >= 0)
                 {
                     orderedBones[order] = spriteBones[i].spriteBone;
-                    var parentId = orderedBones[order].parentId;
+                    int parentId = orderedBones[order].parentId;
                     if (parentId >= 0)
                         orderedBones[order].parentId = spriteBones[parentId].order;
                 }
@@ -657,9 +657,9 @@ namespace UnityEditor.U2D.Animation
 
         static SpriteCache FindSpriteWithName(IList<SpriteCache> sprites, string spriteName)
         {
-            for (var i = 0; i < sprites.Count; i++)
+            for (int i = 0; i < sprites.Count; i++)
             {
-                var sprite = sprites[i];
+                SpriteCache sprite = sprites[i];
                 if (sprite.name == spriteName)
                     return sprite;
             }
@@ -669,9 +669,9 @@ namespace UnityEditor.U2D.Animation
 
         static BoneCache FindBoneWithName(IList<BoneCache> bones, string boneName)
         {
-            for (var i = 0; i < bones.Count; i++)
+            for (int i = 0; i < bones.Count; i++)
             {
-                var bone = bones[i];
+                BoneCache bone = bones[i];
                 if (bone.name == boneName)
                     return bone;
             }
@@ -681,9 +681,9 @@ namespace UnityEditor.U2D.Animation
 
         static BoneCache FindBoneWithGuid(IList<BoneCache> bones, string guid)
         {
-            for (var i = 0; i < bones.Count; i++)
+            for (int i = 0; i < bones.Count; i++)
             {
-                var bone = bones[i];
+                BoneCache bone = bones[i];
                 if (bone.guid == guid)
                     return bone;
             }

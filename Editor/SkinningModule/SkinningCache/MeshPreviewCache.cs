@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -71,14 +71,14 @@ namespace UnityEditor.U2D.Animation
             if (m_Vertices.Count == 0 || m_Vertices.Count != m_Weights.Count)
                 return false;
 
-            var bones = sprite.GetBonesFromMode();
+            BoneCache[] bones = sprite.GetBonesFromMode();
 
             Debug.Assert(bones != null);
 
             if (bones.Length == 0)
                 return false;
 
-            foreach (var weight in m_Weights)
+            foreach (BoneWeight weight in m_Weights)
             {
                 if (weight.boneIndex0 < 0 || weight.boneIndex0 >= bones.Length ||
                     weight.boneIndex1 < 0 || weight.boneIndex1 >= bones.Length ||
@@ -104,7 +104,7 @@ namespace UnityEditor.U2D.Animation
 
         static Mesh CreateMesh()
         {
-            var mesh = new Mesh();
+            Mesh mesh = new Mesh();
             mesh.MarkDynamic();
             mesh.hideFlags = HideFlags.DontSave;
 
@@ -116,17 +116,17 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(sprite != null);
             Debug.Assert(m_DefaultMesh != null);
 
-            var meshCache = sprite.GetMesh();
+            MeshCache meshCache = sprite.GetMesh();
 
             Debug.Assert(meshCache != null);
 
-            meshCache.textureDataProvider.GetTextureActualWidthAndHeight(out var width, out var height);
+            meshCache.textureDataProvider.GetTextureActualWidthAndHeight(out int width, out int height);
 
-            var uvScale = new Vector2(1f / width, 1f / height);
+            Vector2 uvScale = new Vector2(1f / width, 1f / height);
             Vector3 position = sprite.textureRect.position;
-            var size = sprite.textureRect.size;
+            Vector2 size = sprite.textureRect.size;
 
-            var defaultVerts = new List<Vector3>()
+            List<Vector3> defaultVerts = new List<Vector3>()
             {
                 Vector3.zero,
                 new Vector3(0f, size.y, 0f),
@@ -134,7 +134,7 @@ namespace UnityEditor.U2D.Animation
                 size,
             };
 
-            var uvs = new List<Vector2>()
+            List<Vector2> uvs = new List<Vector2>()
             {
                 Vector3.Scale(defaultVerts[0] + position, uvScale),
                 Vector3.Scale(defaultVerts[1] + position, uvScale),
@@ -182,8 +182,8 @@ namespace UnityEditor.U2D.Animation
 
         public void Prepare()
         {
-            var meshChanged = false;
-            var meshCache = sprite.GetMesh();
+            bool meshChanged = false;
+            MeshCache meshCache = sprite.GetMesh();
 
             Debug.Assert(meshCache != null);
 
@@ -204,11 +204,11 @@ namespace UnityEditor.U2D.Animation
                 m_Vertices.Clear();
                 m_TexCoords.Clear();
 
-                meshCache.textureDataProvider.GetTextureActualWidthAndHeight(out var width, out var height);
+                meshCache.textureDataProvider.GetTextureActualWidthAndHeight(out int width, out int height);
 
-                var uvScale = new Vector2(1f / width, 1f / height);
+                Vector2 uvScale = new Vector2(1f / width, 1f / height);
 
-                foreach (var vertex in meshCache.vertices)
+                foreach (Vector2 vertex in meshCache.vertices)
                 {
                     m_Vertices.Add(vertex);
                     m_TexCoords.Add(Vector2.Scale(vertex + sprite.textureRect.position, uvScale));
@@ -224,9 +224,9 @@ namespace UnityEditor.U2D.Animation
             {
                 m_Weights.Clear();
 
-                for (var i = 0; i < meshCache.vertexWeights.Length; ++i)
+                for (int i = 0; i < meshCache.vertexWeights.Length; ++i)
                 {
-                    var weight = meshCache.vertexWeights[i];
+                    EditableBoneWeight weight = meshCache.vertexWeights[i];
                     m_Weights.Add(weight.ToBoneWeight(true));
                 }
 
@@ -273,22 +273,22 @@ namespace UnityEditor.U2D.Animation
 
         void PrepareColors()
         {
-            var bones = sprite.GetBonesFromMode();
+            BoneCache[] bones = sprite.GetBonesFromMode();
 
             Debug.Assert(bones != null);
 
             m_Colors.Clear();
 
-            for (var i = 0; i < m_Weights.Count; ++i)
+            for (int i = 0; i < m_Weights.Count; ++i)
             {
-                var boneWeight = m_Weights[i];
-                var weightSum = 0f;
-                var color = Color.black;
+                BoneWeight boneWeight = m_Weights[i];
+                float weightSum = 0f;
+                Color color = Color.black;
 
-                for (var j = 0; j < 4; ++j)
+                for (int j = 0; j < 4; ++j)
                 {
-                    var boneIndex = boneWeight.GetBoneIndex(j);
-                    var weight = boneWeight.GetWeight(j);
+                    int boneIndex = boneWeight.GetBoneIndex(j);
+                    float weight = boneWeight.GetWeight(j);
 
                     if (boneIndex >= 0 && boneIndex < bones.Length)
                         color += bones[boneIndex].bindPoseColor * weight;
@@ -307,29 +307,29 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(canSkin);
             Debug.Assert(sprite != null);
 
-            var bones = sprite.GetBonesFromMode();
+            BoneCache[] bones = sprite.GetBonesFromMode();
 
-            var originMatrix = Matrix4x4.TRS(sprite.pivotRectSpace, Quaternion.identity, Vector3.one);
-            var originInverseMatrix = originMatrix.inverse;
-            var spriteMatrix = sprite.GetLocalToWorldMatrixFromMode();
-            var spriteMatrixInv = spriteMatrix.inverse;
+            Matrix4x4 originMatrix = Matrix4x4.TRS(sprite.pivotRectSpace, Quaternion.identity, Vector3.one);
+            Matrix4x4 originInverseMatrix = originMatrix.inverse;
+            Matrix4x4 spriteMatrix = sprite.GetLocalToWorldMatrixFromMode();
+            Matrix4x4 spriteMatrixInv = spriteMatrix.inverse;
 
             m_SkinnedVertices.Clear();
             m_SkinningMatrices.Clear();
 
-            for (var i = 0; i < bones.Length; ++i)
+            for (int i = 0; i < bones.Length; ++i)
                 m_SkinningMatrices.Add(spriteMatrixInv * originInverseMatrix * bones[i].localToWorldMatrix * bones[i].bindPose.matrix.inverse * spriteMatrix);
 
-            for (var i = 0; i < m_Vertices.Count; ++i)
+            for (int i = 0; i < m_Vertices.Count; ++i)
             {
-                var position = m_Vertices[i];
-                var boneWeight = m_Weights[i];
-                var weightSum = boneWeight.weight0 + boneWeight.weight1 + boneWeight.weight2 + boneWeight.weight3;
+                Vector3 position = m_Vertices[i];
+                BoneWeight boneWeight = m_Weights[i];
+                float weightSum = boneWeight.weight0 + boneWeight.weight1 + boneWeight.weight2 + boneWeight.weight3;
 
                 if (weightSum > 0f)
                 {
-                    var weightSumInv = 1f / weightSum;
-                    var skinnedPosition = m_SkinningMatrices[boneWeight.boneIndex0].MultiplyPoint3x4(position) * boneWeight.weight0 * weightSumInv +
+                    float weightSumInv = 1f / weightSum;
+                    Vector3 skinnedPosition = m_SkinningMatrices[boneWeight.boneIndex0].MultiplyPoint3x4(position) * boneWeight.weight0 * weightSumInv +
                         m_SkinningMatrices[boneWeight.boneIndex1].MultiplyPoint3x4(position) * boneWeight.weight1 * weightSumInv +
                         m_SkinningMatrices[boneWeight.boneIndex2].MultiplyPoint3x4(position) * boneWeight.weight2 * weightSumInv +
                         m_SkinningMatrices[boneWeight.boneIndex3].MultiplyPoint3x4(position) * boneWeight.weight3 * weightSumInv;

@@ -1,9 +1,9 @@
-using UnityEngine;
-using UnityEditor.U2D.Common;
-using UnityEditor.U2D.Layout;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.U2D.Common;
+using UnityEditor.U2D.Layout;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -63,7 +63,7 @@ namespace UnityEditor.U2D.Animation
             {
                 UpdateBrushSelection(brush);
 
-                var hardness = brush.hardness / 100f;
+                float hardness = brush.hardness / 100f;
 
                 if (EditorGUI.actionKey)
                     hardness *= -1f;
@@ -128,8 +128,8 @@ namespace UnityEditor.U2D.Animation
 
         private string[] GetSkeletonBonesNames()
         {
-            var names = new List<string>() { WeightPainterPanel.kNone };
-            var skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
+            List<string> names = new List<string>() { WeightPainterPanel.kNone };
+            SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
 
             if (skeleton != null)
                 names.AddRange(GetUniqueBoneNames(skeleton.bones, skeleton));
@@ -139,12 +139,12 @@ namespace UnityEditor.U2D.Animation
 
         private string[] GetMeshBoneNames()
         {
-            var mesh = meshTool.mesh;
-            var skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
+            MeshCache mesh = meshTool.mesh;
+            SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
 
             if (mesh != null && skeleton != null)
             {
-                var bones = meshTool.mesh.bones.ToSpriteSheetIfNeeded();
+                BoneCache[] bones = meshTool.mesh.bones.ToSpriteSheetIfNeeded();
                 return GetUniqueBoneNames(bones, skeleton);
             }
 
@@ -166,9 +166,9 @@ namespace UnityEditor.U2D.Animation
 
         private void UpdateSelectedBone()
         {
-            var boneName = WeightPainterPanel.kNone;
-            var bone = skinningCache.skeletonSelection.activeElement.ToSpriteSheetIfNeeded();
-            var skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
+            string boneName = WeightPainterPanel.kNone;
+            BoneCache bone = skinningCache.skeletonSelection.activeElement.ToSpriteSheetIfNeeded();
+            SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
 
             if (skeleton != null && skeleton.Contains(bone))
                 boneName = skeleton.GetUniqueName(bone);
@@ -199,7 +199,7 @@ namespace UnityEditor.U2D.Animation
             };
             m_WeightPainterPanel.bonePopupChanged += (i) =>
             {
-                var skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
+                SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
 
                 if (skeleton != null)
                 {
@@ -228,25 +228,25 @@ namespace UnityEditor.U2D.Animation
 
         private void AssociateSelectedBoneToCharacterPart()
         {
-            var mesh = meshTool.mesh;
+            MeshCache mesh = meshTool.mesh;
 
             if (skinningCache.hasCharacter
                 && skinningCache.mode == SkinningMode.Character
                 && m_WeightPainterPanel.boneIndex != -1
                 && mesh != null)
             {
-                var skeleton = skinningCache.character.skeleton;
+                SkeletonCache skeleton = skinningCache.character.skeleton;
 
                 Debug.Assert(skeleton != null);
 
-                var bone = skeleton.GetBone(m_WeightPainterPanel.boneIndex);
+                BoneCache bone = skeleton.GetBone(m_WeightPainterPanel.boneIndex);
 
                 if (!mesh.ContainsBone(bone))
                 {
                     using (skinningCache.UndoScope(TextContent.addBoneInfluence))
                     {
-                        var characterPart = mesh.sprite.GetCharacterPart();
-                        var characterBones = characterPart.bones.ToList();
+                        CharacterPartCache characterPart = mesh.sprite.GetCharacterPart();
+                        List<BoneCache> characterBones = characterPart.bones.ToList();
                         characterBones.Add(bone);
                         characterPart.bones = characterBones.ToArray();
                         skinningCache.events.characterPartChanged.Invoke(characterPart);
@@ -294,11 +294,11 @@ namespace UnityEditor.U2D.Animation
         {
             if (index != -1 && meshTool.mesh != null)
             {
-                var skeleton = skinningCache.GetEffectiveSkeleton(meshTool.mesh.sprite);
+                SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(meshTool.mesh.sprite);
 
                 if (skeleton != null)
                 {
-                    var bone = skeleton.GetBone(index).ToCharacterIfNeeded();
+                    BoneCache bone = skeleton.GetBone(index).ToCharacterIfNeeded();
                     index = Array.IndexOf(meshTool.mesh.bones, bone);
                 }
             }
@@ -328,7 +328,7 @@ namespace UnityEditor.U2D.Animation
 
         private void DrawBrush(Brush brush)
         {
-            var oldColor = Handles.color;
+            Color oldColor = Handles.color;
             Handles.color = Color.white;
 
             if (EditorGUI.actionKey)
@@ -350,8 +350,8 @@ namespace UnityEditor.U2D.Animation
             meshMode = SpriteMeshViewMode.EditGeometry;
             disableMeshEditor = true;
 
-            var isBoneHovered = skeletonTool.hoveredBone != null && !m_Brush.isHot;
-            var useBrush = paintMode == WeightPainterMode.Brush;
+            bool isBoneHovered = skeletonTool.hoveredBone != null && !m_Brush.isHot;
+            bool useBrush = paintMode == WeightPainterMode.Brush;
 
             meshTool.selectionOverride = null;
 
@@ -363,9 +363,9 @@ namespace UnityEditor.U2D.Animation
 
             if (useBrush && !isBoneHovered)
             {
-                var handlesMatrix = Handles.matrix;
-                var selectedSprite = skinningCache.selectedSprite;
-                var matrix = Matrix4x4.identity;
+                Matrix4x4 handlesMatrix = Handles.matrix;
+                SpriteCache selectedSprite = skinningCache.selectedSprite;
+                Matrix4x4 matrix = Matrix4x4.identity;
 
                 if (selectedSprite != null)
                     matrix = selectedSprite.GetLocalToWorldMatrixFromMode();

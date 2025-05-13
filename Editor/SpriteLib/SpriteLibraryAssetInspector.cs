@@ -1,9 +1,9 @@
 using UnityEditor.Callbacks;
+using UnityEditor.U2D.Animation.Upgrading;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.U2D.Animation;
-using UnityEditor.U2D.Animation.Upgrading;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -14,7 +14,7 @@ namespace UnityEditor.U2D.Animation
         [OnOpenAssetAttribute(OnOpenAssetAttributeMode.Execute)]
         public static bool ExecuteOpenSpriteLibraryAsset(int instanceID)
         {
-            var spriteLibraryAsset = EditorUtility.InstanceIDToObject(instanceID) as SpriteLibraryAsset;
+            SpriteLibraryAsset spriteLibraryAsset = EditorUtility.InstanceIDToObject(instanceID) as SpriteLibraryAsset;
             if (spriteLibraryAsset != null)
             {
                 SpriteLibraryEditor.SpriteLibraryEditorWindow.OpenWindow();
@@ -53,15 +53,15 @@ namespace UnityEditor.U2D.Animation
 
         public void OnDisable()
         {
-            var sla = target as SpriteLibraryAsset;
+            SpriteLibraryAsset sla = target as SpriteLibraryAsset;
             if (sla != null)
                 sla.UpdateHashes();
         }
 
         float GetElementHeight(int index)
         {
-            var property = m_Labels.GetArrayElementAtIndex(index);
-            var spriteListProp = property.FindPropertyRelative("m_CategoryList");
+            SerializedProperty property = m_Labels.GetArrayElementAtIndex(index);
+            SerializedProperty spriteListProp = property.FindPropertyRelative("m_CategoryList");
             if (spriteListProp.isExpanded)
                 return (spriteListProp.arraySize + 1) * (EditorGUIUtility.singleLineHeight + Style.lineSpacing) + kElementHeight;
 
@@ -70,17 +70,17 @@ namespace UnityEditor.U2D.Animation
 
         void DrawElement(Rect rect, int index, bool selected, bool focused)
         {
-            var property = m_Labels.GetArrayElementAtIndex(index);
+            SerializedProperty property = m_Labels.GetArrayElementAtIndex(index);
 
-            var catRect = new Rect(rect.x, rect.y, rect.width - kElementHeight, EditorGUIUtility.singleLineHeight);
-            var vaRect = new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight, rect.width - kElementHeight, EditorGUIUtility.singleLineHeight);
+            Rect catRect = new Rect(rect.x, rect.y, rect.width - kElementHeight, EditorGUIUtility.singleLineHeight);
+            Rect vaRect = new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight, rect.width - kElementHeight, EditorGUIUtility.singleLineHeight);
 
-            var categoryProp = property.FindPropertyRelative("m_Name");
+            SerializedProperty categoryProp = property.FindPropertyRelative("m_Name");
 
-            var spriteListProp = property.FindPropertyRelative("m_CategoryList");
+            SerializedProperty spriteListProp = property.FindPropertyRelative("m_CategoryList");
 
             EditorGUI.BeginChangeCheck();
-            var newCatName = EditorGUI.DelayedTextField(catRect, categoryProp.stringValue);
+            string newCatName = EditorGUI.DelayedTextField(catRect, categoryProp.stringValue);
             if (EditorGUI.EndChangeCheck())
             {
                 newCatName = newCatName.Trim();
@@ -99,11 +99,11 @@ namespace UnityEditor.U2D.Animation
             if (spriteListProp.isExpanded)
             {
                 EditorGUI.indentLevel++;
-                var indentedRect = EditorGUI.IndentedRect(vaRect);
-                var labelWidth = EditorGUIUtility.labelWidth;
+                Rect indentedRect = EditorGUI.IndentedRect(vaRect);
+                float labelWidth = EditorGUIUtility.labelWidth;
                 EditorGUIUtility.labelWidth = 40 + indentedRect.x - vaRect.x;
                 indentedRect.y += EditorGUIUtility.singleLineHeight + Style.lineSpacing;
-                var sizeRect = indentedRect;
+                Rect sizeRect = indentedRect;
                 int size = EditorGUI.IntField(sizeRect, TextContent.size, spriteListProp.arraySize);
                 if (size != spriteListProp.arraySize && size >= 0)
                     spriteListProp.arraySize = size;
@@ -118,17 +118,17 @@ namespace UnityEditor.U2D.Animation
         {
             for (int i = 0; i < spriteListProp.arraySize; ++i)
             {
-                var element = spriteListProp.GetArrayElementAtIndex(i);
+                SerializedProperty element = spriteListProp.GetArrayElementAtIndex(i);
                 EditorGUI.BeginChangeCheck();
-                var oldName = element.FindPropertyRelative("m_Name").stringValue;
-                var nameRect = new Rect(rect.x, rect.y, rect.width / 2, EditorGUIUtility.singleLineHeight);
+                string oldName = element.FindPropertyRelative("m_Name").stringValue;
+                Rect nameRect = new Rect(rect.x, rect.y, rect.width / 2, EditorGUIUtility.singleLineHeight);
                 bool nameDuplicate = IsNameInUsed(oldName, spriteListProp, "m_Name", 1);
                 if (nameDuplicate)
                 {
                     nameRect.width -= 20;
                 }
 
-                var newName = EditorGUI.DelayedTextField(
+                string newName = EditorGUI.DelayedTextField(
                     nameRect,
                     Style.nameLabel,
                     oldName);
@@ -176,12 +176,12 @@ namespace UnityEditor.U2D.Animation
         bool IsNameInUsed(string name, SerializedProperty property, string propertyField, int threshold)
         {
             int count = 0;
-            var nameHash = SpriteLibraryUtility.GetStringHash(name);
+            int nameHash = SpriteLibraryUtility.GetStringHash(name);
             for (int i = 0; i < property.arraySize; ++i)
             {
-                var sp = property.GetArrayElementAtIndex(i);
-                var otherName = sp.FindPropertyRelative(propertyField).stringValue;
-                var otherNameHash = SpriteLibraryUtility.GetStringHash(otherName);
+                SerializedProperty sp = property.GetArrayElementAtIndex(i);
+                string otherName = sp.FindPropertyRelative(propertyField).stringValue;
+                int otherNameHash = SpriteLibraryUtility.GetStringHash(otherName);
                 if (otherName == name || nameHash == otherNameHash)
                 {
                     count++;
@@ -195,7 +195,7 @@ namespace UnityEditor.U2D.Animation
 
         void OnAddCallback(ReorderableList list)
         {
-            var oldSize = m_Labels.arraySize;
+            int oldSize = m_Labels.arraySize;
             m_Labels.arraySize += 1;
             const string kNewCatName = "New Category";
             string newCatName = kNewCatName;
@@ -208,7 +208,7 @@ namespace UnityEditor.U2D.Animation
                     break;
             }
 
-            var sp = m_Labels.GetArrayElementAtIndex(oldSize);
+            SerializedProperty sp = m_Labels.GetArrayElementAtIndex(oldSize);
             sp.FindPropertyRelative("m_Name").stringValue = newCatName;
             sp.FindPropertyRelative("m_Hash").intValue = SpriteLibraryUtility.GetStringHash(newCatName);
         }

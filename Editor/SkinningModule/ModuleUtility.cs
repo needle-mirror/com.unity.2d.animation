@@ -1,6 +1,6 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 
 namespace UnityEditor.U2D.Animation
@@ -63,21 +63,21 @@ namespace UnityEditor.U2D.Animation
 
             bool[] calculatedMatrix = new bool[spriteBoneDataList.Count];
 
-            var processedBoneCount = 0;
+            int processedBoneCount = 0;
             while (processedBoneCount < spriteBoneDataList.Count)
             {
                 int oldCount = processedBoneCount;
 
-                for (var i = 0; i < spriteBoneDataList.Count; ++i)
+                for (int i = 0; i < spriteBoneDataList.Count; ++i)
                 {
                     if (calculatedMatrix[i])
                         continue;
 
-                    var sourceBone = spriteBoneDataList[i];
+                    SpriteBoneData sourceBone = spriteBoneDataList[i];
                     if (sourceBone.parentId != -1 && !calculatedMatrix[sourceBone.parentId])
                         continue;
 
-                    var localToWorldMatrix = Matrix4x4.identity;
+                    Matrix4x4 localToWorldMatrix = Matrix4x4.identity;
                     localToWorldMatrix.SetTRS(sourceBone.localPosition, sourceBone.localRotation, Vector3.one);
 
                     if (sourceBone.parentId == -1)
@@ -99,7 +99,7 @@ namespace UnityEditor.U2D.Animation
         {
             List<SpriteBoneData> spriteBoneDataList = new List<SpriteBoneData>(spriteBoneList.Length);
 
-            foreach (var spriteBone in spriteBoneList)
+            foreach (UnityEngine.U2D.SpriteBone spriteBone in spriteBoneList)
             {
                 spriteBoneDataList.Add(new SpriteBoneData()
                 {
@@ -116,7 +116,7 @@ namespace UnityEditor.U2D.Animation
 
             for (int i = 0; i < spriteBoneDataList.Count; ++i)
             {
-                var spriteBoneData = spriteBoneDataList[i];
+                SpriteBoneData spriteBoneData = spriteBoneDataList[i];
                 spriteBoneData.position = localToWorldMatrices[i].MultiplyPoint(Vector2.zero);
                 spriteBoneData.endPosition = localToWorldMatrices[i].MultiplyPoint(Vector2.right * spriteBoneData.length);
             }

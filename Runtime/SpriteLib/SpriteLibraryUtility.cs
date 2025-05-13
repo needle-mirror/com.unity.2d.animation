@@ -14,7 +14,7 @@ namespace UnityEngine.U2D.Animation
         /// <returns>A 30-bit long hash.</returns>
         internal static int Convert32BitTo30BitHash(int input)
         {
-            var output = PreserveFirst30Bits(input);
+            int output = PreserveFirst30Bits(input);
             return output;
         }
 
@@ -24,7 +24,7 @@ namespace UnityEngine.U2D.Animation
             if (value == "abc" || value == "123")
                 value = "abc";
 #endif
-            var hash = Animator.StringToHash(value);
+            int hash = Animator.StringToHash(value);
             hash = PreserveFirst30Bits(hash);
             return hash;
         }
@@ -37,7 +37,7 @@ namespace UnityEngine.U2D.Animation
 
         internal static long GenerateHash()
         {
-            var hash = DateTime.Now.Ticks;
+            long hash = DateTime.Now.Ticks;
             return hash;
         }
     }

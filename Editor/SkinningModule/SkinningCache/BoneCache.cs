@@ -12,7 +12,7 @@ namespace UnityEditor.U2D.Animation
 
         public static Pose Create(Vector3 p, Quaternion r)
         {
-            var pose = new Pose()
+            Pose pose = new Pose()
             {
                 position = p,
                 rotation = r
@@ -49,7 +49,7 @@ namespace UnityEditor.U2D.Animation
         public float length;
         public static BonePose Create(Pose p, float l)
         {
-            var pose = new BonePose()
+            BonePose pose = new BonePose()
             {
                 pose = p,
                 length = l
@@ -123,7 +123,7 @@ namespace UnityEditor.U2D.Animation
         {
             get
             {
-                var parentSkeleton = parent as SkeletonCache;
+                SkeletonCache parentSkeleton = parent as SkeletonCache;
                 if (parentSkeleton != null)
                     return parentSkeleton;
 
@@ -164,7 +164,7 @@ namespace UnityEditor.U2D.Animation
                 if (chainedChild != null)
                     return;
 
-                var direction = value - position;
+                Vector3 direction = value - position;
                 right = direction;
                 length = direction.magnitude;
             }
@@ -224,14 +224,14 @@ namespace UnityEditor.U2D.Animation
 
         internal void SetChildrenWorldPose(Pose[] worldPoses)
         {
-            var childrenArray = children;
+            TransformCache[] childrenArray = children;
 
             Debug.Assert(childrenArray.Length == worldPoses.Length);
 
-            for (var i = 0; i < childrenArray.Length; ++i)
+            for (int i = 0; i < childrenArray.Length; ++i)
             {
-                var child = childrenArray[i];
-                var pose = worldPoses[i];
+                TransformCache child = childrenArray[i];
+                Pose pose = worldPoses[i];
 
                 child.position = pose.position;
                 child.rotation = pose.rotation;
@@ -259,8 +259,8 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(chainedChild != null);
 
-            var childPosition = chainedChild.position;
-            var childRotation = chainedChild.rotation;
+            Vector3 childPosition = chainedChild.position;
+            Quaternion childRotation = chainedChild.rotation;
 
             Pose[] childrenWorldPose = null;
 
@@ -299,12 +299,12 @@ namespace UnityEditor.U2D.Animation
 
         bool IsUnscaled()
         {
-            var currentTransform = this as TransformCache;
+            TransformCache currentTransform = this as TransformCache;
 
             while (currentTransform != null)
             {
-                var scale = currentTransform.localScale;
-                var isUnscaled = Mathf.Approximately(scale.x, 1f) && Mathf.Approximately(scale.y, 1f) && Mathf.Approximately(scale.z, 1f);
+                Vector3 scale = currentTransform.localScale;
+                bool isUnscaled = Mathf.Approximately(scale.x, 1f) && Mathf.Approximately(scale.y, 1f) && Mathf.Approximately(scale.z, 1f);
 
                 if (!isUnscaled)
                     return false;

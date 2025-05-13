@@ -17,7 +17,7 @@ namespace UnityEngine.U2D.Animation
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Resolver")]
-    [IconAttribute(IconUtility.IconPath + "Animation.SpriteResolver.png")]
+    [IconAttribute(IconUtility.IconPath + "Animation.SpriteResolver.asset")]
     [DefaultExecutionOrder(UpdateOrder.spriteResolverUpdateOrder)]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SL-Resolver.html")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
@@ -65,13 +65,13 @@ namespace UnityEngine.U2D.Animation
 
         void SetSprite(Sprite sprite)
         {
-            var sl = spriteLibrary;
+            SpriteLibrary sl = spriteLibrary;
             if (sl != null && sprite != null)
             {
-                foreach (var cat in sl.categoryNames)
+                foreach (string cat in sl.categoryNames)
                 {
-                    var entries = sl.GetEntryNames(cat);
-                    foreach (var ent in entries)
+                    System.Collections.Generic.IEnumerable<string> entries = sl.GetEntryNames(cat);
+                    foreach (string ent in entries)
                     {
                         if (sl.GetSprite(cat, ent) == sprite)
                         {
@@ -141,8 +141,8 @@ namespace UnityEngine.U2D.Animation
         /// <returns>The Category's name.</returns>
         public string GetCategory()
         {
-            var returnString = "";
-            var sl = spriteLibrary;
+            string returnString = "";
+            SpriteLibrary sl = spriteLibrary;
             if (sl)
             {
                 sl.GetCategoryAndEntryNameFromHash(m_SpriteHash, out returnString, out _);
@@ -157,8 +157,8 @@ namespace UnityEngine.U2D.Animation
         /// <returns>The Label's name.</returns>
         public string GetLabel()
         {
-            var returnString = "";
-            var sl = spriteLibrary;
+            string returnString = "";
+            SpriteLibrary sl = spriteLibrary;
             if (sl)
                 sl.GetCategoryAndEntryNameFromHash(m_SpriteHash, out _, out returnString);
 
@@ -195,7 +195,7 @@ namespace UnityEngine.U2D.Animation
             else
             {
                 // Path is still needed in case users are running animation clip from before.
-                var spriteKeyInt = InternalEngineBridge.ConvertFloatToInt(m_SpriteKey);
+                int spriteKeyInt = InternalEngineBridge.ConvertFloatToInt(m_SpriteKey);
                 if (spriteKeyInt != m_PreviousSpriteKeyInt)
                 {
                     m_SpriteHash = SpriteLibraryUtility.Convert32BitTo30BitHash(spriteKeyInt);
@@ -225,14 +225,14 @@ namespace UnityEngine.U2D.Animation
         {
             if (library != null)
             {
-                foreach (var category in library.categoryNames)
+                foreach (string category in library.categoryNames)
                 {
                     if (categoryHash == SpriteLibraryUtility.GetStringHash(category))
                     {
-                        var entries = library.GetEntryNames(category);
+                        System.Collections.Generic.IEnumerable<string> entries = library.GetEntryNames(category);
                         if (entries != null)
                         {
-                            foreach (var entry in entries)
+                            foreach (string entry in entries)
                             {
                                 if (labelHash == SpriteLibraryUtility.GetStringHash(entry))
                                 {
@@ -249,7 +249,7 @@ namespace UnityEngine.U2D.Animation
 
         internal Sprite GetSprite(out bool validEntry)
         {
-            var lib = spriteLibrary;
+            SpriteLibrary lib = spriteLibrary;
             if (lib != null)
             {
                 return lib.GetSpriteFromCategoryAndEntryHash(m_SpriteHash, out validEntry);
@@ -266,8 +266,8 @@ namespace UnityEngine.U2D.Animation
         public bool ResolveSpriteToSpriteRenderer()
         {
             m_PreviousSpriteHash = m_SpriteHash;
-            var sprite = GetSprite(out var validEntry);
-            var sr = spriteRenderer;
+            Sprite sprite = GetSprite(out bool validEntry);
+            SpriteRenderer sr = spriteRenderer;
             if (sr != null && (sprite != null || validEntry))
                 sr.sprite = sprite;
 

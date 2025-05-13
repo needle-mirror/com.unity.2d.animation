@@ -3,12 +3,12 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using UnityEngine.Scripting;
-using UnityEngine.U2D.Common;
 using Unity.Collections;
 using Unity.Profiling;
 using UnityEngine.Rendering;
+using UnityEngine.Scripting;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -99,7 +99,7 @@ namespace UnityEngine.U2D.Animation
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
     [AddComponentMenu("2D Animation/Sprite Skin")]
-    [IconAttribute(IconUtility.IconPath + "Animation.SpriteSkin.png")]
+    [IconAttribute(IconUtility.IconPath + "Animation.SpriteSkin.asset")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SpriteSkin.html")]
     public sealed class SpriteSkin : MonoBehaviour, IPreviewable, ISerializationCallbackReceiver
@@ -327,11 +327,11 @@ namespace UnityEngine.U2D.Animation
             if (!isValid)
                 return false;
 
-            var spriteBones = spriteRenderer.sprite.GetBones();
-            for (var i = 0; i < boneTransforms.Length; ++i)
+            SpriteBone[] spriteBones = spriteRenderer.sprite.GetBones();
+            for (int i = 0; i < boneTransforms.Length; ++i)
             {
-                var boneTransform = boneTransforms[i];
-                var spriteBone = spriteBones[i];
+                Transform boneTransform = boneTransforms[i];
+                SpriteBone spriteBone = spriteBones[i];
 
                 if (spriteBone.parentId != -1)
                 {
@@ -363,11 +363,10 @@ namespace UnityEngine.U2D.Animation
 
         void OnEnable()
         {
+            Awake();
             m_TransformId = gameObject.transform.GetInstanceID();
             m_TransformsHash = 0;
             currentDeformationMethod = SpriteSkinUtility.CanSpriteSkinUseGpuDeformation(this) ? DeformationMethods.Gpu : DeformationMethods.Cpu;
-
-            Awake();
 
             CacheCurrentSprite(m_AutoRebind);
             UpdateSpriteDeformationData();
@@ -415,8 +414,8 @@ namespace UnityEngine.U2D.Animation
         {
             m_BoneCacheUpdateToDate = true;
 
-            var boneCount = 0;
-            for (var i = 0; i < boneTransforms?.Length; ++i)
+            int boneCount = 0;
+            for (int i = 0; i < boneTransforms?.Length; ++i)
             {
                 if (boneTransforms[i] != null)
                     ++boneCount;
@@ -492,7 +491,7 @@ namespace UnityEngine.U2D.Animation
                 RefreshBoneTransforms();
 
             CacheCurrentSprite(m_AutoRebind);
-            var hasSprite = m_CurrentDeformSprite != 0;
+            bool hasSprite = m_CurrentDeformSprite != 0;
             return m_IsValid && hasSprite && m_SpriteRenderer.enabled && (alwaysUpdate || m_SpriteRenderer.isVisible);
         }
 
@@ -566,7 +565,7 @@ namespace UnityEngine.U2D.Animation
             if (m_DataIndex < 0)
                 throw new InvalidOperationException("There are no currently deformed vertices.");
 
-            var buffer = deformationSystem?.GetDeformableBufferForSpriteSkin(this) ?? default;
+            NativeArray<byte> buffer = deformationSystem?.GetDeformableBufferForSpriteSkin(this) ?? default;
             if (buffer == default)
                 throw new InvalidOperationException("There are no currently deformed vertices.");
 
@@ -591,7 +590,7 @@ namespace UnityEngine.U2D.Animation
             if (!sprite.HasVertexAttribute(VertexAttribute.Position))
                 throw new InvalidOperationException("This SpriteSkin does not have deformed positions.");
 
-            var deformedBuffer = GetCurrentDeformedVertices();
+            NativeArray<byte> deformedBuffer = GetCurrentDeformedVertices();
             return deformedBuffer.Slice().SliceConvert<PositionVertex>();
         }
 
@@ -615,7 +614,7 @@ namespace UnityEngine.U2D.Animation
             if (!sprite.HasVertexAttribute(VertexAttribute.Position))
                 throw new InvalidOperationException("This SpriteSkin does not have deformed positions.");
 
-            var deformedBuffer = GetCurrentDeformedVertices();
+            NativeArray<byte> deformedBuffer = GetCurrentDeformedVertices();
             return deformedBuffer.Slice().SliceConvert<PositionTangentVertex>();
         }
 
@@ -632,12 +631,12 @@ namespace UnityEngine.U2D.Animation
             if (!m_IsValid)
                 throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
 
-            var hasPosition = sprite.HasVertexAttribute(VertexAttribute.Position);
+            bool hasPosition = sprite.HasVertexAttribute(VertexAttribute.Position);
             if (!hasPosition)
                 throw new InvalidOperationException("Sprite does not have vertex position data.");
 
-            var rawBuffer = GetCurrentDeformedVertices();
-            var rawSlice = rawBuffer.Slice(sprite.GetVertexStreamOffset(VertexAttribute.Position));
+            NativeArray<byte> rawBuffer = GetCurrentDeformedVertices();
+            NativeSlice<byte> rawSlice = rawBuffer.Slice(sprite.GetVertexStreamOffset(VertexAttribute.Position));
             return new NativeCustomSliceEnumerator<Vector3>(rawSlice, m_SpriteVertexCount, m_SpriteVertexStreamSize);
         }
 
@@ -654,12 +653,12 @@ namespace UnityEngine.U2D.Animation
             if (!m_IsValid)
                 throw new InvalidOperationException("The SpriteSkin deformation is not valid.");
 
-            var hasTangent = sprite.HasVertexAttribute(VertexAttribute.Tangent);
+            bool hasTangent = sprite.HasVertexAttribute(VertexAttribute.Tangent);
             if (!hasTangent)
                 throw new InvalidOperationException("Sprite does not have vertex tangent data.");
 
-            var rawBuffer = GetCurrentDeformedVertices();
-            var rawSlice = rawBuffer.Slice(sprite.GetVertexStreamOffset(VertexAttribute.Tangent));
+            NativeArray<byte> rawBuffer = GetCurrentDeformedVertices();
+            NativeSlice<byte> rawSlice = rawBuffer.Slice(sprite.GetVertexStreamOffset(VertexAttribute.Tangent));
             return new NativeCustomSliceEnumerator<Vector4>(rawSlice, m_SpriteVertexCount, m_SpriteVertexStreamSize);
         }
 
@@ -696,11 +695,11 @@ namespace UnityEngine.U2D.Animation
             CacheCurrentSprite(m_AutoRebind);
             if (isValid && enabled && (alwaysUpdate || m_SpriteRenderer.isVisible))
             {
-                var transformHash = SpriteSkinUtility.CalculateTransformHash(this);
-                var spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
+                int transformHash = SpriteSkinUtility.CalculateTransformHash(this);
+                int spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
                 if (spriteVertexCount > 0 && (m_TransformsHash != transformHash || vertexDeformationHash != GetNewVertexDeformationHash()))
                 {
-                    var inputVertices = GetDeformedVertices(spriteVertexCount);
+                    NativeByteArray inputVertices = GetDeformedVertices(spriteVertexCount);
                     SpriteSkinUtility.Deform(sprite, gameObject.transform.worldToLocalMatrix, boneTransforms, inputVertices.array);
                     SpriteSkinUtility.UpdateBounds(this, inputVertices.array);
                     InternalEngineBridge.SetDeformableBuffer(spriteRenderer, inputVertices.array);
@@ -738,7 +737,7 @@ namespace UnityEngine.U2D.Animation
                 m_CurrentDeformSprite = m_SpriteId;
                 if (rebind && m_CurrentDeformSprite != 0 && rootBone != null)
                 {
-                    if (!SpriteSkinHelpers.GetSpriteBonesTransforms(this, out var transforms))
+                    if (!SpriteSkinHelpers.GetSpriteBonesTransforms(this, out Transform[] transforms))
                         Debug.LogWarning($"Rebind failed for {name}. Could not find all bones required by the Sprite: {sprite.name}.");
                     SetBoneTransforms(transforms);
                 }
@@ -772,7 +771,7 @@ namespace UnityEngine.U2D.Animation
             else
             {
                 m_TextureId = sprite.texture != null ? sprite.texture.GetInstanceID() : 0;
-                var cacheFullMesh = currentDeformationMethod == DeformationMethods.Cpu || forceCpuDeformation;
+                bool cacheFullMesh = currentDeformationMethod == DeformationMethods.Cpu || forceCpuDeformation;
                 if (cacheFullMesh)
                 {
                     m_SpriteVertices = new NativeCustomSlice<Vector3>(sprite.GetVertexAttribute<Vector3>(VertexAttribute.Position));
@@ -809,9 +808,9 @@ namespace UnityEngine.U2D.Animation
             if (!HasCurrentDeformedVertices())
                 return;
 
-            var buffer = GetCurrentDeformedVertices();
-            var indexCache = m_OutlineIndexCache;
-            var vertexCache = m_DeformedOutlineVertexCache;
+            NativeArray<byte> buffer = GetCurrentDeformedVertices();
+            NativeArray<int> indexCache = m_OutlineIndexCache;
+            NativeArray<Vector3> vertexCache = m_DeformedOutlineVertexCache;
             BurstedSpriteSkinUtilities.SetVertexPositionFromByteBuffer(in buffer, in indexCache, ref vertexCache, m_SpriteVertexStreamSize);
             m_DeformedOutlineVertexCache = vertexCache;
         }
@@ -823,23 +822,23 @@ namespace UnityEngine.U2D.Animation
             if (sprite == null)
                 return;
 
-            CacheOutlineIndices(out var maxIndex);
-            var cacheSize = maxIndex + 1;
+            CacheOutlineIndices(out int maxIndex);
+            int cacheSize = maxIndex + 1;
             CacheOutlineVertices(cacheSize);
         }
 
         void CacheOutlineIndices(out int maxIndex)
         {
-            var indices = sprite.GetIndices();
-            var edgeNativeArr = MeshUtilities.GetOutlineEdges(in indices);
+            NativeArray<ushort> indices = sprite.GetIndices();
+            NativeArray<Unity.Mathematics.int2> edgeNativeArr = MeshUtilities.GetOutlineEdges(in indices);
 
             m_OutlineIndexCache = new NativeArray<int>(edgeNativeArr.Length * 2, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 
             maxIndex = 0;
-            for (var i = 0; i < edgeNativeArr.Length; ++i)
+            for (int i = 0; i < edgeNativeArr.Length; ++i)
             {
-                var indexX = edgeNativeArr[i].x;
-                var indexY = edgeNativeArr[i].y;
+                int indexX = edgeNativeArr[i].x;
+                int indexY = edgeNativeArr[i].y;
                 m_OutlineIndexCache[i * 2] = indexX;
                 m_OutlineIndexCache[(i * 2) + 1] = indexY;
 
@@ -857,11 +856,11 @@ namespace UnityEngine.U2D.Animation
             m_DeformedOutlineVertexCache = new NativeArray<Vector3>(cacheSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
             m_StaticOutlineVertexCache = new NativeArray<Vector3>(cacheSize, Allocator.Persistent);
 
-            var vertices = sprite.GetVertexAttribute<Vector3>(VertexAttribute.Position);
-            var vertexCache = m_StaticOutlineVertexCache;
-            for (var i = 0; i < m_OutlineIndexCache.Length; ++i)
+            NativeSlice<Vector3> vertices = sprite.GetVertexAttribute<Vector3>(VertexAttribute.Position);
+            NativeArray<Vector3> vertexCache = m_StaticOutlineVertexCache;
+            for (int i = 0; i < m_OutlineIndexCache.Length; ++i)
             {
-                var index = m_OutlineIndexCache[i];
+                int index = m_OutlineIndexCache[i];
                 vertexCache[index] = vertices[index];
             }
 
@@ -889,8 +888,8 @@ namespace UnityEngine.U2D.Animation
 
         internal bool NeedToUpdateDeformationCache()
         {
-            var newTextureId = sprite.texture != null ? sprite.texture.GetInstanceID() : 0;
-            var needUpdate = newTextureId != m_TextureId;
+            int newTextureId = sprite.texture != null ? sprite.texture.GetInstanceID() : 0;
+            bool needUpdate = newTextureId != m_TextureId;
             if (needUpdate)
             {
                 UpdateSpriteDeformationData();
@@ -908,18 +907,18 @@ namespace UnityEngine.U2D.Animation
                 if (rootBone == null || !m_AutoRebind)
                     return;
 
-                var boneCount = CountChildren(rootBone);
+                int boneCount = CountChildren(rootBone);
                 hierarchyCache.EnsureCapacity(boneCount + 1);
                 SpriteSkinHelpers.CacheChildren(rootBone, hierarchyCache);
 
-                foreach (var entry in hierarchyCache)
+                foreach (KeyValuePair<int, List<TransformData>> entry in hierarchyCache)
                 {
                     if (entry.Value.Count == 1)
                         continue;
-                    var count = entry.Value.Count;
-                    for (var i = 0; i < count; ++i)
+                    int count = entry.Value.Count;
+                    for (int i = 0; i < count; ++i)
                     {
-                        var transformEntry = entry.Value[i];
+                        TransformData transformEntry = entry.Value[i];
                         transformEntry.fullName = SpriteSkinHelpers.GenerateTransformPath(rootBone, transformEntry.transform);
                         entry.Value[i] = transformEntry;
                     }
@@ -931,7 +930,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (m_SpriteRenderer != null)
             {
-                var currentSprite = sprite;
+                Sprite currentSprite = sprite;
                 if (currentSprite != null)
                     InternalEngineBridge.SetLocalAABB(m_SpriteRenderer, currentSprite.bounds);
 
@@ -955,9 +954,9 @@ namespace UnityEngine.U2D.Animation
 
         static int CountChildren(Transform transform)
         {
-            var childCount = transform.childCount;
-            var count = childCount;
-            for (var i = 0; i < childCount; ++i)
+            int childCount = transform.childCount;
+            int count = childCount;
+            for (int i = 0; i < childCount; ++i)
                 count += CountChildren(transform.GetChild(i));
 
             return count;

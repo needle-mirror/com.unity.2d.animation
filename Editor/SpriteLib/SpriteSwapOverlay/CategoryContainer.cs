@@ -30,7 +30,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         public void SetItems(IList categories)
         {
-            var newChoices = (List<string>)categories ?? new List<string>();
+            List<string> newChoices = (List<string>)categories ?? new List<string>();
             newChoices.Insert(0, TextContent.noCategory);
             choices = newChoices;
             SetEnabled(newChoices.Count > 1);
@@ -56,11 +56,11 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void OnValueChanged(ChangeEvent<string> evt)
         {
-            var newSelection = evt.newValue;
+            string newSelection = evt.newValue;
             if (string.IsNullOrWhiteSpace(newSelection))
                 return;
 
-            var newIndex = choices.IndexOf(newSelection);
+            int newIndex = choices.IndexOf(newSelection);
             if (newIndex == selectedIndex)
                 return;
 

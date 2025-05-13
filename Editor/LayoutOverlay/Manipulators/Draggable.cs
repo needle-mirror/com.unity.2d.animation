@@ -19,7 +19,7 @@ namespace UnityEditor.U2D.Layout
 
         public Draggable(bool clampToParentEdges = false)
         {
-            activators.Add(new ManipulatorActivationFilter {button = MouseButton.LeftMouse});
+            activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse });
             panSpeed = Vector2.one;
             this.clampToParentEdges = clampToParentEdges;
             m_Active = false;
@@ -27,7 +27,7 @@ namespace UnityEditor.U2D.Layout
 
         protected Rect CalculatePosition(float x, float y, float width, float height)
         {
-            var rect = new Rect(x, y, width, height);
+            Rect rect = new Rect(x, y, width, height);
 
             if (clampToParentEdges)
             {

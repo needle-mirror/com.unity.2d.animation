@@ -81,14 +81,14 @@ namespace UnityEditor.U2D.Animation
         {
             using (skinningCache.UndoScope(undoName))
             {
-                var selectedSprite = skinningCache.selectedSprite;
+                SpriteCache selectedSprite = skinningCache.selectedSprite;
                 if (selectedSprite != null)
                     HandleWeightsForSprite(selectedSprite, action);
                 else
                 {
-                    var sprites = skinningCache.GetSprites();
+                    SpriteCache[] sprites = skinningCache.GetSprites();
 
-                    foreach (var sprite in sprites)
+                    foreach (SpriteCache sprite in sprites)
                     {
                         if (sprite.IsVisible())
                             HandleWeightsForSprite(sprite, action);

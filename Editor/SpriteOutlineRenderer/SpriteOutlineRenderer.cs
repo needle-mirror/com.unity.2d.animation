@@ -55,29 +55,29 @@ namespace UnityEditor.U2D.Animation
             if (SelectionOutlineSettings.selectedSpriteOutlineSize < 0.01f || SelectionOutlineSettings.outlineColor.a < 0.01f)
                 return;
 
-            var mesh = GetMesh(sprite);
+            Mesh mesh = GetMesh(sprite);
             if (mesh == null)
                 return;
 
             UnityEngine.Profiling.Profiler.BeginSample("SpriteOutlineRenderer::RenderSpriteOutline");
 
-            var vertices = mesh.vertices;
-            var edges = sprite.GetMesh().edges;
-            var multMatrix = Handles.matrix * sprite.GetLocalToWorldMatrixFromMode();
+            Vector3[] vertices = mesh.vertices;
+            int2[] edges = sprite.GetMesh().edges;
+            Matrix4x4 multMatrix = Handles.matrix * sprite.GetLocalToWorldMatrixFromMode();
 
-            var texture = spriteEditor.GetDataProvider<ITextureDataProvider>().texture;
-            var outlineSize = SelectionOutlineSettings.selectedSpriteOutlineSize;
-            var outlineColor = SelectionOutlineSettings.outlineColor;
-            var adjustForGamma = PlayerSettings.colorSpace == ColorSpace.Linear ? 1.0f : 0.0f;
+            Texture2D texture = spriteEditor.GetDataProvider<ITextureDataProvider>().texture;
+            int outlineSize = SelectionOutlineSettings.selectedSpriteOutlineSize;
+            Color outlineColor = SelectionOutlineSettings.outlineColor;
+            float adjustForGamma = PlayerSettings.colorSpace == ColorSpace.Linear ? 1.0f : 0.0f;
 
             if (edges != null && edges.Length > 0 && vertices.Length > 0)
             {
-                var finalOutlineSize = outlineSize / spriteEditor.zoomLevel;
+                float finalOutlineSize = outlineSize / spriteEditor.zoomLevel;
                 DrawEdgeOutline(edges, vertices, multMatrix, finalOutlineSize, outlineColor, adjustForGamma);
             }
             else // Fallback: Draw using the Sobel filter.
             {
-                var finalOutlineSize = Mathf.Max(texture.width, texture.height) * outlineSize / k_ReferenceTextureSize;
+                int finalOutlineSize = Mathf.Max(texture.width, texture.height) * outlineSize / k_ReferenceTextureSize;
                 DrawMeshOutline(mesh, sprite, multMatrix, finalOutlineSize, outlineColor, adjustForGamma);
             }
 
@@ -90,22 +90,22 @@ namespace UnityEditor.U2D.Animation
             m_EdgeOutlineMaterial.SetFloat(k_AdjustLinearForGammaProperty, adjustForGamma);
             m_EdgeOutlineMaterial.SetPass(0);
 
-            var edgeCount = edges.Length;
-            var vertexCount = vertices.Length;
+            int edgeCount = edges.Length;
+            int vertexCount = vertices.Length;
 
             GL.PushMatrix();
             GL.MultMatrix(multMatrix);
             GL.Begin(GL.QUADS);
-            for (var i = 0; i < edgeCount; i++)
+            for (int i = 0; i < edgeCount; i++)
             {
-                var currentEdge = edges[i];
+                int2 currentEdge = edges[i];
                 if (currentEdge.x < 0 || currentEdge.y < 0 || currentEdge.x >= vertexCount || currentEdge.y >= vertexCount)
                     continue;
 
-                var start = vertices[edges[i].x];
-                var end = vertices[edges[i].y];
-                var direction = (end - start).normalized;
-                var right = Vector3.Cross(Vector3.forward, direction) * outlineSize;
+                Vector3 start = vertices[edges[i].x];
+                Vector3 end = vertices[edges[i].y];
+                Vector3 direction = (end - start).normalized;
+                Vector3 right = Vector3.Cross(Vector3.forward, direction) * outlineSize;
 
                 GL.Vertex(start - right);
                 GL.Vertex(start + right);
@@ -116,14 +116,14 @@ namespace UnityEditor.U2D.Animation
             GL.End();
             GL.PopMatrix();
 
-            for (var i = 0; i < edgeCount; i++)
+            for (int i = 0; i < edgeCount; i++)
             {
-                var currentEdge = edges[i];
+                int2 currentEdge = edges[i];
                 if (currentEdge.x < 0 || currentEdge.y < 0 || currentEdge.x >= vertexCount || currentEdge.y >= vertexCount)
                     continue;
 
-                var start = vertices[edges[i].x];
-                var end = vertices[edges[i].y];
+                Vector3 start = vertices[edges[i].x];
+                Vector3 end = vertices[edges[i].y];
 
                 Graphics.DrawMeshNow(m_CircleMesh, multMatrix * Matrix4x4.TRS(start, Quaternion.identity, Vector3.one * outlineSize));
                 Graphics.DrawMeshNow(m_CircleMesh, multMatrix * Matrix4x4.TRS(end, Quaternion.identity, Vector3.one * outlineSize));
@@ -142,7 +142,7 @@ namespace UnityEditor.U2D.Animation
             GL.PushMatrix();
             GL.MultMatrix(multMatrix);
 
-            var meshBoundsRect = new Rect(mesh.bounds.min.x, mesh.bounds.min.y, mesh.bounds.size.x, mesh.bounds.size.y);
+            Rect meshBoundsRect = new Rect(mesh.bounds.min.x, mesh.bounds.min.y, mesh.bounds.size.x, mesh.bounds.size.y);
             GL.Begin(GL.QUADS);
             GL.Color(Color.white);
             GL.TexCoord(new Vector3(0, 0, 0));
@@ -165,11 +165,11 @@ namespace UnityEditor.U2D.Animation
             if (spriteCache == null)
                 return null;
 
-            var mesh = GetMesh(spriteCache);
+            Mesh mesh = GetMesh(spriteCache);
             if (mesh == null || (int)mesh.bounds.size.x == 0 || (int)mesh.bounds.size.y == 0)
                 return null;
 
-            var bounds = mesh.bounds;
+            Bounds bounds = mesh.bounds;
             UnityEngine.Profiling.Profiler.BeginSample("SpriteOutlineRenderer::GenerateOutlineTexture");
 
             if (reuseRT == null || reuseRT.width != (int)bounds.size.x || reuseRT.height != (int)bounds.size.y)
@@ -181,15 +181,15 @@ namespace UnityEditor.U2D.Animation
                 UnityEngine.Profiling.Profiler.EndSample();
             }
 
-            var oldRT = RenderTexture.active;
+            RenderTexture oldRT = RenderTexture.active;
             Graphics.SetRenderTarget(reuseRT);
             m_BitMaskMaterial.SetPass(0);
             UnityEngine.Profiling.Profiler.BeginSample("SpriteOutlineRenderer::DrawMesh");
             GL.Clear(false, true, new Color(0, 0, 0, 0));
             GL.PushMatrix();
             GL.LoadOrtho();
-            var h = bounds.size.y * 0.5f;
-            var w = h * (bounds.size.x / bounds.size.y);
+            float h = bounds.size.y * 0.5f;
+            float w = h * (bounds.size.x / bounds.size.y);
             GL.LoadProjectionMatrix(Matrix4x4.Ortho(-w, w, -h, h, -1, 1));
             GL.Begin(GL.QUADS);
             GL.Color(Color.white);
@@ -206,7 +206,7 @@ namespace UnityEditor.U2D.Animation
 
         static Mesh GetMesh(SpriteCache sprite)
         {
-            var meshPreview = sprite.GetMeshPreview();
+            MeshPreviewCache meshPreview = sprite.GetMeshPreview();
 
             if (meshPreview == null)
                 return null;
@@ -217,15 +217,15 @@ namespace UnityEditor.U2D.Animation
         static Mesh GenerateCircleMesh()
         {
             const int triangleVerts = 9;
-            var verts = new Vector3[triangleVerts];
-            for (var i = 1; i < verts.Length; i++)
+            Vector3[] verts = new Vector3[triangleVerts];
+            for (int i = 1; i < verts.Length; i++)
             {
                 verts[i] = Quaternion.Euler(0, 0, i * 360f / (verts.Length - 1)) * Vector3.up;
             }
 
-            var indices = new int[(verts.Length - 1) * 3];
-            var index = 0;
-            for (var i = 1; i < triangleVerts; i++)
+            int[] indices = new int[(verts.Length - 1) * 3];
+            int index = 0;
+            for (int i = 1; i < triangleVerts; i++)
             {
                 indices[index++] = 0;
                 indices[index++] = i;
@@ -262,7 +262,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (m_OutlineTextureCache != null)
             {
-                foreach (var value in m_OutlineTextureCache.Values)
+                foreach (OutlineRenderTexture value in m_OutlineTextureCache.Values)
                 {
                     if (value != null && value.outlineTexture != null)
                         Object.DestroyImmediate(value.outlineTexture);
@@ -279,16 +279,16 @@ namespace UnityEditor.U2D.Animation
                 if (!m_OutlineTextureCache.ContainsKey(sprite.id))
                     m_OutlineTextureCache.Add(sprite.id, new OutlineRenderTexture() { dirty = true });
 
-                var outlineTextureCache = m_OutlineTextureCache[sprite.id];
+                OutlineRenderTexture outlineTextureCache = m_OutlineTextureCache[sprite.id];
                 outlineTextureCache.dirty |= regenerate;
             }
         }
 
         void TryRegenerateMaskTexture(SpriteCache sprite)
         {
-            var selectedSprite = sprite.skinningCache.selectedSprite;
+            SpriteCache selectedSprite = sprite.skinningCache.selectedSprite;
 
-            var outlineTextureCache = m_OutlineTextureCache[sprite.id];
+            OutlineRenderTexture outlineTextureCache = m_OutlineTextureCache[sprite.id];
             if (sprite == selectedSprite)
             {
                 if (outlineTextureCache.dirty || outlineTextureCache.outlineTexture == null)

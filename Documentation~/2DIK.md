@@ -23,14 +23,10 @@ The following workflow continues from the __2D Animation__ package [animation wo
 The __IK Manager 2D__ component controls the __IK Solvers__ in the hierarchy.  Add the Manager component to the highest bone in the hierarchy, commonly referred to as the *Root* bone.
 
 1. In this example, add the component to *Plunkah* as it is the *Root* bone in the hierarchy:
-   ![](images/2D_IK_Image1.png)
 
-
-2. To add an IK Solver, select the + symbol at the bottom right of the *IK Solvers* list (see below).
-   ![](images/2D_IK_Image2.png)
+2. To add an IK Solver, in the **IK Manager 2D (Script)** component, select the + symbol at the bottom right of the *IK Solvers* list.
 
 3. Select an IK Solver from the three options in the dropdown menu  - __Chain (CCD)__, __Chain (FABRIK)__, and __Limb__. Each type of [IK Solver](#ik-solvers) uses a different algorithm to solve for the position of Effectors.
-   ![](images/2D_IK_Image3.png)
 
 __IK Solvers__ are iterated in descending order, with Solvers lower in the list referring to the positions set by the Solvers higher in the list. The order of Solvers usually reflects the order of bones/Transforms in the skeleton hierarchy.
 
@@ -57,7 +53,11 @@ The following properties are available to all Solvers:
 | __Constrain Rotation__                                       | This constrains the rotation of the Effector to the rotation of the Target. |
 | __Restore Default Pose__                                     | Enable to restore the bones to their original positions before 2D IK is applied. Disable to apply 2D IK in relation to the Effector’s current position and rotation. |
 | __Weight__                                                   | Use the slider to adjust the degree the IK Solver’s solution affects the original Transform positions. At the lowest value of 0, the IK solution is ignored. At the maximum value of 1 the IK solution is fully applied. This value is further influenced by the IK Manager's master Weight setting. |
-| __The following properties are only available to Chain (CCD) and Chain (FABRIK)__ | -                                                            |
+
+The following properties are only available to Chain (CCD) and Chain (FABRIK):
+
+| __Property__                                                 | __Description__                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
 | __Chain Length__                                             | The number of bones/Transforms (starting from the Effector) in the chain that the IK solution is applied to. |
 | __Iterations__                                               | The number of times the algorithm runs.                      |
 | __Tolerance__                                                | The threshold where the Target is considered to have reached its destination position, and when the IK Solver stops iterating. |
@@ -89,22 +89,19 @@ After creating an IK Solver,  the next step is to set the __Effector__ and its _
 Follow the steps below to set a __Target__:
 
 1. Select the last bone in the chain.
-   ![](images/2D_IK_Image4.png)
-   <br/>
+
 2. Create an empty Transform (right-click > **Create Empty**). It is automatically created as a child of the highlighted bone.
-   <br/>
+
 3. Move the position of the Transform to the tip of the last bone in the chain.
-   ![](images/2D_IK_Image5.png)
-   <br/>
+   ![The empty Transform selected in the Hierarchy window, and positioned in the Scene view so it's at the tip of the last bone.](images/2D_IK_Image5.png)
+
 4. Select the IK Solver. With its Inspector window open, drag the Transform from the hierarchy onto the __Effector__ field.
-   ![](images/2D_IK_Image6.png)
-   <br/>
+
 5. Click the __Create Target__ button. A Target is created at the Transform's position.
-   ![](images/2D_IK_Image7.png)
+
    If the __Create Target__ button appears inactive, ensure that the [Chain Length](#ChainL) value is set to one or greater.
-   <br/>
+
 6. The Target is created as a child of the IK Solver. It appears as a circle gizmo in the Scene view. Move the __Target__ to manipulate the connected chain of bones.
-   ![](images/2D_IK_Image8.png)
 
 ## The Scene view Gizmo
 
@@ -112,15 +109,11 @@ Toggle or customize the display settings of the IK Gizmos to adjust their visibi
 
 ### Global IK Gizmos Toggle
 
-You can toggle the IK Gizmos by going to the Gizmos drop-down menu at the upper right of the Scene view window, then select or clear __IKManager2D__ (menu: __Gizmos > Scripts > IKManager2D__) to enable or disable the Gizmos respectively.
-
-![](images/2D_IK_Sceneview_Toggle.png)
+You can toggle the IK Gizmos by going to the [Gizmos drop-down menu](https://docs.unity3d.com/Manual/GizmosMenu.html) at the upper right of the Scene view window, then select or clear __IKManager2D__ (menu: __Gizmos > Scripts > IKManager2D__) to enable or disable the Gizmos respectively.
 
 ### Solver Gizmos
 
 Customize Solver Gizmos via the IK Manager 2D component that manages the Solvers. From the IK Manager 2D Component Inspector, you can individually hide the Solver's Gizmo to isolate only the Solvers that you are interested in. To further distinguish the Gizmos, you can also customize the colors of the Gizmos from the IK Manager 2D Component Inspector
-
-![](images/2D_IK_SolverGizmo_Toggle.png)
 
 ## Scripting API Reference
 ### Adding New Solvers

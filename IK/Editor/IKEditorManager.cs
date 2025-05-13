@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.U2D.Animation;
 using UnityEngine.U2D.Common;
 using UnityEngine.U2D.IK;
-using UnityEngine.U2D.Animation;
 
 namespace UnityEditor.U2D.IK
 {
@@ -31,7 +31,7 @@ namespace UnityEditor.U2D.IK
             if (s_Instance != null)
                 return;
 
-            var ikManagers = Resources.FindObjectsOfTypeAll<IKEditorManager>();
+            IKEditorManager[] ikManagers = Resources.FindObjectsOfTypeAll<IKEditorManager>();
             if (ikManagers.Length > 0)
                 s_Instance = ikManagers[0];
             else
@@ -68,9 +68,9 @@ namespace UnityEditor.U2D.IK
 
         public void Initialize()
         {
-            var currentStage = StageUtility.GetCurrentStageHandle();
-            var managers = currentStage.FindComponentsOfType<IKManager2D>().Where(x => x.gameObject.scene.isLoaded).ToArray();
-            foreach (var ikManager2D in managers)
+            StageHandle currentStage = StageUtility.GetCurrentStageHandle();
+            IKManager2D[] managers = currentStage.FindComponentsOfType<IKManager2D>().Where(x => x.gameObject.scene.isLoaded).ToArray();
+            foreach (IKManager2D ikManager2D in managers)
                 m_IKManagers.Add(ikManager2D);
 
             RegisterCallbacks();
@@ -185,14 +185,14 @@ namespace UnityEditor.U2D.IK
 
         public void Record(Solver2D solver, string undoName)
         {
-            var manager = FindManager(solver);
+            IKManager2D manager = FindManager(solver);
 
             DoUndo(manager, undoName, true);
         }
 
         public void RegisterUndo(Solver2D solver, string undoName)
         {
-            var manager = FindManager(solver);
+            IKManager2D manager = FindManager(solver);
 
             DoUndo(manager, undoName, false);
         }
@@ -211,7 +211,7 @@ namespace UnityEditor.U2D.IK
         {
             if (manager == null)
                 return;
-            foreach (var solver in manager.solvers)
+            foreach (Solver2D solver in manager.solvers)
             {
                 if (solver == null || !solver.isActiveAndEnabled)
                     continue;
@@ -224,11 +224,11 @@ namespace UnityEditor.U2D.IK
 
                 for (int i = 0; i < solver.chainCount; ++i)
                 {
-                    var chain = solver.GetChain(i);
+                    IKChain2D chain = solver.GetChain(i);
 
                     if (record)
                     {
-                        foreach (var t in chain.transforms)
+                        foreach (Transform t in chain.transforms)
                             Undo.RecordObject(t, undoName);
 
                         if (chain.target)
@@ -236,7 +236,7 @@ namespace UnityEditor.U2D.IK
                     }
                     else
                     {
-                        foreach (var t in chain.transforms)
+                        foreach (Transform t in chain.transforms)
                             Undo.RegisterCompleteObjectUndo(t, undoName);
 
                         if (chain.target)
@@ -284,7 +284,7 @@ namespace UnityEditor.U2D.IK
             if (m_SelectedGameobjects == null)
                 m_SelectedGameobjects = Selection.gameObjects;
 
-            foreach (var ikManager2D in m_IKManagers)
+            foreach (IKManager2D ikManager2D in m_IKManagers)
             {
                 if (ikManager2D != null && ikManager2D.isActiveAndEnabled)
                 {
@@ -304,7 +304,7 @@ namespace UnityEditor.U2D.IK
             if (!IKGizmos.instance.isDragging && IsDraggingATool())
             {
                 //We expect the object to be selected while dragged
-                foreach (var gameObject in m_SelectedGameobjects)
+                foreach (GameObject gameObject in m_SelectedGameobjects)
                 {
                     if (gameObject != null && gameObject.transform != null)
                         SetDirtySolversAffectedByTransform(gameObject.transform);
@@ -337,23 +337,23 @@ namespace UnityEditor.U2D.IK
 
         private void SetDirtySolversAffectedByTransform(Transform transform)
         {
-            foreach (var manager in m_IKManagers)
+            foreach (IKManager2D manager in m_IKManagers)
             {
                 if (manager != null && manager.isActiveAndEnabled)
                 {
-                    var dirty = false;
-                    var solvers = manager.solvers;
-                    for (var s = 0; s < solvers.Count; s++)
+                    bool dirty = false;
+                    List<Solver2D> solvers = manager.solvers;
+                    for (int s = 0; s < solvers.Count; s++)
                     {
                         if (dirty)
                             break;
 
-                        var solver = solvers[s];
+                        Solver2D solver = solvers[s];
                         if (solver != null && solver.isValid)
                         {
-                            for (var c = 0; c < solver.chainCount; ++c)
+                            for (int c = 0; c < solver.chainCount; ++c)
                             {
-                                var chain = solver.GetChain(c);
+                                IKChain2D chain = solver.GetChain(c);
 
                                 if (chain.target == null)
                                     continue;
@@ -374,18 +374,18 @@ namespace UnityEditor.U2D.IK
 
         private void RegisterUndoForDirtyManagers()
         {
-            foreach (var manager in m_DirtyManagers)
+            foreach (IKManager2D manager in m_DirtyManagers)
                 RegisterUndo(manager, Undo.GetCurrentGroupName());
         }
 
         private void UpdateDirtyManagers(bool recordRootLoops)
         {
-            foreach (var manager in m_DirtyManagers)
+            foreach (IKManager2D manager in m_DirtyManagers)
             {
                 if (manager == null || !manager.isActiveAndEnabled)
                     continue;
 
-                foreach (var solver in manager.solvers)
+                foreach (Solver2D solver in manager.solvers)
                 {
                     if (solver == null || !solver.isActiveAndEnabled)
                         continue;
@@ -403,7 +403,7 @@ namespace UnityEditor.U2D.IK
 
                     for (int i = 0; i < solver.chainCount; ++i)
                     {
-                        var chain = solver.GetChain(i);
+                        IKChain2D chain = solver.GetChain(i);
 
                         if (recordRootLoops)
                             InternalEngineBridge.SetLocalEulerHint(chain.rootTransform);
@@ -424,7 +424,7 @@ namespace UnityEditor.U2D.IK
 
             for (int i = 0; i < solver.chainCount; ++i)
             {
-                var chain = solver.GetChain(i);
+                IKChain2D chain = solver.GetChain(i);
 
                 Vector3 positionOverride;
                 if (!m_ChainPositionOverrides.TryGetValue(chain, out positionOverride))

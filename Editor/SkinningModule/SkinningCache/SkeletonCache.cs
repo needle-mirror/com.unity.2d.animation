@@ -32,7 +32,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (boneCache.Count() == m_Bones.Count)
             {
-                foreach (var b in m_Bones)
+                foreach (BoneCache b in m_Bones)
                 {
                     if (!boneCache.Contains(b))
                         return;
@@ -49,8 +49,8 @@ namespace UnityEditor.U2D.Animation
 
             m_Bones.Remove(bone);
 
-            var boneChildren = bone.children;
-            foreach (var child in boneChildren)
+            TransformCache[] boneChildren = bone.children;
+            foreach (TransformCache child in boneChildren)
                 child.SetParent(bone.parent);
 
             skinningCache.Destroy(bone);
@@ -58,7 +58,7 @@ namespace UnityEditor.U2D.Animation
 
         public void SetDefaultPose()
         {
-            foreach (var bone in m_Bones)
+            foreach (BoneCache bone in m_Bones)
                 bone.SetDefaultPose();
 
             m_IsPosePreview = false;
@@ -66,7 +66,7 @@ namespace UnityEditor.U2D.Animation
 
         public void RestoreDefaultPose()
         {
-            foreach (var bone in m_Bones)
+            foreach (BoneCache bone in m_Bones)
                 bone.RestoreDefaultPose();
 
             m_IsPosePreview = false;
@@ -80,9 +80,9 @@ namespace UnityEditor.U2D.Animation
 
         public BonePose[] GetLocalPose()
         {
-            var pose = new List<BonePose>();
+            List<BonePose> pose = new List<BonePose>();
 
-            foreach (var bone in m_Bones)
+            foreach (BoneCache bone in m_Bones)
                 pose.Add(bone.localPose);
 
             return pose.ToArray();
@@ -92,7 +92,7 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(m_Bones.Count == pose.Length);
 
-            for (var i = 0; i < m_Bones.Count; ++i)
+            for (int i = 0; i < m_Bones.Count; ++i)
                 m_Bones[i].localPose = pose[i];
 
             m_IsPosePreview = true;
@@ -100,9 +100,9 @@ namespace UnityEditor.U2D.Animation
 
         public BonePose[] GetWorldPose()
         {
-            var pose = new List<BonePose>();
+            List<BonePose> pose = new List<BonePose>();
 
-            foreach (var bone in m_Bones)
+            foreach (BoneCache bone in m_Bones)
                 pose.Add(bone.worldPose);
 
             return pose.ToArray();
@@ -112,10 +112,10 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(m_Bones.Count == pose.Length);
 
-            for (var i = 0; i < m_Bones.Count; ++i)
+            for (int i = 0; i < m_Bones.Count; ++i)
             {
-                var bone = m_Bones[i];
-                var childWoldPose = bone.GetChildrenWoldPose();
+                BoneCache bone = m_Bones[i];
+                Pose[] childWoldPose = bone.GetChildrenWoldPose();
                 bone.worldPose = pose[i];
                 bone.SetChildrenWorldPose(childWoldPose);
             }
@@ -140,9 +140,9 @@ namespace UnityEditor.U2D.Animation
 
         public void Clear()
         {
-            var roots = children;
+            TransformCache[] roots = children;
 
-            foreach (var root in roots)
+            foreach (TransformCache root in roots)
                 DestroyHierarchy(root);
 
             m_Bones.Clear();
@@ -152,14 +152,14 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(Contains(bone));
 
-            var boneName = bone.name;
-            var names = m_Bones.ConvertAll(b => b.name);
-            var index = IndexOf(bone);
-            var count = 0;
+            string boneName = bone.name;
+            List<string> names = m_Bones.ConvertAll(b => b.name);
+            int index = IndexOf(bone);
+            int count = 0;
 
             Debug.Assert(index < names.Count);
 
-            for (var i = 0; i < index; ++i)
+            for (int i = 0; i < index; ++i)
                 if (names[i].Equals(boneName))
                     ++count;
 
@@ -170,8 +170,8 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(root != null);
 
-            var rootChildren = root.children;
-            foreach (var child in rootChildren)
+            TransformCache[] rootChildren = root.children;
+            foreach (TransformCache child in rootChildren)
                 DestroyHierarchy(child);
 
             skinningCache.Destroy(root);

@@ -1,6 +1,6 @@
 using System;
-using UnityEditor.U2D.Layout;
 using UnityEditor.U2D.Common;
+using UnityEditor.U2D.Layout;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -20,8 +20,8 @@ namespace UnityEditor.U2D.Animation
 
         internal static PivotInspectorPanel CreateFromUxml()
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/PivotInspectorPanel.uxml");
-            var ve = (PivotInspectorPanel)visualTree.CloneTree().Q("PivotInspectorPanel");
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/PivotInspectorPanel.uxml");
+            PivotInspectorPanel ve = (PivotInspectorPanel)visualTree.CloneTree().Q("PivotInspectorPanel");
             ve.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/PivotInspectorPanelStyle.uss"));
             if (EditorGUIUtility.isProSkin)
                 ve.AddToClassList("Dark");
@@ -99,7 +99,7 @@ namespace UnityEditor.U2D.Animation
         protected override void OnGUI()
         {
             base.OnGUI();
-            var pivot = PivotSlider(m_PivotRect, m_Pivot, Styles.pivotdot, Styles.pivotdotactive);
+            Vector2 pivot = PivotSlider(m_PivotRect, m_Pivot, Styles.pivotdot, Styles.pivotdotactive);
             if (m_Pivot != pivot)
             {
                 UpdateViewFields();
@@ -236,7 +236,7 @@ namespace UnityEditor.U2D.Animation
                 pivotDotActive.fixedHeight
             );
 
-            var evt = Event.current;
+            Event evt = Event.current;
             switch (evt.GetTypeForControl(id))
             {
                 case EventType.MouseDown:

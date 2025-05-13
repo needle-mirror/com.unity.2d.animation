@@ -66,9 +66,9 @@ namespace UnityEditor.U2D.IK
 
         bool EnableRestoreDefaultPose()
         {
-            foreach (var l_target in targets)
+            foreach (Object l_target in targets)
             {
-                var solver = l_target as Solver2D;
+                Solver2D solver = l_target as Solver2D;
 
                 if (!solver.isValid || IKEditorManager.instance.FindManager(solver) == null)
                     continue;
@@ -81,16 +81,16 @@ namespace UnityEditor.U2D.IK
 
         bool EnableCreateTarget()
         {
-            foreach (var l_target in targets)
+            foreach (Object l_target in targets)
             {
-                var solver = l_target as Solver2D;
+                Solver2D solver = l_target as Solver2D;
 
                 if (!solver.isValid)
                     continue;
 
                 for (int i = 0; i < solver.chainCount; ++i)
                 {
-                    var chain = solver.GetChain(i);
+                    IKChain2D chain = solver.GetChain(i);
 
                     if (chain.target == null)
                         return true;
@@ -104,9 +104,9 @@ namespace UnityEditor.U2D.IK
         {
             if (GUILayout.Button(Contents.restoreDefaultPoseString, GUILayout.MaxWidth(150f)))
             {
-                foreach (var l_target in targets)
+                foreach (Object l_target in targets)
                 {
-                    var solver = l_target as Solver2D;
+                    Solver2D solver = l_target as Solver2D;
 
                     if (!solver.isValid)
                         continue;
@@ -115,7 +115,7 @@ namespace UnityEditor.U2D.IK
 
                     for (int i = 0; i < solver.chainCount; ++i)
                     {
-                        var chain = solver.GetChain(i);
+                        IKChain2D chain = solver.GetChain(i);
                         chain.RestoreDefaultPose(solver.constrainRotation);
 
                         if (chain.target)
@@ -134,16 +134,16 @@ namespace UnityEditor.U2D.IK
         {
             if (GUILayout.Button(Contents.createTargetString, GUILayout.MaxWidth(125f)))
             {
-                foreach (var l_target in targets)
+                foreach (Object l_target in targets)
                 {
-                    var solver = l_target as Solver2D;
+                    Solver2D solver = l_target as Solver2D;
 
                     if (!solver.isValid)
                         continue;
 
                     for (int i = 0; i < solver.chainCount; ++i)
                     {
-                        var chain = solver.GetChain(i);
+                        IKChain2D chain = solver.GetChain(i);
 
                         if (chain.target == null)
                         {

@@ -31,7 +31,7 @@ namespace UnityEditor.U2D.Animation
                     tools = m_ToolGroups[i].tools;
                 }
 
-                var toolIndex = m_ToolGroups[i].tools.FindIndex(x => x.tool == tool);
+                int toolIndex = m_ToolGroups[i].tools.FindIndex(x => x.tool == tool);
                 if (toolIndex != -1)
                 {
                     Debug.LogError(string.Format("{0} already exist in group.", tool.name));
@@ -41,7 +41,7 @@ namespace UnityEditor.U2D.Animation
 
             if (tools == null)
             {
-                var toolGroup = new ToolGroup()
+                ToolGroup toolGroup = new ToolGroup()
                 {
                     groupId = groupId
                 };
@@ -58,8 +58,8 @@ namespace UnityEditor.U2D.Animation
 
         public void ActivateTool(BaseTool tool)
         {
-            var toolGroupIndex = -1;
-            var groupTool = m_ToolGroups.FirstOrDefault(x =>
+            int toolGroupIndex = -1;
+            ToolGroup groupTool = m_ToolGroups.FirstOrDefault(x =>
             {
                 toolGroupIndex = x.tools.FindIndex(y => y.tool == tool);
                 return toolGroupIndex >= 0;
@@ -67,7 +67,7 @@ namespace UnityEditor.U2D.Animation
 
             if (groupTool != null && toolGroupIndex >= 0)
             {
-                var previousTool = groupTool.previousToolIndex >= 0 ? groupTool.tools[groupTool.previousToolIndex] : null;
+                ToolGroupEntry previousTool = groupTool.previousToolIndex >= 0 ? groupTool.tools[groupTool.previousToolIndex] : null;
                 if (tool.isActive) // we want to deactivate the tool and switch to original
                 {
                     tool.Deactivate();
@@ -81,7 +81,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     for (int i = 0; i < groupTool.tools.Count; ++i)
                     {
-                        var gt = groupTool.tools[i];
+                        ToolGroupEntry gt = groupTool.tools[i];
                         if (gt.tool.isActive)
                         {
                             groupTool.previousToolIndex = i;

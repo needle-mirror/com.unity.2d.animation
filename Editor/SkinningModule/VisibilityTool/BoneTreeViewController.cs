@@ -1,8 +1,8 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
 using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -70,7 +70,7 @@ namespace UnityEditor.U2D.Animation
 
         public void SetAllVisibility(bool visibility)
         {
-            var skeleton = m_Model.GetSelectedSkeleton();
+            SkeletonCache skeleton = m_Model.GetSelectedSkeleton();
             if (skeleton != null)
             {
                 using (m_Model.UndoScope(TextContent.boneVisibility))
@@ -87,15 +87,15 @@ namespace UnityEditor.U2D.Animation
 
         public List<TreeViewItem> BuildTreeView()
         {
-            var rows = new List<TreeViewItem>();
-            var skeleton = m_Model.GetSelectedSkeleton();
+            List<TreeViewItem> rows = new List<TreeViewItem>();
+            SkeletonCache skeleton = m_Model.GetSelectedSkeleton();
             if (skeleton != null)
             {
-                var bones = skeleton.bones;
-                var children = bones.Where(x => x.parentBone == null).ToArray();
+                BoneCache[] bones = skeleton.bones;
+                BoneCache[] children = bones.Where(x => x.parentBone == null).ToArray();
                 Array.Sort(children, (a, b) => a.siblingIndex.CompareTo(b.siblingIndex));
 
-                foreach (var bone in children)
+                foreach (BoneCache bone in children)
                     AddTreeViewItem(rows, bone, bones, 0);
             }
             return rows;
@@ -103,26 +103,26 @@ namespace UnityEditor.U2D.Animation
 
         private static void AddTreeViewItem(IList<TreeViewItem> rows, BoneCache bone, BoneCache[] bones, int depth)
         {
-            var item = new TreeViewItemBase<BoneCache>(bone.GetInstanceID(), depth, bone.name, bone);
+            TreeViewItemBase<BoneCache> item = new TreeViewItemBase<BoneCache>(bone.GetInstanceID(), depth, bone.name, bone);
             rows.Add(item);
 
-            var children = bones.Where(x => x.parentBone == bone).ToArray();
+            BoneCache[] children = bones.Where(x => x.parentBone == bone).ToArray();
             Array.Sort(children, (a, b) => a.siblingIndex.CompareTo(b.siblingIndex));
 
-            foreach (var childBone in children)
+            foreach (BoneCache childBone in children)
                 AddTreeViewItem(rows, childBone, bones, depth + 1);
         }
 
         public List<int> GetIDsToExpand(BoneCache[] bones)
         {
-            var result = new List<int>();
+            List<int> result = new List<int>();
             if (bones != null)
             {
-                foreach (var bone in bones)
+                foreach (BoneCache bone in bones)
                 {
                     if (bone != null)
                     {
-                        var parent = bone.parentBone;
+                        BoneCache parent = bone.parentBone;
                         while (parent != null)
                         {
                             int parentId = parent.GetInstanceID();
@@ -142,7 +142,7 @@ namespace UnityEditor.U2D.Animation
 
         public void SelectBones(IList<int> selectedIds, IList<TreeViewItem> items)
         {
-            var selectedBones = items.Where(x => selectedIds.Contains(x.id)).Select(y => ((TreeViewItemBase<BoneCache>)y).customData).ToArray();
+            BoneCache[] selectedBones = items.Where(x => selectedIds.Contains(x.id)).Select(y => ((TreeViewItemBase<BoneCache>)y).customData).ToArray();
             using (m_Model.UndoScope(TextContent.boneSelection))
             {
                 m_Model.SelectBones(selectedBones);
@@ -152,7 +152,7 @@ namespace UnityEditor.U2D.Animation
 
         public void ExpandBones(IList<int> expandedIds, IList<TreeViewItem> items)
         {
-            var expandedBones = items.Where(x => expandedIds.Contains(x.id)).Select(y => ((TreeViewItemBase<BoneCache>)y).customData).ToArray();
+            BoneCache[] expandedBones = items.Where(x => expandedIds.Contains(x.id)).Select(y => ((TreeViewItemBase<BoneCache>)y).customData).ToArray();
             using (m_Model.UndoScope(TextContent.expandBones))
             {
                 m_Model.SetExpandedBones(expandedBones);
@@ -166,7 +166,7 @@ namespace UnityEditor.U2D.Animation
 
         public void SetTreeItemVisibility(TreeViewItemBase<BoneCache> item, bool visible, bool includeChildren)
         {
-            var bone = item.customData;
+            BoneCache bone = item.customData;
             if (bone != null && bone.isVisible != visible)
             {
                 using (m_Model.UndoScope(TextContent.visibilityChange))
@@ -185,9 +185,9 @@ namespace UnityEditor.U2D.Animation
         {
             if (bone.children == null)
                 return;
-            foreach (var childBone in bone.children)
+            foreach (TreeViewItem childBone in bone.children)
             {
-                var cb = childBone as TreeViewItemBase<BoneCache>;
+                TreeViewItemBase<BoneCache> cb = childBone as TreeViewItemBase<BoneCache>;
                 SetChildrenVisibility(cb, visible);
                 m_Model.SetVisibility(cb.customData, visible);
             }
@@ -229,14 +229,14 @@ namespace UnityEditor.U2D.Animation
 
         public void SetTreeViewBoneName(IList<TreeViewItem> items, BoneCache bone)
         {
-            var treeBone = items.FirstOrDefault(x => ((TreeViewItemBase<BoneCache>)x).customData == bone);
+            TreeViewItem treeBone = items.FirstOrDefault(x => ((TreeViewItemBase<BoneCache>)x).customData == bone);
             if (treeBone != null)
                 treeBone.displayName = bone.name;
         }
 
         public void TreeViewItemRename(IList<TreeViewItem> rows, int itemID, string newName)
         {
-            var item = rows.FirstOrDefault(x => x.id == itemID) as TreeViewItemBase<BoneCache>;
+            TreeViewItemBase<BoneCache> item = rows.FirstOrDefault(x => x.id == itemID) as TreeViewItemBase<BoneCache>;
 
             if (item == null)
                 return;
@@ -271,12 +271,12 @@ namespace UnityEditor.U2D.Animation
                 (!m_Model.hasCharacter && m_Model.mode == SkinningMode.Character))
                 return;
 
-            var parent = newParent != null ? newParent.customData : null;
+            BoneCache parent = newParent != null ? newParent.customData : null;
             using (m_Model.UndoScope(TextContent.setParentBone))
             {
-                for (var i = draggedItems.Count - 1; i >= 0; --i)
+                for (int i = draggedItems.Count - 1; i >= 0; --i)
                 {
-                    var bone = ((TreeViewItemBase<BoneCache>)draggedItems[i]).customData;
+                    BoneCache bone = ((TreeViewItemBase<BoneCache>)draggedItems[i]).customData;
                     m_Model.SetBoneParent(parent, bone, insertAtIndex);
                     m_SkinningEvents.skeletonTopologyChanged.Invoke(bone.skeleton);
                 }

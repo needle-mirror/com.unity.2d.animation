@@ -33,14 +33,14 @@ namespace UnityEditor.U2D.Animation
 
         internal static DragAndDropVisualMode HandleDropInspectorInternal(Object[] draggedObjects, Object[] targets, bool perform)
         {
-            var spriteLibraryAsset = GetSpriteLibraryAsset(draggedObjects);
+            SpriteLibraryAsset spriteLibraryAsset = GetSpriteLibraryAsset(draggedObjects);
             if (spriteLibraryAsset == null)
                 return DragAndDropVisualMode.None;
 
             DragAndDrop.AcceptDrag();
             if (perform)
             {
-                for (var i = 0; i < targets.Length; i++)
+                for (int i = 0; i < targets.Length; i++)
                 {
                     if (targets[i] is GameObject targetGo)
                         AddSpriteLibraryToObject(targetGo, spriteLibraryAsset);
@@ -52,11 +52,11 @@ namespace UnityEditor.U2D.Animation
 
         internal static DragAndDropVisualMode HandleDropHierarchyInternal(Object[] draggedObjects, int dropTargetInstanceID, HierarchyDropFlags dropMode, bool perform)
         {
-            var spriteLibraryAsset = GetSpriteLibraryAsset(draggedObjects);
+            SpriteLibraryAsset spriteLibraryAsset = GetSpriteLibraryAsset(draggedObjects);
             if (spriteLibraryAsset == null)
                 return DragAndDropVisualMode.None;
 
-            var dropUpon = EditorUtility.InstanceIDToObject(dropTargetInstanceID);
+            Object dropUpon = EditorUtility.InstanceIDToObject(dropTargetInstanceID);
             if (dropUpon == null || dropMode == HierarchyDropFlags.DropBetween)
             {
                 DragAndDrop.AcceptDrag();
@@ -80,7 +80,7 @@ namespace UnityEditor.U2D.Animation
 
         internal static DragAndDropVisualMode HandleDropSceneInternal(Object[] draggedObjects, Object dropUpon, Vector3 worldPosition, bool perform)
         {
-            var spriteLibraryAsset = GetSpriteLibraryAsset(draggedObjects);
+            SpriteLibraryAsset spriteLibraryAsset = GetSpriteLibraryAsset(draggedObjects);
             if (spriteLibraryAsset == null)
                 return DragAndDropVisualMode.None;
 
@@ -102,9 +102,9 @@ namespace UnityEditor.U2D.Animation
 
         internal static SpriteLibraryAsset GetSpriteLibraryAsset(Object[] objectReferences)
         {
-            for (var i = 0; i < objectReferences.Length; i++)
+            for (int i = 0; i < objectReferences.Length; i++)
             {
-                var draggedObject = objectReferences[i];
+                Object draggedObject = objectReferences[i];
                 if (draggedObject is SpriteLibraryAsset spriteLibraryAsset)
                     return spriteLibraryAsset;
             }
@@ -116,7 +116,7 @@ namespace UnityEditor.U2D.Animation
         internal static void AddSpriteLibraryToObject(GameObject targetGo, SpriteLibraryAsset spriteLibraryAsset)
         {
             Undo.RegisterFullObjectHierarchyUndo(targetGo, k_UndoableAdd);
-            var spriteLibraryComponent = targetGo.GetComponent<SpriteLibrary>();
+            SpriteLibrary spriteLibraryComponent = targetGo.GetComponent<SpriteLibrary>();
             if (spriteLibraryComponent == null)
                 spriteLibraryComponent = targetGo.AddComponent<SpriteLibrary>();
             spriteLibraryComponent.spriteLibraryAsset = spriteLibraryAsset;
@@ -126,10 +126,10 @@ namespace UnityEditor.U2D.Animation
 
         internal static void CreateSpriteLibraryObject(SpriteLibraryAsset spriteLibraryAsset, Vector3 position)
         {
-            var newSpriteLibraryGameObject = new GameObject(spriteLibraryAsset.name);
-            var transform = newSpriteLibraryGameObject.transform;
+            GameObject newSpriteLibraryGameObject = new GameObject(spriteLibraryAsset.name);
+            Transform transform = newSpriteLibraryGameObject.transform;
             transform.position = position;
-            var spriteLibraryComponent = newSpriteLibraryGameObject.AddComponent<SpriteLibrary>();
+            SpriteLibrary spriteLibraryComponent = newSpriteLibraryGameObject.AddComponent<SpriteLibrary>();
             spriteLibraryComponent.spriteLibraryAsset = spriteLibraryAsset;
             Undo.RegisterCreatedObjectUndo(newSpriteLibraryGameObject, k_UndoableCreate);
 

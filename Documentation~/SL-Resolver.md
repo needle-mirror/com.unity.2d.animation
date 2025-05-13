@@ -6,8 +6,6 @@ The Sprite Resolver component pulls information from the [Sprite Library Asset](
 
 The component contains two properties - [Category](SL-Editor.md#categories) and [Label](SL-Editor.md#labels) - and the **Visual variant selector** interface which displays thumbnails of the Sprites within the Sprite Library Asset.
 
-![](images/2D-animation-SResolver-properties.png)<br/>_Inspector window properties of Sprite Resolver component._
-
 | Property     | Function                                                     |
 | ------------ | ------------------------------------------------------------ |
 | **Category** | Select the **Category** that contains the Sprite you want to use for this GameObject. |

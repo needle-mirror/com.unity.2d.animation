@@ -6,7 +6,7 @@ namespace UnityEditor.U2D.Animation
     {
         public static T Create<T>(Cache owner) where T : CacheObject
         {
-            var cacheObject = CreateInstance<T>();
+            T cacheObject = CreateInstance<T>();
             cacheObject.hideFlags = HideFlags.HideAndDontSave;
             cacheObject.owner = owner;
             cacheObject.name = cacheObject.GetType().ToString();
@@ -32,8 +32,8 @@ namespace UnityEditor.U2D.Animation
             OnBeforeSerialize();
         }
 
-        internal virtual void OnCreate() {}
-        protected virtual void OnAfterDeserialize() {}
-        protected virtual void OnBeforeSerialize() {}
+        internal virtual void OnCreate() { }
+        protected virtual void OnAfterDeserialize() { }
+        protected virtual void OnBeforeSerialize() { }
     }
 }

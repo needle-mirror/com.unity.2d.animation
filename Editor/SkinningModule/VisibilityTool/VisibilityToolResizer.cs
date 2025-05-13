@@ -12,7 +12,7 @@ namespace UnityEditor.U2D.Layout
 
         public VisibilityToolResizer()
         {
-            activators.Add(new ManipulatorActivationFilter {button = MouseButton.LeftMouse});
+            activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse });
             m_Active = false;
         }
 
@@ -56,9 +56,9 @@ namespace UnityEditor.U2D.Layout
         {
             if (m_Active)
             {
-                var ce = target.parent;
+                VisualElement ce = target.parent;
                 Vector2 diff = target.ChangeCoordinatesTo(m_Root, e.localMousePosition) - m_Start;
-                var newSize = new Vector2(m_StartPos.width - diff.x, m_StartPos.height - diff.y);
+                Vector2 newSize = new Vector2(m_StartPos.width - diff.x, m_StartPos.height - diff.y);
                 float minWidth = ce.resolvedStyle.minWidth == StyleKeyword.Auto ? 0 : ce.resolvedStyle.minWidth.value;
                 float minHeight = ce.resolvedStyle.minHeight == StyleKeyword.Auto ? 0 : ce.resolvedStyle.minHeight.value;
                 float maxWidth = ce.resolvedStyle.maxWidth == StyleKeyword.None ? float.MaxValue : ce.resolvedStyle.maxWidth.value;

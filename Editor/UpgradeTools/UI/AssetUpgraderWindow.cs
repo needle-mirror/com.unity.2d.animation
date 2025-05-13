@@ -1,8 +1,8 @@
-using UnityEngine;
-using UnityEditor.U2D.Common;
-using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 using System.Collections.Generic;
+using UnityEditor.U2D.Common;
+using UnityEditor.UIElements;
+using UnityEngine;
+using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
 namespace UnityEditor.U2D.Animation.Upgrading
@@ -91,14 +91,14 @@ namespace UnityEditor.U2D.Animation.Upgrading
         [MenuItem("Window/2D/2D Animation Asset Upgrader")]
         internal static void OpenWindow()
         {
-            var window = GetWindowWithRect<AssetUpgraderWindow>(new Rect(0, 0, 532, 512));
+            AssetUpgraderWindow window = GetWindowWithRect<AssetUpgraderWindow>(new Rect(0, 0, 532, 512));
             window.titleContent = new GUIContent(Contents.WindowTitle);
             window.Show();
         }
 
         public void CreateGUI()
         {
-            var treeAsset = ResourceLoader.Load<VisualTreeAsset>(k_UiUxml);
+            VisualTreeAsset treeAsset = ResourceLoader.Load<VisualTreeAsset>(k_UiUxml);
             rootVisualElement.Add(treeAsset.CloneTree());
             rootVisualElement.styleSheets.Add(ResourceLoader.Load<StyleSheet>(k_UiUss));
 
@@ -138,15 +138,15 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void SetupConversionResultContainer()
         {
-            var warningImage = rootVisualElement.Q<Image>(ElementIds.WarningImage);
+            Image warningImage = rootVisualElement.Q<Image>(ElementIds.WarningImage);
             warningImage.image = m_IconWarn;
             m_WarningCountLabel = rootVisualElement.Q<Label>(ElementIds.WarningCount);
 
-            var errorImage = rootVisualElement.Q<Image>(ElementIds.ErrorImage);
+            Image errorImage = rootVisualElement.Q<Image>(ElementIds.ErrorImage);
             errorImage.image = m_IconFail;
             m_ErrorCountLabel = rootVisualElement.Q<Label>(ElementIds.ErrorCount);
 
-            var successImage = rootVisualElement.Q<Image>(ElementIds.SuccessImage);
+            Image successImage = rootVisualElement.Q<Image>(ElementIds.SuccessImage);
             successImage.image = m_IconSuccess;
             m_SuccessCountLabel = rootVisualElement.Q<Label>(ElementIds.SuccessCount);
         }
@@ -176,7 +176,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void SetupBottomContainer()
         {
-            var scanBtn = rootVisualElement.Q<Button>(ElementIds.Scan);
+            Button scanBtn = rootVisualElement.Q<Button>(ElementIds.Scan);
             scanBtn.clicked += OnScanClicked;
             scanBtn.SetEnabled(CanUseTool());
 
@@ -191,7 +191,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void OnChangeUpgradeMode()
         {
-            var newMode = (UpgradeMode)m_ModeSelector.value;
+            UpgradeMode newMode = (UpgradeMode)m_ModeSelector.value;
             m_SelectedMode = newMode;
 
             if (m_SelectedMode == UpgradeMode.SpriteLibrary)
@@ -245,7 +245,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
             m_UpgradeResultList.Clear();
             m_UpgradeTooltips.Clear();
-            for (var i = 0; i < m_AssetList.Count; ++i)
+            for (int i = 0; i < m_AssetList.Count; ++i)
             {
                 m_UpgradeTooltips.Add(string.Empty);
                 m_UpgradeResultList.Add(UpgradeResult.None);
@@ -264,32 +264,32 @@ namespace UnityEditor.U2D.Animation.Upgrading
             m_SelectedObjs.Clear();
 
             m_SelectAllToggle.SetValueWithoutNotify(true);
-            for (var i = 0; i < m_AssetList.Count; ++i)
+            for (int i = 0; i < m_AssetList.Count; ++i)
                 AddRemoveSelectedObject(i, true);
 
             m_AssetListView.itemsSource = m_AssetList;
             m_AssetListView.makeItem = () =>
             {
-                var container = new VisualElement();
+                VisualElement container = new VisualElement();
                 container.AddToClassList(ElementIds.AssetRow);
 
-                var toggle = new Toggle();
+                Toggle toggle = new Toggle();
                 toggle.name = ElementIds.ObjectToggle;
                 toggle.value = false;
                 toggle.AddToClassList(ElementIds.AssetCheckbox);
                 container.Add(toggle);
 
-                var objField = new ObjectField();
+                ObjectField objField = new ObjectField();
                 objField.value = this;
                 objField.allowSceneObjects = false;
                 objField.AddToClassList(ElementIds.AssetElement);
                 container.Add(objField);
 
-                var imgContainer = new VisualElement();
+                VisualElement imgContainer = new VisualElement();
                 imgContainer.AddToClassList(ElementIds.DarkArea);
                 container.Add(imgContainer);
 
-                var imgField = new Image();
+                Image imgField = new Image();
                 imgField.name = ElementIds.ObjectImage;
                 imgField.AddToClassList(ElementIds.AssetImage);
                 imgContainer.Add(imgField);
@@ -300,17 +300,17 @@ namespace UnityEditor.U2D.Animation.Upgrading
             {
                 if (m_AssetList[i] == null)
                     return;
-                var field = element.Q<ObjectField>();
+                ObjectField field = element.Q<ObjectField>();
                 field.value = m_AssetList[i];
 
-                var toggle = element.Q<Toggle>(ElementIds.ObjectToggle);
+                Toggle toggle = element.Q<Toggle>(ElementIds.ObjectToggle);
                 toggle.RegisterCallback<ChangeEvent<bool>, int>(OnToggleObject, i);
                 toggle.SetEnabled(m_UpgradeResultList[i] == UpgradeResult.None);
 
-                var isToggled = m_SelectedObjs.Contains(i);
+                bool isToggled = m_SelectedObjs.Contains(i);
                 toggle.SetValueWithoutNotify(isToggled);
 
-                var resultImage = element.Q<Image>(ElementIds.ObjectImage);
+                Image resultImage = element.Q<Image>(ElementIds.ObjectImage);
                 resultImage.image = GetResultImage(m_UpgradeResultList[i]);
                 resultImage.tooltip = m_UpgradeTooltips[i];
             };
@@ -320,7 +320,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void OnSelectAll(ChangeEvent<bool> value)
         {
-            for (var i = 0; i < m_AssetList.Count; ++i)
+            for (int i = 0; i < m_AssetList.Count; ++i)
             {
                 if (m_UpgradeResultList[i] == UpgradeResult.None)
                     AddRemoveSelectedObject(i, value.newValue);
@@ -350,8 +350,8 @@ namespace UnityEditor.U2D.Animation.Upgrading
             if (!EditorUtility.DisplayDialog(Contents.UpgradeDialogTitle, Contents.UpgradeDialogMessage, Contents.UpgradeDialogYes, Contents.UpgradeDialogNo))
                 return;
 
-            var selectedObjs = new List<ObjectIndexPair>();
-            foreach (var index in m_SelectedObjs)
+            List<ObjectIndexPair> selectedObjs = new List<ObjectIndexPair>();
+            foreach (int index in m_SelectedObjs)
             {
                 selectedObjs.Add(new ObjectIndexPair()
                 {
@@ -364,7 +364,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
             m_SelectedObjs.Clear();
             m_UpgradeSelectedBtn.SetEnabled(false);
 
-            var report = AssetUpgrader.UpgradeSelection(m_SelectedMode, selectedObjs);
+            UpgradeReport report = AssetUpgrader.UpgradeSelection(m_SelectedMode, selectedObjs);
             if (report.UpgradeEntries != null)
             {
                 UpdateObjectResults(report);
@@ -379,7 +379,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void UpdateObjectResults(UpgradeReport report)
         {
-            foreach (var entry in report.UpgradeEntries)
+            foreach (UpgradeEntry entry in report.UpgradeEntries)
             {
                 m_UpgradeResultList[entry.Index] = entry.Result;
                 m_UpgradeTooltips[entry.Index] = entry.Message;
@@ -404,10 +404,10 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void UpdateConversionResultCounters()
         {
-            var noOfWarnings = 0;
-            var noOfErrors = 0;
-            var noOfSuccesses = 0;
-            foreach (var result in m_UpgradeResultList)
+            int noOfWarnings = 0;
+            int noOfErrors = 0;
+            int noOfSuccesses = 0;
+            foreach (UpgradeResult result in m_UpgradeResultList)
             {
                 if (result == UpgradeResult.Warning)
                     noOfWarnings++;
@@ -424,10 +424,10 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void UpdateInfoBox(UpgradeReport report)
         {
-            var successCount = 0;
-            var warningCount = 0;
-            var errorCount = 0;
-            foreach (var entry in report.UpgradeEntries)
+            int successCount = 0;
+            int warningCount = 0;
+            int errorCount = 0;
+            foreach (UpgradeEntry entry in report.UpgradeEntries)
             {
                 if (entry.Result == UpgradeResult.Successful)
                     successCount++;
@@ -437,7 +437,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                     errorCount++;
             }
 
-            var summary = "";
+            string summary = "";
             if (warningCount > 0)
             {
                 if (warningCount == 1)

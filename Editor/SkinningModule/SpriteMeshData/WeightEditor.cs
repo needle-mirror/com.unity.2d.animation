@@ -107,13 +107,13 @@ namespace UnityEditor.U2D.Animation
 
             Debug.Assert(selection != null);
 
-            for (var i = 0; i < spriteMeshData.vertexCount; ++i)
+            for (int i = 0; i < spriteMeshData.vertexCount; ++i)
             {
                 if (selection.Count == 0 && emptySelectionEditsAll ||
                     selection.Count > 0 && selection.Contains(i))
                 {
-                    var editableBoneWeight = spriteMeshData.vertexWeights[i];
-                    var channel = editableBoneWeight.GetChannelFromBoneIndex(boneIndex);
+                    EditableBoneWeight editableBoneWeight = spriteMeshData.vertexWeights[i];
+                    int channel = editableBoneWeight.GetChannelFromBoneIndex(boneIndex);
 
                     if (channel == -1)
                     {
@@ -142,24 +142,24 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(selection != null);
 
-            for (var i = 0; i < spriteMeshData.vertexCount; ++i)
+            for (int i = 0; i < spriteMeshData.vertexCount; ++i)
             {
                 if (selection.Count == 0 && emptySelectionEditsAll ||
                     selection.Count > 0 && selection.Contains(i))
                 {
-                    var smoothValue = m_SmoothValues[i];
+                    float smoothValue = m_SmoothValues[i];
 
                     if (smoothValue >= k_MaxSmoothIterations)
                         continue;
 
                     m_SmoothValues[i] = Mathf.Clamp(smoothValue + value, 0f, k_MaxSmoothIterations);
 
-                    var lerpValue = GetLerpValue(m_SmoothValues[i]);
-                    var lerpIndex = GetLerpIndex(m_SmoothValues[i]);
-                    var smoothedBoneWeightsFloor = GetSmoothedBoneWeights(lerpIndex - 1);
-                    var smoothedBoneWeightsCeil = GetSmoothedBoneWeights(lerpIndex);
+                    float lerpValue = GetLerpValue(m_SmoothValues[i]);
+                    int lerpIndex = GetLerpIndex(m_SmoothValues[i]);
+                    BoneWeight[] smoothedBoneWeightsFloor = GetSmoothedBoneWeights(lerpIndex - 1);
+                    BoneWeight[] smoothedBoneWeightsCeil = GetSmoothedBoneWeights(lerpIndex);
 
-                    var boneWeight = EditableBoneWeightUtility.Lerp(smoothedBoneWeightsFloor[i], smoothedBoneWeightsCeil[i], lerpValue);
+                    BoneWeight boneWeight = EditableBoneWeightUtility.Lerp(smoothedBoneWeightsFloor[i], smoothedBoneWeightsCeil[i], lerpValue);
                     spriteMeshData.vertexWeights[i].SetFromBoneWeight(boneWeight);
                 }
             }
@@ -174,11 +174,11 @@ namespace UnityEditor.U2D.Animation
 
             m_SmoothedBoneWeights.Clear();
 
-            var boneWeights = new BoneWeight[spriteMeshData.vertexCount];
+            BoneWeight[] boneWeights = new BoneWeight[spriteMeshData.vertexCount];
 
-            for (var i = 0; i < spriteMeshData.vertexCount; i++)
+            for (int i = 0; i < spriteMeshData.vertexCount; i++)
             {
-                var editableBoneWeight = spriteMeshData.vertexWeights[i];
+                EditableBoneWeight editableBoneWeight = spriteMeshData.vertexWeights[i];
                 boneWeights[i] = editableBoneWeight.ToBoneWeight(false);
             }
 
@@ -191,7 +191,7 @@ namespace UnityEditor.U2D.Animation
 
             while (lerpIndex >= m_SmoothedBoneWeights.Count && lerpIndex <= k_MaxSmoothIterations)
             {
-                SmoothingUtility.SmoothWeights(m_SmoothedBoneWeights[^1], spriteMeshData.indices, boneCount, out var boneWeights);
+                SmoothingUtility.SmoothWeights(m_SmoothedBoneWeights[^1], spriteMeshData.indices, boneCount, out BoneWeight[] boneWeights);
                 m_SmoothedBoneWeights.Add(boneWeights);
             }
 
@@ -216,9 +216,9 @@ namespace UnityEditor.U2D.Animation
 
             m_StoredBoneWeights.Clear();
 
-            for (var i = 0; i < spriteMeshData.vertexCount; i++)
+            for (int i = 0; i < spriteMeshData.vertexCount; i++)
             {
-                var editableBoneWeight = spriteMeshData.vertexWeights[i];
+                EditableBoneWeight editableBoneWeight = spriteMeshData.vertexWeights[i];
                 m_StoredBoneWeights.Add(editableBoneWeight.ToBoneWeight(false));
             }
         }
@@ -227,9 +227,9 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(selection != null);
 
-            for (var i = 0; i < spriteMeshData.vertexCount; i++)
+            for (int i = 0; i < spriteMeshData.vertexCount; i++)
             {
-                var editableBoneWeight = spriteMeshData.vertexWeights[i];
+                EditableBoneWeight editableBoneWeight = spriteMeshData.vertexWeights[i];
                 editableBoneWeight.SetFromBoneWeight(m_StoredBoneWeights[i]);
             }
 

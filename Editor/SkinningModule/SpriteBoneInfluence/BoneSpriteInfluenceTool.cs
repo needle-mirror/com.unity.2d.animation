@@ -110,7 +110,7 @@ namespace UnityEditor.U2D.Animation
 
         void SetViewHeaderText()
         {
-            var headerText = m_Model.selectedBone != null ? m_Model.selectedBone.name : TextContent.noBoneSelected;
+            string headerText = m_Model.selectedBone != null ? m_Model.selectedBone.name : TextContent.noBoneSelected;
             m_Model.view.headerText = headerText;
         }
 
@@ -128,7 +128,7 @@ namespace UnityEditor.U2D.Animation
             if (m_Model.selectedSprite == null)
                 return;
 
-            var character = m_Model.characterSkeleton;
+            SkeletonCache character = m_Model.characterSkeleton;
 
             if (character == null)
                 return;
@@ -136,9 +136,9 @@ namespace UnityEditor.U2D.Animation
             if (m_Model.influencedSprites.Contains(m_Model.selectedSprite))
                 return;
 
-            var characterPart = m_Model.GetSpriteCharacterPart(m_Model.selectedSprite);
-            var characterBones = characterPart.bones.ToList();
-            var selectedBone = m_Model.selectedBone;
+            CharacterPartCache characterPart = m_Model.GetSpriteCharacterPart(m_Model.selectedSprite);
+            List<BoneCache> characterBones = characterPart.bones.ToList();
+            BoneCache selectedBone = m_Model.selectedBone;
             characterBones.Add(selectedBone);
 
             using (m_Model.UndoScope(TextContent.addSpriteInfluence))
@@ -155,18 +155,18 @@ namespace UnityEditor.U2D.Animation
 
         void RemoveSelectedSpriteInfluenceFromBone()
         {
-            var character = m_Model.characterSkeleton;
+            SkeletonCache character = m_Model.characterSkeleton;
 
             if (character == null)
                 return;
 
-            var selectedBone = m_Model.selectedBone;
-            var selectedSprite = m_Model.selectedSprite;
+            BoneCache selectedBone = m_Model.selectedBone;
+            SpriteCache selectedSprite = m_Model.selectedSprite;
 
             using (m_Model.UndoScope(TextContent.removeSpriteInfluence))
             {
-                var characterPart = m_Model.GetSpriteCharacterPart(selectedSprite);
-                var characterBones = characterPart.bones.ToList();
+                CharacterPartCache characterPart = m_Model.GetSpriteCharacterPart(selectedSprite);
+                List<BoneCache> characterBones = characterPart.bones.ToList();
                 characterBones.Remove(selectedBone);
 
                 characterPart.bones = characterBones.ToArray();
@@ -185,7 +185,7 @@ namespace UnityEditor.U2D.Animation
         {
             using (m_Model.UndoScope(TextContent.spriteSelection))
             {
-                var firstSelected = selectedSprite.FirstOrDefault();
+                object firstSelected = selectedSprite.FirstOrDefault();
                 m_Model.selectedSprite = (SpriteCache)firstSelected;
                 m_Events.selectedSpriteChanged.Invoke(m_Model.selectedSprite);
             }
@@ -193,15 +193,15 @@ namespace UnityEditor.U2D.Animation
 
         void UpdateSelectedBonesInfluencedSprites()
         {
-            var selectedBone = m_Model.selectedBone;
+            BoneCache selectedBone = m_Model.selectedBone;
 
             if (selectedBone != null)
             {
                 if (m_Model.hasCharacter)
                 {
-                    var spriteList = new List<TransformCache>();
+                    List<TransformCache> spriteList = new List<TransformCache>();
 
-                    foreach (var characterPartCache in selectedBone.skinningCache.character.parts)
+                    foreach (CharacterPartCache characterPartCache in selectedBone.skinningCache.character.parts)
                     {
                         if (characterPartCache.bones.Contains(selectedBone))
                             spriteList.Add(characterPartCache.sprite);
@@ -211,9 +211,9 @@ namespace UnityEditor.U2D.Animation
                 }
                 else
                 {
-                    var spriteList = new List<TransformCache>();
-                    var sprites = selectedBone.skinningCache.GetSprites();
-                    foreach (var sprite in sprites)
+                    List<TransformCache> spriteList = new List<TransformCache>();
+                    SpriteCache[] sprites = selectedBone.skinningCache.GetSprites();
+                    foreach (SpriteCache sprite in sprites)
                     {
                         if (sprite.GetSkeleton().bones.Contains(selectedBone))
                             spriteList.Add(sprite);
@@ -232,9 +232,9 @@ namespace UnityEditor.U2D.Animation
         {
             if (IsCharacterMode())
             {
-                var hasSelectedBone = m_Model.selectedBone != null;
-                var selectedSprite = m_Model.selectedSprite;
-                var hasSelectedSprite = selectedSprite != null;
+                bool hasSelectedBone = m_Model.selectedBone != null;
+                SpriteCache selectedSprite = m_Model.selectedSprite;
+                bool hasSelectedSprite = selectedSprite != null;
                 return hasSelectedBone && hasSelectedSprite && !m_Model.influencedSprites.Contains(selectedSprite);
             }
 

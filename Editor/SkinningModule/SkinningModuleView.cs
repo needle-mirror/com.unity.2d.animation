@@ -1,8 +1,8 @@
 using System;
+using UnityEditor.ShortcutManagement;
 using UnityEditor.U2D.Common;
 using UnityEditor.U2D.Layout;
 using UnityEngine;
-using UnityEditor.ShortcutManagement;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
@@ -20,7 +20,7 @@ namespace UnityEditor.U2D.Animation
 
         private static SkinningModule GetModuleFromContext(ShortcutArguments args)
         {
-            var sc = args.context as InternalEditorBridge.ShortcutContext;
+            InternalEditorBridge.ShortcutContext sc = args.context as InternalEditorBridge.ShortcutContext;
             if (sc == null)
                 return null;
 
@@ -30,7 +30,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.toggleToolText, typeof(InternalEditorBridge.ShortcutContext), KeyCode.BackQuote, ShortcutModifiers.Shift)]
         private static void CollapseToolbar(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null)
             {
                 SkinningModuleSettings.compactToolBar = !SkinningModuleSettings.compactToolBar;
@@ -40,10 +40,10 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.restoreBindPose, typeof(InternalEditorBridge.ShortcutContext), KeyCode.Alpha1, ShortcutModifiers.Shift)]
         private static void DisablePoseModeKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
-                var effectiveSkeleton = sm.skinningCache.GetEffectiveSkeleton(sm.skinningCache.selectedSprite);
+                SkeletonCache effectiveSkeleton = sm.skinningCache.GetEffectiveSkeleton(sm.skinningCache.selectedSprite);
                 if (effectiveSkeleton != null && effectiveSkeleton.isPosePreview)
                 {
                     using (sm.skinningCache.UndoScope(TextContent.restorePose))
@@ -58,10 +58,10 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.toggleCharacterMode, typeof(InternalEditorBridge.ShortcutContext), KeyCode.Alpha2, ShortcutModifiers.Shift)]
         private static void ToggleCharacterModeKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled && sm.skinningCache.hasCharacter)
             {
-                var tool = sm.skinningCache.GetTool(Tools.SwitchMode);
+                BaseTool tool = sm.skinningCache.GetTool(Tools.SwitchMode);
 
                 using (sm.skinningCache.UndoScope(TextContent.setMode))
                 {
@@ -78,7 +78,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.previewPose, typeof(InternalEditorBridge.ShortcutContext), KeyCode.Q, ShortcutModifiers.Shift)]
         private static void EditPoseKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetSkeletonTool(Tools.EditPose);
@@ -89,7 +89,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.characterPivot, typeof(InternalEditorBridge.ShortcutContext), KeyCode.T, ShortcutModifiers.Shift)]
         private static void EditCharacterPivotKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled && sm.skinningCache.mode == SkinningMode.Character)
             {
                 sm.SetSkeletonTool(Tools.CharacterPivotTool);
@@ -100,7 +100,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.editBone, typeof(InternalEditorBridge.ShortcutContext), KeyCode.W, ShortcutModifiers.Shift)]
         private static void EditJointsKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetSkeletonTool(Tools.EditJoints);
@@ -111,7 +111,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.createBone, typeof(InternalEditorBridge.ShortcutContext), KeyCode.E, ShortcutModifiers.Shift)]
         private static void CreateBoneKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetSkeletonTool(Tools.CreateBone);
@@ -122,7 +122,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.splitBone, typeof(InternalEditorBridge.ShortcutContext), KeyCode.R, ShortcutModifiers.Shift)]
         private static void SplitBoneKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetSkeletonTool(Tools.SplitBone);
@@ -133,7 +133,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.autoGeometry, typeof(InternalEditorBridge.ShortcutContext), KeyCode.A, ShortcutModifiers.Shift)]
         private static void GenerateGeometryKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetMeshTool(Tools.GenerateGeometry);
@@ -144,7 +144,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.editGeometry, typeof(InternalEditorBridge.ShortcutContext), KeyCode.S, ShortcutModifiers.Shift)]
         private static void MeshSelectionKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetMeshTool(Tools.EditGeometry);
@@ -155,7 +155,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.createVertex, typeof(InternalEditorBridge.ShortcutContext), KeyCode.J, ShortcutModifiers.Shift)]
         private static void CreateVertex(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetMeshTool(Tools.CreateVertex);
@@ -166,7 +166,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.createEdge, typeof(InternalEditorBridge.ShortcutContext), KeyCode.G, ShortcutModifiers.Shift)]
         private static void CreateEdgeKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetMeshTool(Tools.CreateEdge);
@@ -177,7 +177,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.splitEdge, typeof(InternalEditorBridge.ShortcutContext), KeyCode.H, ShortcutModifiers.Shift)]
         private static void SplitEdge(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetMeshTool(Tools.SplitEdge);
@@ -188,7 +188,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.autoWeights, typeof(InternalEditorBridge.ShortcutContext), KeyCode.Z, ShortcutModifiers.Shift)]
         private static void GenerateWeightsKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetWeightTool(Tools.GenerateWeights);
@@ -199,7 +199,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.weightSlider, typeof(InternalEditorBridge.ShortcutContext), KeyCode.X, ShortcutModifiers.Shift)]
         private static void WeightSliderKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetWeightTool(Tools.WeightSlider);
@@ -210,7 +210,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.weightBrush, typeof(InternalEditorBridge.ShortcutContext), KeyCode.N, ShortcutModifiers.Shift)]
         private static void WeightBrushKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.SetWeightTool(Tools.WeightBrush);
@@ -221,7 +221,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.boneInfluence, typeof(InternalEditorBridge.ShortcutContext), KeyCode.V, ShortcutModifiers.Shift)]
         private static void BoneInfluenceKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled && sm.skinningCache.mode == SkinningMode.Character)
             {
                 sm.SetWeightTool(Tools.BoneInfluence);
@@ -232,7 +232,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.spriteInfluence, typeof(InternalEditorBridge.ShortcutContext), KeyCode.M, ShortcutModifiers.Shift)]
         private static void SpriteInfluenceKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled && sm.skinningCache.mode == SkinningMode.Character)
             {
                 sm.SetWeightTool(Tools.SpriteInfluence);
@@ -243,7 +243,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.pastePanelWeights, typeof(InternalEditorBridge.ShortcutContext), KeyCode.B, ShortcutModifiers.Shift)]
         private static void PastePanelKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.TogglePasteTool();
@@ -254,7 +254,7 @@ namespace UnityEditor.U2D.Animation
         [Shortcut(ShortcutIds.visibilityPanel, typeof(InternalEditorBridge.ShortcutContext), KeyCode.P, ShortcutModifiers.Shift)]
         private static void VisibilityPanelKey(ShortcutArguments args)
         {
-            var sm = GetModuleFromContext(args);
+            SkinningModule sm = GetModuleFromContext(args);
             if (sm != null && !sm.spriteEditor.editingDisabled)
             {
                 sm.m_HorizontalToggleTools.ToggleVisibilityTool(sm.currentTool);
@@ -264,7 +264,7 @@ namespace UnityEditor.U2D.Animation
 
         private void AddMainUI(VisualElement mainView)
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>("LayoutOverlay/LayoutOverlay.uxml");
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>("LayoutOverlay/LayoutOverlay.uxml");
             VisualElement clone = visualTree.CloneTree();
             m_LayoutOverlay = clone.Q<LayoutOverlay>("LayoutOverlay");
 
@@ -372,7 +372,7 @@ namespace UnityEditor.U2D.Animation
 
         private void ActivateEditPoseTool()
         {
-            var tool = skinningCache.GetTool(Tools.EditPose);
+            BaseTool tool = skinningCache.GetTool(Tools.EditPose);
             if (currentTool == tool)
                 return;
 
@@ -384,7 +384,7 @@ namespace UnityEditor.U2D.Animation
 
         private void SetSkeletonTool(Tools toolType)
         {
-            var tool = skinningCache.GetTool(toolType) as SkeletonToolWrapper;
+            SkeletonToolWrapper tool = skinningCache.GetTool(toolType) as SkeletonToolWrapper;
 
             if (currentTool == tool)
                 return;
@@ -400,7 +400,7 @@ namespace UnityEditor.U2D.Animation
 
         private void SetMeshTool(Tools toolType)
         {
-            var tool = skinningCache.GetTool(toolType);
+            BaseTool tool = skinningCache.GetTool(toolType);
 
             if (currentTool == tool)
                 return;
@@ -415,7 +415,7 @@ namespace UnityEditor.U2D.Animation
 
         private void SetWeightTool(Tools toolType)
         {
-            var tool = skinningCache.GetTool(toolType);
+            BaseTool tool = skinningCache.GetTool(toolType);
 
             if (currentTool == tool)
                 return;
@@ -428,13 +428,13 @@ namespace UnityEditor.U2D.Animation
 
         private void ActivateCopyTool()
         {
-            var tool = skinningCache.GetTool(Tools.CopyPaste) as CopyTool;
+            CopyTool tool = skinningCache.GetTool(Tools.CopyPaste) as CopyTool;
             tool.OnCopyActivated();
         }
 
         private void TogglePasteTool()
         {
-            var tool = skinningCache.GetTool(Tools.CopyPaste) as CopyTool;
+            CopyTool tool = skinningCache.GetTool(Tools.CopyPaste) as CopyTool;
             if (!tool.isActive)
                 ActivateTool(tool);
             else if (previousTool != null)

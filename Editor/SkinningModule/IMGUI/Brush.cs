@@ -12,13 +12,13 @@ namespace UnityEditor.U2D.Animation
         private int m_ControlID = -1;
         private SliderData m_SliderData = SliderData.zero;
 
-        public event Action<Brush> onMove = (b) => {};
-        public event Action<Brush> onSize = (b) => {};
-        public event Action<Brush> onRepaint = (b) => {};
-        public event Action<Brush> onStrokeBegin = (b) => {};
-        public event Action<Brush> onStrokeDelta = (b) => {};
-        public event Action<Brush> onStrokeStep = (b) => {};
-        public event Action<Brush> onStrokeEnd = (b) => {};
+        public event Action<Brush> onMove = (b) => { };
+        public event Action<Brush> onSize = (b) => { };
+        public event Action<Brush> onRepaint = (b) => { };
+        public event Action<Brush> onStrokeBegin = (b) => { };
+        public event Action<Brush> onStrokeDelta = (b) => { };
+        public event Action<Brush> onStrokeStep = (b) => { };
+        public event Action<Brush> onStrokeEnd = (b) => { };
 
         public bool isHot
         {
@@ -53,7 +53,7 @@ namespace UnityEditor.U2D.Animation
         {
             m_ControlID = m_GUIWrapper.GetControlID(kBrushHashCode, FocusType.Passive);
 
-            var eventType = m_GUIWrapper.eventType;
+            EventType eventType = m_GUIWrapper.eventType;
 
             if (!m_GUIWrapper.isAltDown)
                 m_GUIWrapper.LayoutControl(controlID, 0f);
@@ -78,7 +78,7 @@ namespace UnityEditor.U2D.Animation
 
                 if (m_GUIWrapper.isShiftDown && eventType == EventType.ScrollWheel)
                 {
-                    var sizeDelta = HandleUtility.niceMouseDeltaZoom * kWheelSizeSpeed;
+                    float sizeDelta = HandleUtility.niceMouseDeltaZoom * kWheelSizeSpeed;
                     size = Mathf.Max(1f, size + sizeDelta);
                     onSize(this);
                     m_GUIWrapper.UseCurrentEvent();
@@ -96,9 +96,9 @@ namespace UnityEditor.U2D.Animation
             {
                 step = Mathf.Max(step, 1f);
 
-                var delta = position - m_SliderData.position;
-                var direction = delta.normalized;
-                var magnitude = delta.magnitude;
+                Vector3 delta = position - m_SliderData.position;
+                Vector3 direction = delta.normalized;
+                float magnitude = delta.magnitude;
 
                 m_SliderData.position -= direction * m_DeltaAcc;
 
@@ -106,7 +106,7 @@ namespace UnityEditor.U2D.Animation
 
                 if (m_DeltaAcc >= step)
                 {
-                    var stepVector = direction * step;
+                    Vector3 stepVector = direction * step;
 
                     while (m_DeltaAcc >= step)
                     {

@@ -73,11 +73,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public List<string> GetSelectedCategories()
         {
-            var selection = new List<string>();
+            List<string> selection = new List<string>();
             if (m_CurrentLibrary == null)
                 return selection;
 
-            foreach (var selectedCategoryIndex in m_SelectedCategoryIndices)
+            foreach (int selectedCategoryIndex in m_SelectedCategoryIndices)
                 selection.Add(m_CurrentLibrary[selectedCategoryIndex].name);
 
             return selection;
@@ -95,10 +95,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 return;
 
             m_SelectedCategoryIndices = new List<int>(newSelection.Count);
-            for (var selection = 0; selection < newSelection.Count; selection++)
+            for (int selection = 0; selection < newSelection.Count; selection++)
             {
-                var index = -1;
-                for (var i = 0; i < m_CurrentLibrary.Count; i++)
+                int index = -1;
+                for (int i = 0; i < m_CurrentLibrary.Count; i++)
                 {
                     if (m_CurrentLibrary[i].name == newSelection[selection])
                     {
@@ -114,13 +114,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public List<string> GetSelectedLabels()
         {
-            var selectedCategory = GetSelectedCategory();
+            SpriteLibCategoryOverride selectedCategory = GetSelectedCategory();
             if (selectedCategory == null)
                 return new List<string>();
 
-            var labels = selectedCategory.overrideEntries;
-            var selectedLabels = new List<string>(m_SelectedLabelIndices.Count);
-            for (var i = 0; i < m_SelectedLabelIndices.Count; i++)
+            List<SpriteCategoryEntryOverride> labels = selectedCategory.overrideEntries;
+            List<string> selectedLabels = new List<string>(m_SelectedLabelIndices.Count);
+            for (int i = 0; i < m_SelectedLabelIndices.Count; i++)
                 selectedLabels.Add(labels[m_SelectedLabelIndices[i]].name);
 
             return selectedLabels;
@@ -134,22 +134,22 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 return;
             }
 
-            var category = GetSelectedCategory();
+            SpriteLibCategoryOverride category = GetSelectedCategory();
             if (category == null)
                 return;
 
             m_SelectedLabelIndices = new List<int>(labels.Count);
-            for (var i = 0; i < labels.Count; i++)
+            for (int i = 0; i < labels.Count; i++)
                 m_SelectedLabelIndices.Add(category.overrideEntries.FindIndex(label => label.name == labels[i]));
         }
 
         public List<CategoryData> GetAllCategories()
         {
-            var allCategories = new List<CategoryData>();
+            List<CategoryData> allCategories = new List<CategoryData>();
             if (m_CurrentLibrary == null)
                 return allCategories;
 
-            for (var i = 0; i < m_CurrentLibrary.Count; i++)
+            for (int i = 0; i < m_CurrentLibrary.Count; i++)
                 allCategories.Add(CreateCategoryData(m_CurrentLibrary[i]));
 
             return allCategories;
@@ -157,11 +157,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public List<CategoryData> GetFilteredCategories(string filterString, SearchType searchType, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
-            var categories = new List<CategoryData>();
+            List<CategoryData> categories = new List<CategoryData>();
             if (m_CurrentLibrary != null)
             {
-                var filter = searchType is SearchType.CategoryAndLabel or SearchType.Category && !string.IsNullOrEmpty(filterString);
-                foreach (var spriteLibCategoryOverride in m_CurrentLibrary)
+                bool filter = searchType is SearchType.CategoryAndLabel or SearchType.Category && !string.IsNullOrEmpty(filterString);
+                foreach (SpriteLibCategoryOverride spriteLibCategoryOverride in m_CurrentLibrary)
                 {
                     if (!filter || spriteLibCategoryOverride.name.Contains(filterString, comparison))
                         categories.Add(CreateCategoryData(spriteLibCategoryOverride));
@@ -173,13 +173,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public List<LabelData> GetAllLabels()
         {
-            var category = GetSelectedCategory();
+            SpriteLibCategoryOverride category = GetSelectedCategory();
             if (category == null)
                 return new List<LabelData>();
 
-            var categoryLabels = category.overrideEntries;
-            var labels = new List<LabelData>(category.entryOverrideCount);
-            for (var i = 0; i < categoryLabels.Count; i++)
+            List<SpriteCategoryEntryOverride> categoryLabels = category.overrideEntries;
+            List<LabelData> labels = new List<LabelData>(category.entryOverrideCount);
+            for (int i = 0; i < categoryLabels.Count; i++)
                 labels.Add(CreateLabelData(category, categoryLabels[i]));
 
             return labels;
@@ -187,13 +187,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public List<LabelData> GetFilteredLabels(string filterString, SearchType searchType, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
-            var category = GetSelectedCategory();
+            SpriteLibCategoryOverride category = GetSelectedCategory();
             if (category == null)
                 return new List<LabelData>();
 
-            var labels = new List<LabelData>();
-            var filter = searchType is SearchType.CategoryAndLabel or SearchType.Label && !string.IsNullOrEmpty(filterString);
-            foreach (var categoryEntryOverride in category.overrideEntries)
+            List<LabelData> labels = new List<LabelData>();
+            bool filter = searchType is SearchType.CategoryAndLabel or SearchType.Label && !string.IsNullOrEmpty(filterString);
+            foreach (SpriteCategoryEntryOverride categoryEntryOverride in category.overrideEntries)
             {
                 if (!filter || categoryEntryOverride.name.Contains(filterString, comparison))
                     labels.Add(CreateLabelData(category, categoryEntryOverride));
@@ -222,7 +222,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public static bool IsActionModifyingAssets(ActionType actionType)
         {
-            var isNotModifying = actionType is
+            bool isNotModifying = actionType is
                 ActionType.None or
                 ActionType.SelectCategory or
                 ActionType.SelectLabels;
@@ -232,8 +232,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public void CreateNewLabel(string labelName)
         {
-            var category = GetSelectedCategory();
-            var newLabel = new SpriteCategoryEntryOverride
+            SpriteLibCategoryOverride category = GetSelectedCategory();
+            SpriteCategoryEntryOverride newLabel = new SpriteCategoryEntryOverride
             {
                 name = labelName,
                 sprite = null,
@@ -247,8 +247,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public void SetLabelSprite(string labelName, Sprite newSprite)
         {
-            var category = GetSelectedCategory();
-            var label = GetLabel(category, labelName);
+            SpriteLibCategoryOverride category = GetSelectedCategory();
+            SpriteCategoryEntryOverride label = GetLabel(category, labelName);
             if (label != null)
             {
                 label.spriteOverride = newSprite;
@@ -261,19 +261,19 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public void DeleteSelectedLabels()
         {
-            var category = GetSelectedCategory();
+            SpriteLibCategoryOverride category = GetSelectedCategory();
             if (category == null)
                 return;
 
-            var labelsToRemove = new List<SpriteCategoryEntryOverride>();
-            for (var i = 0; i < m_SelectedLabelIndices.Count; i++)
+            List<SpriteCategoryEntryOverride> labelsToRemove = new List<SpriteCategoryEntryOverride>();
+            for (int i = 0; i < m_SelectedLabelIndices.Count; i++)
             {
-                var labelToRemove = category.overrideEntries[m_SelectedLabelIndices[i]];
+                SpriteCategoryEntryOverride labelToRemove = category.overrideEntries[m_SelectedLabelIndices[i]];
                 if (!labelToRemove.fromMain)
                     labelsToRemove.Add(labelToRemove);
             }
 
-            foreach (var label in labelsToRemove)
+            foreach (SpriteCategoryEntryOverride label in labelsToRemove)
                 category.overrideEntries.Remove(label);
 
             category.UpdateOverrideCount();
@@ -281,18 +281,18 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public void RenameSelectedLabel(string newName)
         {
-            var category = GetSelectedCategory();
-            var label = GetSelectedLabel();
+            SpriteLibCategoryOverride category = GetSelectedCategory();
+            SpriteCategoryEntryOverride label = GetSelectedLabel();
             label.name = newName;
             category.RenameDuplicateOverrideEntries();
         }
 
         public void AddLabelsToCategory(string categoryName, IEnumerable<Sprite> sprites, bool replaceConflicting)
         {
-            var category = GetCategory(categoryName);
-            var conflictingLabels = new List<Sprite>();
-            var newLabels = new List<Sprite>();
-            foreach (var sprite in sprites)
+            SpriteLibCategoryOverride category = GetCategory(categoryName);
+            List<Sprite> conflictingLabels = new List<Sprite>();
+            List<Sprite> newLabels = new List<Sprite>();
+            foreach (Sprite sprite in sprites)
             {
                 if (GetLabel(category, sprite.name) != null)
                     conflictingLabels.Add(sprite);
@@ -300,7 +300,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     newLabels.Add(sprite);
             }
 
-            foreach (var newLabel in newLabels)
+            foreach (Sprite newLabel in newLabels)
                 category.overrideEntries.Add(new SpriteCategoryEntryOverride
                 {
                     name = newLabel.name,
@@ -311,9 +311,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             if (replaceConflicting)
             {
-                foreach (var conflictingLabel in conflictingLabels)
+                foreach (Sprite conflictingLabel in conflictingLabels)
                 {
-                    var label = GetLabel(category, conflictingLabel.name);
+                    SpriteCategoryEntryOverride label = GetLabel(category, conflictingLabel.name);
                     label.spriteOverride = conflictingLabel;
                     if (!label.fromMain)
                         label.sprite = conflictingLabel;
@@ -321,7 +321,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             }
             else
             {
-                foreach (var conflictingLabel in conflictingLabels)
+                foreach (Sprite conflictingLabel in conflictingLabels)
                 {
                     category.overrideEntries.Add(new SpriteCategoryEntryOverride
                     {
@@ -342,20 +342,20 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (m_CurrentLibrary == null || m_SelectedCategoryIndices == null || m_SelectedCategoryIndices.Count == 0)
                 return;
 
-            var categoriesToRemove = new List<SpriteLibCategoryOverride>(m_SelectedCategoryIndices.Count);
-            foreach (var selectedCategoryIndex in m_SelectedCategoryIndices)
+            List<SpriteLibCategoryOverride> categoriesToRemove = new List<SpriteLibCategoryOverride>(m_SelectedCategoryIndices.Count);
+            foreach (int selectedCategoryIndex in m_SelectedCategoryIndices)
                 categoriesToRemove.Add(m_CurrentLibrary[selectedCategoryIndex]);
 
-            foreach (var categoryToRemove in categoriesToRemove)
+            foreach (SpriteLibCategoryOverride categoryToRemove in categoriesToRemove)
                 m_CurrentLibrary.Remove(categoryToRemove);
         }
 
         public void ReorderCategories(IList<string> reorderedCategories)
         {
-            var categories = new List<SpriteLibCategoryOverride>(reorderedCategories.Count);
-            for (var i = 0; i < reorderedCategories.Count; i++)
+            List<SpriteLibCategoryOverride> categories = new List<SpriteLibCategoryOverride>(reorderedCategories.Count);
+            for (int i = 0; i < reorderedCategories.Count; i++)
             {
-                var reorderedCategory = GetCategory(reorderedCategories[i]);
+                SpriteLibCategoryOverride reorderedCategory = GetCategory(reorderedCategories[i]);
                 categories.Add(reorderedCategory);
             }
 
@@ -364,7 +364,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public void RenameSelectedCategory(string newName)
         {
-            var category = GetSelectedCategory();
+            SpriteLibCategoryOverride category = GetSelectedCategory();
             category.name = newName;
             RenameDuplicatedCategories();
         }
@@ -384,18 +384,18 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_SelectedCategoryIndices = new List<int>();
             m_SelectedLabelIndices = new List<int>();
 
-            var sourceAsset = selectedAsset != null ? SpriteLibrarySourceAssetImporter.LoadSpriteLibrarySourceAsset(m_SelectedAssetPath) : null;
+            SpriteLibrarySourceAsset sourceAsset = selectedAsset != null ? SpriteLibrarySourceAssetImporter.LoadSpriteLibrarySourceAsset(m_SelectedAssetPath) : null;
             if (sourceAsset != null)
             {
                 m_CurrentLibrary = new List<SpriteLibCategoryOverride>(sourceAsset.library);
 
                 // Update hashes to make sure name hashes are correct.
-                foreach (var categoryOverride in m_CurrentLibrary)
+                foreach (SpriteLibCategoryOverride categoryOverride in m_CurrentLibrary)
                     categoryOverride.UpdateHash();
 
                 m_PrimaryLibraryGUID = sourceAsset.primaryLibraryGUID;
 
-                var mainLibrary = GetMainLibrary();
+                SpriteLibraryAsset mainLibrary = GetMainLibrary();
                 if (mainLibrary)
                     SetMainLibrary(mainLibrary);
             }
@@ -403,18 +403,18 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public void ReorderLabels(IList<string> reorderedLabels)
         {
-            var category = GetSelectedCategory();
-            var labels = new List<SpriteCategoryEntryOverride>(reorderedLabels.Count);
-            for (var i = 0; i < reorderedLabels.Count; i++)
+            SpriteLibCategoryOverride category = GetSelectedCategory();
+            List<SpriteCategoryEntryOverride> labels = new List<SpriteCategoryEntryOverride>(reorderedLabels.Count);
+            for (int i = 0; i < reorderedLabels.Count; i++)
                 labels.Add(GetLabel(category, reorderedLabels[i]));
 
-            for (var i = 0; i < labels.Count; i++)
+            for (int i = 0; i < labels.Count; i++)
             {
-                var label = labels[i];
+                SpriteCategoryEntryOverride label = labels[i];
                 if (label.fromMain)
                     continue;
 
-                var index = category.overrideEntries.IndexOf(label);
+                int index = category.overrideEntries.IndexOf(label);
 
                 (category.overrideEntries[i], category.overrideEntries[index]) = (category.overrideEntries[index], category.overrideEntries[i]);
             }
@@ -424,11 +424,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public void CreateNewCategory(string categoryName, IList<Sprite> sprites)
         {
-            var newLabelCount = sprites?.Count ?? 0;
-            var newLabels = new List<SpriteCategoryEntryOverride>(newLabelCount);
+            int newLabelCount = sprites?.Count ?? 0;
+            List<SpriteCategoryEntryOverride> newLabels = new List<SpriteCategoryEntryOverride>(newLabelCount);
             if (sprites != null)
             {
-                for (var i = 0; i < newLabelCount; i++)
+                for (int i = 0; i < newLabelCount; i++)
                     newLabels.Add(new SpriteCategoryEntryOverride
                     {
                         name = sprites[i].name,
@@ -438,7 +438,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     });
             }
 
-            var category = new SpriteLibCategoryOverride
+            SpriteLibCategoryOverride category = new SpriteLibCategoryOverride
             {
                 name = categoryName,
                 fromMain = false,
@@ -459,7 +459,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             m_SavedVersion = m_CurrentVersion;
             isSaving = true;
-            var assetToSave = CreateInstance<SpriteLibrarySourceAsset>();
+            SpriteLibrarySourceAsset assetToSave = CreateInstance<SpriteLibrarySourceAsset>();
             assetToSave.SetLibrary(m_CurrentLibrary);
             assetToSave.SetPrimaryLibraryGUID(m_PrimaryLibraryGUID);
             SpriteLibrarySourceAssetImporter.SaveSpriteLibrarySourceAsset(assetToSave, path);
@@ -471,27 +471,27 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             if (string.IsNullOrEmpty(m_PrimaryLibraryGUID))
                 return null;
-            var assetPath = AssetDatabase.GUIDToAssetPath(m_PrimaryLibraryGUID);
-            var asset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(assetPath);
+            string assetPath = AssetDatabase.GUIDToAssetPath(m_PrimaryLibraryGUID);
+            SpriteLibraryAsset asset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(assetPath);
             return asset;
         }
 
         public void SetMainLibrary(SpriteLibraryAsset newMainLibrary)
         {
             m_PrimaryLibraryGUID = newMainLibrary != null ? AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(newMainLibrary)) : null;
-            var newCategories = newMainLibrary != null ? newMainLibrary.categories : new List<SpriteLibCategory>();
+            List<SpriteLibCategory> newCategories = newMainLibrary != null ? newMainLibrary.categories : new List<SpriteLibCategory>();
 
-            var existingCategories = new List<SpriteLibCategoryOverride>(m_CurrentLibrary);
+            List<SpriteLibCategoryOverride> existingCategories = new List<SpriteLibCategoryOverride>(m_CurrentLibrary);
             m_CurrentLibrary.Clear();
 
             // populate new primary
-            foreach (var newCategory in newCategories)
+            foreach (SpriteLibCategory newCategory in newCategories)
             {
-                var labels = new List<SpriteCategoryEntryOverride>();
+                List<SpriteCategoryEntryOverride> labels = new List<SpriteCategoryEntryOverride>();
                 SpriteLibCategoryOverride existingCategory = null;
-                for (var i = 0; i < existingCategories.Count; i++)
+                for (int i = 0; i < existingCategories.Count; i++)
                 {
-                    var category = existingCategories[i];
+                    SpriteLibCategoryOverride category = existingCategories[i];
                     if (category.name == newCategory.name)
                     {
                         existingCategory = category;
@@ -501,10 +501,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     }
                 }
 
-                var newEntries = newCategory.categoryList;
-                foreach (var newEntry in newEntries)
+                List<SpriteCategoryEntry> newEntries = newCategory.categoryList;
+                foreach (SpriteCategoryEntry newEntry in newEntries)
                 {
-                    var sprite = newEntry.sprite;
+                    Sprite sprite = newEntry.sprite;
 
                     labels.Add(new SpriteCategoryEntryOverride
                     {
@@ -515,13 +515,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     });
                 }
 
-                var overrideCount = 0;
+                int overrideCount = 0;
                 if (existingCategory != null)
                 {
-                    foreach (var existingLabel in existingCategory.overrideEntries)
+                    foreach (SpriteCategoryEntryOverride existingLabel in existingCategory.overrideEntries)
                     {
-                        var foundLabel = false;
-                        foreach (var newLabel in labels)
+                        bool foundLabel = false;
+                        foreach (SpriteCategoryEntryOverride newLabel in labels)
                         {
                             if (existingLabel.name == newLabel.name)
                             {
@@ -559,14 +559,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 });
             }
 
-            foreach (var existingCategory in existingCategories)
+            foreach (SpriteLibCategoryOverride existingCategory in existingCategories)
             {
-                var keepCategory = false;
+                bool keepCategory = false;
                 if (existingCategory.fromMain)
                 {
-                    for (var i = existingCategory.overrideEntries.Count; i-- > 0;)
+                    for (int i = existingCategory.overrideEntries.Count; i-- > 0;)
                     {
-                        var entry = existingCategory.overrideEntries[i];
+                        SpriteCategoryEntryOverride entry = existingCategory.overrideEntries[i];
                         if (!entry.fromMain || entry.sprite != entry.spriteOverride)
                         {
                             entry.fromMain = false;
@@ -589,10 +589,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public void RevertLabels(IList<string> labels)
         {
-            var category = GetSelectedCategory();
-            foreach (var labelName in labels)
+            SpriteLibCategoryOverride category = GetSelectedCategory();
+            foreach (string labelName in labels)
             {
-                var label = GetLabel(category, labelName);
+                SpriteCategoryEntryOverride label = GetLabel(category, labelName);
                 if (label.fromMain && label.sprite != label.spriteOverride)
                 {
                     label.spriteOverride = label.sprite;
@@ -616,7 +616,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (m_CurrentLibrary == null || m_CurrentLibrary.Count == 0 || !hasSelectedCategories)
                 return null;
 
-            var selectedCategoryIndex = m_SelectedCategoryIndices[0];
+            int selectedCategoryIndex = m_SelectedCategoryIndices[0];
             if (selectedCategoryIndex < 0 || selectedCategoryIndex >= m_CurrentLibrary.Count)
                 return null;
 
@@ -628,7 +628,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (m_CurrentLibrary == null || m_CurrentLibrary.Count == 0)
                 return null;
 
-            foreach (var category in m_CurrentLibrary)
+            foreach (SpriteLibCategoryOverride category in m_CurrentLibrary)
             {
                 if (category.name == categoryName)
                     return category;
@@ -639,11 +639,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         SpriteCategoryEntryOverride GetSelectedLabel()
         {
-            var selectedCategory = GetSelectedCategory();
+            SpriteLibCategoryOverride selectedCategory = GetSelectedCategory();
             if (selectedCategory == null || !hasSelectedLabels)
                 return null;
 
-            var selectedLabelIndex = m_SelectedLabelIndices[0];
+            int selectedLabelIndex = m_SelectedLabelIndices[0];
             if (selectedLabelIndex < 0 || selectedLabelIndex >= selectedCategory.overrideEntries.Count)
                 return null;
 
@@ -655,7 +655,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (category == null)
                 return null;
 
-            foreach (var spriteCategoryEntryOverride in category.overrideEntries)
+            foreach (SpriteCategoryEntryOverride spriteCategoryEntryOverride in category.overrideEntries)
             {
                 if (spriteCategoryEntryOverride.name == labelName)
                     return spriteCategoryEntryOverride;
@@ -668,13 +668,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             if (m_CurrentLibrary != null && m_CurrentLibrary != null)
             {
-                foreach (var spriteLibCategoryOverride in m_CurrentLibrary)
+                foreach (SpriteLibCategoryOverride spriteLibCategoryOverride in m_CurrentLibrary)
                 {
                     if (spriteLibCategoryOverride.name == categoryName)
                     {
-                        var labelsCache = spriteLibCategoryOverride.overrideEntries;
-                        var labels = new List<LabelData>(labelsCache.Count);
-                        foreach (var categoryEntryOverride in labelsCache)
+                        List<SpriteCategoryEntryOverride> labelsCache = spriteLibCategoryOverride.overrideEntries;
+                        List<LabelData> labels = new List<LabelData>(labelsCache.Count);
+                        foreach (SpriteCategoryEntryOverride categoryEntryOverride in labelsCache)
                             labels.Add(CreateLabelData(spriteLibCategoryOverride, categoryEntryOverride));
                         return labels;
                     }
@@ -689,11 +689,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (labelsToCompare == null)
                 return false;
 
-            var category = GetSelectedCategory();
+            SpriteLibCategoryOverride category = GetSelectedCategory();
             if (category == null || category.entryOverrideCount != labelsToCompare.Count)
                 return false;
 
-            for (var i = 0; i < labelsToCompare.Count; i++)
+            for (int i = 0; i < labelsToCompare.Count; i++)
             {
                 if (category.overrideEntries[i].name != labelsToCompare[i])
                     return false;
@@ -710,7 +710,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (m_CurrentLibrary.Count != categoriesToCompare.Count)
                 return false;
 
-            for (var i = 0; i < categoriesToCompare.Count; i++)
+            for (int i = 0; i < categoriesToCompare.Count; i++)
             {
                 if (m_CurrentLibrary[i].name != categoriesToCompare[i])
                     return false;

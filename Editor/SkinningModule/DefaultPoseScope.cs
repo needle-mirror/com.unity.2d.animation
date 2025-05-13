@@ -22,7 +22,7 @@ namespace UnityEditor.U2D.Animation
             {
                 m_DoRestorePose = true;
 
-                if(useLocalPose)
+                if (useLocalPose)
                     m_Pose = m_Skeleton.GetLocalPose();
                 else
                     m_Pose = m_Skeleton.GetWorldPose();
@@ -45,7 +45,7 @@ namespace UnityEditor.U2D.Animation
             m_Disposed = true;
             if (m_Skeleton != null && m_DoRestorePose)
             {
-                if(m_UseLocalPose)
+                if (m_UseLocalPose)
                     m_Skeleton.SetLocalPose(m_Pose);
                 else
                     m_Skeleton.SetWorldPose(m_Pose);

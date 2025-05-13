@@ -51,18 +51,18 @@ namespace UnityEditor.U2D.Animation
 
         public static unsafe void RegisterLine(float3 p1, float3 p2, float3 normal, float widthP1, float widthP2, Color color)
         {
-            var up = math.cross(normal, p2 - p1);
+            float3 up = math.cross(normal, p2 - p1);
             up = math.normalize(up);
 
             const int dataToAdd = 6;
-            var batch = GetBatch(dataToAdd);
-            var startIndex = batch.vertices.Length;
+            Batch batch = GetBatch(dataToAdd);
+            int startIndex = batch.vertices.Length;
 
             batch.indices.Resize(startIndex + dataToAdd);
             batch.vertexColors.Resize(startIndex + dataToAdd);
             batch.vertices.Resize(startIndex + dataToAdd);
 
-            var vertexPtr = batch.vertices.Ptr;
+            float3* vertexPtr = batch.vertices.Ptr;
             vertexPtr[startIndex] = p1 + up * (widthP1 * 0.5f);
             vertexPtr[startIndex + 1] = p1 - up * (widthP1 * 0.5f);
             vertexPtr[startIndex + 2] = p2 - up * (widthP2 * 0.5f);
@@ -70,7 +70,7 @@ namespace UnityEditor.U2D.Animation
             vertexPtr[startIndex + 4] = p2 - up * (widthP2 * 0.5f);
             vertexPtr[startIndex + 5] = p2 + up * (widthP2 * 0.5f);
 
-            for (var i = 0; i < dataToAdd; ++i)
+            for (int i = 0; i < dataToAdd; ++i)
             {
                 batch.indices.Ptr[startIndex + i] = startIndex + i;
                 batch.vertexColors.Ptr[startIndex + i] = color;
@@ -79,7 +79,7 @@ namespace UnityEditor.U2D.Animation
 
         public static void RegisterSolidDisc(float3 center, float3 normal, float radius, Color color)
         {
-            var from = math.cross(normal, math.up());
+            float3 from = math.cross(normal, math.up());
             if (math.lengthsq(from) < 1.0 / 1000.0)
                 from = math.cross(normal, math.right());
             RegisterSolidArc(center, normal, from, 360f, radius, color);
@@ -93,9 +93,9 @@ namespace UnityEditor.U2D.Animation
                 s_VertexTmpCache = new NativeArray<float3>(60, Allocator.Persistent);
             SetDiscSectionPoints(ref s_VertexTmpCache, numSamples, in normal, in from, angle);
 
-            var dataToAdd = (numSamples - 1) * 3;
-            var batch = GetBatch(dataToAdd);
-            var startIndex = batch.vertices.Length;
+            int dataToAdd = (numSamples - 1) * 3;
+            Batch batch = GetBatch(dataToAdd);
+            int startIndex = batch.vertices.Length;
 
             batch.indices.Resize(startIndex + dataToAdd);
             batch.vertexColors.Resize(startIndex + dataToAdd);
@@ -103,7 +103,7 @@ namespace UnityEditor.U2D.Animation
 
             CreateSolidArcVertices(ref batch.vertices, startIndex, in s_VertexTmpCache, in center, numSamples, radius);
 
-            for (var i = 0; i < dataToAdd; ++i)
+            for (int i = 0; i < dataToAdd; ++i)
             {
                 batch.indices.Ptr[startIndex + i] = startIndex + i;
                 batch.vertexColors.Ptr[startIndex + i] = color;
@@ -119,10 +119,10 @@ namespace UnityEditor.U2D.Animation
             int numSamples,
             float radius)
         {
-            var count = 0;
-            for (var i = 1; i < numSamples; i++, count += 3)
+            int count = 0;
+            for (int i = 1; i < numSamples; i++, count += 3)
             {
-                var index = startIndex + count;
+                int index = startIndex + count;
                 vertexPtr[index] = center;
                 vertexPtr[index + 1] = center + vertexCache[i - 1] * radius;
                 vertexPtr[index + 2] = center + vertexCache[i] * radius;
@@ -138,9 +138,9 @@ namespace UnityEditor.U2D.Animation
                 s_VertexTmpCache = new NativeArray<float3>(60, Allocator.Persistent);
             SetDiscSectionPoints(ref s_VertexTmpCache, numSamples, in normal, in from, angle);
 
-            var dataToAdd = (numSamples - 1) * 6;
-            var batch = GetBatch(dataToAdd);
-            var startIndex = batch.vertices.Length;
+            int dataToAdd = (numSamples - 1) * 6;
+            Batch batch = GetBatch(dataToAdd);
+            int startIndex = batch.vertices.Length;
 
             batch.indices.Resize(startIndex + dataToAdd);
             batch.vertexColors.Resize(startIndex + dataToAdd);
@@ -149,7 +149,7 @@ namespace UnityEditor.U2D.Animation
             // var vertexPtr = batch.vertices.Ptr + startIndex;
             CreateSolidArcWithOutlineVertices(ref batch.vertices, startIndex, in s_VertexTmpCache, in center, numSamples, outlineScale, radius);
 
-            for (var i = 0; i < dataToAdd; ++i)
+            for (int i = 0; i < dataToAdd; ++i)
             {
                 batch.indices.Ptr[startIndex + i] = startIndex + i;
                 batch.vertexColors.Ptr[startIndex + i] = color;
@@ -166,10 +166,10 @@ namespace UnityEditor.U2D.Animation
             float outlineScale,
             float radius)
         {
-            var count = 0;
-            for (var i = 1; i < numSamples; i++, count += 6)
+            int count = 0;
+            for (int i = 1; i < numSamples; i++, count += 6)
             {
-                var index = startIndex + count;
+                int index = startIndex + count;
                 vertexPtr[index] = center + vertexCache[i - 1] * (radius * outlineScale);
                 vertexPtr[index + 1] = center + vertexCache[i - 1] * radius;
                 vertexPtr[index + 2] = center + vertexCache[i] * radius;
@@ -182,11 +182,11 @@ namespace UnityEditor.U2D.Animation
         [BurstCompile]
         static void SetDiscSectionPoints(ref NativeArray<float3> dest, int count, in float3 normal, in float3 from, float angle)
         {
-            var angleInRadians = math.degrees(angle / (float)(count - 1));
-            var rotation = quaternion.AxisAngle(normal, angleInRadians);
+            float angleInRadians = math.degrees(angle / (float)(count - 1));
+            quaternion rotation = quaternion.AxisAngle(normal, angleInRadians);
 
-            var vector = math.normalize(from);
-            for (var i = 0; i < count; i++)
+            float3 vector = math.normalize(from);
+            for (int i = 0; i < count; i++)
             {
                 dest[i] = vector;
                 vector = math.mul(rotation, vector);
@@ -195,13 +195,13 @@ namespace UnityEditor.U2D.Animation
 
         static Batch GetBatch(int dataToAdd)
         {
-            for (var i = 0; i < s_Batches.Count; ++i)
+            for (int i = 0; i < s_Batches.Count; ++i)
             {
                 if ((s_Batches[i].indices.Length + dataToAdd) < k_MaxIndexLimit)
                     return s_Batches[i];
             }
 
-            var newBatch = new Batch();
+            Batch newBatch = new Batch();
             s_Batches.Add(newBatch);
             return newBatch;
         }
@@ -216,7 +216,7 @@ namespace UnityEditor.U2D.Animation
             Shader.SetGlobalFloat(s_HandleSize, 1);
             InternalEditorBridge.ApplyWireMaterial();
 
-            for (var i = 0; i < s_Batches.Count; ++i)
+            for (int i = 0; i < s_Batches.Count; ++i)
             {
                 DrawBatch(s_Batches[i]);
                 s_Batches[i].Clear();
@@ -228,15 +228,15 @@ namespace UnityEditor.U2D.Animation
 
         static unsafe void DrawBatch(Batch batch)
         {
-            var vertexPtr = batch.vertices.Ptr;
-            var indexPtr = batch.indices.Ptr;
-            var vertexColorPtr = batch.vertexColors.Ptr;
+            float3* vertexPtr = batch.vertices.Ptr;
+            int* indexPtr = batch.indices.Ptr;
+            Color* vertexColorPtr = batch.vertexColors.Ptr;
 
-            var vertexCount = batch.vertices.Length;
+            int vertexCount = batch.vertices.Length;
 
-            var vertexArr = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<Vector3>(vertexPtr, vertexCount, batch.vertices.Allocator.ToAllocator);
-            var indexArr = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<int>(indexPtr, vertexCount, batch.indices.Allocator.ToAllocator);
-            var colorArr = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<Color>(vertexColorPtr, vertexCount, batch.vertexColors.Allocator.ToAllocator);
+            NativeArray<Vector3> vertexArr = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<Vector3>(vertexPtr, vertexCount, batch.vertices.Allocator.ToAllocator);
+            NativeArray<int> indexArr = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<int>(indexPtr, vertexCount, batch.indices.Allocator.ToAllocator);
+            NativeArray<Color> colorArr = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<Color>(vertexColorPtr, vertexCount, batch.vertexColors.Allocator.ToAllocator);
 
             NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref vertexArr, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
             NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref indexArr, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());

@@ -292,44 +292,44 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     return true;
                 case GridOperations.Left:
                 {
-                    var newIndex = Mathf.Max(selectedIndex - 1, 0);
+                    int newIndex = Mathf.Max(selectedIndex - 1, 0);
                     if (newIndex != selectedIndex)
                     {
                         HandleSelectionAndScroll(newIndex);
                         return true;
                     }
                 }
-                    break;
+                break;
                 case GridOperations.Right:
                 {
-                    var newIndex = Mathf.Min(selectedIndex + 1, itemsSource.Count - 1);
+                    int newIndex = Mathf.Min(selectedIndex + 1, itemsSource.Count - 1);
                     if (newIndex != selectedIndex)
                     {
                         HandleSelectionAndScroll(newIndex);
                         return true;
                     }
                 }
-                    break;
+                break;
                 case GridOperations.Up:
                 {
-                    var newIndex = Mathf.Max(selectedIndex - columnCount, 0);
+                    int newIndex = Mathf.Max(selectedIndex - columnCount, 0);
                     if (newIndex != selectedIndex)
                     {
                         HandleSelectionAndScroll(newIndex);
                         return true;
                     }
                 }
-                    break;
+                break;
                 case GridOperations.Down:
                 {
-                    var newIndex = Mathf.Min(selectedIndex + columnCount, itemsSource.Count - 1);
+                    int newIndex = Mathf.Min(selectedIndex + columnCount, itemsSource.Count - 1);
                     if (newIndex != selectedIndex)
                     {
                         HandleSelectionAndScroll(newIndex);
                         return true;
                     }
                 }
-                    break;
+                break;
                 case GridOperations.Begin:
                     HandleSelectionAndScroll(0);
                     return true;
@@ -393,7 +393,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnKeyDown(KeyDownEvent evt)
         {
-            var operation = evt.keyCode switch
+            GridOperations operation = evt.keyCode switch
             {
                 KeyCode.A when evt.actionKey => GridOperations.SelectAll,
                 KeyCode.Escape => GridOperations.Cancel,
@@ -655,7 +655,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             get { return m_SelectionType; }
             set
             {
-                var changed = m_SelectionType != value;
+                bool changed = m_SelectionType != value;
                 m_SelectionType = value;
 
                 if (m_SelectionType == SelectionType.None)
@@ -697,7 +697,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             set
             {
-                var changed = m_AllowNoSelection != value;
+                bool changed = m_AllowNoSelection != value;
                 m_AllowNoSelection = value;
                 if (HasValidDataAndBindings() && !m_AllowNoSelection && m_SelectedIndices.Count == 0 && m_ItemsSource.Count > 0)
                     SetSelectionInternal(new[] { 0 }, true, true);
@@ -761,7 +761,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!HasValidDataAndBindings())
                 return false;
 
-            var idx = GetIndexByWorldPosition(worldPosition);
+            int idx = GetIndexByWorldPosition(worldPosition);
             return idx >= 0 && idx < itemsSource.Count;
         }
 
@@ -878,7 +878,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// </remarks>
         public void Refresh()
         {
-            foreach (var recycledRow in m_RowPool)
+            foreach (RecycledRow recycledRow in m_RowPool)
             {
                 recycledRow.Clear();
             }
@@ -893,15 +893,15 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_SoftSelectIndexWasPreviouslySelected = false;
             m_OriginalSelection.Clear();
 
-            var newSelectedIds = new List<int>();
+            List<int> newSelectedIds = new List<int>();
 
             // O(n)
             if (m_SelectedIds.Count > 0)
             {
                 // Add selected objects to working lists.
-                for (var index = 0; index < m_ItemsSource.Count; ++index)
+                for (int index = 0; index < m_ItemsSource.Count; ++index)
                 {
-                    var id = GetIdFromIndex(index);
+                    int id = GetIdFromIndex(index);
                     if (!m_SelectedIds.Contains(id))
                         continue;
 
@@ -945,11 +945,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// <param name="index">The item index.</param>
         internal void RefreshItem(int index)
         {
-            foreach (var recycledRow in m_RowPool)
+            foreach (RecycledRow recycledRow in m_RowPool)
             {
-                if (recycledRow.ContainsIndex(index, out var indexInRow))
+                if (recycledRow.ContainsIndex(index, out int indexInRow))
                 {
-                    var item = makeItem != null && index < itemsSource.Count ? makeItem.Invoke() : CreateDummyItemElement();
+                    VisualElement item = makeItem != null && index < itemsSource.Count ? makeItem.Invoke() : CreateDummyItemElement();
                     SetupItemElement(item);
 
                     recycledRow.RemoveAt(indexInRow);
@@ -996,13 +996,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (m_VisibleRowCount == 0 || index < -1)
                 return;
 
-            var pixelAlignedItemHeight = resolvedItemHeight;
-            var lastRowIndex = Mathf.FloorToInt((itemsSource.Count - 1) / (float)columnCount);
-            var maxOffset = Mathf.Max(0, lastRowIndex * pixelAlignedItemHeight - m_LastHeight + pixelAlignedItemHeight);
-            var targetRowIndex = Mathf.FloorToInt(index / (float)columnCount);
-            var targetOffset = targetRowIndex * pixelAlignedItemHeight;
-            var currentOffset = scrollView.scrollOffset.y;
-            var d = targetOffset - currentOffset;
+            float pixelAlignedItemHeight = resolvedItemHeight;
+            int lastRowIndex = Mathf.FloorToInt((itemsSource.Count - 1) / (float)columnCount);
+            float maxOffset = Mathf.Max(0, lastRowIndex * pixelAlignedItemHeight - m_LastHeight + pixelAlignedItemHeight);
+            int targetRowIndex = Mathf.FloorToInt(index / (float)columnCount);
+            float targetOffset = targetRowIndex * pixelAlignedItemHeight;
+            float currentOffset = scrollView.scrollOffset.y;
+            float d = targetOffset - currentOffset;
 
             if (index == -1)
             {
@@ -1061,9 +1061,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 case SelectionType.None:
                     return;
                 case SelectionType.Single:
-                    var lastIndex = -1;
-                    var count = 0;
-                    foreach (var index in indices)
+                    int lastIndex = -1;
+                    int count = 0;
+                    foreach (int index in indices)
                     {
                         lastIndex = index;
                         count++;
@@ -1086,7 +1086,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!HasValidDataAndBindings() || indexes == null || indexes.Count == 0)
                 return;
 
-            foreach (var index in indexes)
+            foreach (int index in indexes)
                 AddToSelectionWithoutValidation(index);
 
             PostSelection(updatePrevious, notify);
@@ -1099,14 +1099,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 return;
             }
 
-            for (var index = 0; index < itemsSource.Count; index++)
+            for (int index = 0; index < itemsSource.Count; index++)
             {
-                var id = GetIdFromIndex(index);
-                var item = m_ItemsSource[index];
+                int id = GetIdFromIndex(index);
+                object item = m_ItemsSource[index];
 
-                foreach (var recycledRow in m_RowPool)
+                foreach (RecycledRow recycledRow in m_RowPool)
                 {
-                    if (recycledRow.ContainsId(id, out var indexInRow))
+                    if (recycledRow.ContainsId(id, out int indexInRow))
                         recycledRow.SetSelected(indexInRow, true);
                 }
 
@@ -1130,9 +1130,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 case SelectionType.None:
                     return;
                 case SelectionType.Single:
-                    var lastIndex = -1;
-                    var count = 0;
-                    foreach (var index in indices)
+                    int lastIndex = -1;
+                    int count = 0;
+                    foreach (int index in indices)
                     {
                         lastIndex = index;
                         count++;
@@ -1150,13 +1150,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!allowNoSelection)
             {
                 // Check if empty.
-                using var enumerator = indices.GetEnumerator();
+                using IEnumerator<int> enumerator = indices.GetEnumerator();
                 if (!enumerator.MoveNext())
                     return;
             }
 
             ClearSelectionWithoutValidation();
-            foreach (var index in indices)
+            foreach (int index in indices)
                 AddToSelectionWithoutValidation(index);
             PostSelection(updatePrevious, sendNotification);
         }
@@ -1166,12 +1166,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (m_ItemsSource == null || index < 0 || index >= m_ItemsSource.Count || m_SelectedIndices.Contains(index))
                 return;
 
-            var id = GetIdFromIndex(index);
-            var item = m_ItemsSource[index];
+            int id = GetIdFromIndex(index);
+            object item = m_ItemsSource[index];
 
-            foreach (var recycledRow in m_RowPool)
+            foreach (RecycledRow recycledRow in m_RowPool)
             {
-                if (recycledRow.ContainsId(id, out var indexInRow))
+                if (recycledRow.ContainsId(id, out int indexInRow))
                     recycledRow.SetSelected(indexInRow, true);
             }
 
@@ -1198,11 +1198,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         VisualElement GetVisualElementInternal(int index)
         {
-            var id = GetIdFromIndex(index);
+            int id = GetIdFromIndex(index);
 
-            foreach (var recycledRow in m_RowPool)
+            foreach (RecycledRow recycledRow in m_RowPool)
             {
-                if (recycledRow.ContainsId(id, out var indexInRow))
+                if (recycledRow.ContainsId(id, out int indexInRow))
                     return recycledRow.ElementAt(indexInRow);
             }
 
@@ -1211,7 +1211,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void ClearSelectionWithoutValidation()
         {
-            foreach (var recycledRow in m_RowPool)
+            foreach (RecycledRow recycledRow in m_RowPool)
                 recycledRow.ClearSelection();
 
             m_SelectedIds.Clear();
@@ -1221,16 +1221,16 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         VisualElement CreateDummyItemElement()
         {
-            var item = new VisualElement { pickingMode = PickingMode.Ignore };
+            VisualElement item = new VisualElement { pickingMode = PickingMode.Ignore };
             SetupItemElement(item);
             return item;
         }
 
         void DoRangeSelection(int rangeSelectionFinalIndex, bool updatePrevious, bool notify)
         {
-            var max = -1;
-            var min = -1;
-            foreach (var i in m_SelectedIndices)
+            int max = -1;
+            int min = -1;
+            foreach (int i in m_SelectedIndices)
             {
                 if (max == -1 || i > max)
                     max = i;
@@ -1243,16 +1243,16 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             ClearSelectionWithoutValidation();
 
             // Add range
-            var range = new List<int>();
+            List<int> range = new List<int>();
             m_IsRangeSelectionDirectionUp = rangeSelectionFinalIndex < m_RangeSelectionOrigin;
             if (m_IsRangeSelectionDirectionUp)
             {
-                for (var i = rangeSelectionFinalIndex; i <= m_RangeSelectionOrigin; i++)
+                for (int i = rangeSelectionFinalIndex; i <= m_RangeSelectionOrigin; i++)
                     range.Add(i);
             }
             else
             {
-                for (var i = rangeSelectionFinalIndex; i >= m_RangeSelectionOrigin; i--)
+                for (int i = rangeSelectionFinalIndex; i >= m_RangeSelectionOrigin; i--)
                     range.Add(i);
             }
 
@@ -1266,7 +1266,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void DoSoftSelect(PointerDownEvent evt, int clickCount)
         {
-            var clickedIndex = GetIndexByWorldPosition(evt.position);
+            int clickedIndex = GetIndexByWorldPosition(evt.position);
             if (clickedIndex > m_ItemsSource.Count - 1 || clickedIndex < 0)
             {
                 if (evt.button == (int)MouseButton.LeftMouse && allowNoSelection)
@@ -1287,7 +1287,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     m_RangeSelectionOrigin = clickedIndex;
 
                     // Add/remove single clicked element
-                    var clickedItemId = GetIdFromIndex(clickedIndex);
+                    int clickedItemId = GetIdFromIndex(clickedIndex);
                     if (m_SelectedIds.Contains(clickedItemId))
                         RemoveFromSelectionInternal(clickedIndex, false, false);
                     else
@@ -1373,7 +1373,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnCustomStyleResolved(CustomStyleResolvedEvent e)
         {
-            if (!m_ItemHeightIsInline && e.customStyle.TryGetValue(s_ItemHeightProperty, out var height))
+            if (!m_ItemHeightIsInline && e.customStyle.TryGetValue(s_ItemHeightProperty, out int height))
             {
                 if (m_ItemHeight != height)
                 {
@@ -1413,7 +1413,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             if (evt.clickCount == 2)
             {
-                var clickedIndex = GetIndexByWorldPosition(evt.position);
+                int clickedIndex = GetIndexByWorldPosition(evt.position);
                 if (clickedIndex >= 0 && clickedIndex < m_ItemsSource.Count)
                 {
                     doubleClicked?.Invoke(clickedIndex);
@@ -1436,7 +1436,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!evt.isPrimary)
                 return;
 
-            var capturingElement = panel?.GetCapturingElement(evt.pointerId);
+            IEventHandler capturingElement = panel?.GetCapturingElement(evt.pointerId);
 
             // if the pointer is captured by a child of the scroll view, abort any selection
             if (capturingElement is VisualElement ve &&
@@ -1449,7 +1449,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_OriginalScrollOffset = m_ScrollOffset;
             m_SoftSelectIndex = -1;
 
-            var clickCount = m_HasPointerMoved ? 1 : evt.clickCount;
+            int clickCount = m_HasPointerMoved ? 1 : evt.clickCount;
             m_HasPointerMoved = false;
 
             DoSoftSelect(evt, clickCount);
@@ -1469,7 +1469,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (m_SoftSelectIndex == -1)
                 return;
 
-            var index = m_SoftSelectIndex;
+            int index = m_SoftSelectIndex;
             m_SoftSelectIndex = -1;
 
             if (m_SoftSelectIndexWasPreviouslySelected &&
@@ -1504,15 +1504,15 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// <returns> The index of the item at the given position.</returns>
         public int GetIndexByWorldPosition(Vector2 worldPosition)
         {
-            var localPosition = scrollView.contentContainer.WorldToLocal(worldPosition);
+            Vector2 localPosition = scrollView.contentContainer.WorldToLocal(worldPosition);
             return Mathf.FloorToInt(localPosition.y / resolvedItemHeight) * columnCount + Mathf.FloorToInt(localPosition.x / resolvedItemWidth);
         }
 
         internal VisualElement GetElementAt(int index)
         {
-            foreach (var row in m_RowPool)
+            foreach (RecycledRow row in m_RowPool)
             {
-                if (row.ContainsId(index, out var indexInRow))
+                if (row.ContainsId(index, out int indexInRow))
                     return row[indexInRow];
             }
 
@@ -1530,8 +1530,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 return;
 
             m_ScrollOffset = offset;
-            var pixelAlignedItemHeight = resolvedItemHeight;
-            var firstVisibleIndex = Mathf.FloorToInt(offset / pixelAlignedItemHeight) * columnCount;
+            float pixelAlignedItemHeight = resolvedItemHeight;
+            int firstVisibleIndex = Mathf.FloorToInt(offset / pixelAlignedItemHeight) * columnCount;
 
             scrollView.contentContainer.style.paddingTop = Mathf.FloorToInt(firstVisibleIndex / (float)columnCount) * pixelAlignedItemHeight;
             scrollView.contentContainer.style.height = (Mathf.CeilToInt(itemsSource.Count / (float)columnCount) * pixelAlignedItemHeight);
@@ -1546,13 +1546,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     if (m_FirstVisibleIndex < m_RowPool[0].firstIndex) //we're scrolling up
                     {
                         //How many do we have to swap back
-                        var count = m_RowPool[0].firstIndex - m_FirstVisibleIndex;
+                        int count = m_RowPool[0].firstIndex - m_FirstVisibleIndex;
 
-                        var inserting = m_ScrollInsertionList;
+                        List<RecycledRow> inserting = m_ScrollInsertionList;
 
-                        for (var i = 0; i < count && m_RowPool.Count > 0; ++i)
+                        for (int i = 0; i < count && m_RowPool.Count > 0; ++i)
                         {
-                            var last = m_RowPool[^1];
+                            RecycledRow last = m_RowPool[^1];
                             inserting.Add(last);
                             m_RowPool.RemoveAt(m_RowPool.Count - 1); //we remove from the end
 
@@ -1568,12 +1568,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     }
                     else if (m_FirstVisibleIndex > m_RowPool[0].firstIndex) //down
                     {
-                        var inserting = m_ScrollInsertionList;
+                        List<RecycledRow> inserting = m_ScrollInsertionList;
 
-                        var checkIndex = 0;
+                        int checkIndex = 0;
                         while (checkIndex < m_RowPool.Count && m_FirstVisibleIndex > m_RowPool[checkIndex].firstIndex)
                         {
-                            var first = m_RowPool[checkIndex];
+                            RecycledRow first = m_RowPool[checkIndex];
                             inserting.Add(first);
                             first.BringToFront(); //We send the element to the bottom of the list (front in z-order)
                             checkIndex++;
@@ -1585,21 +1585,21 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     }
 
                     //Let's rebind everything
-                    for (var rowIndex = 0; rowIndex < m_RowPool.Count; rowIndex++)
+                    for (int rowIndex = 0; rowIndex < m_RowPool.Count; rowIndex++)
                     {
-                        for (var colIndex = 0; colIndex < columnCount; colIndex++)
+                        for (int colIndex = 0; colIndex < columnCount; colIndex++)
                         {
-                            var index = rowIndex * columnCount + colIndex + m_FirstVisibleIndex;
+                            int index = rowIndex * columnCount + colIndex + m_FirstVisibleIndex;
 
-                            var isFirstColumn = colIndex == 0;
-                            var isLastColumn = colIndex == columnCount - 1;
+                            bool isFirstColumn = colIndex == 0;
+                            bool isLastColumn = colIndex == columnCount - 1;
 
                             if (index < itemsSource.Count)
                             {
-                                var item = m_RowPool[rowIndex].ElementAt(colIndex);
+                                VisualElement item = m_RowPool[rowIndex].ElementAt(colIndex);
                                 if (m_RowPool[rowIndex].indices[colIndex] == RecycledRow.kUndefinedIndex)
                                 {
-                                    var newItem = makeItem != null ? makeItem.Invoke() : CreateDummyItemElement();
+                                    VisualElement newItem = makeItem != null ? makeItem.Invoke() : CreateDummyItemElement();
                                     SetupItemElement(newItem);
                                     m_RowPool[rowIndex].RemoveAt(colIndex);
                                     m_RowPool[rowIndex].Insert(colIndex, newItem);
@@ -1612,7 +1612,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                             }
                             else
                             {
-                                var remainingOldItems = columnCount - colIndex;
+                                int remainingOldItems = columnCount - colIndex;
 
                                 while (remainingOldItems > 0)
                                 {
@@ -1655,12 +1655,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!m_SelectedIndices.Contains(index))
                 return;
 
-            var id = GetIdFromIndex(index);
-            var item = m_ItemsSource[index];
+            int id = GetIdFromIndex(index);
+            object item = m_ItemsSource[index];
 
-            foreach (var recycledRow in m_RowPool)
+            foreach (RecycledRow recycledRow in m_RowPool)
             {
-                if (recycledRow.ContainsId(id, out var indexInRow))
+                if (recycledRow.ContainsId(id, out int indexInRow))
                     recycledRow.SetSelected(indexInRow, false);
             }
 
@@ -1674,27 +1674,27 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!HasValidDataAndBindings())
                 return;
 
-            var pixelAlignedItemHeight = resolvedItemHeight;
-            var rowCountForSource = Mathf.CeilToInt(itemsSource.Count / (float)columnCount);
-            var contentHeight = rowCountForSource * pixelAlignedItemHeight;
+            float pixelAlignedItemHeight = resolvedItemHeight;
+            int rowCountForSource = Mathf.CeilToInt(itemsSource.Count / (float)columnCount);
+            float contentHeight = rowCountForSource * pixelAlignedItemHeight;
             scrollView.contentContainer.style.height = contentHeight;
 
-            var scrollableHeight = Mathf.Max(0, contentHeight - scrollView.contentViewport.layout.height);
+            float scrollableHeight = Mathf.Max(0, contentHeight - scrollView.contentViewport.layout.height);
             scrollView.verticalScroller.highValue = scrollableHeight;
             scrollView.verticalScroller.value = Mathf.Min(m_ScrollOffset, scrollView.verticalScroller.highValue);
 
-            var rowCountForHeight = Mathf.FloorToInt(height / pixelAlignedItemHeight) + k_ExtraVisibleRows;
-            var rowCount = Math.Min(rowCountForHeight, rowCountForSource);
+            int rowCountForHeight = Mathf.FloorToInt(height / pixelAlignedItemHeight) + k_ExtraVisibleRows;
+            int rowCount = Math.Min(rowCountForHeight, rowCountForSource);
 
             if (m_VisibleRowCount != rowCount)
             {
                 if (m_VisibleRowCount > rowCount)
                 {
                     // Shrink
-                    var removeCount = m_VisibleRowCount - rowCount;
-                    for (var i = 0; i < removeCount; i++)
+                    int removeCount = m_VisibleRowCount - rowCount;
+                    for (int i = 0; i < removeCount; i++)
                     {
-                        var lastIndex = m_RowPool.Count - 1;
+                        int lastIndex = m_RowPool.Count - 1;
                         m_RowPool[lastIndex].Clear();
                         scrollView.Remove(m_RowPool[lastIndex]);
                         m_RowPool.RemoveAt(lastIndex);
@@ -1703,15 +1703,15 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 else
                 {
                     // Grow
-                    var addCount = rowCount - m_VisibleRowCount;
-                    for (var i = 0; i < addCount; i++)
+                    int addCount = rowCount - m_VisibleRowCount;
+                    for (int i = 0; i < addCount; i++)
                     {
-                        var recycledRow = new RecycledRow(resolvedItemHeight);
+                        RecycledRow recycledRow = new RecycledRow(resolvedItemHeight);
 
-                        for (var indexInRow = 0; indexInRow < columnCount; indexInRow++)
+                        for (int indexInRow = 0; indexInRow < columnCount; indexInRow++)
                         {
-                            var index = m_RowPool.Count * columnCount + indexInRow + m_FirstVisibleIndex;
-                            var item = makeItem != null && index < itemsSource.Count ? makeItem.Invoke() : CreateDummyItemElement();
+                            int index = m_RowPool.Count * columnCount + indexInRow + m_FirstVisibleIndex;
+                            VisualElement item = makeItem != null && index < itemsSource.Count ? makeItem.Invoke() : CreateDummyItemElement();
                             SetupItemElement(item);
 
                             recycledRow.Add(item);
@@ -1726,8 +1726,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                                 recycledRow.indices.Add(RecycledRow.kUndefinedIndex);
                             }
 
-                            var isFirstColumn = indexInRow == 0;
-                            var isLastColumn = indexInRow == columnCount - 1;
+                            bool isFirstColumn = indexInRow == 0;
+                            bool isLastColumn = indexInRow == columnCount - 1;
                             item.EnableInClassList(k_FirstColumnUssClassName, isFirstColumn);
                             item.EnableInClassList(k_LastColumnUssClassName, isLastColumn);
                         }
@@ -1747,12 +1747,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void Setup(VisualElement item, int newIndex)
         {
-            var newId = GetIdFromIndex(newIndex);
+            int newId = GetIdFromIndex(newIndex);
 
             if (!(item.parent is RecycledRow recycledRow))
                 throw new Exception("The item to setup can't be orphan");
 
-            var indexInRow = recycledRow.IndexOf(item);
+            int indexInRow = recycledRow.IndexOf(item);
 
             if (recycledRow.indices.Count <= indexInRow)
             {
@@ -1779,7 +1779,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (first == null || second == null || first.Count != second.Count)
                 return false;
 
-            for (var i = 0; i < first.Count; i++)
+            for (int i = 0; i < first.Count; i++)
             {
                 if (!first[i].Equals(second[i]))
                     return false;
@@ -1794,7 +1794,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             item.style.position = Position.Relative;
             if (itemSquare)
             {
-                var itemSize = (float)itemHeight;
+                float itemSize = (float)itemHeight;
                 item.style.height = item.style.width = itemSize;
             }
             else
@@ -1919,7 +1919,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             public void ClearSelection()
             {
-                for (var i = 0; i < childCount; i++)
+                for (int i = 0; i < childCount; i++)
                 {
                     SetSelected(i, false);
                 }

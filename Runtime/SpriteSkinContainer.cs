@@ -17,7 +17,7 @@ namespace UnityEngine.U2D.Animation
             {
                 if (s_Instance == null)
                 {
-                    var managers = Resources.FindObjectsOfTypeAll<SpriteSkinContainer>();
+                    SpriteSkinContainer[] managers = Resources.FindObjectsOfTypeAll<SpriteSkinContainer>();
                     if (managers.Length > 0)
                         s_Instance = managers[0];
                     else

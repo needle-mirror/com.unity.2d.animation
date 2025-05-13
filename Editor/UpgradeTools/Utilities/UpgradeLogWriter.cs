@@ -14,17 +14,17 @@ namespace UnityEditor.U2D.Animation.Upgrading
             if (string.IsNullOrEmpty(content))
                 return string.Empty;
 
-            var path = Path.GetDirectoryName(Application.dataPath);
+            string path = Path.GetDirectoryName(Application.dataPath);
             path = Path.Join(path, k_LogSavePath);
 
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
-            var dateStamp = DateTime.Now.Ticks.ToString();
-            var filePath = Path.Join(path, $"AssetUpgradingLog_{dateStamp}.txt");
+            string dateStamp = DateTime.Now.Ticks.ToString();
+            string filePath = Path.Join(path, $"AssetUpgradingLog_{dateStamp}.txt");
 
             content = AddHeaderToContent(content);
-            using (var file = File.CreateText(filePath))
+            using (StreamWriter file = File.CreateText(filePath))
             {
                 file.Write(content);
             }
@@ -34,7 +34,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         static string AddHeaderToContent(string content)
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine(DateTime.Now.ToString());
             sb.AppendLine("Asset Upgrading");
             sb.AppendLine("---------------");

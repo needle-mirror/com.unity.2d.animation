@@ -21,15 +21,15 @@ namespace UnityEditor.U2D.Animation
 
         public static void DrawBone(Vector3 position, Vector3 endPosition, Vector3 forward, Color color, float scale = 1.0f)
         {
-            var right = Vector3.right;
-            var v = endPosition - position;
+            Vector3 right = Vector3.right;
+            Vector3 v = endPosition - position;
 
             if (v.sqrMagnitude != 0)
                 right = v.normalized;
 
-            var up = Vector3.Cross(right, forward).normalized;
-            var radius = GetBoneRadius(position, scale) * 0.5f;
-            var numSamples = 12;
+            Vector3 up = Vector3.Cross(right, forward).normalized;
+            float radius = GetBoneRadius(position, scale) * 0.5f;
+            int numSamples = 12;
 
             if (v.sqrMagnitude <= radius * radius)
                 BatchedDrawing.RegisterSolidArc(position, -forward, up, 360f, radius, color, numSamples * 2);
@@ -44,15 +44,15 @@ namespace UnityEditor.U2D.Animation
         {
             outlineScale = Mathf.Max(1f, outlineScale);
 
-            var right = Vector3.right;
-            var v = endPosition - position;
+            Vector3 right = Vector3.right;
+            Vector3 v = endPosition - position;
 
             if (v.sqrMagnitude != 0)
                 right = v.normalized;
 
-            var up = Vector3.Cross(right, forward).normalized;
-            var radius = GetBoneRadius(position, scale) * 0.5f;
-            var outlineWidth = radius * (outlineScale - 1f);
+            Vector3 up = Vector3.Cross(right, forward).normalized;
+            float radius = GetBoneRadius(position, scale) * 0.5f;
+            float outlineWidth = radius * (outlineScale - 1f);
             const int numSamples = 12;
 
             if (v.sqrMagnitude <= radius * radius)

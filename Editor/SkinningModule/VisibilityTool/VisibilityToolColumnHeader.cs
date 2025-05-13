@@ -6,7 +6,7 @@ namespace UnityEditor.U2D.Animation
 {
     internal class VisibilityToolColumnHeader : MultiColumnHeader
     {
-        public Action<bool> SetAllVisibility = (b) => {};
+        public Action<bool> SetAllVisibility = (b) => { };
         public Func<bool> GetAllVisibility = () => true;
 
         public VisibilityToolColumnHeader(MultiColumnHeaderState state)
@@ -23,7 +23,7 @@ namespace UnityEditor.U2D.Animation
             {
                 GUIStyle style = DefaultStyles.columnHeaderCenterAligned;
                 EditorGUI.BeginChangeCheck();
-                var visibility = GetAllVisibility();
+                bool visibility = GetAllVisibility();
                 visibility = GUI.Toggle(headerRect, visibility, visibility ? VisibilityTreeViewBase.VisibilityIconStyle.visibilityOnIcon : VisibilityTreeViewBase.VisibilityIconStyle.visibilityOffIcon, style);
                 if (EditorGUI.EndChangeCheck())
                     SetAllVisibility(visibility);

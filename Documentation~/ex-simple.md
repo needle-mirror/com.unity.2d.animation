@@ -1,18 +1,18 @@
 # Simple single Sprite actor and rig
 
-This sample shows a simple single Sprite rigged actor, which was imported with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) package. The Project and Assets can be found in the following location (the version number folder may differ):
+This sample shows a simple single Sprite rigged actor, which was imported with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) package.
 
-![](images/2D-animation-samples-simple-import.png)<br/>Sample project location in the Project window (for 2D Animation 9.0).
+The project and assets are in the `Assets/Samples/2D Animation/[X.Y.Z]/Samples/1 Simple/` in the **Project** window.
 
 Open the Asset `Assets/Samples/2D Animation/[X.Y.Z]/Samples/1 Simple/Sprites/Boris.psd` in the [Skinning Editor](SkinningEditor.md) module to examine how the Sprite is rigged.
 
-![](images/2D-animation-samples-simple-skinning-module.png)
+![The Skinning Editor window with the Boris sprite open, and each bone along the snake's length displayed as a different color.](images/2D-animation-samples-simple-skinning-module.png)
 
 The `_Simple` Scene shows how the Asset is used in a Scene when it is animated with animation that [deforms](SpriteSkin.md) its Sprite mesh.
 
-![](images/2D-animation-samples-simple-animation.png)
+![The Boris sprite, with its nested tree of bones displayed in the Hierarchy window.](images/2D-animation-samples-simple-animation.png)
 
-![](images/2D-animation-samples-simple-deformed.png)
+![The Boris sprite deformed into a curved shape.](images/2D-animation-samples-simple-deformed.png)
 
 Follow the steps below to reconstruct this `_Simple` sample Scene:
 

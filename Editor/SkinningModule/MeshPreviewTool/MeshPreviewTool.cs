@@ -77,7 +77,7 @@ namespace UnityEditor.U2D.Animation
 
             if (skinningCache.mode == SkinningMode.SpriteSheet)
             {
-                foreach (var sprite in m_Sprites)
+                foreach (SpriteCache sprite in m_Sprites)
                 {
                     if (previewBehaviour.Overlay(sprite))
                         DrawSpriteMesh(sprite);
@@ -85,11 +85,11 @@ namespace UnityEditor.U2D.Animation
             }
             else
             {
-                var character = skinningCache.character;
+                CharacterCache character = skinningCache.character;
                 Debug.Assert(character != null);
 
-                var parts = character.parts;
-                foreach (var part in parts)
+                CharacterPartCache[] parts = character.parts;
+                foreach (CharacterPartCache part in parts)
                 {
                     if (part.isVisible && previewBehaviour.Overlay(part.sprite))
                         DrawSpriteMesh(part.sprite);
@@ -102,21 +102,21 @@ namespace UnityEditor.U2D.Animation
             if (Event.current.type != EventType.Repaint)
                 return;
 
-            foreach (var sprite in m_Sprites)
+            foreach (SpriteCache sprite in m_Sprites)
                 if (previewBehaviour.OverlayWireframe(sprite))
                     DrawWireframe(sprite);
         }
 
         private void CharacterPartChanged(CharacterPartCache characterPart)
         {
-            var meshPreview = characterPart.sprite.GetMeshPreview();
+            MeshPreviewCache meshPreview = characterPart.sprite.GetMeshPreview();
             Debug.Assert(meshPreview != null);
             meshPreview.SetSkinningDirty();
         }
 
         private void MeshChanged(MeshCache mesh)
         {
-            var meshPreview = mesh.sprite.GetMeshPreview();
+            MeshPreviewCache meshPreview = mesh.sprite.GetMeshPreview();
             Debug.Assert(meshPreview != null);
             meshPreview.SetMeshDirty();
         }
@@ -138,9 +138,9 @@ namespace UnityEditor.U2D.Animation
 
         private void DirtyColorsAll()
         {
-            foreach (var sprite in m_Sprites)
+            foreach (SpriteCache sprite in m_Sprites)
             {
-                var meshPreview = sprite.GetMeshPreview();
+                MeshPreviewCache meshPreview = sprite.GetMeshPreview();
 
                 if (meshPreview != null)
                     meshPreview.SetColorsDirty();
@@ -149,9 +149,9 @@ namespace UnityEditor.U2D.Animation
 
         private void DirtyMeshesAll()
         {
-            foreach (var sprite in m_Sprites)
+            foreach (SpriteCache sprite in m_Sprites)
             {
-                var meshPreview = sprite.GetMeshPreview();
+                MeshPreviewCache meshPreview = sprite.GetMeshPreview();
 
                 if (meshPreview != null)
                     meshPreview.SetMeshDirty();
@@ -160,9 +160,9 @@ namespace UnityEditor.U2D.Animation
 
         private void DirtySkinningAll()
         {
-            foreach (var sprite in m_Sprites)
+            foreach (SpriteCache sprite in m_Sprites)
             {
-                var meshPreview = sprite.GetMeshPreview();
+                MeshPreviewCache meshPreview = sprite.GetMeshPreview();
                 Debug.Assert(meshPreview != null);
                 meshPreview.SetSkinningDirty();
             }
@@ -170,9 +170,9 @@ namespace UnityEditor.U2D.Animation
 
         private void Prepare()
         {
-            foreach (var sprite in m_Sprites)
+            foreach (SpriteCache sprite in m_Sprites)
             {
-                var meshPreview = sprite.GetMeshPreview();
+                MeshPreviewCache meshPreview = sprite.GetMeshPreview();
                 Debug.Assert(meshPreview != null);
                 meshPreview.enableSkinning = true;
                 meshPreview.Prepare();
@@ -185,16 +185,16 @@ namespace UnityEditor.U2D.Animation
 
             if (skinningCache.mode == SkinningMode.SpriteSheet)
             {
-                foreach (var sprite in m_Sprites)
+                foreach (SpriteCache sprite in m_Sprites)
                     DrawDefaultSpriteMesh(sprite);
             }
             else
             {
-                var character = skinningCache.character;
+                CharacterCache character = skinningCache.character;
                 Debug.Assert(character != null);
 
-                var parts = character.parts;
-                foreach (var part in parts)
+                CharacterPartCache[] parts = character.parts;
+                foreach (CharacterPartCache part in parts)
                 {
                     if (part.isVisible)
                         DrawDefaultSpriteMesh(part.sprite);
@@ -206,9 +206,9 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(m_Material != null);
 
-            var meshPreview = sprite.GetMeshPreview();
-            var meshCache = sprite.GetMesh();
-            var skeleton = skinningCache.GetEffectiveSkeleton(sprite);
+            MeshPreviewCache meshPreview = sprite.GetMeshPreview();
+            MeshCache meshCache = sprite.GetMesh();
+            SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(sprite);
 
             Debug.Assert(meshPreview != null);
 
@@ -229,7 +229,7 @@ namespace UnityEditor.U2D.Animation
 
             if (skinningCache.mode == SkinningMode.SpriteSheet)
             {
-                foreach (var sprite in m_Sprites)
+                foreach (SpriteCache sprite in m_Sprites)
                 {
                     if (previewBehaviour.Overlay(sprite))
                         continue;
@@ -239,13 +239,13 @@ namespace UnityEditor.U2D.Animation
             }
             else
             {
-                var character = skinningCache.character;
+                CharacterCache character = skinningCache.character;
                 Debug.Assert(character != null);
 
-                var parts = character.parts;
-                var selected = skinningCache.selectedSprite;
-                var selectedVisible = false;
-                foreach (var part in parts)
+                CharacterPartCache[] parts = character.parts;
+                SpriteCache selected = skinningCache.selectedSprite;
+                bool selectedVisible = false;
+                foreach (CharacterPartCache part in parts)
                 {
                     if (previewBehaviour.Overlay(part.sprite))
                         continue;
@@ -263,7 +263,7 @@ namespace UnityEditor.U2D.Animation
 
         private void DrawSpriteMesh(SpriteCache sprite)
         {
-            var weightMapOpacity = previewBehaviour.GetWeightMapOpacity(sprite);
+            float weightMapOpacity = previewBehaviour.GetWeightMapOpacity(sprite);
             DrawSpriteMesh(sprite, weightMapOpacity);
 
             if (previewBehaviour.DrawWireframe(sprite))
@@ -274,8 +274,8 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(m_Material != null);
 
-            var meshPreview = sprite.GetMeshPreview();
-            var meshCache = sprite.GetMesh();
+            MeshPreviewCache meshPreview = sprite.GetMeshPreview();
+            MeshCache meshCache = sprite.GetMesh();
 
             Debug.Assert(meshPreview != null);
 
@@ -297,11 +297,11 @@ namespace UnityEditor.U2D.Animation
 
         private void DrawSelectedSpriteWeightMap()
         {
-            var selectedSprite = skinningCache.selectedSprite;
+            SpriteCache selectedSprite = skinningCache.selectedSprite;
 
             if (selectedSprite != null)
             {
-                var opacity = GetWeightOpacityFromCurrentTool();
+                float opacity = GetWeightOpacityFromCurrentTool();
 
                 if (opacity > 0f)
                     DrawSpriteMesh(selectedSprite, opacity);
@@ -315,7 +315,7 @@ namespace UnityEditor.U2D.Animation
 
         private bool IsWeightTool()
         {
-            var currentTool = skinningCache.selectedTool;
+            BaseTool currentTool = skinningCache.selectedTool;
 
             if (currentTool == skinningCache.GetTool(Tools.WeightSlider) ||
                 currentTool == skinningCache.GetTool(Tools.WeightBrush) ||
@@ -332,7 +332,7 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(Event.current.type == EventType.Repaint);
             Debug.Assert(sprite != null);
 
-            var meshPreview = sprite.GetMeshPreview();
+            MeshPreviewCache meshPreview = sprite.GetMeshPreview();
             Debug.Assert(meshPreview != null);
 
             m_Material.mainTexture = null;

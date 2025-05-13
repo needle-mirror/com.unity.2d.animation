@@ -1,4 +1,4 @@
-using System;
+using UnityEditor.U2D.Common;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
@@ -25,7 +25,7 @@ namespace UnityEditor.U2D.Animation
         public void OnGUI()
         {
             EditorGUI.BeginChangeCheck();
-            var c = EditorGUILayout.Toggle(kCompactToolbarLabel, compactToolBar);
+            bool c = EditorGUILayout.Toggle(kCompactToolbarLabel, compactToolBar);
             if (EditorGUI.EndChangeCheck())
                 compactToolBar = c;
 
@@ -136,17 +136,17 @@ namespace UnityEditor.U2D.Animation
         public void OnGUI()
         {
             EditorGUI.BeginChangeCheck();
-            var c = EditorGUILayout.ColorField(kSelectedOutlineColorLabel, outlineColor);
+            Color c = EditorGUILayout.ColorField(kSelectedOutlineColorLabel, outlineColor);
             if (EditorGUI.EndChangeCheck())
                 outlineColor = c;
 
             EditorGUI.BeginChangeCheck();
-            var s = EditorGUILayout.IntSlider(kSelectedOutlineSizeLabel, selectedSpriteOutlineSize, 0, 10);
+            int s = EditorGUILayout.IntSlider(kSelectedOutlineSizeLabel, selectedSpriteOutlineSize, 0, 10);
             if (EditorGUI.EndChangeCheck())
                 selectedSpriteOutlineSize = s;
 
             EditorGUI.BeginChangeCheck();
-            var o = EditorGUILayout.Slider(kSelectedBoneOutlineSizeLabel, selectedBoneOutlineSize, 0, 3);
+            float o = EditorGUILayout.Slider(kSelectedBoneOutlineSizeLabel, selectedBoneOutlineSize, 0, 3);
             if (EditorGUI.EndChangeCheck())
                 selectedBoneOutlineSize = o;
         }
@@ -175,8 +175,11 @@ namespace UnityEditor.U2D.Animation
 
         private static void SettingsGUI(string searchContext)
         {
-            s_SkinningModuleSettings.OnGUI();
-            s_SelectionOutlineSettings.OnGUI();
+            using (new SettingsWindowUtils.GUIScope())
+            {
+                s_SkinningModuleSettings.OnGUI();
+                s_SelectionOutlineSettings.OnGUI();
+            }
         }
     }
 }

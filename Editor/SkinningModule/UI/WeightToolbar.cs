@@ -27,7 +27,7 @@ namespace UnityEditor.U2D.Animation
 
         public static WeightToolbar GenerateFromUXML()
         {
-            var clone = GetClone(k_UxmlPath, k_ToolbarId) as WeightToolbar;
+            WeightToolbar clone = GetClone(k_UxmlPath, k_ToolbarId) as WeightToolbar;
             clone.BindElements();
             clone.SetupShortcutUtility();
             clone.LocalizeTextInChildren();
@@ -52,7 +52,7 @@ namespace UnityEditor.U2D.Animation
 
         private void BindElements()
         {
-            var button = this.Q<Button>(k_AutoGenerateWeightId);
+            Button button = this.Q<Button>(k_AutoGenerateWeightId);
             button.clickable.clicked += () => SetWeightTool(Tools.GenerateWeights);
 
             button = this.Q<Button>(k_WeightPainterSliderId);
@@ -85,7 +85,7 @@ namespace UnityEditor.U2D.Animation
         public void UpdateToggleState()
         {
             //TODO: Make UI not be aware of BaseTool, Cache, etc. Use Tool enum
-            var button = this.Q<Button>(k_AutoGenerateWeightId);
+            Button button = this.Q<Button>(k_AutoGenerateWeightId);
             SetButtonChecked(button, skinningCache.GetTool(Tools.GenerateWeights).isActive);
 
             button = this.Q<Button>(k_WeightPainterSliderId);

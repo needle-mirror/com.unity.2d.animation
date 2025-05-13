@@ -26,9 +26,9 @@ namespace UnityEngine.U2D.Animation
         {
             m_Id = id;
 
-            var noOfBuffers = needDoubleBuffering ? 2 : 1;
+            int noOfBuffers = needDoubleBuffering ? 2 : 1;
             m_Buffers = new NativeByteArray[noOfBuffers];
-            for (var i = 0; i < noOfBuffers; i++)
+            for (int i = 0; i < noOfBuffers; i++)
                 m_Buffers[i] = new NativeByteArray(new NativeArray<byte>(size, Allocator.Persistent, NativeArrayOptions.UninitializedMemory));
         }
 
@@ -67,7 +67,7 @@ namespace UnityEngine.U2D.Animation
 
         public void Dispose()
         {
-            for (var i = 0; i < m_Buffers.Length; i++)
+            for (int i = 0; i < m_Buffers.Length; i++)
             {
                 if (m_Buffers[i].IsCreated)
                     m_Buffers[i].Dispose();
@@ -91,8 +91,8 @@ namespace UnityEngine.U2D.Animation
         {
             get
             {
-                var count = 0;
-                foreach (var buffer in m_Buffers.Values)
+                int count = 0;
+                foreach (VertexBuffer buffer in m_Buffers.Values)
                     count += buffer.bufferCount;
                 return count;
             }
@@ -109,7 +109,7 @@ namespace UnityEngine.U2D.Animation
             {
                 if (s_Instance == null)
                 {
-                    var bufferMGRs = Resources.FindObjectsOfTypeAll<BufferManager>();
+                    BufferManager[] bufferMGRs = Resources.FindObjectsOfTypeAll<BufferManager>();
                     if (bufferMGRs.Length > 0)
                         s_Instance = bufferMGRs[0];
                     else
@@ -150,9 +150,9 @@ namespace UnityEngine.U2D.Animation
 
         private void ForceClearBuffers()
         {
-            foreach (var vertexBuffer in m_Buffers.Values)
+            foreach (VertexBuffer vertexBuffer in m_Buffers.Values)
                 vertexBuffer.Dispose();
-            foreach (var vertexBuffer in m_BuffersToDispose)
+            foreach (VertexBuffer vertexBuffer in m_BuffersToDispose)
                 vertexBuffer.Dispose();
 
             m_Buffers.Clear();
@@ -162,7 +162,7 @@ namespace UnityEngine.U2D.Animation
         public NativeByteArray GetBuffer(int id, int bufferSize)
         {
             Profiler.BeginSample("BufferManager.GetBuffer");
-            var foundBuffer = m_Buffers.TryGetValue(id, out var buffer);
+            bool foundBuffer = m_Buffers.TryGetValue(id, out VertexBuffer buffer);
             if (!foundBuffer)
                 buffer = CreateBuffer(id, bufferSize);
 
@@ -178,7 +178,7 @@ namespace UnityEngine.U2D.Animation
                 return null;
             }
 
-            var buffer = new VertexBuffer(id, bufferSize, needDoubleBuffering);
+            VertexBuffer buffer = new VertexBuffer(id, bufferSize, needDoubleBuffering);
             m_Buffers.Add(id, buffer);
 
             return buffer;
@@ -187,7 +187,7 @@ namespace UnityEngine.U2D.Animation
         public void ReturnBuffer(int id)
         {
             Profiler.BeginSample("BufferManager.ReturnBuffer");
-            if (m_Buffers.TryGetValue(id, out var buffer))
+            if (m_Buffers.TryGetValue(id, out VertexBuffer buffer))
             {
                 buffer.Deactivate();
                 m_BuffersToDispose.Enqueue(buffer);
@@ -203,7 +203,7 @@ namespace UnityEngine.U2D.Animation
 
             while (m_BuffersToDispose.Count > 0 && m_BuffersToDispose.Peek().IsSafeToDispose())
             {
-                var buffer = m_BuffersToDispose.Dequeue();
+                VertexBuffer buffer = m_BuffersToDispose.Dequeue();
                 buffer.Dispose();
             }
 

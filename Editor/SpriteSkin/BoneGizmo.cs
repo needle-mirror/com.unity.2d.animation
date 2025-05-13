@@ -102,9 +102,9 @@ namespace UnityEditor.U2D.Animation
         {
             m_SelectionRoots.Clear();
 
-            foreach (var selectedTransform in Selection.transforms)
+            foreach (Transform selectedTransform in Selection.transforms)
             {
-                var prefabRoot = PrefabUtility.GetOutermostPrefabInstanceRoot(selectedTransform.gameObject);
+                GameObject prefabRoot = PrefabUtility.GetOutermostPrefabInstanceRoot(selectedTransform.gameObject);
                 Animator animator;
 
                 if (prefabRoot != null)
@@ -147,11 +147,11 @@ namespace UnityEditor.U2D.Animation
         {
             m_SkinComponents.Clear();
 
-            foreach (var root in m_SelectionRoots)
+            foreach (Transform root in m_SelectionRoots)
             {
-                var components = root.GetComponentsInChildren<SpriteSkin>(false);
+                SpriteSkin[] components = root.GetComponentsInChildren<SpriteSkin>(false);
 
-                foreach (var component in components)
+                foreach (SpriteSkin component in components)
                     m_SkinComponents.Add(component);
             }
 
@@ -173,7 +173,7 @@ namespace UnityEditor.U2D.Animation
 
             m_BoneData.Clear();
 
-            foreach (var skinComponent in m_SkinComponents)
+            foreach (SpriteSkin skinComponent in m_SkinComponents)
             {
                 if (skinComponent == null)
                     continue;
@@ -186,8 +186,8 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(spriteSkin.isValid);
 
-            var sprite = spriteSkin.spriteRenderer.sprite;
-            if (!m_SpriteBones.TryGetValue(sprite, out var spriteBones))
+            Sprite sprite = spriteSkin.spriteRenderer.sprite;
+            if (!m_SpriteBones.TryGetValue(sprite, out SpriteBone[] spriteBones))
             {
                 spriteBones = sprite.GetBones();
                 m_SpriteBones[sprite] = sprite.GetBones();
@@ -204,21 +204,21 @@ namespace UnityEditor.U2D.Animation
             if (!spriteSkin.isActiveAndEnabled || !spriteSkin.isValid || !spriteSkin.spriteRenderer.enabled)
                 return;
 
-            var boneTransforms = spriteSkin.boneTransforms;
-            var spriteBones = GetSpriteBones(spriteSkin);
+            Transform[] boneTransforms = spriteSkin.boneTransforms;
+            SpriteBone[] spriteBones = GetSpriteBones(spriteSkin);
             const float alpha = 1f;
 
             if (spriteBones == null)
                 return;
 
-            for (var i = 0; i < boneTransforms.Length; ++i)
+            for (int i = 0; i < boneTransforms.Length; ++i)
             {
-                var boneTransform = boneTransforms[i];
+                Transform boneTransform = boneTransforms[i];
 
                 if (boneTransform == null || m_BoneData.ContainsKey(boneTransform))
                     continue;
 
-                var bone = spriteBones[i];
+                SpriteBone bone = spriteBones[i];
 
                 if (m_View.IsActionHot(SkeletonAction.None))
                     m_CachedBones.Add(boneTransform);
@@ -245,19 +245,19 @@ namespace UnityEditor.U2D.Animation
 
         void LayoutBones()
         {
-            foreach (var bone in m_CachedBones)
+            foreach (Transform bone in m_CachedBones)
             {
                 if (bone == null)
                     continue;
 
-                if (!m_BoneData.TryGetValue(bone, out var value))
+                if (!m_BoneData.TryGetValue(bone, out Vector2 value))
                     continue;
 
-                var length = value.x;
+                float length = value.x;
 
                 if (bone != hotBone)
                 {
-                    var bonePosition = bone.position;
+                    Vector3 bonePosition = bone.position;
                     m_View.LayoutBone(bone.GetInstanceID(), bonePosition, bonePosition + bone.GetScaledRight() * length, bone.forward, bone.up, bone.right, false);
                 }
             }
@@ -265,9 +265,9 @@ namespace UnityEditor.U2D.Animation
 
         void HandleSelectBone()
         {
-            if (m_View.DoSelectBone(out var instanceID, out var additive))
+            if (m_View.DoSelectBone(out int instanceID, out bool additive))
             {
-                var bone = GetBone(instanceID);
+                Transform bone = GetBone(instanceID);
 
                 if (!additive)
                 {
@@ -276,7 +276,7 @@ namespace UnityEditor.U2D.Animation
                 }
                 else
                 {
-                    var objectList = new List<Object>(Selection.objects);
+                    List<Object> objectList = new List<Object>(Selection.objects);
 
                     if (objectList.Contains(bone.gameObject))
                         objectList.Remove(bone.gameObject);
@@ -290,7 +290,7 @@ namespace UnityEditor.U2D.Animation
 
         void HandleRotateBone()
         {
-            var pivot = hoveredBone;
+            Transform pivot = hoveredBone;
 
             if (m_View.IsActionHot(SkeletonAction.RotateBone))
                 pivot = hotBone;
@@ -302,16 +302,16 @@ namespace UnityEditor.U2D.Animation
             if (pivot == null)
                 return;
 
-            if (m_View.DoRotateBone(pivot.position, pivot.forward, out var deltaAngle))
+            if (m_View.DoRotateBone(pivot.position, pivot.forward, out float deltaAngle))
                 SetBoneRotation(deltaAngle);
         }
 
         static bool FindPivotTransform(Transform transform, out Transform selectedTransform)
         {
             selectedTransform = transform;
-            var selectedRoots = Selection.transforms;
+            Transform[] selectedRoots = Selection.transforms;
 
-            foreach (var selectedRoot in selectedRoots)
+            foreach (Transform selectedRoot in selectedRoots)
             {
                 if (transform.IsDescendentOf(selectedRoot))
                 {
@@ -325,18 +325,18 @@ namespace UnityEditor.U2D.Animation
 
         void HandleMoveBone()
         {
-            if (m_View.DoMoveBone(out var deltaPosition))
+            if (m_View.DoMoveBone(out Vector3 deltaPosition))
                 SetBonePosition(deltaPosition);
         }
 
         void SetBonePosition(Vector3 deltaPosition)
         {
-            foreach (var selectedTransform in Selection.transforms)
+            foreach (Transform selectedTransform in Selection.transforms)
             {
                 if (!m_BoneData.ContainsKey(selectedTransform))
                     continue;
 
-                var boneTransform = selectedTransform;
+                Transform boneTransform = selectedTransform;
 
                 m_Undo.RecordObject(boneTransform, TextContent.moveBone);
                 boneTransform.position += deltaPosition;
@@ -345,12 +345,12 @@ namespace UnityEditor.U2D.Animation
 
         void SetBoneRotation(float deltaAngle)
         {
-            foreach (var selectedGameObject in Selection.gameObjects)
+            foreach (GameObject selectedGameObject in Selection.gameObjects)
             {
                 if (!m_BoneData.ContainsKey(selectedGameObject.transform))
                     continue;
 
-                var boneTransform = selectedGameObject.transform;
+                Transform boneTransform = selectedGameObject.transform;
 
                 m_Undo.RecordObject(boneTransform, TextContent.rotateBone);
                 boneTransform.Rotate(boneTransform.forward, deltaAngle, Space.World);
@@ -369,29 +369,29 @@ namespace UnityEditor.U2D.Animation
 
         void DrawBoneOutlines()
         {
-            var selectedOutlineColor = SelectionOutlineSettings.outlineColor;
-            var selectedOutlineSize = SelectionOutlineSettings.selectedBoneOutlineSize;
-            var defaultOutlineColor = Color.black.AlphaMultiplied(0.5f);
+            Color selectedOutlineColor = SelectionOutlineSettings.outlineColor;
+            float selectedOutlineSize = SelectionOutlineSettings.selectedBoneOutlineSize;
+            Color defaultOutlineColor = Color.black.AlphaMultiplied(0.5f);
 
-            foreach (var boneData in m_BoneData)
+            foreach (KeyValuePair<Transform, Vector2> boneData in m_BoneData)
             {
-                var bone = boneData.Key;
+                Transform bone = boneData.Key;
 
                 if (bone == null)
                     continue;
 
-                var value = boneData.Value;
-                var length = value.x;
-                var alpha = value.y;
+                Vector2 value = boneData.Value;
+                float length = value.x;
+                float alpha = value.y;
 
                 if (alpha == 0f || !bone.gameObject.activeInHierarchy)
                     continue;
 
-                var color = defaultOutlineColor;
-                var outlineSize = 1.25f;
+                Color color = defaultOutlineColor;
+                float outlineSize = 1.25f;
 
-                var isSelected = Selection.Contains(bone.gameObject);
-                var isHovered = hoveredBody == bone && m_View.IsActionHot(SkeletonAction.None);
+                bool isSelected = Selection.Contains(bone.gameObject);
+                bool isHovered = hoveredBody == bone && m_View.IsActionHot(SkeletonAction.None);
 
                 if (isSelected)
                 {
@@ -409,15 +409,15 @@ namespace UnityEditor.U2D.Animation
 
         void DrawBones()
         {
-            foreach (var boneData in m_BoneData)
+            foreach (KeyValuePair<Transform, Vector2> boneData in m_BoneData)
             {
-                var bone = boneData.Key;
+                Transform bone = boneData.Key;
                 if (bone == null)
                     continue;
 
-                var value = boneData.Value;
-                var length = value.x;
-                var alpha = value.y;
+                Vector2 value = boneData.Value;
+                float length = value.x;
+                float alpha = value.y;
 
                 if (alpha == 0f || !bone.gameObject.activeInHierarchy)
                     continue;
@@ -430,9 +430,9 @@ namespace UnityEditor.U2D.Animation
 
         void DrawBone(Transform bone, float length, Color color)
         {
-            var isSelected = Selection.Contains(bone.gameObject);
-            var isJointHovered = m_View.IsActionHot(SkeletonAction.None) && hoveredJoint == bone;
-            var isTailHovered = m_View.IsActionHot(SkeletonAction.None) && hoveredTail == bone;
+            bool isSelected = Selection.Contains(bone.gameObject);
+            bool isJointHovered = m_View.IsActionHot(SkeletonAction.None) && hoveredJoint == bone;
+            bool isTailHovered = m_View.IsActionHot(SkeletonAction.None) && hoveredTail == bone;
 
             m_View.DrawBone(bone.position, bone.GetScaledRight(), bone.forward, length, color, false, isSelected, isJointHovered, isTailHovered, bone == hotBone);
         }

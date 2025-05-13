@@ -60,7 +60,7 @@ namespace UnityEditor.U2D.Animation
             if (skinningCache.hasCharacter)
             {
                 EditorGUI.BeginChangeCheck();
-                var isActive = GUILayout.Toggle(switchmodeTool.isActive, spriteSheetIcon, EditorStyles.toolbarButton);
+                bool isActive = GUILayout.Toggle(switchmodeTool.isActive, spriteSheetIcon, EditorStyles.toolbarButton);
                 if (EditorGUI.EndChangeCheck())
                 {
                     using (skinningCache.UndoScope(TextContent.setMode))

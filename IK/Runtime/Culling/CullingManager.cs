@@ -18,7 +18,7 @@ namespace UnityEngine.U2D.IK
             {
                 if (s_Instance == null)
                 {
-                    var managers = FindObjectsByType<CullingManager>(FindObjectsSortMode.None);
+                    CullingManager[] managers = FindObjectsByType<CullingManager>(FindObjectsSortMode.None);
                     s_Instance = managers.Length > 0 ? managers[0] : CreateNewManager();
                     s_Instance.Initialize();
                 }
@@ -29,7 +29,7 @@ namespace UnityEngine.U2D.IK
 
         static CullingManager CreateNewManager()
         {
-            var newGameObject = new GameObject("Culling Manager")
+            GameObject newGameObject = new GameObject("Culling Manager")
             {
                 hideFlags = HideFlags.HideAndDontSave
             };
@@ -37,7 +37,7 @@ namespace UnityEngine.U2D.IK
             GameObject.DontDestroyOnLoad(newGameObject);
 #endif
 
-            var cullingManager = newGameObject.AddComponent<CullingManager>();
+            CullingManager cullingManager = newGameObject.AddComponent<CullingManager>();
             return cullingManager;
         }
 
@@ -63,7 +63,7 @@ namespace UnityEngine.U2D.IK
 
             if (m_CullingStrategies != null)
             {
-                foreach (var cullingStrategy in m_CullingStrategies.Values)
+                foreach (BaseCullingStrategy cullingStrategy in m_CullingStrategies.Values)
                 {
                     if (cullingStrategy.enabled)
                         cullingStrategy.Update();
@@ -75,7 +75,7 @@ namespace UnityEngine.U2D.IK
 
         public void AddCullingStrategy(BaseCullingStrategy newCullingStrategy)
         {
-            var strategyType = newCullingStrategy.GetType();
+            Type strategyType = newCullingStrategy.GetType();
             if (m_CullingStrategies.ContainsKey(strategyType))
                 return;
 
@@ -84,18 +84,18 @@ namespace UnityEngine.U2D.IK
 
         public void RemoveCullingStrategy(BaseCullingStrategy strategyToRemove)
         {
-            var strategyType = strategyToRemove.GetType();
+            Type strategyType = strategyToRemove.GetType();
             if (!m_CullingStrategies.ContainsKey(strategyType))
                 return;
 
-            var cullingStrategy = m_CullingStrategies[strategyType];
+            BaseCullingStrategy cullingStrategy = m_CullingStrategies[strategyType];
             if (cullingStrategy == strategyToRemove)
                 m_CullingStrategies.Remove(strategyType);
         }
 
         public T GetCullingStrategy<T>() where T : BaseCullingStrategy
         {
-            var requestedType = typeof(T);
+            Type requestedType = typeof(T);
             if (!m_CullingStrategies.ContainsKey(requestedType))
                 return null;
 

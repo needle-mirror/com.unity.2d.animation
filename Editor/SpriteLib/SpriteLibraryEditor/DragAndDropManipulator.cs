@@ -92,7 +92,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 return;
 
             DragAndDrop.AcceptDrag();
-            var spritesData = RetrieveDraggedSprites(DragAndDrop.objectReferences);
+            List<DragAndDropData> spritesData = RetrieveDraggedSprites(DragAndDrop.objectReferences);
             if (spritesData.Count > 0)
                 onDragPerform?.Invoke(spritesData, evt.altKey);
 
@@ -141,7 +141,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (objectReferences == null || objectReferences.Length == 0)
                 return false;
 
-            foreach (var objectReference in objectReferences)
+            foreach (Object objectReference in objectReferences)
             {
                 switch (objectReference)
                 {
@@ -149,8 +149,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                         return true;
                     case Texture2D texture2D:
                     {
-                        var texturePath = AssetDatabase.GetAssetPath(texture2D);
-                        foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(texturePath))
+                        string texturePath = AssetDatabase.GetAssetPath(texture2D);
+                        foreach (Object obj in AssetDatabase.LoadAllAssetsAtPath(texturePath))
                         {
                             if (obj is Sprite)
                                 return true;
@@ -160,20 +160,20 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     }
                     case GameObject gameObject:
                     {
-                        var isPsdGameObjectRoot = gameObject.transform.parent != null;
+                        bool isPsdGameObjectRoot = gameObject.transform.parent != null;
                         if (isPsdGameObjectRoot)
                             continue;
 
-                        var psdFilePath = AssetDatabase.GetAssetPath(gameObject);
+                        string psdFilePath = AssetDatabase.GetAssetPath(gameObject);
                         if (string.IsNullOrEmpty(psdFilePath))
                             continue;
 
-                        var ext = Path.GetExtension(psdFilePath);
+                        string ext = Path.GetExtension(psdFilePath);
                         if (k_SupportedPsdExtensions.Contains(ext))
                         {
-                            foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(psdFilePath))
+                            foreach (Object obj in AssetDatabase.LoadAllAssetsAtPath(psdFilePath))
                             {
-                                var spriteObj = obj as Sprite;
+                                Sprite spriteObj = obj as Sprite;
                                 if (spriteObj != null)
                                     return true;
                             }
@@ -189,9 +189,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         static List<DragAndDropData> RetrieveDraggedSprites(Object[] objectReferences)
         {
-            var data = new List<DragAndDropData>();
-            var unassociatedSprites = new List<Sprite>();
-            foreach (var objectReference in objectReferences)
+            List<DragAndDropData> data = new List<DragAndDropData>();
+            List<Sprite> unassociatedSprites = new List<Sprite>();
+            foreach (Object objectReference in objectReferences)
             {
                 switch (objectReference)
                 {
@@ -200,15 +200,15 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                         break;
                     case Texture2D texture2D:
                     {
-                        var texturePath = AssetDatabase.GetAssetPath(texture2D);
-                        var spritesFromTexture = new List<Sprite>();
-                        foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(texturePath))
+                        string texturePath = AssetDatabase.GetAssetPath(texture2D);
+                        List<Sprite> spritesFromTexture = new List<Sprite>();
+                        foreach (Object obj in AssetDatabase.LoadAllAssetsAtPath(texturePath))
                         {
                             if (obj is Sprite)
                                 spritesFromTexture.Add((Sprite)obj);
                         }
 
-                        var textureData = new DragAndDropData
+                        DragAndDropData textureData = new DragAndDropData
                         {
                             name = Path.GetFileNameWithoutExtension(texturePath),
                             sprites = new List<Sprite>(spritesFromTexture),
@@ -220,26 +220,26 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                     }
                     case GameObject gameObject:
                     {
-                        var isPsdGameObjectRoot = gameObject.transform.parent != null;
+                        bool isPsdGameObjectRoot = gameObject.transform.parent != null;
                         if (isPsdGameObjectRoot)
                             continue;
 
-                        var psdFilePath = AssetDatabase.GetAssetPath(gameObject);
+                        string psdFilePath = AssetDatabase.GetAssetPath(gameObject);
                         if (string.IsNullOrEmpty(psdFilePath))
                             continue;
 
-                        var ext = Path.GetExtension(psdFilePath);
+                        string ext = Path.GetExtension(psdFilePath);
                         if (k_SupportedPsdExtensions.Contains(ext))
                         {
-                            var psdSprites = new List<Sprite>();
-                            foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(psdFilePath))
+                            List<Sprite> psdSprites = new List<Sprite>();
+                            foreach (Object obj in AssetDatabase.LoadAllAssetsAtPath(psdFilePath))
                             {
-                                var spriteObj = obj as Sprite;
+                                Sprite spriteObj = obj as Sprite;
                                 if (spriteObj != null)
                                     psdSprites.Add(spriteObj);
                             }
 
-                            var psdData = new DragAndDropData
+                            DragAndDropData psdData = new DragAndDropData
                             {
                                 name = Path.GetFileNameWithoutExtension(psdFilePath),
                                 sprites = new List<Sprite>(psdSprites),
@@ -256,7 +256,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             if (unassociatedSprites.Count > 0)
             {
-                var spritesData = new DragAndDropData
+                DragAndDropData spritesData = new DragAndDropData
                 {
                     name = unassociatedSprites[0].name,
                     sprites = unassociatedSprites,

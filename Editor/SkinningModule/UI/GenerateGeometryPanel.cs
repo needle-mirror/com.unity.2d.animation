@@ -45,11 +45,11 @@ namespace UnityEditor.U2D.Animation
 
         private void BindElements()
         {
-            var generateButton = this.Q<Button>("GenerateGeometryButton");
+            Button generateButton = this.Q<Button>("GenerateGeometryButton");
             generateButton.clickable.clicked += GenerateGeometry;
             generateButton.AddManipulator(generateButton.clickable);
 
-            var generateAllButton = this.Q<Button>("GenerateGeometryAllButton");
+            Button generateAllButton = this.Q<Button>("GenerateGeometryAllButton");
             generateAllButton.clickable.clicked += GenerateGeometryAll;
             generateAllButton.AddManipulator(generateAllButton.clickable);
 
@@ -58,7 +58,7 @@ namespace UnityEditor.U2D.Animation
             m_SubdivideField = this.Q<IntegerField>("SubdivideField");
             m_Toggle = this.Q<Toggle>("GenerateWeightsField");
 
-            var slider = this.Q<Slider>("OutlineDetailSlider");
+            Slider slider = this.Q<Slider>("OutlineDetailSlider");
             LinkSliderToFloatField(slider, m_OutlineDetailField, (x) =>
             {
                 GenerateGeomertySettings.outlineDetail = x;
@@ -67,7 +67,7 @@ namespace UnityEditor.U2D.Animation
             slider.SetValueWithoutNotify(GenerateGeomertySettings.outlineDetail);
 
             slider = this.Q<Slider>("AlphaToleranceSlider");
-            LinkSliderToFloatField(slider, m_AlphaToleranceField,(x) =>
+            LinkSliderToFloatField(slider, m_AlphaToleranceField, (x) =>
             {
                 GenerateGeomertySettings.alphaTolerance = x;
             });
@@ -75,7 +75,7 @@ namespace UnityEditor.U2D.Animation
             slider.SetValueWithoutNotify(GenerateGeomertySettings.alphaTolerance);
 
             slider = this.Q<Slider>("SubdivideSlider");
-            LinkSliderToFloatField(slider, m_SubdivideField,(x) =>
+            LinkSliderToFloatField(slider, m_SubdivideField, (x) =>
             {
                 GenerateGeomertySettings.subdivide = x;
             });
@@ -95,7 +95,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     if (!evt.newValue.Equals(field.value))
                     {
-                        var intValue = Mathf.RoundToInt(evt.newValue);
+                        int intValue = Mathf.RoundToInt(evt.newValue);
                         field.SetValueWithoutNotify(intValue);
                         updatePreferenceAction(intValue);
                     }
@@ -103,7 +103,7 @@ namespace UnityEditor.U2D.Animation
                 });
             field.RegisterValueChangedCallback((evt) =>
                 {
-                    var newValue = evt.newValue;
+                    int newValue = evt.newValue;
                     if (!newValue.Equals(slider.value))
                     {
                         newValue = Math.Min(newValue, (int)slider.highValue);
@@ -136,8 +136,8 @@ namespace UnityEditor.U2D.Animation
 
         public static GenerateGeometryPanel GenerateFromUXML()
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/GenerateGeometryPanel.uxml");
-            var clone = visualTree.CloneTree().Q<GenerateGeometryPanel>("GenerateGeometryPanel");
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/GenerateGeometryPanel.uxml");
+            GenerateGeometryPanel clone = visualTree.CloneTree().Q<GenerateGeometryPanel>("GenerateGeometryPanel");
             clone.LocalizeTextInChildren();
             clone.BindElements();
             return clone;

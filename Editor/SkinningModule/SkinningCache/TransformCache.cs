@@ -99,7 +99,7 @@ namespace UnityEditor.U2D.Animation
         {
             get
             {
-                var matrix = Matrix4x4.identity;
+                Matrix4x4 matrix = Matrix4x4.identity;
                 if (parent != null)
                     matrix = parent.localToWorldMatrix;
                 return matrix;
@@ -119,7 +119,7 @@ namespace UnityEditor.U2D.Animation
         {
             m_LocalToWorldMatrix = parentMatrix * Matrix4x4.TRS(localPosition, localRotation, localScale);
 
-            foreach (var child in m_Children)
+            foreach (TransformCache child in m_Children)
                 child.Update();
         }
 
@@ -156,8 +156,8 @@ namespace UnityEditor.U2D.Animation
             if (parent == null)
                 return;
 
-            var currentIndex = parent.m_Children.IndexOf(this);
-            var indexToRemove = index < currentIndex ? currentIndex + 1 : currentIndex;
+            int currentIndex = parent.m_Children.IndexOf(this);
+            int indexToRemove = index < currentIndex ? currentIndex + 1 : currentIndex;
             parent.InsertChildAt(index, this);
             parent.RemoveChildAt(indexToRemove);
         }
@@ -167,8 +167,8 @@ namespace UnityEditor.U2D.Animation
             if (m_Parent == newParent)
                 return;
 
-            var oldPosition = position;
-            var oldRotation = rotation;
+            Vector3 oldPosition = position;
+            Quaternion oldRotation = rotation;
 
             if (m_Parent != null)
                 m_Parent.RemoveChild(this);
@@ -191,8 +191,8 @@ namespace UnityEditor.U2D.Animation
 
         Quaternion GetGlobalRotation()
         {
-            var globalRotation = localRotation;
-            var currentParent = parent;
+            Quaternion globalRotation = localRotation;
+            TransformCache currentParent = parent;
 
             while (currentParent != null)
             {
@@ -224,7 +224,7 @@ namespace UnityEditor.U2D.Animation
 
         static Quaternion ScaleMulQuaternion(Vector3 scale, Quaternion q)
         {
-            var s = new Vector3(ChangeSign(1f, scale.x), ChangeSign(1f, scale.y), ChangeSign(1f, scale.z));
+            Vector3 s = new Vector3(ChangeSign(1f, scale.x), ChangeSign(1f, scale.y), ChangeSign(1f, scale.z));
             q.x = ChangeSign(q.x, s.y * s.z);
             q.y = ChangeSign(q.y, s.x * s.z);
             q.z = ChangeSign(q.z, s.x * s.y);
@@ -238,15 +238,15 @@ namespace UnityEditor.U2D.Animation
 
         void MatchDirection(Vector3 localDirection, Vector3 worldDirection)
         {
-            var direction = worldToLocalMatrix.MultiplyVector(worldDirection);
+            Vector3 direction = worldToLocalMatrix.MultiplyVector(worldDirection);
             direction = Matrix4x4.TRS(Vector3.zero, localRotation, localScale).MultiplyVector(direction);
-            var scaledLocalDirection = Vector3.Scale(localDirection, localScale);
-            var deltaRotation = Quaternion.identity;
+            Vector3 scaledLocalDirection = Vector3.Scale(localDirection, localScale);
+            Quaternion deltaRotation = Quaternion.identity;
 
             if (scaledLocalDirection.sqrMagnitude > 0f)
             {
-                var axis = Vector3.Cross(scaledLocalDirection, direction);
-                var angle = Vector3.SignedAngle(scaledLocalDirection, direction, axis);
+                Vector3 axis = Vector3.Cross(scaledLocalDirection, direction);
+                float angle = Vector3.SignedAngle(scaledLocalDirection, direction, axis);
                 deltaRotation = Quaternion.AngleAxis(angle, axis);
             }
 

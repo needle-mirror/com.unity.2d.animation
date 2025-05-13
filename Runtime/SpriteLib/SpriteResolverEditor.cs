@@ -19,7 +19,7 @@ namespace UnityEngine.U2D.Animation
 
         void LateUpdateEditor()
         {
-            var newSpriteLibraryModificationHash = GetCurrentSpriteLibraryAssetModificationHash();
+            long newSpriteLibraryModificationHash = GetCurrentSpriteLibraryAssetModificationHash();
             if (m_SpriteLibraryModificationHash != newSpriteLibraryModificationHash)
             {
                 ResolveSpriteToSpriteRenderer();
@@ -57,7 +57,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (spriteLibrary != null)
             {
-                var spriteLibraryAsset = spriteLibrary.spriteLibraryAsset;
+                SpriteLibraryAsset spriteLibraryAsset = spriteLibrary.spriteLibraryAsset;
                 if (spriteLibraryAsset != null)
                     return spriteLibraryAsset.modificationHash;
             }

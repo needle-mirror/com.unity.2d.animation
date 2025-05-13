@@ -112,10 +112,10 @@ namespace UnityEngine.U2D.IK
         {
             m_Solvers.Clear();
 
-            var solvers = new List<Solver2D>();
+            List<Solver2D> solvers = new List<Solver2D>();
             transform.GetComponentsInChildren<Solver2D>(true, solvers);
 
-            foreach (var solver in solvers)
+            foreach (Solver2D solver in solvers)
             {
                 if (solver.GetComponentInParent<IKManager2D>() == this)
                     AddSolver(solver);
@@ -153,15 +153,15 @@ namespace UnityEngine.U2D.IK
             if (m_Solvers.Count == 0)
                 return;
 
-            var profilerMarker = new ProfilerMarker("IKManager2D.UpdateManager");
+            ProfilerMarker profilerMarker = new ProfilerMarker("IKManager2D.UpdateManager");
             profilerMarker.Begin();
 
             ToggleCulling(!m_AlwaysUpdate);
 
-            var solverInitialized = false;
-            for (var i = 0; i < m_Solvers.Count; i++)
+            bool solverInitialized = false;
+            for (int i = 0; i < m_Solvers.Count; i++)
             {
-                var solver = m_Solvers[i];
+                Solver2D solver = m_Solvers[i];
                 if (solver == null || !solver.isActiveAndEnabled)
                     continue;
 
@@ -180,12 +180,12 @@ namespace UnityEngine.U2D.IK
                 if (solverInitialized || m_TransformIdCache == null)
                     CacheSolversTransformIds();
 
-                var canUpdate = m_AlwaysUpdate || m_CullingStrategy.AreBonesVisible(m_TransformIdCache);
+                bool canUpdate = m_AlwaysUpdate || m_CullingStrategy.AreBonesVisible(m_TransformIdCache);
                 if (canUpdate)
                 {
-                    for (var i = 0; i < m_Solvers.Count; i++)
+                    for (int i = 0; i < m_Solvers.Count; i++)
                     {
-                        var solver = m_Solvers[i];
+                        Solver2D solver = m_Solvers[i];
                         if (solver == null || !solver.isActiveAndEnabled)
                             continue;
 
@@ -199,16 +199,16 @@ namespace UnityEngine.U2D.IK
 
         void CacheSolversTransformIds()
         {
-            var transformCache = new HashSet<int>();
-            for (var s = 0; s < solvers.Count; s++)
+            HashSet<int> transformCache = new HashSet<int>();
+            for (int s = 0; s < solvers.Count; s++)
             {
-                var solver = solvers[s];
-                for (var c = 0; c < solver.chainCount; c++)
+                Solver2D solver = solvers[s];
+                for (int c = 0; c < solver.chainCount; c++)
                 {
-                    var chain = solver.GetChain(c);
-                    for (var b = 0; b < chain.transformCount; b++)
+                    IKChain2D chain = solver.GetChain(c);
+                    for (int b = 0; b < chain.transformCount; b++)
                     {
-                        var boneTransform = chain.transforms[b];
+                        Transform boneTransform = chain.transforms[b];
                         if (boneTransform != null)
                             transformCache.Add(boneTransform.GetInstanceID());
                     }

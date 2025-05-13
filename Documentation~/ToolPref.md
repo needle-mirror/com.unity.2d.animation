@@ -2,8 +2,6 @@
 
 Adjust the appearance of the 2D Animation tools for the Skinning Editor in the Preferences menu: __Edit__ > __Preferences__ > __2D__ > __Animation__.
 
-![](images/2DAnimationV2_ToolPreferences.png)<br/>Tool Preferences
-
 | Setting                    | Function                                                     |
 | -------------------------- | ------------------------------------------------------------ |
 | __Hide Tool Text__         | Enable this option to hide the tool text to have a compact view. |
@@ -13,5 +11,3 @@ Adjust the appearance of the 2D Animation tools for the Skinning Editor in the P
 | __Bone Outline Size__      | Use the slider to adjust the outline thickness of a selected  bone. |
 
 Enable __Hide Tool Text__ to only display the tool icons in the [Skinning Editor](SkinningEditor.md) window.
-
-![](images/2DAnimationV7_compacted.png)

@@ -10,12 +10,8 @@ In the [Sprite Swap workflow](SpriteSwapSetup.md), after creating a Sprite Libra
 
 To create a Sprite Library Asset, go to **Assets** > **Create** > **2D** > **Sprite Library Asset**.
 
-![](images/2D-animation-SLAsset-dropdown.png)
-
 ## Sprite Library Asset properties
 Select the Sprite Library Asset and go to its Inspector window to view the following properties.
-
-![](images/2D-animation-SLAsset-properties.png)
 
 Property  |Description
 --|--
@@ -31,8 +27,6 @@ A Sprite Library Asset Variant inherits **Categories** and **Labels** from a sel
 ### Create through the menu
 
 After creating a Sprite Library Asset, select it in the Project window, then go to **Assets** > **Create** > **2D** > **Sprite Library Asset Variant** to create a Variant asset that references it.
-
-![](images/2D-animation-SLAssetVariant-dropdown.png)
 
 ### Convert a Sprite Library Asset into a Variant
 

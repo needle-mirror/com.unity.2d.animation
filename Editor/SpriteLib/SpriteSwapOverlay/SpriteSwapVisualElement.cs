@@ -54,38 +54,38 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
                     new CategoryContainer(),
                     new LabelContainer() { focusable = true }
                 )
-                { focusable = true };
+            { focusable = true };
 
         void BindItem(VisualElement visualElement, int i)
         {
             if (m_ListView.itemsSource == null || m_ListView.itemsSource.Count <= i)
                 return;
 
-            var resolverSelector = (SpriteResolverSelector)visualElement;
+            SpriteResolverSelector resolverSelector = (SpriteResolverSelector)visualElement;
             resolverSelector.SetSpriteResolver((SpriteResolver)m_ListView.itemsSource[i]);
         }
 
         static void UnbindItem(VisualElement visualElement, int i)
         {
-            var resolverSelector = (SpriteResolverSelector)visualElement;
+            SpriteResolverSelector resolverSelector = (SpriteResolverSelector)visualElement;
             resolverSelector.SetSpriteResolver(null);
         }
 
         void OnSelectionChanged(IEnumerable<object> obj)
         {
-            var index = m_ListView.selectedIndex;
+            int index = m_ListView.selectedIndex;
             if (index == -1)
                 return;
 
             m_ListView.SetSelectionWithoutNotify(new[] { index });
 
-            var selector = (SpriteResolverSelector)m_ListView.GetRootElementForIndex(index);
+            SpriteResolverSelector selector = (SpriteResolverSelector)m_ListView.GetRootElementForIndex(index);
             selector?.Select();
         }
 
         public void SetSpriteResolvers(SpriteResolver[] newSelection)
         {
-            var isListVisible = newSelection is { Length: > 0 };
+            bool isListVisible = newSelection is { Length: > 0 };
 
             m_InfoLabelHolder.style.display = isListVisible ? DisplayStyle.None : DisplayStyle.Flex;
             m_ListView.style.display = isListVisible ? DisplayStyle.Flex : DisplayStyle.None;
@@ -110,10 +110,10 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             if (m_ListView?.itemsSource == null)
                 return;
 
-            for (var i = 0; i < m_ListView.itemsSource.Count; i++)
+            for (int i = 0; i < m_ListView.itemsSource.Count; i++)
             {
-                var id = m_ListView.viewController.GetIdForIndex(i);
-                var spriteResolverSelector = (SpriteResolverSelector)m_ListView.GetRootElementForId(id);
+                int id = m_ListView.viewController.GetIdForIndex(i);
+                SpriteResolverSelector spriteResolverSelector = (SpriteResolverSelector)m_ListView.GetRootElementForId(id);
                 spriteResolverSelector?.SceneUpdate();
             }
         }
@@ -132,7 +132,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             if (first.Count != second.Count)
                 return false;
 
-            for (var i = 0; i < first.Count; i++)
+            for (int i = 0; i < first.Count; i++)
             {
                 if (!first[i].Equals(second[i]))
                     return false;

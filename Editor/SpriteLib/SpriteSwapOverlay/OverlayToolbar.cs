@@ -40,23 +40,23 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         {
             AddToClassList(Styles.toolbar);
 
-            var filterIcon = EditorIconUtility.LoadIconResource(Icons.filter, EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath);
-            var filterToggle = new OverlayToggle(filterIcon, Styles.toggle) { tooltip = TextContent.spriteSwapFilterDescription, value = SpriteSwapOverlay.Settings.filter };
+            Texture2D filterIcon = EditorIconUtility.LoadIconResource(Icons.filter, EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath);
+            OverlayToggle filterToggle = new OverlayToggle(filterIcon, Styles.toggle) { tooltip = TextContent.spriteSwapFilterDescription, value = SpriteSwapOverlay.Settings.filter };
             filterToggle.RegisterValueChangedCallback(evt => onFilterToggled?.Invoke(evt.newValue));
             Add(filterToggle);
 
-            var lockIcon = (Texture2D)EditorGUIUtility.IconContent(Icons.locked).image;
-            var lockToggle = new OverlayToggle(lockIcon, Styles.toggle) { tooltip = TextContent.spriteSwapLockDescription, value = SpriteSwapOverlay.Settings.locked };
+            Texture2D lockIcon = (Texture2D)EditorGUIUtility.IconContent(Icons.locked).image;
+            OverlayToggle lockToggle = new OverlayToggle(lockIcon, Styles.toggle) { tooltip = TextContent.spriteSwapLockDescription, value = SpriteSwapOverlay.Settings.locked };
             lockToggle.RegisterValueChangedCallback(evt => onLockToggled?.Invoke(evt.newValue));
             Add(lockToggle);
 
-            var thumbnailSettings = new VisualElement();
-            var slider = new Slider { tooltip = TextContent.spriteSwapThumbnailSlider, lowValue = SpriteSwapOverlay.Settings.minThumbnailSize, highValue = SpriteSwapOverlay.Settings.maxThumbnailSize };
+            VisualElement thumbnailSettings = new VisualElement();
+            Slider slider = new Slider { tooltip = TextContent.spriteSwapThumbnailSlider, lowValue = SpriteSwapOverlay.Settings.minThumbnailSize, highValue = SpriteSwapOverlay.Settings.maxThumbnailSize };
             slider.SetValueWithoutNotify(SpriteSwapOverlay.Settings.thumbnailSize);
             slider.RegisterValueChangedCallback(OnSliderValueChanged);
             slider.AddToClassList(Styles.slider);
-            var resetButton = new Button { tooltip = TextContent.spriteSwapResetThumbnailSize, style = { minHeight = 18 } };
-            var resetImage = new Image { image = (Texture2D)EditorGUIUtility.IconContent(Icons.zoom).image };
+            Button resetButton = new Button { tooltip = TextContent.spriteSwapResetThumbnailSize, style = { minHeight = 18 } };
+            Image resetImage = new Image { image = (Texture2D)EditorGUIUtility.IconContent(Icons.zoom).image };
             resetButton.Add(resetImage);
             resetButton.clicked += () => OnResetSliderValue(slider);
             resetButton.AddToClassList(Styles.toggle);

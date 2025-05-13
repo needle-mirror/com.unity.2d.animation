@@ -92,17 +92,17 @@ namespace UnityEditor.U2D.Animation
         void CacheSerializedObjects()
         {
             m_CachedSerializedObjects = new Dictionary<Object, SerializedObject>();
-            foreach (var t in targets)
+            foreach (Object t in targets)
                 m_CachedSerializedObjects[t] = new SerializedObject(t);
         }
 
         void CacheResolvers()
         {
             m_CachedResolvers = new List<SpriteResolver>();
-            foreach (var t in targets)
+            foreach (Object t in targets)
             {
-                var sl = (SpriteLibrary)t;
-                var resolvers = sl.GetComponentsInChildren<SpriteResolver>();
+                SpriteLibrary sl = (SpriteLibrary)t;
+                SpriteResolver[] resolvers = sl.GetComponentsInChildren<SpriteResolver>();
                 m_CachedResolvers.AddRange(resolvers);
             }
         }
@@ -115,7 +115,7 @@ namespace UnityEditor.U2D.Animation
 
         void UpdateSpriteResolvers()
         {
-            foreach (var resolver in m_CachedResolvers)
+            foreach (SpriteResolver resolver in m_CachedResolvers)
             {
                 resolver.ResolveSpriteToSpriteRenderer();
                 resolver.spriteLibChanged = true;
@@ -124,15 +124,15 @@ namespace UnityEditor.U2D.Animation
 
         bool HandleCreateNewAsset()
         {
-            var createPath = GetFileSavePath(target.name);
+            string createPath = GetFileSavePath(target.name);
             if (!string.IsNullOrEmpty(createPath))
             {
-                var emptyLibrary = CreateInstance<SpriteLibrarySourceAsset>();
+                SpriteLibrarySourceAsset emptyLibrary = CreateInstance<SpriteLibrarySourceAsset>();
                 SpriteLibrarySourceAssetImporter.SaveSpriteLibrarySourceAsset(emptyLibrary, createPath);
                 DestroyImmediate(emptyLibrary);
 
                 AssetDatabase.ImportAsset(createPath);
-                var newLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(createPath);
+                SpriteLibraryAsset newLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(createPath);
                 if (newLibraryAsset != null)
                 {
                     m_MasterLibraryProperty.objectReferenceValue = newLibraryAsset;
@@ -149,7 +149,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (targets.Length == 1)
             {
-                var exportPath = GetFileSavePath(target.name);
+                string exportPath = GetFileSavePath(target.name);
                 if (!string.IsNullOrEmpty(exportPath))
                 {
                     SpriteLibraryUtilitiesEditor.ExportSpriteLibraryToAssetFile(target as SpriteLibrary, exportPath);
@@ -158,14 +158,14 @@ namespace UnityEditor.U2D.Animation
             }
             else
             {
-                var exportDirectory = GetSaveDirectory();
+                string exportDirectory = GetSaveDirectory();
                 if (!string.IsNullOrEmpty(exportDirectory))
                 {
-                    foreach (var t in targets)
+                    foreach (Object t in targets)
                     {
                         if (HasLocalOverride(m_CachedSerializedObjects[t]))
                         {
-                            var exportPath = $"{exportDirectory}/{t.name}{SpriteLibrarySourceAsset.extension}";
+                            string exportPath = $"{exportDirectory}/{t.name}{SpriteLibrarySourceAsset.extension}";
                             exportPath = AssetDatabase.GenerateUniqueAssetPath(exportPath);
                             SpriteLibraryUtilitiesEditor.ExportSpriteLibraryToAssetFile(t as SpriteLibrary, exportPath);
                         }
@@ -180,16 +180,16 @@ namespace UnityEditor.U2D.Animation
 
         static string GetFileSavePath(string suggestedFileName)
         {
-            var title = $"{Style.selectSaveLocation} ({suggestedFileName})";
-            var defaultName = suggestedFileName + SpriteLibrarySourceAsset.extension;
-            var extension = SpriteLibrarySourceAsset.extension.Substring(1);
-            var path = EditorUtility.SaveFilePanelInProject(title, defaultName, extension, Style.selectSaveLocationMessage);
+            string title = $"{Style.selectSaveLocation} ({suggestedFileName})";
+            string defaultName = suggestedFileName + SpriteLibrarySourceAsset.extension;
+            string extension = SpriteLibrarySourceAsset.extension.Substring(1);
+            string path = EditorUtility.SaveFilePanelInProject(title, defaultName, extension, Style.selectSaveLocationMessage);
             return path;
         }
 
         static string GetSaveDirectory()
         {
-            var saveDirectory = EditorUtility.SaveFolderPanel(Style.selectSaveLocation, k_RootFolderName, "");
+            string saveDirectory = EditorUtility.SaveFolderPanel(Style.selectSaveLocation, k_RootFolderName, "");
             if (string.IsNullOrEmpty(saveDirectory))
                 return string.Empty;
 
@@ -208,14 +208,14 @@ namespace UnityEditor.U2D.Animation
             if (string.IsNullOrWhiteSpace(path) || !path.StartsWith(Application.dataPath))
                 return string.Empty;
 
-            var pathStartIndex = path.IndexOf(k_RootFolderName);
+            int pathStartIndex = path.IndexOf(k_RootFolderName);
             return pathStartIndex == -1 ? string.Empty : path.Substring(pathStartIndex);
         }
 
         static bool HasLocalOverride(SerializedObject serializedObject)
         {
             serializedObject.Update();
-            var library = serializedObject.FindProperty(SpriteLibraryComponentPropertyString.library);
+            SerializedProperty library = serializedObject.FindProperty(SpriteLibraryComponentPropertyString.library);
             return library != null && library.arraySize > 0;
         }
     }

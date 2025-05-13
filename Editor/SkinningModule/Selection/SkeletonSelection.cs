@@ -28,7 +28,7 @@ namespace UnityEditor.U2D.Animation
             get { return m_BoneSelection.elements; }
             set
             {
-                foreach (var bone in value)
+                foreach (BoneCache bone in value)
                     ValidateBone(bone);
 
                 m_BoneSelection.elements = value;
@@ -76,7 +76,7 @@ namespace UnityEditor.U2D.Animation
             if (bone == null)
                 return;
 
-            var skinningCache = bone.skinningCache;
+            SkinningCache skinningCache = bone.skinningCache;
 
             if (skinningCache.hasCharacter)
             {
@@ -85,13 +85,13 @@ namespace UnityEditor.U2D.Animation
             }
             else
             {
-                var selectedSprite = skinningCache.selectedSprite;
+                SpriteCache selectedSprite = skinningCache.selectedSprite;
 
                 if (selectedSprite == null)
                     throw new Exception("Selection Exception: skeleton not selected");
                 else
                 {
-                    var skeleton = selectedSprite.GetSkeleton();
+                    SkeletonCache skeleton = selectedSprite.GetSkeleton();
 
                     if (bone.skeleton != skeleton)
                         throw new Exception("Selection Exception: bone's skeleton does not match selected skeleton");

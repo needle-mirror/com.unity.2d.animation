@@ -74,15 +74,15 @@ namespace UnityEditor.U2D.Animation
 
         public static BoneWeight Normalized(this BoneWeight boneWeight)
         {
-            var sum = boneWeight.Sum();
+            float sum = boneWeight.Sum();
 
             if (sum == 0 || sum == 1f)
                 return boneWeight;
 
-            var normalized = boneWeight;
-            var sumInv = 1f / sum;
+            BoneWeight normalized = boneWeight;
+            float sumInv = 1f / sum;
 
-            for (var i = 0; i < 4; ++i)
+            for (int i = 0; i < 4; ++i)
                 SetWeight(ref normalized, i, normalized.GetWeight(i) * sumInv);
 
             return normalized;

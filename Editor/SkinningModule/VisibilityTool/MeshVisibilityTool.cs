@@ -1,8 +1,8 @@
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor.IMGUI.Controls;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
@@ -33,6 +33,7 @@ namespace UnityEditor.U2D.Animation
 
         public VisualElement view => m_View;
         public string name => "Mesh";
+        public string tooltip => "Show mesh visibility tool";
 
         public void Activate()
         {
@@ -54,7 +55,7 @@ namespace UnityEditor.U2D.Animation
 
         public bool isAvailable => false;
 
-        public void SetAvailabilityChangeCallback(Action callback) {}
+        public void SetAvailabilityChangeCallback(Action callback) { }
 
         void OnViewModeChanged(SkinningMode characterMode)
         {
@@ -91,7 +92,7 @@ namespace UnityEditor.U2D.Animation
             else
                 sprites = new[] { skinningCache.selectedSprite };
 
-            foreach (var spr in sprites)
+            foreach (SpriteCache spr in sprites)
             {
                 if (spr != null)
                     MeshVisibilityToolModel.SetMeshVisibility(spr, m_Model.allVisibility);
@@ -124,7 +125,7 @@ namespace UnityEditor.U2D.Animation
 
         public bool ShouldDisable(SpriteCache sprite)
         {
-            var mesh = sprite.GetMesh();
+            MeshCache mesh = sprite.GetMesh();
             return mesh == null || mesh.vertices.Length == 0;
         }
 
@@ -134,14 +135,14 @@ namespace UnityEditor.U2D.Animation
     internal class MeshVisibilityToolView : VisibilityToolViewBase
     {
         public Func<MeshVisibilityToolModel> getModel = () => null;
-        public Action<bool> setAllVisibility = (b) => {};
+        public Action<bool> setAllVisibility = (b) => { };
         public Func<bool> getAllVisibility = () => true;
         public SkinningCache skinningCache { get; set; }
 
         public MeshVisibilityToolView(SkinningCache s)
         {
             skinningCache = s;
-            var columns = new MultiColumnHeaderState.Column[2];
+            MultiColumnHeaderState.Column[] columns = new MultiColumnHeaderState.Column[2];
             columns[0] = new MultiColumnHeaderState.Column
             {
                 headerContent = new GUIContent(TextContent.name),
@@ -161,8 +162,8 @@ namespace UnityEditor.U2D.Animation
                 autoResize = false,
                 allowToggleVisibility = true
             };
-            var multiColumnHeaderState = new MultiColumnHeaderState(columns);
-            var multiColumnHeader = new VisibilityToolColumnHeader(multiColumnHeaderState)
+            MultiColumnHeaderState multiColumnHeaderState = new MultiColumnHeaderState(columns);
+            VisibilityToolColumnHeader multiColumnHeader = new VisibilityToolColumnHeader(multiColumnHeaderState)
             {
                 GetAllVisibility = InternalGetAllVisibility,
                 SetAllVisibility = InternalSetAllVisibility,
@@ -229,7 +230,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (string.IsNullOrEmpty(searchString) || part.name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                var item = CreateTreeViewItem(part);
+                TreeViewItem item = CreateTreeViewItem(part);
                 rows.Add(item);
                 rootItem.AddChild(item);
             }
@@ -252,8 +253,8 @@ namespace UnityEditor.U2D.Animation
         private void DrawVisibilityCell(Rect cellRect, TreeViewItem item)
         {
             GUIStyle style = MultiColumnHeader.DefaultStyles.columnHeaderCenterAligned;
-            var itemView = item as TreeViewItemBase<SpriteCache>;
-            var shouldDisable = GetModel().ShouldDisable(itemView.customData);
+            TreeViewItemBase<SpriteCache> itemView = item as TreeViewItemBase<SpriteCache>;
+            bool shouldDisable = GetModel().ShouldDisable(itemView.customData);
             using (new EditorGUI.DisabledScope(shouldDisable))
             {
                 EditorGUI.BeginChangeCheck();
@@ -272,7 +273,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override void RowGUI(RowGUIArgs args)
         {
-            var item = args.item;
+            TreeViewItem item = args.item;
 
             for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
             {
@@ -285,12 +286,12 @@ namespace UnityEditor.U2D.Animation
             SpriteCache newSelected = null;
             if (selectedIds.Count > 0)
             {
-                var selected = GetRows().FirstOrDefault(x => ((TreeViewItemBase<SpriteCache>)x).customData.GetInstanceID() == selectedIds[0]) as TreeViewItemBase<SpriteCache>;
+                TreeViewItemBase<SpriteCache> selected = GetRows().FirstOrDefault(x => ((TreeViewItemBase<SpriteCache>)x).customData.GetInstanceID() == selectedIds[0]) as TreeViewItemBase<SpriteCache>;
                 if (selected != null)
                     newSelected = selected.customData;
             }
 
-            var skinningCache = newSelected.skinningCache;
+            SkinningCache skinningCache = newSelected.skinningCache;
 
             using (skinningCache.UndoScope(TextContent.selectionChange))
             {
@@ -300,10 +301,10 @@ namespace UnityEditor.U2D.Animation
 
         public void SetSelection(SpriteCache sprite)
         {
-            var rows = GetRows();
+            IList<TreeViewItem> rows = GetRows();
             for (int i = 0; rows != null && i < rows.Count; ++i)
             {
-                var r = (TreeViewItemBase<SpriteCache>)rows[i];
+                TreeViewItemBase<SpriteCache> r = (TreeViewItemBase<SpriteCache>)rows[i];
                 if (r.customData == sprite)
                 {
                     SetSelection(new[] { r.customData.GetInstanceID() }, TreeViewSelectionOptions.RevealAndFrame);
@@ -314,12 +315,12 @@ namespace UnityEditor.U2D.Animation
 
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
-            var rows = GetRows() ?? new List<TreeViewItem>(200);
+            IList<TreeViewItem> rows = GetRows() ?? new List<TreeViewItem>(200);
             rows.Clear();
 
             m_Sprites.RemoveAll(s => s == null);
 
-            foreach (var sprite in m_Sprites)
+            foreach (SpriteCache sprite in m_Sprites)
                 AddTreeViewItem(rows, sprite);
 
             SetupDepthsFromParentsAndChildren(root);

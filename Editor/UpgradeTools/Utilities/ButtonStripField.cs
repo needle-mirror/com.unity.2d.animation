@@ -2,8 +2,8 @@
 
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 using UnityEngine.U2D.Common;
+using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation.Upgrading
 {
@@ -34,7 +34,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
         /// <param name="name">Name of the element.</param>
         public void AddButton(string text, string name = "")
         {
-            var button = CreateButton(name);
+            Button button = CreateButton(name);
             button.text = text;
             Add(button);
         }
@@ -46,8 +46,8 @@ namespace UnityEditor.U2D.Animation.Upgrading
         /// <param name="name">Name of the element.</param>
         public void AddButton(Background icon, string name = "")
         {
-            var button = CreateButton(name);
-            var iconElement = new VisualElement();
+            Button button = CreateButton(name);
+            VisualElement iconElement = new VisualElement();
             iconElement.AddToClassList(k_IconClass);
             iconElement.style.backgroundImage = icon;
             button.Add(iconElement);
@@ -56,7 +56,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         Button CreateButton(string name)
         {
-            var button = new Button { name = name, };
+            Button button = new Button { name = name, };
 
             button.AddToClassList(k_ButtonClass);
             button.RegisterCallback<DetachFromPanelEvent>(OnButtonDetachFromPanel);
@@ -81,9 +81,9 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void RefreshButtonsStyling()
         {
-            for (var i = 0; i < m_Buttons.Count; ++i)
+            for (int i = 0; i < m_Buttons.Count; ++i)
             {
-                var button = m_Buttons[i];
+                Button button = m_Buttons[i];
                 bool alone = m_Buttons.Count == 1;
                 bool left = i == 0;
                 bool right = i == m_Buttons.Count - 1;
@@ -125,7 +125,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void RefreshButtonsState()
         {
-            for (var i = 0; i < m_Buttons.Count; ++i)
+            for (int i = 0; i < m_Buttons.Count; ++i)
                 m_Buttons[i].SetChecked(i == value);
         }
     }

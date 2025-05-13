@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine.UIElements;
 using UnityEditor.U2D.Common;
+using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -70,8 +70,8 @@ namespace UnityEditor.U2D.Animation
 
         internal static InfluenceWindow CreateFromUxml()
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/InfluenceWindow.uxml");
-            var ve = (InfluenceWindow)visualTree.CloneTree().Q("InfluenceWindow");
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/InfluenceWindow.uxml");
+            InfluenceWindow ve = (InfluenceWindow)visualTree.CloneTree().Q("InfluenceWindow");
             ve.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/InfluenceWindowStyle.uss"));
             if (EditorGUIUtility.isProSkin)
                 ve.AddToClassList("Dark");
@@ -100,7 +100,7 @@ namespace UnityEditor.U2D.Animation
             m_ListView.itemsSource = m_Influences;
             m_ListView.makeItem = () =>
             {
-                var label = new Label()
+                Label label = new Label()
                 {
                     name = "ListRow"
                 };
@@ -151,9 +151,9 @@ namespace UnityEditor.U2D.Animation
 
             m_IgnoreSelectionChange = true;
             m_ListView.ClearSelection();
-            foreach (var selection in newSelection)
+            foreach (TransformCache selection in newSelection)
             {
-                var index = m_Influences.IndexOf(selection);
+                int index = m_Influences.IndexOf(selection);
                 if (index >= 0)
                     m_ListView.AddToSelection(index);
             }

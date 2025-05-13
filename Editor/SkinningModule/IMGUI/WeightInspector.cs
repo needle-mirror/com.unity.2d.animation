@@ -1,5 +1,5 @@
-using UnityEngine;
 using UnityEditor.U2D.Sprites;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -48,19 +48,19 @@ namespace UnityEditor.U2D.Animation
 
             for (int channel = 0; channel < 4; ++channel)
             {
-                var enabled = false;
-                var boneIndex = -1;
-                var weight = 0f;
-                var isChannelEnabledMixed = false;
-                var isBoneIndexMixed = false;
-                var isWeightMixed = false;
+                bool enabled = false;
+                int boneIndex = -1;
+                float weight = 0f;
+                bool isChannelEnabledMixed = false;
+                bool isBoneIndexMixed = false;
+                bool isWeightMixed = false;
 
                 if (spriteMeshData != null)
                     m_SpriteMeshDataController.GetMultiEditChannelData(selection, channel, out enabled, out boneIndex, out weight, out isChannelEnabledMixed, out isBoneIndexMixed, out isWeightMixed);
 
-                var newEnabled = enabled;
-                var newBoneIndex = boneIndex;
-                var newWeight = weight;
+                bool newEnabled = enabled;
+                int newBoneIndex = boneIndex;
+                float newWeight = weight;
 
                 EditorGUI.BeginChangeCheck();
 

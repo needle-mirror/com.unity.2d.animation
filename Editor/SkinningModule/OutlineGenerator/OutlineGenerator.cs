@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor.U2D.Common;
 using UnityEditor.U2D.Animation.ClipperLib;
+using UnityEditor.U2D.Common;
 using UnityEditor.U2D.Sprites;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -37,17 +37,17 @@ namespace UnityEditor.U2D.Animation
 
                 Debug.Assert(paths.Length > 0);
 
-                var rectSizeMagnitude = rect.size.magnitude;
-                var minDistance = Mathf.Max(rectSizeMagnitude / 10f, kMinLinearizeDistance);
-                var maxDistance = Mathf.Max(rectSizeMagnitude / 100f, kMinLinearizeDistance);
-                var distance = Mathf.Lerp(minDistance, maxDistance, detail);
+                float rectSizeMagnitude = rect.size.magnitude;
+                float minDistance = Mathf.Max(rectSizeMagnitude / 10f, kMinLinearizeDistance);
+                float maxDistance = Mathf.Max(rectSizeMagnitude / 100f, kMinLinearizeDistance);
+                float distance = Mathf.Lerp(minDistance, maxDistance, detail);
 
-                for (var pathIndex = 0; pathIndex < paths.Length; ++pathIndex)
+                for (int pathIndex = 0; pathIndex < paths.Length; ++pathIndex)
                 {
-                    var pathLength = CalculatePathLength(paths[pathIndex]);
+                    float pathLength = CalculatePathLength(paths[pathIndex]);
                     if (pathLength > distance)
                     {
-                        var newPath = Linearize(new List<Vector2>(paths[pathIndex]), distance);
+                        List<Vector2> newPath = Linearize(new List<Vector2>(paths[pathIndex]), distance);
 
                         if (newPath.Count > 3)
                             paths[pathIndex] = newPath.ToArray();
@@ -60,9 +60,9 @@ namespace UnityEditor.U2D.Animation
             }
 
             // Merge the Polygons to one (doesn't always succeeds).
-            var clipper = new Clipper(Clipper.ioPreserveCollinear);
-            var subj = ToClipper(paths);
-            var solution = new Paths();
+            Clipper clipper = new Clipper(Clipper.ioPreserveCollinear);
+            Paths subj = ToClipper(paths);
+            Paths solution = new Paths();
             clipper.AddPaths(subj, PolyType.ptSubject, true);
             clipper.Execute(ClipType.ctUnion, solution, PolyFillType.pftNonZero, PolyFillType.pftNonZero);
             paths = ToVector2(solution);
@@ -73,9 +73,9 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(paths.Length > 0);
 
-            var subj = ToClipper(paths);
-            var solution = new Paths();
-            var clipper = new Clipper(Clipper.ioPreserveCollinear);
+            Paths subj = ToClipper(paths);
+            Paths solution = new Paths();
+            Clipper clipper = new Clipper(Clipper.ioPreserveCollinear);
 
             clipper.AddPaths(subj, PolyType.ptSubject, true);
             clipper.Execute(ClipType.ctUnion, solution, PolyFillType.pftPositive, PolyFillType.pftPositive);
@@ -85,21 +85,21 @@ namespace UnityEditor.U2D.Animation
 
         private void FilterNestedPaths(Paths paths)
         {
-            var filtered = new List<Path>(paths);
+            Paths filtered = new List<Path>(paths);
 
-            for (var i = 0; i < paths.Count; ++i)
+            for (int i = 0; i < paths.Count; ++i)
             {
-                var path = paths[i];
+                Path path = paths[i];
 
                 if (!filtered.Contains(path))
                     continue;
 
-                for (var j = i + 1; j < paths.Count; ++j)
+                for (int j = i + 1; j < paths.Count; ++j)
                 {
                     if (!filtered.Contains(path))
                         continue;
 
-                    var other = paths[j];
+                    Path other = paths[j];
 
                     if (IsPathContainedInOtherPath(path, other))
                     {
@@ -117,7 +117,7 @@ namespace UnityEditor.U2D.Animation
 
         private bool IsPathContainedInOtherPath(Path path, Path other)
         {
-            foreach (var p in path)
+            foreach (IntPoint p in path)
             {
                 if (Clipper.PointInPolygon(p, other) < 1)
                     return false;
@@ -148,12 +148,12 @@ namespace UnityEditor.U2D.Animation
 
         private float CalculatePathLength(Vector2[] path)
         {
-            var sum = 0f;
-            for (var i = 0; i < path.Length; i++)
+            float sum = 0f;
+            for (int i = 0; i < path.Length; i++)
             {
-                var nextIndex = NextIndex(i, path.Length);
-                var p0 = path[i];
-                var p1 = path[nextIndex];
+                int nextIndex = NextIndex(i, path.Length);
+                Vector2 p0 = path[i];
+                Vector2 p1 = path[nextIndex];
                 sum += Vector2.Distance(p0, p1);
             }
 
@@ -166,31 +166,31 @@ namespace UnityEditor.U2D.Animation
             if (src == null) throw new ArgumentNullException("src");
             if (pointDistance <= kEpsilon) throw new InvalidOperationException("pointDistance " + pointDistance + " is less than epislon " + kEpsilon);
 
-            var dst = new List<Vector2>();
+            List<Vector2> dst = new List<Vector2>();
 
             if (src.Count > 0)
             {
-                var accDistance = 0f;
-                var lastIndex = 0;
-                var lastPoint = src[0];
+                float accDistance = 0f;
+                int lastIndex = 0;
+                Vector2 lastPoint = src[0];
 
                 dst.Add(lastPoint);
 
-                for (var i = 0; i < src.Count; i++)
+                for (int i = 0; i < src.Count; i++)
                 {
-                    var nextIndex = NextIndex(i, src.Count);
-                    var p0 = src[i];
-                    var p1 = src[nextIndex];
-                    var edgeDistance = Vector2.Distance(p0, p1);
+                    int nextIndex = NextIndex(i, src.Count);
+                    Vector2 p0 = src[i];
+                    Vector2 p1 = src[nextIndex];
+                    float edgeDistance = Vector2.Distance(p0, p1);
 
                     if (accDistance + edgeDistance > pointDistance || nextIndex == 0)
                     {
-                        var partialDistance = pointDistance - accDistance;
-                        var newPoint = Vector2.Lerp(p0, p1, partialDistance / edgeDistance);
-                        var remainingDistance = edgeDistance - partialDistance;
+                        float partialDistance = pointDistance - accDistance;
+                        Vector2 newPoint = Vector2.Lerp(p0, p1, partialDistance / edgeDistance);
+                        float remainingDistance = edgeDistance - partialDistance;
 
                         //Roll back until we do not intersect any pixel
-                        var step = 1f;
+                        float step = 1f;
                         bool finish = false;
                         while (!finish && IsLineOverImage(newPoint, lastPoint))
                         {
@@ -263,31 +263,31 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(minAngle >= 0f);
             Debug.Assert(minAngle < 180f);
 
-            var cosTolerance = Mathf.Cos(minAngle * Mathf.Deg2Rad);
+            float cosTolerance = Mathf.Cos(minAngle * Mathf.Deg2Rad);
 
             for (int iteration = 0; iteration < iterations; ++iteration)
-            for (int i = 0; i < path.Length; ++i)
-            {
-                var prevPoint = path[PreviousIndex(i, path.Length)];
-                var point = path[i];
-                var nextPoint = path[NextIndex(i, path.Length)];
+                for (int i = 0; i < path.Length; ++i)
+                {
+                    Vector2 prevPoint = path[PreviousIndex(i, path.Length)];
+                    Vector2 point = path[i];
+                    Vector2 nextPoint = path[NextIndex(i, path.Length)];
 
-                var t1 = prevPoint - point;
-                var t2 = nextPoint - point;
+                    Vector2 t1 = prevPoint - point;
+                    Vector2 t2 = nextPoint - point;
 
-                var dot = Vector2.Dot(t1.normalized, t2.normalized);
+                    float dot = Vector2.Dot(t1.normalized, t2.normalized);
 
-                if (dot > cosTolerance)
-                    continue;
+                    if (dot > cosTolerance)
+                        continue;
 
-                var w1 = 1f / (point - prevPoint).magnitude;
-                var w2 = 1f / (point - nextPoint).magnitude;
-                var laplacian = (w1 * prevPoint + w2 * nextPoint) / (w1 + w2) - point;
-                point += laplacian * velocity;
+                    float w1 = 1f / (point - prevPoint).magnitude;
+                    float w2 = 1f / (point - nextPoint).magnitude;
+                    Vector2 laplacian = (w1 * prevPoint + w2 * nextPoint) / (w1 + w2) - point;
+                    point += laplacian * velocity;
 
-                if (!IsLineOverImage(point, nextPoint) && !IsLineOverImage(point, prevPoint))
-                    path[i] = point;
-            }
+                    if (!IsLineOverImage(point, nextPoint) && !IsLineOverImage(point, prevPoint))
+                        path[i] = point;
+                }
         }
 
         private Vector2Int ToVector2Int(Vector2 v)
@@ -297,13 +297,13 @@ namespace UnityEditor.U2D.Animation
 
         private bool IsLineOverImage(Vector2 pointA, Vector2 pointB)
         {
-            var pointAInt = ToVector2Int(pointA);
-            var pointBInt = ToVector2Int(pointB);
+            Vector2Int pointAInt = ToVector2Int(pointA);
+            Vector2Int pointBInt = ToVector2Int(pointB);
 
             if (IsPointInRectEdge(pointA) && IsPointInRectEdge(pointB) && (pointAInt.x == pointBInt.x || pointAInt.y == pointBInt.y))
                 return false;
 
-            foreach (var point in GetPointsOnLine(pointAInt.x, pointAInt.y, pointBInt.x, pointBInt.y))
+            foreach (Vector2Int point in GetPointsOnLine(pointAInt.x, pointAInt.y, pointBInt.x, pointBInt.y))
             {
                 if (IsPointOverImage(point))
                     return true;
@@ -322,9 +322,9 @@ namespace UnityEditor.U2D.Animation
         private bool IsPointInRectEdge(Vector2 point)
         {
             point += m_CurrentRect.center;
-            var pointInt = ToVector2Int(point);
-            var minInt = ToVector2Int(m_CurrentRect.min);
-            var maxInt = ToVector2Int(m_CurrentRect.max);
+            Vector2Int pointInt = ToVector2Int(point);
+            Vector2Int minInt = ToVector2Int(m_CurrentRect.min);
+            Vector2Int maxInt = ToVector2Int(m_CurrentRect.max);
             return minInt.x >= pointInt.x || maxInt.x <= pointInt.x || minInt.y >= pointInt.y || maxInt.y <= pointInt.y;
         }
 

@@ -20,7 +20,7 @@ namespace UnityEditor.U2D.Animation
             get { return m_WeightInspector; }
         }
 
-        public event Action weightsChanged = () => {};
+        public event Action weightsChanged = () => { };
 
         public WeightInspectorIMGUIPanel()
         {
@@ -35,7 +35,7 @@ namespace UnityEditor.U2D.Animation
 
         protected void OnGUI()
         {
-            var selectionCount = 0;
+            int selectionCount = 0;
 
             if (weightInspector.selection != null)
                 selectionCount = weightInspector.selection.Count;

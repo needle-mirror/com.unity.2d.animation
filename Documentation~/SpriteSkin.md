@@ -5,8 +5,6 @@ After [preparing and importing](PreparingArtwork.md) your artwork into Unity, br
 
 The Sprite Skin deforms a Sprite by using GameObject Transforms to represent the bones that were added to the Sprite in the Skinning Editor module.
 
-![](images/2D-spriteskin-component.png)<br/>Sprite Skin component settings.
-
 Property            | Function
 --------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 **Always Update**   | Enable this to have the Sprite Skin continue to deform the Sprite even when the visual is not in the view of the Camera.
@@ -21,13 +19,13 @@ When you enable **Auto Rebind**, Sprite Skin attempts to automatically locate th
 
 When a rebind is required, the Sprite Skin looks for the GameObject Transform name that matches the bone name in the Skinning Editor module.
 
-![](images/2d-anim-auto-rebind-example.png)<br/>Example: Selecting a Sprite in the [Bone Panel](SkinEdToolsShortcuts.md#bone-panel) shows the bones currently rigged to and influencing the Sprite, along with their names.
+![A leg sprite in the Bone Panel. The window displays the hierarchy of three bones with red, yellow, and green label colors. The sprite displays the same bones with the same colors.](images/2d-anim-auto-rebind-example.png)<br/>Example: Selecting a Sprite in the [Bone Panel](SkinEdToolsShortcuts.md#bone-panel) shows the bones currently rigged to and influencing the Sprite, along with their names.
 
 In the above example, the Sprite is rigged with three connected bones - starting with 'bone_1' as the root bone, 'bone_2' as a child of 'bone_1', and 'bone_3' as a child of 'bone_2'.
 
 For the Sprite Skin component to automatically locate the bones successfully, GameObject Transforms with the same name and hierarchy as shown in the above example must be available in the Scene.
 
-![](images/2d-anim-sprite-skin-root-bone.png)
+![GameObject Transform components with the names bone_1, bone_2 and bone_3.](images/2d-anim-sprite-skin-root-bone.png)
 
 By setting the Sprite Skin’s **Root Bone** property to the correct GameObject Transform, Sprite Skin will then map the GameObject Transform to the Sprite’s rigged bone of the same name. For the **Auto Rebind** to be successful, the name and the hierarchy of the rigged bones and the GameObject Transforms must match. This means that changing the name of the bones in the Skinning Editor will require you to update the names of the GameObject Transforms to match as well.
 
@@ -46,6 +44,4 @@ As always, do verify the performance impact with [profiling tools](https://docs.
     * If the project isn't set up with the Universal Render Pipeline package, [refer to this guide](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest?subfolder=/manual/Setup.html) on how to set it up.
 2. Ensure that you enabled the **SRP Batcher** option in the [Universal Render Pipeline Asset](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest?subfolder=/manual/universalrp-asset.html).
     * If the **SRP Batcher** option is not visible, open the **More** (⋮) menu in the Rendering section and enable **Show Additional Properties**.
-      ![](images/urp-pipeline-asset.png)
 3. Go to **Edit** &gt; **Project Settings** &gt; **Player** &gt; **Other Settings**. In the Rendering section, set **GPU Skinning** to **GPU (Batched)**. When **GPU Skinning** is set to **GPU (Batched)** or **GPU**, Unity performs Sprite Skin deformation on the GPU instead of the CPU.
-   ![](images/gpu-deformation-settings.png)

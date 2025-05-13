@@ -140,7 +140,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             // This is to prevent the user from opening the editor with .psd or .psb containing spriteLibs.
             if (!AssetDatabase.GetAssetPath(asset).EndsWith(".spriteLib"))
                 return;
-            
+
             if (!modifiedExternally)
             {
                 if (asset == null || asset == m_Model.selectedAsset)
@@ -217,11 +217,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (Path.GetExtension(newAssetPath) != SpriteLibrarySourceAsset.extension)
                 newAssetPath = newAssetPath.Replace(Path.GetExtension(newAssetPath), SpriteLibrarySourceAsset.extension);
 
-            var assetToSave = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();
+            SpriteLibrarySourceAsset assetToSave = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();
             SpriteLibrarySourceAssetImporter.SaveSpriteLibrarySourceAsset(assetToSave, newAssetPath);
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
 
-            var newAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(newAssetPath);
+            SpriteLibraryAsset newAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(newAssetPath);
             Selection.objects = new UnityEngine.Object[] { newAsset };
         }
 
@@ -276,7 +276,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnAssetModified(string modifiedAssetPath)
         {
-            var isModifiedExternally = !(m_SelectedAssetPath != modifiedAssetPath || m_Model.isSaving);
+            bool isModifiedExternally = !(m_SelectedAssetPath != modifiedAssetPath || m_Model.isSaving);
             if (!isModifiedExternally)
                 return;
 
@@ -307,12 +307,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void RefreshView()
         {
-            var areCategoriesFiltered = m_FilterType is SearchType.CategoryAndLabel or SearchType.Category && !string.IsNullOrEmpty(m_FilterString);
-            var filteredCategories = m_Model.GetFilteredCategories(m_FilterString, m_FilterType);
+            bool areCategoriesFiltered = m_FilterType is SearchType.CategoryAndLabel or SearchType.Category && !string.IsNullOrEmpty(m_FilterString);
+            List<CategoryData> filteredCategories = m_Model.GetFilteredCategories(m_FilterString, m_FilterType);
             m_ControllerEvents.onModifiedCategories?.Invoke(filteredCategories, areCategoriesFiltered);
 
-            var areLabelsFiltered = m_FilterType is SearchType.CategoryAndLabel or SearchType.Label && !string.IsNullOrEmpty(m_FilterString);
-            var filteredLabels = m_Model.GetFilteredLabels(m_FilterString, m_FilterType);
+            bool areLabelsFiltered = m_FilterType is SearchType.CategoryAndLabel or SearchType.Label && !string.IsNullOrEmpty(m_FilterString);
+            List<LabelData> filteredLabels = m_Model.GetFilteredLabels(m_FilterString, m_FilterType);
             m_ControllerEvents.onModifiedLabels?.Invoke(filteredLabels, areLabelsFiltered);
 
             m_ControllerEvents.onLibraryDataChanged?.Invoke(m_Model.isModified);
@@ -343,7 +343,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!hasSelectedLibrary)
                 return;
 
-            var validAsset = true;
+            bool validAsset = true;
             if (libraryAsset != null)
             {
                 if (libraryAsset == m_Model.selectedAsset || SpriteLibrarySourceAssetImporter.GetAssetParentChain(libraryAsset).Contains(GetSelectedAsset()))
@@ -433,7 +433,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (string.IsNullOrEmpty(newName))
                 return;
 
-            var categoryData = GetCategoryData(selectedCategories[0]);
+            CategoryData categoryData = GetCategoryData(selectedCategories[0]);
             if (categoryData == null || categoryData.fromMain)
                 return;
 
@@ -454,7 +454,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (m_Model.CompareCategories(reorderedCategories))
                 return;
 
-            var categoriesToReorder = selectedCategories;
+            List<string> categoriesToReorder = selectedCategories;
             m_Model.BeginUndo(ActionType.ReorderCategories, TextContent.spriteLibraryReorderCategories);
             m_Model.ReorderCategories(reorderedCategories);
             m_Model.SelectCategories(categoriesToReorder);
@@ -470,10 +470,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!hasSelectedLibrary || !m_Model.hasSelectedCategories)
                 return;
 
-            var validCategories = false;
-            foreach (var category in selectedCategories)
+            bool validCategories = false;
+            foreach (string category in selectedCategories)
             {
-                var categoryData = GetCategoryData(category);
+                CategoryData categoryData = GetCategoryData(category);
                 if (categoryData != null && !categoryData.fromMain)
                 {
                     validCategories = true;
@@ -518,7 +518,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!hasSelectedLibrary || !m_Model.hasSelectedCategories || !m_Model.hasSelectedLabels)
                 return;
 
-            var labelData = GetLabelData(selectedLabels[0]);
+            LabelData labelData = GetLabelData(selectedLabels[0]);
             if (labelData == null || labelData.fromMain)
                 return;
 
@@ -543,7 +543,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (m_Model.CompareLabels(reorderedLabels))
                 return;
 
-            var labelsToReorder = selectedLabels;
+            List<string> labelsToReorder = selectedLabels;
             m_Model.BeginUndo(ActionType.ReorderLabels, TextContent.spriteLibraryReorderLabels);
             m_Model.ReorderLabels(reorderedLabels);
             m_Model.SelectLabels(labelsToReorder);
@@ -558,8 +558,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!hasSelectedLibrary || !m_Model.hasSelectedCategories || !m_Model.hasSelectedLabels)
                 return;
 
-            var canAnyLabelBeDeleted = false;
-            foreach (var label in selectedLabels)
+            bool canAnyLabelBeDeleted = false;
+            foreach (string label in selectedLabels)
             {
                 if (!GetLabelData(label).fromMain)
                 {
@@ -586,7 +586,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!hasSelectedLibrary || !m_Model.hasSelectedCategories)
                 return;
 
-            var labelData = GetLabelData(labelName);
+            LabelData labelData = GetLabelData(labelName);
             if (labelData == null || labelData.sprite == newSprite)
                 return;
 
@@ -640,9 +640,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             m_Model.BeginUndo(ActionType.ModifiedCategories, TextContent.spriteLibraryAddDataToCategories);
 
-            foreach (var data in spritesData)
+            foreach (DragAndDropData data in spritesData)
             {
-                var isDroppedIntoEmptyArea = string.IsNullOrEmpty(category);
+                bool isDroppedIntoEmptyArea = string.IsNullOrEmpty(category);
                 if (isDroppedIntoEmptyArea)
                 {
                     if (data.spriteSourceType == SpriteSourceType.Psb)
@@ -666,8 +666,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!hasSelectedLibrary || !m_Model.hasSelectedCategories)
                 return;
 
-            var sprites = new List<Sprite>();
-            foreach (var data in spritesData)
+            List<Sprite> sprites = new List<Sprite>();
+            foreach (DragAndDropData data in spritesData)
                 sprites.AddRange(data.sprites);
 
             if (sprites.Count == 0)
@@ -687,20 +687,20 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void HandlePsdData(DragAndDropData data)
         {
-            var psdFilePath = AssetDatabase.GetAssetPath(data.sprites[0]);
-            var characterObj = AssetDatabase.LoadAssetAtPath<GameObject>(psdFilePath);
-            var categoryDictionary = new Dictionary<string, List<Sprite>>();
-            var objectList = new Queue<Transform>();
+            string psdFilePath = AssetDatabase.GetAssetPath(data.sprites[0]);
+            GameObject characterObj = AssetDatabase.LoadAssetAtPath<GameObject>(psdFilePath);
+            Dictionary<string, List<Sprite>> categoryDictionary = new Dictionary<string, List<Sprite>>();
+            Queue<Transform> objectList = new Queue<Transform>();
             objectList.Enqueue(characterObj.transform);
             while (objectList.Count > 0)
             {
-                var goTransform = objectList.Dequeue();
-                var spriteList = new List<Sprite>();
-                for (var i = 0; i < goTransform.childCount; i++)
+                Transform goTransform = objectList.Dequeue();
+                List<Sprite> spriteList = new List<Sprite>();
+                for (int i = 0; i < goTransform.childCount; i++)
                 {
-                    var childTransform = goTransform.GetChild(i);
+                    Transform childTransform = goTransform.GetChild(i);
 
-                    var spriteRenderer = childTransform.GetComponent<SpriteRenderer>();
+                    SpriteRenderer spriteRenderer = childTransform.GetComponent<SpriteRenderer>();
                     if (spriteRenderer != null)
                         spriteList.Add(spriteRenderer.sprite);
                     else
@@ -711,7 +711,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 {
                     if (goTransform == characterObj.transform)
                     {
-                        foreach (var sprite in spriteList)
+                        foreach (Sprite sprite in spriteList)
                             categoryDictionary[sprite.name] = new List<Sprite> { sprite };
                     }
                     else
@@ -721,10 +721,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 }
             }
 
-            foreach (var (categoryName, sprites) in categoryDictionary)
+            foreach ((string categoryName, List<Sprite> sprites) in categoryDictionary)
             {
-                var addedToCategory = false;
-                foreach (var cat in m_Model.GetAllCategories())
+                bool addedToCategory = false;
+                foreach (CategoryData cat in m_Model.GetAllCategories())
                 {
                     if (cat.name == categoryName)
                     {
@@ -744,13 +744,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!hasSelectedLibrary || !m_Model.hasSelectedCategories)
                 return;
 
-            var canRevertChanges = false;
-            foreach (var label in labels)
+            bool canRevertChanges = false;
+            foreach (string label in labels)
             {
                 if (string.IsNullOrEmpty(label))
                     continue;
 
-                var data = GetLabelData(label);
+                LabelData data = GetLabelData(label);
                 if (data != null && (data.spriteOverride || data.categoryFromMain && !data.fromMain))
                 {
                     canRevertChanges = true;
@@ -776,7 +776,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (string.IsNullOrEmpty(categoryName))
                 return null;
 
-            foreach (var category in m_Model.GetAllCategories())
+            foreach (CategoryData category in m_Model.GetAllCategories())
             {
                 if (category.name == categoryName)
                     return category;
@@ -790,7 +790,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (string.IsNullOrEmpty(labelName))
                 return null;
 
-            foreach (var label in m_Model.GetAllLabels())
+            foreach (LabelData label in m_Model.GetAllLabels())
             {
                 if (label.name == labelName)
                     return label;
@@ -804,7 +804,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (first == null || second == null || first.Count != second.Count)
                 return false;
 
-            for (var i = 0; i < first.Count; i++)
+            for (int i = 0; i < first.Count; i++)
             {
                 if (first[i] != second[i])
                     return false;

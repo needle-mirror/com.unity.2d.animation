@@ -23,7 +23,7 @@ namespace UnityEditor.U2D.Animation
 
         public static T[] CreateCopy<T>(T[] source) where T : struct
         {
-            var copy = new T[source.Length];
+            T[] copy = new T[source.Length];
             Array.Copy(source, copy, source.Length);
             return copy;
         }

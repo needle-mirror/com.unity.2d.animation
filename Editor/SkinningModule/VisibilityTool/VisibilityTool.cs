@@ -1,8 +1,8 @@
 using System;
-using UnityEngine.U2D.Common;
+using System.Collections.Generic;
 using UnityEditor.U2D.Common;
 using UnityEditor.U2D.Layout;
-using System.Collections.Generic;
+using UnityEngine.U2D.Common;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
@@ -34,9 +34,9 @@ namespace UnityEditor.U2D.Animation
 
         public static VisibilityToolWindow CreateFromUXML()
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/VisibilityToolWindow.uxml");
-            var ve = visualTree.CloneTree().Q("VisibilityToolWindow") as VisibilityToolWindow;
-            var resizer = ve.Q("Resizer");
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/VisibilityToolWindow.uxml");
+            VisibilityToolWindow ve = visualTree.CloneTree().Q("VisibilityToolWindow") as VisibilityToolWindow;
+            VisualElement resizer = ve.Q("Resizer");
             resizer.AddManipulator(new VisibilityToolResizer());
             ve.styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/VisibilityTool.uss"));
             if (EditorGUIUtility.isProSkin)
@@ -86,7 +86,7 @@ namespace UnityEditor.U2D.Animation
 
         bool IsOpacityTarget(IEventHandler target, VisualElement opacityTarget)
         {
-            var ve = target as VisualElement;
+            VisualElement ve = target as VisualElement;
             while (ve != null && ve != this)
             {
                 if (ve == opacityTarget)
@@ -135,11 +135,12 @@ namespace UnityEditor.U2D.Animation
             m_MeshOpacitySlider.MarkDirtyRepaint();
         }
 
-        public void AddToolTab(string name, Action onClick)
+        public void AddToolTab(string name, string tooltip, Action onClick)
         {
-            var tab = new Button()
+            Button tab = new Button()
             {
-                text = name
+                text = name,
+                tooltip = tooltip
             };
             tab.AddToClassList("visibilityToolTab");
             if (EditorGUIUtility.isProSkin)
@@ -278,7 +279,7 @@ namespace UnityEditor.U2D.Animation
 
     internal interface IVisibilityToolWindow
     {
-        void AddToolTab(string name, Action callback);
+        void AddToolTab(string name, string tooltip, Action callback);
         void SetToolAvailable(int i, bool available);
         void SetBoneOpacitySliderValue(float value);
         void SetMeshOpacitySliderValue(float value);
@@ -320,10 +321,10 @@ namespace UnityEditor.U2D.Animation
             for (int i = 0; i < m_Tools.Length; ++i)
             {
                 int index = i;
-                var tool = m_Tools[i];
+                IVisibilityTool tool = m_Tools[i];
                 tool.SetAvailabilityChangeCallback(() => OnToolAvailabilityChange(index));
                 tool.Setup();
-                model.view.AddToolTab(tool.name, () => ActivateToolWithUndo(tool));
+                model.view.AddToolTab(tool.name, tool.tooltip, () => ActivateToolWithUndo(tool));
                 model.view.SetToolAvailable(i, tool.isAvailable);
             }
 
@@ -408,7 +409,7 @@ namespace UnityEditor.U2D.Animation
 
         private void OnToolAvailabilityChange(int toolIndex)
         {
-            var toolChanged = m_Tools[toolIndex];
+            IVisibilityTool toolChanged = m_Tools[toolIndex];
             m_Model.view.SetToolAvailable(toolIndex, toolChanged.isAvailable);
             if (toolChanged == currentTool && toolChanged.isAvailable == false)
                 ActivateTool(defaultTool);

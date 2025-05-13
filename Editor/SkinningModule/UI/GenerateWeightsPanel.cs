@@ -1,6 +1,6 @@
 using System;
-using UnityEngine.UIElements;
 using UnityEditor.U2D.Common;
+using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -14,9 +14,9 @@ namespace UnityEditor.U2D.Animation
         public class GenerateWeightsPanelUxmlTraits : UxmlTraits {}
 #endif
 
-        public event Action onGenerateWeights = () => {};
-        public event Action onNormalizeWeights = () => {};
-        public event Action onClearWeights = () => {};
+        public event Action onGenerateWeights = () => { };
+        public event Action onNormalizeWeights = () => { };
+        public event Action onClearWeights = () => { };
         private VisualElement m_AssociateBoneControl;
         private Toggle m_AssociateBonesToggle;
         Button m_GenerateWeightsButton;
@@ -43,10 +43,10 @@ namespace UnityEditor.U2D.Animation
             m_GenerateWeightsButton = this.Q<Button>("GenerateWeightsButton");
             m_GenerateWeightsButton.clickable.clicked += OnGenerateWeights;
 
-            var normalizeWeightsButton = this.Q<Button>("NormalizeWeightsButton");
+            Button normalizeWeightsButton = this.Q<Button>("NormalizeWeightsButton");
             normalizeWeightsButton.clickable.clicked += OnNormalizeWeights;
 
-            var clearWeightsButton = this.Q<Button>("ClearWeightsButton");
+            Button clearWeightsButton = this.Q<Button>("ClearWeightsButton");
             clearWeightsButton.clickable.clicked += OnClearWeights;
 
             m_AssociateBonesToggle = this.Q<Toggle>("AssociateBonesField");
@@ -89,8 +89,8 @@ namespace UnityEditor.U2D.Animation
 
         public static GenerateWeightsPanel GenerateFromUXML()
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/GenerateWeightsPanel.uxml");
-            var clone = visualTree.CloneTree().Q<GenerateWeightsPanel>("GenerateWeightsPanel");
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/GenerateWeightsPanel.uxml");
+            GenerateWeightsPanel clone = visualTree.CloneTree().Q<GenerateWeightsPanel>("GenerateWeightsPanel");
             clone.LocalizeTextInChildren();
             clone.BindElements();
             return clone;

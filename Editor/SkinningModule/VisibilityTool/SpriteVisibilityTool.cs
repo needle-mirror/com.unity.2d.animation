@@ -1,8 +1,8 @@
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor.IMGUI.Controls;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
@@ -67,7 +67,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     if (childItems != null)
                     {
-                        foreach (var item in childItems)
+                        foreach (ISpriteVisibilityItem item in childItems)
                             item.visibility = value;
                     }
 
@@ -155,13 +155,13 @@ namespace UnityEditor.U2D.Animation
             {
                 using (m_Model.UndoScope(TextContent.spriteVisibility))
                 {
-                    var parts = m_Model.character.parts;
+                    CharacterPartCache[] parts = m_Model.character.parts;
 
-                    foreach (var part in parts)
+                    foreach (CharacterPartCache part in parts)
                         part.isVisible = m_Model.allVisibility;
 
-                    var groups = m_Model.character.groups;
-                    foreach (var group in groups)
+                    CharacterGroupCache[] groups = m_Model.character.groups;
+                    foreach (CharacterGroupCache group in groups)
                         group.isVisible = m_Model.allVisibility;
                 }
             }
@@ -183,27 +183,27 @@ namespace UnityEditor.U2D.Animation
 
         public List<TreeViewItem> BuildTreeView()
         {
-            var rows = new List<TreeViewItem>();
-            var character = m_Model.character;
+            List<TreeViewItem> rows = new List<TreeViewItem>();
+            CharacterCache character = m_Model.character;
             if (character != null)
             {
-                var parts = character.parts;
-                var groups = character.groups;
-                var items = CreateTreeGroup(-1, groups, parts, 0);
-                foreach (var item in items)
+                CharacterPartCache[] parts = character.parts;
+                CharacterGroupCache[] groups = character.groups;
+                List<TreeViewItem> items = CreateTreeGroup(-1, groups, parts, 0);
+                foreach (TreeViewItem item in items)
                     rows.Add(item);
-                var groupParts = parts.Where(x => x.parentGroup < 0);
-                foreach (var part in groupParts)
+                IEnumerable<CharacterPartCache> groupParts = parts.Where(x => x.parentGroup < 0);
+                foreach (CharacterPartCache part in groupParts)
                 {
-                    var ii = CreateTreeViewItem(part, groups, 0);
+                    TreeViewItem ii = CreateTreeViewItem(part, groups, 0);
                     rows.Add(ii);
                 }
             }
 
             rows.Sort((x, y) =>
             {
-                var x1 = (TreeViewItemBase<ISpriteVisibilityItem>)x;
-                var y1 = (TreeViewItemBase<ISpriteVisibilityItem>)y;
+                TreeViewItemBase<ISpriteVisibilityItem> x1 = (TreeViewItemBase<ISpriteVisibilityItem>)x;
+                TreeViewItemBase<ISpriteVisibilityItem> y1 = (TreeViewItemBase<ISpriteVisibilityItem>)y;
                 return SpriteVisibilityItemOrderSort(x1.customData, y1.customData);
             });
 
@@ -217,34 +217,34 @@ namespace UnityEditor.U2D.Animation
 
         private List<TreeViewItem> CreateTreeGroup(int level, CharacterGroupCache[] groups, CharacterPartCache[] parts, int depth)
         {
-            var items = new List<TreeViewItem>();
+            List<TreeViewItem> items = new List<TreeViewItem>();
             for (int j = 0; j < groups.Length; ++j)
             {
                 if (groups[j].parentGroup == level)
                 {
-                    var item = new TreeViewItemBase<ISpriteVisibilityItem>(groups[j].GetInstanceID(), depth, groups[j].name, new SpriteVisibilityGroupItem()
+                    TreeViewItemBase<ISpriteVisibilityItem> item = new TreeViewItemBase<ISpriteVisibilityItem>(groups[j].GetInstanceID(), depth, groups[j].name, new SpriteVisibilityGroupItem()
                     {
                         group = groups[j],
                     });
                     items.Add(item);
-                    var children = new List<ISpriteVisibilityItem>();
+                    List<ISpriteVisibilityItem> children = new List<ISpriteVisibilityItem>();
 
                     // find all sprite that has this group
-                    var groupParts = parts.Where(x => x.parentGroup == j);
-                    foreach (var part in groupParts)
+                    IEnumerable<CharacterPartCache> groupParts = parts.Where(x => x.parentGroup == j);
+                    foreach (CharacterPartCache part in groupParts)
                     {
-                        var ii = CreateTreeViewItem(part, groups, depth + 1);
+                        TreeViewItem ii = CreateTreeViewItem(part, groups, depth + 1);
                         items.Add(ii);
-                        var visibilityItem = ii as TreeViewItemBase<ISpriteVisibilityItem>;
+                        TreeViewItemBase<ISpriteVisibilityItem> visibilityItem = ii as TreeViewItemBase<ISpriteVisibilityItem>;
                         if (visibilityItem != null)
                             children.Add(visibilityItem.customData);
                     }
 
-                    var childItemes = CreateTreeGroup(j, groups, parts, depth + 1);
-                    foreach (var iii in childItemes)
+                    List<TreeViewItem> childItemes = CreateTreeGroup(j, groups, parts, depth + 1);
+                    foreach (TreeViewItem iii in childItemes)
                     {
                         items.Add(iii);
-                        var visibilityItem = iii as TreeViewItemBase<ISpriteVisibilityItem>;
+                        TreeViewItemBase<ISpriteVisibilityItem> visibilityItem = iii as TreeViewItemBase<ISpriteVisibilityItem>;
                         if (visibilityItem != null)
                             children.Add(visibilityItem.customData);
                     }
@@ -258,7 +258,7 @@ namespace UnityEditor.U2D.Animation
 
         private TreeViewItem CreateTreeViewItem(CharacterPartCache part, CharacterGroupCache[] groups, int depth)
         {
-            var name = part.sprite.name;
+            string name = part.sprite.name;
             return new TreeViewItemBase<ISpriteVisibilityItem>(part.sprite.GetInstanceID(), depth, name,
                 new SpriteVisibilitySpriteItem()
                 {
@@ -268,7 +268,7 @@ namespace UnityEditor.U2D.Animation
 
         public bool GetCharacterPartVisibility(TreeViewItem item)
         {
-            var i = item as TreeViewItemBase<ISpriteVisibilityItem>;
+            TreeViewItemBase<ISpriteVisibilityItem> i = item as TreeViewItemBase<ISpriteVisibilityItem>;
             if (i != null)
                 return i.customData.visibility;
             return false;
@@ -276,18 +276,18 @@ namespace UnityEditor.U2D.Animation
 
         public void SetCharacterPartVisibility(TreeViewItem item, bool visible, bool isolate)
         {
-            var i = item as TreeViewItemBase<ISpriteVisibilityItem>;
+            TreeViewItemBase<ISpriteVisibilityItem> i = item as TreeViewItemBase<ISpriteVisibilityItem>;
             if (i != null)
             {
-                var characterPart = i.customData;
-                var character = m_Model.character;
+                ISpriteVisibilityItem characterPart = i.customData;
+                CharacterCache character = m_Model.character;
                 using (m_Model.UndoScope(TextContent.spriteVisibility))
                 {
                     if (isolate)
                     {
-                        foreach (var characterPartCache in character.parts)
+                        foreach (CharacterPartCache characterPartCache in character.parts)
                             characterPartCache.isVisible = !visible;
-                        foreach (var group in character.groups)
+                        foreach (CharacterGroupCache group in character.groups)
                             group.isVisible = !visible;
                     }
 
@@ -301,9 +301,9 @@ namespace UnityEditor.U2D.Animation
             SpriteCache newSelected = null;
             if (selectedIds.Count > 0)
             {
-                var selected = rows.FirstOrDefault(x =>
+                TreeViewItemBase<ISpriteVisibilityItem> selected = rows.FirstOrDefault(x =>
                 {
-                    var item = ((TreeViewItemBase<ISpriteVisibilityItem>)x).customData as SpriteVisibilitySpriteItem;
+                    SpriteVisibilitySpriteItem item = ((TreeViewItemBase<ISpriteVisibilityItem>)x).customData as SpriteVisibilitySpriteItem;
                     if (item != null && item.sprite.sprite.GetInstanceID() == selectedIds[0])
                         return true;
                     return false;
@@ -362,6 +362,7 @@ namespace UnityEditor.U2D.Animation
 
         public VisualElement view => m_View;
         public string name => TextContent.sprite;
+        public string tooltip => TextContent.spriteTooltip;
 
         public void Activate()
         {
@@ -433,7 +434,7 @@ namespace UnityEditor.U2D.Animation
 
         public SpriteVisibilityToolView()
         {
-            var columns = new MultiColumnHeaderState.Column[2];
+            MultiColumnHeaderState.Column[] columns = new MultiColumnHeaderState.Column[2];
             columns[0] = new MultiColumnHeaderState.Column
             {
                 headerContent = VisibilityTreeViewBase.VisibilityIconStyle.visibilityOnIcon,
@@ -453,8 +454,8 @@ namespace UnityEditor.U2D.Animation
                 autoResize = true,
                 allowToggleVisibility = false
             };
-            var multiColumnHeaderState = new MultiColumnHeaderState(columns);
-            var multiColumnHeader = new VisibilityToolColumnHeader(multiColumnHeaderState)
+            MultiColumnHeaderState multiColumnHeaderState = new MultiColumnHeaderState(columns);
+            VisibilityToolColumnHeader multiColumnHeader = new VisibilityToolColumnHeader(multiColumnHeaderState)
             {
                 GetAllVisibility = InternalGetAllVisibility,
                 SetAllVisibility = InternalSetAllVisibility,
@@ -576,12 +577,12 @@ namespace UnityEditor.U2D.Animation
 
         void DrawVisibilityCell(Rect cellRect, TreeViewItem item)
         {
-            var style = MultiColumnHeader.DefaultStyles.columnHeaderCenterAligned;
-            var characterPartVisibility = GetController().GetCharacterPartVisibility(item);
+            GUIStyle style = MultiColumnHeader.DefaultStyles.columnHeaderCenterAligned;
+            bool characterPartVisibility = GetController().GetCharacterPartVisibility(item);
 
             EditorGUI.BeginChangeCheck();
 
-            var visible = GUI.Toggle(cellRect, characterPartVisibility, characterPartVisibility ? VisibilityIconStyle.visibilityOnIcon : VisibilityIconStyle.visibilityOffIcon, style);
+            bool visible = GUI.Toggle(cellRect, characterPartVisibility, characterPartVisibility ? VisibilityIconStyle.visibilityOnIcon : VisibilityIconStyle.visibilityOffIcon, style);
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -598,7 +599,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override void RowGUI(RowGUIArgs args)
         {
-            var item = args.item;
+            TreeViewItem item = args.item;
 
             for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
             {
@@ -615,8 +616,8 @@ namespace UnityEditor.U2D.Animation
 
         protected override TreeViewItem BuildRoot()
         {
-            var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
-            var rows = GetController() != null ? GetController().BuildTreeView() : new List<TreeViewItem>();
+            TreeViewItem root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
+            List<TreeViewItem> rows = GetController() != null ? GetController().BuildTreeView() : new List<TreeViewItem>();
             SetupParentsAndChildrenFromDepths(root, rows);
             return root;
         }
@@ -633,7 +634,7 @@ namespace UnityEditor.U2D.Animation
 
         public void SetSelection(SpriteCache sprite)
         {
-            var id = GetController().GetTreeViewSelectionID(sprite);
+            int id = GetController().GetTreeViewSelectionID(sprite);
             SetSelection(new[] { id }, TreeViewSelectionOptions.RevealAndFrame);
         }
     }

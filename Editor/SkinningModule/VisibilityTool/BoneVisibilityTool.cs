@@ -1,8 +1,8 @@
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor.IMGUI.Controls;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
@@ -17,6 +17,7 @@ namespace UnityEditor.U2D.Animation
         }
 
         public string name => TextContent.bone;
+        public string tooltip => TextContent.boneTooltip;
 
         public bool isAvailable
         {
@@ -75,7 +76,7 @@ namespace UnityEditor.U2D.Animation
 
         protected virtual VisibilityToolColumnHeader SetupToolColumnHeader()
         {
-            var columns = new MultiColumnHeaderState.Column[2];
+            MultiColumnHeaderState.Column[] columns = new MultiColumnHeaderState.Column[2];
             columns[0] = new MultiColumnHeaderState.Column
             {
                 headerContent = VisibilityTreeViewBase.VisibilityIconStyle.visibilityOnIcon,
@@ -95,7 +96,7 @@ namespace UnityEditor.U2D.Animation
                 autoResize = true,
                 allowToggleVisibility = false
             };
-            var multiColumnHeaderState = new MultiColumnHeaderState(columns);
+            MultiColumnHeaderState multiColumnHeaderState = new MultiColumnHeaderState(columns);
             return new VisibilityToolColumnHeader(multiColumnHeaderState)
             {
                 GetAllVisibility = GetAllVisibility,
@@ -171,15 +172,15 @@ namespace UnityEditor.U2D.Animation
 
         public void OnBoneSelectionChanged(SkeletonSelection boneSelection)
         {
-            var bones = boneSelection.elements.ToSpriteSheetIfNeeded();
-            var ids = GetController().GetIDsToSelect(bones);
+            BoneCache[] bones = boneSelection.elements.ToSpriteSheetIfNeeded();
+            int[] ids = GetController().GetIDsToSelect(bones);
 
             SetSelection(ids, TreeViewSelectionOptions.RevealAndFrame);
         }
 
         public void OnBoneExpandedChanged(BoneCache[] bones)
         {
-            var expandIds = GetController().GetIDsToSelect(bones);
+            int[] expandIds = GetController().GetIDsToSelect(bones);
             if (expandIds.Length == 0)
                 return;
 
@@ -228,10 +229,10 @@ namespace UnityEditor.U2D.Animation
 
         void DrawDepthCell(Rect cellRect, TreeViewItem item)
         {
-            var boneItemView = DrawCell(cellRect, item);
+            TreeViewItemBase<BoneCache> boneItemView = DrawCell(cellRect, item);
 
             EditorGUI.BeginChangeCheck();
-            var depth = GetController().GetTreeItemDepthValue(boneItemView);
+            int depth = GetController().GetTreeItemDepthValue(boneItemView);
             depth = EditorGUI.IntField(cellRect, depth);
             if (EditorGUI.EndChangeCheck())
                 GetController().SetTreeItemDepthValue(boneItemView, depth);
@@ -239,10 +240,10 @@ namespace UnityEditor.U2D.Animation
 
         void DrawColorCell(Rect cellRect, TreeViewItem item)
         {
-            var boneItemView = DrawCell(cellRect, item);
+            TreeViewItemBase<BoneCache> boneItemView = DrawCell(cellRect, item);
 
             EditorGUI.BeginChangeCheck();
-            var color = GetController().GetTreeItemColorValue(boneItemView);
+            Color color = GetController().GetTreeItemColorValue(boneItemView);
             color = EditorGUI.ColorField(cellRect, color);
             if (EditorGUI.EndChangeCheck())
                 GetController().SetTreeItemColorValue(boneItemView, color);
@@ -252,7 +253,7 @@ namespace UnityEditor.U2D.Animation
         {
             const int width = 30;
 
-            var boneItemView = item as TreeViewItemBase<BoneCache>;
+            TreeViewItemBase<BoneCache> boneItemView = item as TreeViewItemBase<BoneCache>;
             cellRect.height = EditorGUIUtility.singleLineHeight;
             cellRect.x += (cellRect.width - width) * 0.5f;
             cellRect.width = width;
@@ -264,7 +265,7 @@ namespace UnityEditor.U2D.Animation
         {
             GUIStyle style = MultiColumnHeader.DefaultStyles.columnHeaderCenterAligned;
             EditorGUI.BeginChangeCheck();
-            var boneItemView = item as TreeViewItemBase<BoneCache>;
+            TreeViewItemBase<BoneCache> boneItemView = item as TreeViewItemBase<BoneCache>;
             bool visible = GetController().GetTreeItemVisibility(boneItemView);
             visible = GUI.Toggle(cellRect, visible, visible ? VisibilityIconStyle.visibilityOnIcon : VisibilityIconStyle.visibilityOffIcon, style);
             if (EditorGUI.EndChangeCheck())
@@ -288,7 +289,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override void RowGUI(RowGUIArgs args)
         {
-            var item = args.item;
+            TreeViewItem item = args.item;
 
             for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
             {
@@ -298,7 +299,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override TreeViewItem BuildRoot()
         {
-            var root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
+            TreeViewItem root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
             List<TreeViewItem> rows = GetController() != null ? GetController().BuildTreeView() : new List<TreeViewItem>();
             SetupParentsAndChildrenFromDepths(root, rows);
             return root;
@@ -311,7 +312,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override void RenameEnded(RenameEndedArgs args)
         {
-            var rows = GetRows();
+            IList<TreeViewItem> rows = GetRows();
             GetController().TreeViewItemRename(rows, args.itemID, args.newName);
             base.RenameEnded(args);
         }
@@ -329,7 +330,7 @@ namespace UnityEditor.U2D.Animation
             if (GetController().CanDrag() && !hasSearch)
             {
                 DragAndDrop.PrepareStartDrag();
-                var draggedRows = GetRows().Where(item => args.draggedItemIDs.Contains(item.id)).ToList();
+                List<TreeViewItem> draggedRows = GetRows().Where(item => args.draggedItemIDs.Contains(item.id)).ToList();
                 DragAndDrop.SetGenericData(k_GenericDragID, draggedRows);
                 DragAndDrop.objectReferences = new UnityEngine.Object[] { }; // this IS required for dragging to work
                 string title = draggedRows.Count == 1 ? draggedRows[0].displayName : "< Multiple >";
@@ -340,7 +341,7 @@ namespace UnityEditor.U2D.Animation
         protected override DragAndDropVisualMode HandleDragAndDrop(DragAndDropArgs args)
         {
             // Check if we can handle the current drag data (could be dragged in from other areas/windows in the editor)
-            var draggedRows = DragAndDrop.GetGenericData(k_GenericDragID) as List<TreeViewItem>;
+            List<TreeViewItem> draggedRows = DragAndDrop.GetGenericData(k_GenericDragID) as List<TreeViewItem>;
             if (draggedRows == null)
                 return DragAndDropVisualMode.None;
 
@@ -351,14 +352,14 @@ namespace UnityEditor.U2D.Animation
                 case DragAndDropPosition.OutsideItems:
                 case DragAndDropPosition.BetweenItems:
                 {
-                    var newParent = args.parentItem as TreeViewItemBase<BoneCache>;
+                    TreeViewItemBase<BoneCache> newParent = args.parentItem as TreeViewItemBase<BoneCache>;
                     bool validDrag = false;
                     validDrag = GetController().CanReparent(newParent, draggedRows);
                     if (args.performDrop && validDrag)
                     {
                         GetController().ReparentItems(newParent, draggedRows, args.insertAtIndex);
                         Reload();
-                        var selectedIDs = draggedRows.ConvertAll(b => b.id);
+                        List<int> selectedIDs = draggedRows.ConvertAll(b => b.id);
                         SetSelection(selectedIDs, TreeViewSelectionOptions.RevealAndFrame);
                         SelectionChanged(selectedIDs);
                     }

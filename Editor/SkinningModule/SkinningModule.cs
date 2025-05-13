@@ -1,8 +1,8 @@
-using UnityEngine;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.U2D.Sprites;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -113,7 +113,7 @@ namespace UnityEditor.U2D.Animation
                     }
                 };
 
-                var ai = spriteEditor.GetDataProvider<ISpriteEditorDataProvider>() as AssetImporter;
+                AssetImporter ai = spriteEditor.GetDataProvider<ISpriteEditorDataProvider>() as AssetImporter;
                 m_Analytics = new AnimationAnalytics(new UnityAnalyticsStorage(),
                     skinningCache.events,
                     new SkinningModuleAnalyticsModel(skinningCache),
@@ -156,7 +156,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (newState == PlayModeStateChange.ExitingEditMode && m_HasUnsavedChanges)
             {
-                var shouldApply = EditorUtility.DisplayDialog(TextContent.savePopupTitle, TextContent.savePopupMessage, TextContent.savePopupOptionYes, TextContent.savePopupOptionNo);
+                bool shouldApply = EditorUtility.DisplayDialog(TextContent.savePopupTitle, TextContent.savePopupMessage, TextContent.savePopupOptionYes, TextContent.savePopupOptionNo);
                 spriteEditor.ApplyOrRevertModification(shouldApply);
             }
         }
@@ -175,7 +175,7 @@ namespace UnityEditor.U2D.Animation
 
         private void OnBoneNameChanged(BoneCache bone)
         {
-            var character = skinningCache.character;
+            CharacterCache character = skinningCache.character;
 
             if (character != null && character.skeleton == bone.skeleton)
                 skinningCache.SyncSpriteSheetSkeletons();
@@ -184,12 +184,12 @@ namespace UnityEditor.U2D.Animation
 
         private void OnBoneDepthChanged(BoneCache bone)
         {
-            var sprites = skinningCache.GetSprites();
-            var controller = new SpriteMeshDataController();
+            SpriteCache[] sprites = skinningCache.GetSprites();
+            SpriteMeshDataController controller = new SpriteMeshDataController();
 
-            foreach (var sprite in sprites)
+            foreach (SpriteCache sprite in sprites)
             {
-                var mesh = sprite.GetMesh();
+                MeshCache mesh = sprite.GetMesh();
 
                 if (mesh.ContainsBone(bone))
                 {
@@ -230,7 +230,7 @@ namespace UnityEditor.U2D.Animation
 
         private void SetupSpriteEditor(bool setPreviewTexture = false)
         {
-            var textureProvider = spriteEditor.GetDataProvider<ITextureDataProvider>();
+            ITextureDataProvider textureProvider = spriteEditor.GetDataProvider<ITextureDataProvider>();
             if (textureProvider == null)
                 return;
 
@@ -260,18 +260,18 @@ namespace UnityEditor.U2D.Animation
 
         private void RestoreSpriteEditor()
         {
-            var textureProvider = spriteEditor.GetDataProvider<ITextureDataProvider>();
+            ITextureDataProvider textureProvider = spriteEditor.GetDataProvider<ITextureDataProvider>();
 
             if (textureProvider != null)
             {
                 int width, height;
                 textureProvider.GetTextureActualWidthAndHeight(out width, out height);
 
-                var texture = textureProvider.previewTexture;
+                Texture2D texture = textureProvider.previewTexture;
                 spriteEditor.SetPreviewTexture(texture, width, height);
             }
 
-            var spriteRectProvider = spriteEditor.GetDataProvider<ISpriteEditorDataProvider>();
+            ISpriteEditorDataProvider spriteRectProvider = spriteEditor.GetDataProvider<ISpriteEditorDataProvider>();
 
             if (spriteRectProvider != null)
                 spriteEditor.spriteRects = new List<SpriteRect>(spriteRectProvider.GetSpriteRects());
@@ -279,7 +279,7 @@ namespace UnityEditor.U2D.Animation
 
         public override bool CanBeActivated()
         {
-            var dataProvider = spriteEditor.GetDataProvider<ISpriteEditorDataProvider>();
+            ISpriteEditorDataProvider dataProvider = spriteEditor.GetDataProvider<ISpriteEditorDataProvider>();
             return dataProvider == null ? false : dataProvider.spriteImportMode != SpriteImportMode.None;
         }
 
@@ -334,7 +334,7 @@ namespace UnityEditor.U2D.Animation
 
         void DoCopyPasteKeyboardEventHandling()
         {
-            var evt = Event.current;
+            Event evt = Event.current;
             if (evt.type == EventType.ValidateCommand)
             {
                 if (evt.commandName == "Copy" || evt.commandName == "Paste")
@@ -344,7 +344,7 @@ namespace UnityEditor.U2D.Animation
 
             if (evt.type == EventType.ExecuteCommand)
             {
-                var copyTool = skinningCache.GetTool(Tools.CopyPaste) as CopyTool;
+                CopyTool copyTool = skinningCache.GetTool(Tools.CopyPaste) as CopyTool;
                 if (copyTool != null && evt.commandName == "Copy")
                 {
                     copyTool.OnCopyActivated();
@@ -352,7 +352,7 @@ namespace UnityEditor.U2D.Animation
                 }
                 else if (copyTool != null && evt.commandName == "Paste")
                 {
-                    var boneReadOnly = skinningCache.bonesReadOnly;
+                    bool boneReadOnly = skinningCache.bonesReadOnly;
                     copyTool.OnPasteActivated(!boneReadOnly, true, false, false);
                     evt.Use();
                 }
@@ -363,20 +363,20 @@ namespace UnityEditor.U2D.Animation
         {
             if (Event.current.type == EventType.Repaint)
             {
-                var selectedSprite = skinningCache.selectedSprite;
-                var sprites = skinningCache.GetSprites();
-                var unselectedRectColor = new Color(1f, 1f, 1f, 0.5f);
+                SpriteCache selectedSprite = skinningCache.selectedSprite;
+                SpriteCache[] sprites = skinningCache.GetSprites();
+                Color unselectedRectColor = new Color(1f, 1f, 1f, 0.5f);
 
-                foreach (var sprite in sprites)
+                foreach (SpriteCache sprite in sprites)
                 {
-                    var skeleton = skinningCache.GetEffectiveSkeleton(sprite);
+                    SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(sprite);
 
                     Debug.Assert(skeleton != null);
 
                     if (skeleton.isPosePreview)
                         continue;
 
-                    var color = unselectedRectColor;
+                    Color color = unselectedRectColor;
 
                     if (sprite == selectedSprite)
                         color = DrawingUtility.spriteBorderColor;
@@ -385,8 +385,8 @@ namespace UnityEditor.U2D.Animation
                         && sprite != selectedSprite)
                         continue;
 
-                    var matrix = sprite.GetLocalToWorldMatrixFromMode();
-                    var rect = new Rect(matrix.MultiplyPoint3x4(Vector3.zero), sprite.textureRect.size);
+                    Matrix4x4 matrix = sprite.GetLocalToWorldMatrixFromMode();
+                    Rect rect = new Rect(matrix.MultiplyPoint3x4(Vector3.zero), sprite.textureRect.size);
 
                     DrawingUtility.BeginLines(color);
                     DrawingUtility.DrawBox(rect);
@@ -410,7 +410,7 @@ namespace UnityEditor.U2D.Animation
         //TODO: Bring this to a better place, maybe CharacterController
         private void SkeletonPreviewPoseChanged(SkeletonCache skeleton)
         {
-            var character = skinningCache.character;
+            CharacterCache character = skinningCache.character;
 
             if (character != null && character.skeleton == skeleton)
                 skinningCache.SyncSpriteSheetSkeletons();
@@ -418,7 +418,7 @@ namespace UnityEditor.U2D.Animation
 
         private void SkeletonBindPoseChanged(SkeletonCache skeleton)
         {
-            var character = skinningCache.character;
+            CharacterCache character = skinningCache.character;
 
             if (character != null && character.skeleton == skeleton)
                 skinningCache.SyncSpriteSheetSkeletons();
@@ -427,11 +427,11 @@ namespace UnityEditor.U2D.Animation
 
         private void SkeletonTopologyChanged(SkeletonCache skeleton)
         {
-            var character = skinningCache.character;
+            CharacterCache character = skinningCache.character;
 
             if (character == null)
             {
-                var sprite = FindSpriteFromSkeleton(skeleton);
+                SpriteCache sprite = FindSpriteFromSkeleton(skeleton);
 
                 Debug.Assert(sprite != null);
 
@@ -448,7 +448,7 @@ namespace UnityEditor.U2D.Animation
 
         private void CharacterPartChanged(CharacterPartCache characterPart)
         {
-            var character = skinningCache.character;
+            CharacterCache character = skinningCache.character;
 
             Debug.Assert(character != null);
 
@@ -464,7 +464,7 @@ namespace UnityEditor.U2D.Animation
 
         private SpriteCache FindSpriteFromSkeleton(SkeletonCache skeleton)
         {
-            var sprites = skinningCache.GetSprites();
+            SpriteCache[] sprites = skinningCache.GetSprites();
             return sprites.FirstOrDefault(sprite => sprite.GetSkeleton() == skeleton);
         }
 
@@ -497,8 +497,8 @@ namespace UnityEditor.U2D.Animation
 
         private void DoApplyAnalytics()
         {
-            var sprites = skinningCache.GetSprites();
-            var spriteBoneCount = sprites.Select(s => s.GetSkeleton().boneCount).ToArray();
+            SpriteCache[] sprites = skinningCache.GetSprites();
+            int[] spriteBoneCount = sprites.Select(s => s.GetSkeleton().boneCount).ToArray();
             BoneCache[] bones = null;
 
             if (skinningCache.hasCharacter)
@@ -511,13 +511,13 @@ namespace UnityEditor.U2D.Animation
 
         static void ApplyBone(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
         {
-            var boneDataProvider = dataProvider.GetDataProvider<ISpriteBoneDataProvider>();
+            ISpriteBoneDataProvider boneDataProvider = dataProvider.GetDataProvider<ISpriteBoneDataProvider>();
             if (boneDataProvider != null)
             {
-                var sprites = skinningCache.GetSprites();
-                foreach (var sprite in sprites)
+                SpriteCache[] sprites = skinningCache.GetSprites();
+                foreach (SpriteCache sprite in sprites)
                 {
-                    var bones = sprite.GetSkeleton().bones;
+                    BoneCache[] bones = sprite.GetSkeleton().bones;
                     boneDataProvider.SetBones(new GUID(sprite.id), bones.ToSpriteBone(sprite.localToWorldMatrix).ToList());
                 }
             }
@@ -525,17 +525,17 @@ namespace UnityEditor.U2D.Animation
 
         static void ApplyMesh(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
         {
-            var meshDataProvider = dataProvider.GetDataProvider<ISpriteMeshDataProvider>();
+            ISpriteMeshDataProvider meshDataProvider = dataProvider.GetDataProvider<ISpriteMeshDataProvider>();
             if (meshDataProvider != null)
             {
-                var sprites = skinningCache.GetSprites();
-                foreach (var sprite in sprites)
+                SpriteCache[] sprites = skinningCache.GetSprites();
+                foreach (SpriteCache sprite in sprites)
                 {
-                    var mesh = sprite.GetMesh();
-                    var guid = new GUID(sprite.id);
+                    MeshCache mesh = sprite.GetMesh();
+                    GUID guid = new GUID(sprite.id);
 
-                    var vertices = new Vertex2DMetaData[mesh.vertexCount];
-                    for (var i = 0; i < vertices.Length; ++i)
+                    Vertex2DMetaData[] vertices = new Vertex2DMetaData[mesh.vertexCount];
+                    for (int i = 0; i < vertices.Length; ++i)
                     {
                         vertices[i].position = mesh.vertices[i];
                         vertices[i].boneWeight = mesh.vertexWeights[i].ToBoneWeight(false);
@@ -544,7 +544,7 @@ namespace UnityEditor.U2D.Animation
                     meshDataProvider.SetVertices(guid, vertices);
                     meshDataProvider.SetIndices(guid, mesh.indices);
 
-                    var edgeVectArr = EditorUtilities.ToVector2Int(mesh.edges);
+                    Vector2Int[] edgeVectArr = EditorUtilities.ToVector2Int(mesh.edges);
                     meshDataProvider.SetEdges(guid, edgeVectArr);
                 }
             }
@@ -552,15 +552,15 @@ namespace UnityEditor.U2D.Animation
 
         static void ApplyCharacter(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
         {
-            var characterDataProvider = dataProvider.GetDataProvider<ICharacterDataProvider>();
-            var character = skinningCache.character;
+            ICharacterDataProvider characterDataProvider = dataProvider.GetDataProvider<ICharacterDataProvider>();
+            CharacterCache character = skinningCache.character;
             if (characterDataProvider != null && character != null)
             {
-                var data = new CharacterData();
-                var characterBones = character.skeleton.bones;
+                CharacterData data = new CharacterData();
+                BoneCache[] characterBones = character.skeleton.bones;
                 data.bones = characterBones.ToSpriteBone(Matrix4x4.identity);
                 data.pivot = character.pivot;
-                var parts = character.parts;
+                CharacterPartCache[] parts = character.parts;
                 data.parts = parts.Select(x =>
                     new CharacterPart()
                     {

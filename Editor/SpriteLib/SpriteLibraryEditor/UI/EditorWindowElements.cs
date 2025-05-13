@@ -63,13 +63,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public void BindElements(ControllerEvents controllerEvents, ViewEvents viewEvents)
         {
-            var listButton = this.Q<Button>("ListButton");
+            Button listButton = this.Q<Button>("ListButton");
             listButton.clicked += () => viewEvents.onViewTypeUpdate?.Invoke(ViewType.List);
 
-            var gridButton = this.Q<Button>("GridButton");
+            Button gridButton = this.Q<Button>("GridButton");
             gridButton.clicked += () => viewEvents.onViewTypeUpdate?.Invoke(ViewType.Grid);
 
-            var slider = this.Q<Slider>("SizeSlider");
+            Slider slider = this.Q<Slider>("SizeSlider");
             slider.RegisterValueChangedCallback(evt => viewEvents.onViewSizeUpdate?.Invoke(evt.newValue));
             controllerEvents.onViewChanged.AddListener(viewData => slider.SetValueWithoutNotify(viewData.absoluteSize));
 
@@ -111,7 +111,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             this.Q<Image>("SpriteLibraryIcon").image = EditorIconUtility.LoadIconResource("Animation.SpriteLibrary", "ComponentIcons", "ComponentIcons");
 
-            var searchController = this.Q("SearchController");
+            VisualElement searchController = this.Q("SearchController");
             searchController.style.flexGrow = 1;
             searchController.style.flexDirection = FlexDirection.RowReverse;
 
@@ -162,7 +162,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnSelectAutoSave(ChangeEvent<bool> evt)
         {
-            var autoSave = evt.newValue;
+            bool autoSave = evt.newValue;
             AutoSaveChanged(autoSave);
 
             m_ViewEvents.onToggleAutoSave?.Invoke(autoSave);
@@ -183,7 +183,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnSelectedMainAsset(ChangeEvent<UnityEngine.Object> evt)
         {
-            var libraryAsset = evt.newValue as SpriteLibraryAsset;
+            SpriteLibraryAsset libraryAsset = evt.newValue as SpriteLibraryAsset;
             m_ViewEvents.onSetMainAsset?.Invoke(libraryAsset);
         }
 
@@ -191,7 +191,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             m_SelectedAsset = selectedAsset;
 
-            var breadcrumbList = SpriteLibrarySourceAssetImporter.GetAssetParentChain(selectedAsset);
+            List<SpriteLibraryAsset> breadcrumbList = SpriteLibrarySourceAssetImporter.GetAssetParentChain(selectedAsset);
             UpdateBreadCrumbs(breadcrumbList);
 
             m_ObjectField.SetValueWithoutNotify(SpriteLibrarySourceAssetImporter.GetAssetParent(selectedAsset));
@@ -201,7 +201,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnMainAssetChanged(SpriteLibraryAsset mainAsset)
         {
-            var breadcrumbList = SpriteLibrarySourceAssetImporter.GetAssetParentChain(mainAsset);
+            List<SpriteLibraryAsset> breadcrumbList = SpriteLibrarySourceAssetImporter.GetAssetParentChain(mainAsset);
             if (mainAsset != null)
                 breadcrumbList.Insert(0, mainAsset);
             UpdateBreadCrumbs(breadcrumbList);
@@ -215,9 +215,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             if (breadcrumbList.Count > 0)
             {
-                for (var i = breadcrumbList.Count; i-- > 0;)
+                for (int i = breadcrumbList.Count; i-- > 0;)
                 {
-                    var asset = breadcrumbList[i];
+                    SpriteLibraryAsset asset = breadcrumbList[i];
                     m_Breadcrumbs.PushItem(asset.name, () => OnBreadcrumbClicked(asset));
                 }
             }

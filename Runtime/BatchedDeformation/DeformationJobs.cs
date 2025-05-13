@@ -1,9 +1,9 @@
 using System;
-using Unity.Mathematics;
-using Unity.Collections;
-using Unity.Jobs;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Burst;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
+using Unity.Mathematics;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -43,9 +43,9 @@ namespace UnityEngine.U2D.Animation
 
         public void Execute()
         {
-            for (var i = 0; i < batchDataSize; ++i)
+            for (int i = 0; i < batchDataSize; ++i)
             {
-                var jobData = perSkinJobData[i];
+                PerSkinJobData jobData = perSkinJobData[i];
                 for (int k = 0, j = jobData.bindPosesIndex.x; j < jobData.bindPosesIndex.y; ++j, ++k)
                 {
                     boneLookupData[j] = new int2(i, k);
@@ -79,16 +79,16 @@ namespace UnityEngine.U2D.Animation
 
         public void Execute(int i)
         {
-            var x = boneLookupData[i].x;
-            var y = boneLookupData[i].y;
-            var ssd = spriteSkinData[x];
-            var v = ssd.boneTransformId[y];
-            var index = boneTransformIndex[v].transformIndex;
+            int x = boneLookupData[i].x;
+            int y = boneLookupData[i].y;
+            SpriteSkinData ssd = spriteSkinData[x];
+            int v = ssd.boneTransformId[y];
+            int index = boneTransformIndex[v].transformIndex;
             if (index < 0)
                 return;
-            var aa = boneTransform[index];
-            var bb = ssd.bindPoses[y];
-            var cc = rootTransformIndex[ssd.transformId].transformIndex;
+            float4x4 aa = boneTransform[index];
+            Matrix4x4 bb = ssd.bindPoses[y];
+            int cc = rootTransformIndex[ssd.transformId].transformIndex;
             finalBoneTransforms[i] = math.mul(rootTransform[cc], math.mul(aa, bb));
         }
     }
@@ -109,34 +109,34 @@ namespace UnityEngine.U2D.Animation
 
         public unsafe void Execute(int i)
         {
-            var j = vertexLookupData[i].x;
-            var k = vertexLookupData[i].y;
+            int j = vertexLookupData[i].x;
+            int k = vertexLookupData[i].y;
 
-            var perSkinData = perSkinJobData[j];
-            var spriteSkin = spriteSkinData[j];
-            var srcVertex = (float3)spriteSkin.vertices[k];
-            var tangents = (float4)spriteSkin.tangents[k];
-            var influence = spriteSkin.boneWeights[k];
+            PerSkinJobData perSkinData = perSkinJobData[j];
+            SpriteSkinData spriteSkin = spriteSkinData[j];
+            float3 srcVertex = (float3)spriteSkin.vertices[k];
+            float4 tangents = (float4)spriteSkin.tangents[k];
+            BoneWeight influence = spriteSkin.boneWeights[k];
 
-            var bone0 = influence.boneIndex0 + perSkinData.bindPosesIndex.x;
-            var bone1 = influence.boneIndex1 + perSkinData.bindPosesIndex.x;
-            var bone2 = influence.boneIndex2 + perSkinData.bindPosesIndex.x;
-            var bone3 = influence.boneIndex3 + perSkinData.bindPosesIndex.x;
+            int bone0 = influence.boneIndex0 + perSkinData.bindPosesIndex.x;
+            int bone1 = influence.boneIndex1 + perSkinData.bindPosesIndex.x;
+            int bone2 = influence.boneIndex2 + perSkinData.bindPosesIndex.x;
+            int bone3 = influence.boneIndex3 + perSkinData.bindPosesIndex.x;
 
-            var deformedPosOffset = (byte*)vertices.GetUnsafePtr();
-            var deformedPosStart = deformedPosOffset + spriteSkin.deformVerticesStartPos;
-            var deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosStart, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
+            byte* deformedPosOffset = (byte*)vertices.GetUnsafePtr();
+            byte* deformedPosStart = deformedPosOffset + spriteSkin.deformVerticesStartPos;
+            NativeSlice<float3> deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosStart, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableVerticesFloat3, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
 #endif
             if (spriteSkin.hasTangents)
             {
-                var deformedTanOffset = deformedPosStart + spriteSkin.tangentVertexOffset;
-                var deformableTangentsFloat4 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float4>(deformedTanOffset, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
+                byte* deformedTanOffset = deformedPosStart + spriteSkin.tangentVertexOffset;
+                NativeSlice<float4> deformableTangentsFloat4 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float4>(deformedTanOffset, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableTangentsFloat4, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
 #endif
-                var tangent = new float4(tangents.xyz, 0.0f);
+                float4 tangent = new float4(tangents.xyz, 0.0f);
                 tangent =
                     math.mul(finalBoneTransforms[bone0], tangent) * influence.weight0 +
                     math.mul(finalBoneTransforms[bone1], tangent) * influence.weight1 +
@@ -170,9 +170,9 @@ namespace UnityEngine.U2D.Animation
             if (!isSpriteSkinValidForDeformArray[i])
                 return;
 
-            var spriteSkin = spriteSkinData[i];
-            var deformedPosOffset = (byte*)vertices.GetUnsafePtr();
-            var deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset + spriteSkin.deformVerticesStartPos, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
+            SpriteSkinData spriteSkin = spriteSkinData[i];
+            byte* deformedPosOffset = (byte*)vertices.GetUnsafePtr();
+            NativeSlice<float3> deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset + spriteSkin.deformVerticesStartPos, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableVerticesFloat3, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
@@ -197,15 +197,15 @@ namespace UnityEngine.U2D.Animation
 
         public void Execute()
         {
-            var startIndex = 0;
-            var endIndex = spriteSkinDataArray.Length;
-            for (var index = startIndex; index < endIndex; ++index)
+            int startIndex = 0;
+            int endIndex = spriteSkinDataArray.Length;
+            for (int index = startIndex; index < endIndex; ++index)
             {
-                var spriteSkinData = spriteSkinDataArray[index];
+                SpriteSkinData spriteSkinData = spriteSkinDataArray[index];
                 spriteSkinData.deformVerticesStartPos = -1;
-                var vertexBufferSize = 0;
-                var vertexCount = 0;
-                var bindPoseCount = 0;
+                int vertexBufferSize = 0;
+                int vertexCount = 0;
+                int bindPoseCount = 0;
                 if (isSpriteSkinValidForDeformArray[index])
                 {
                     spriteSkinData.deformVerticesStartPos = combinedSkinBatch.deformVerticesStartPos;
@@ -244,9 +244,9 @@ namespace UnityEngine.U2D.Animation
 
         public void Execute(int i)
         {
-            var skinData = spriteSkinData[i];
-            var startVertices = default(IntPtr);
-            var vertexBufferLength = 0;
+            SpriteSkinData skinData = spriteSkinData[i];
+            IntPtr startVertices = default(IntPtr);
+            int vertexBufferLength = 0;
             if (isSpriteSkinValidForDeformArray[i])
             {
                 startVertices = ptrVertices + skinData.deformVerticesStartPos;
@@ -278,10 +278,10 @@ namespace UnityEngine.U2D.Animation
 
         public void Execute(int i)
         {
-            var skinData = spriteSkinData[i];
-            var skinJobData = perSkinJobData[i];
-            var startMatrix = default(IntPtr);
-            var matrixLength = 0;
+            SpriteSkinData skinData = spriteSkinData[i];
+            PerSkinJobData skinJobData = perSkinJobData[i];
+            IntPtr startMatrix = default(IntPtr);
+            int matrixLength = 0;
             if (isSpriteSkinValidForDeformArray[i])
             {
                 startMatrix = ptrBoneTransforms + (skinJobData.bindPosesIndex.x * 64);

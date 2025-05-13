@@ -25,7 +25,7 @@ namespace UnityEditor.U2D.Animation
 
         public static BoneToolbar GenerateFromUXML()
         {
-            var clone = GetClone(k_UxmlPath, k_ToolbarId) as BoneToolbar;
+            BoneToolbar clone = GetClone(k_UxmlPath, k_ToolbarId) as BoneToolbar;
             clone.BindElements();
             clone.SetupShortcutUtility();
             clone.LocalizeTextInChildren();
@@ -40,13 +40,13 @@ namespace UnityEditor.U2D.Animation
 
         private void BindElements()
         {
-            var editJoints = this.Q<Button>(k_EditJointsId);
+            Button editJoints = this.Q<Button>(k_EditJointsId);
             editJoints.clickable.clicked += () => { SetSkeletonTool(Tools.EditJoints); };
 
-            var createBone = this.Q<Button>(k_CreateBoneId);
+            Button createBone = this.Q<Button>(k_CreateBoneId);
             createBone.clickable.clicked += () => { SetSkeletonTool(Tools.CreateBone); };
 
-            var splitBone = this.Q<Button>(k_SplitBoneId);
+            Button splitBone = this.Q<Button>(k_SplitBoneId);
             splitBone.clickable.clicked += () => { SetSkeletonTool(Tools.SplitBone); };
         }
 
@@ -95,7 +95,7 @@ namespace UnityEditor.U2D.Animation
         public void UpdateToggleState()
         {
             //TODO: Make UI not be aware of BaseTool, Cache, etc. Use Tool enum
-            var toolButton = this.Q<Button>(k_EditJointsId);
+            Button toolButton = this.Q<Button>(k_EditJointsId);
             SetButtonChecked(toolButton, skinningCache.GetTool(Tools.EditJoints).isActive);
 
             toolButton = this.Q<Button>(k_CreateBoneId);

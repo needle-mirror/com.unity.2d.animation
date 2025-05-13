@@ -1,10 +1,10 @@
-using UnityEditorInternal;
-using UnityEngine;
-using UnityEngine.U2D.IK;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.U2D.Animation;
+using UnityEditorInternal;
+using UnityEngine;
+using UnityEngine.U2D.IK;
 
 namespace UnityEditor.U2D.IK
 {
@@ -79,9 +79,9 @@ namespace UnityEditor.U2D.IK
                 rect.height = EditorGUIUtility.singleLineHeight;
                 SerializedProperty element = m_SolversProperty.GetArrayElementAtIndex(index);
                 SerializedProperty elementData = m_SolverEditorDataProperty.GetArrayElementAtIndex(index);
-                var width = rect.width;
+                float width = rect.width;
                 rect.width = width > Contents.showGizmoPropertyWidth ? Contents.showGizmoPropertyWidth : width;
-                var showGizmoProperty = elementData.FindPropertyRelative("showGizmo");
+                SerializedProperty showGizmoProperty = elementData.FindPropertyRelative("showGizmo");
                 showGizmoProperty.boolValue = GUI.Toggle(rect, showGizmoProperty.boolValue, Contents.gizmoVisibilityToolTip, s_Contents.visibilityToggleStyle);
                 rect.x += rect.width;
                 width -= rect.width;
@@ -94,7 +94,7 @@ namespace UnityEditor.U2D.IK
             };
             m_ReorderableList.onAddCallback = (ReorderableList list) =>
             {
-                var menu = new GenericMenu();
+                GenericMenu menu = new GenericMenu();
 
                 foreach (Type type in m_SolverTypes)
                 {
@@ -135,15 +135,15 @@ namespace UnityEditor.U2D.IK
 
         void OnSelectMenu(object param)
         {
-            var solverType = param as Type;
+            Type solverType = param as Type;
 
-            var solverGO = new GameObject(GameObjectUtility.GetUniqueNameForSibling(m_Manager.transform, "New " + solverType.Name));
+            GameObject solverGO = new GameObject(GameObjectUtility.GetUniqueNameForSibling(m_Manager.transform, "New " + solverType.Name));
             solverGO.transform.SetParent(m_Manager.transform);
             solverGO.transform.localPosition = Vector3.zero;
             solverGO.transform.rotation = Quaternion.identity;
             solverGO.transform.localScale = Vector3.one;
 
-            var solver = solverGO.AddComponent(solverType) as Solver2D;
+            Solver2D solver = solverGO.AddComponent(solverType) as Solver2D;
 
             Undo.RegisterCreatedObjectUndo(solverGO, Contents.createSolverString);
             Undo.RegisterCompleteObjectUndo(m_Manager, Contents.createSolverString);
@@ -188,17 +188,17 @@ namespace UnityEditor.U2D.IK
         {
             if (GUILayout.Button(Contents.restoreDefaultPoseString, GUILayout.MaxWidth(150f)))
             {
-                foreach (var l_target in targets)
+                foreach (UnityEngine.Object l_target in targets)
                 {
-                    var manager = l_target as IKManager2D;
+                    IKManager2D manager = l_target as IKManager2D;
 
                     IKEditorManager.instance.Record(manager, Contents.restoreDefaultPoseString);
 
-                    foreach (var solver in manager.solvers)
+                    foreach (Solver2D solver in manager.solvers)
                     {
                         for (int i = 0; i < solver.chainCount; ++i)
                         {
-                            var chain = solver.GetChain(i);
+                            IKChain2D chain = solver.GetChain(i);
                             chain.RestoreDefaultPose(solver.constrainRotation);
 
                             if (chain.target)
@@ -216,7 +216,7 @@ namespace UnityEditor.U2D.IK
 
         static List<Type> GetDerivedTypes<T>() where T : class
         {
-            var typeCollection = TypeCache.GetTypesDerivedFrom<T>();
+            TypeCache.TypeCollection typeCollection = TypeCache.GetTypesDerivedFrom<T>();
             return typeCollection.ToList();
         }
     }

@@ -1,5 +1,5 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -41,7 +41,7 @@ namespace UnityEditor.U2D.Animation
 
         public Color GetOutlineColor(BoneCache bone, bool isSelected, bool isHovered)
         {
-            var skinningCache = bone.skinningCache;
+            SkinningCache skinningCache = bone.skinningCache;
 
             if (isSelected)
                 return SelectionOutlineSettings.outlineColor;
@@ -118,13 +118,13 @@ namespace UnityEditor.U2D.Animation
 
         protected override float GetAlpha(BoneCache bone)
         {
-            var skinningCache = bone.skinningCache;
-            var selectedSprite = skinningCache.selectedSprite;
-            var alpha = 0.9f;
+            SkinningCache skinningCache = bone.skinningCache;
+            SpriteCache selectedSprite = skinningCache.selectedSprite;
+            float alpha = 0.9f;
 
             if (skinningCache.mode == SkinningMode.Character && skinningCache.selectedSprite != null)
             {
-                var characterPart = selectedSprite.GetCharacterPart();
+                CharacterPartCache characterPart = selectedSprite.GetCharacterPart();
 
                 if (characterPart.Contains(bone) == false)
                     alpha = 0.25f;

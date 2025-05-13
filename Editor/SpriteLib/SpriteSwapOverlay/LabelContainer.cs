@@ -93,7 +93,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             if (m_Labels == null)
                 return;
 
-            foreach (var (labelName, labelSprite) in m_Labels)
+            foreach ((string labelName, Sprite labelSprite) in m_Labels)
                 m_LabelImagesContainer.Add(GetVisualForLabel(labelName, labelSprite));
         }
 
@@ -124,7 +124,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void UpdateElementSize()
         {
-            var paddingAndMarginsSize = 4.0f;
+            float paddingAndMarginsSize = 4.0f;
             style.minHeight = style.maxHeight = SpriteSwapOverlay.Settings.thumbnailSize + paddingAndMarginsSize;
         }
 
@@ -143,7 +143,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void UpdateSelectionVisuals()
         {
-            foreach (var child in m_LabelImagesContainer.Children())
+            foreach (VisualElement child in m_LabelImagesContainer.Children())
             {
                 if (m_LabelImagesContainer.IndexOf(child) == selectedIndex)
                 {
@@ -161,14 +161,14 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void UpdateNavigationButtons()
         {
-            var enableNavigationButtons = m_LabelImagesContainer.contentContainer.contentRect.width > m_LabelImagesContainer.contentRect.width;
+            bool enableNavigationButtons = m_LabelImagesContainer.contentContainer.contentRect.width > m_LabelImagesContainer.contentRect.width;
             m_PreviousButton.SetEnabled(enableNavigationButtons);
             m_NextButton.SetEnabled(enableNavigationButtons);
         }
 
         VisualElement GetVisualForLabel(string labelName, Sprite labelSprite)
         {
-            var image = new Image { name = labelName, tooltip = labelName, sprite = labelSprite };
+            Image image = new Image { name = labelName, tooltip = labelName, sprite = labelSprite };
             image.style.height = image.style.width = SpriteSwapOverlay.Settings.thumbnailSize;
             image.AddToClassList(Styles.labelVisual);
             image.RegisterCallback<PointerDownEvent>(OnLabelPointerDown);
@@ -187,7 +187,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         static Color GetColorForAnimationState(PropertyAnimationState animationState)
         {
-            var color = new Color(88.0f / 255.0f, 88.0f / 255.0f, 88.0f / 255.5f, 1.0f);
+            Color color = new Color(88.0f / 255.0f, 88.0f / 255.0f, 88.0f / 255.5f, 1.0f);
             if (animationState == PropertyAnimationState.Animated)
                 color *= AnimationMode.animatedPropertyColor;
             else if (animationState == PropertyAnimationState.Candidate)

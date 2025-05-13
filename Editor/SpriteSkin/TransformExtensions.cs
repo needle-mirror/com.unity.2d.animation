@@ -18,7 +18,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (ancestor != null)
             {
-                var parent = transform.parent;
+                Transform parent = transform.parent;
 
                 while (parent != null)
                 {

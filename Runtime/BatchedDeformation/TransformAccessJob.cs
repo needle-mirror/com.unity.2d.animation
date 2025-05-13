@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine.Jobs;
 using UnityEngine.Profiling;
-using Unity.Burst;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -83,7 +83,7 @@ namespace UnityEngine.U2D.Animation
             int instanceId = t.GetInstanceID();
             if (m_TransformData.ContainsKey(instanceId))
             {
-                var transformData = m_TransformData[instanceId];
+                TransformData transformData = m_TransformData[instanceId];
                 transformData.refCount += 1;
                 m_TransformData[instanceId] = transformData;
             }
@@ -127,8 +127,8 @@ namespace UnityEngine.U2D.Animation
             {
                 if (m_Transform[i] != null)
                 {
-                    var instanceId = m_Transform[i].GetInstanceID();
-                    var transformData = m_TransformData[instanceId];
+                    int instanceId = m_Transform[i].GetInstanceID();
+                    TransformData transformData = m_TransformData[instanceId];
                     transformData.transformIndex = i;
                     m_TransformData[instanceId] = transformData;
                 }
@@ -144,7 +144,7 @@ namespace UnityEngine.U2D.Animation
                 m_JobHandle.Complete();
                 UpdateTransformIndex();
                 Profiler.BeginSample("StartLocalToWorldJob");
-                var job = new LocalToWorldTransformAccessJob()
+                LocalToWorldTransformAccessJob job = new LocalToWorldTransformAccessJob()
                 {
                     outMatrix = transformMatrix,
                 };
@@ -163,7 +163,7 @@ namespace UnityEngine.U2D.Animation
                 m_JobHandle.Complete();
                 UpdateTransformIndex();
                 Profiler.BeginSample("StartWorldToLocalJob");
-                var job = new WorldToLocalTransformAccessJob()
+                WorldToLocalTransformAccessJob job = new WorldToLocalTransformAccessJob()
                 {
                     outMatrix = transformMatrix,
                 };
@@ -177,14 +177,14 @@ namespace UnityEngine.U2D.Animation
 
         internal string GetDebugLog()
         {
-            var log = "";
+            string log = "";
 #if COLLECTIONS_2_0_OR_ABOVE
             log += "TransformData Count: " + m_TransformData.Count + "\n";
 #else
             log += "TransformData Count: " + m_TransformData.Count() + "\n";
 #endif
             log += "Transform Count: " + m_Transform.Length + "\n";
-            foreach (var ss in m_Transform)
+            foreach (Transform ss in m_Transform)
             {
                 log += ss == null ? "null" : ss.name + " " + ss.GetInstanceID();
                 log += "\n";
@@ -199,21 +199,34 @@ namespace UnityEngine.U2D.Animation
             return log;
         }
 
+        internal int RemoveTransformsIfNull()
+        {
+            bool hasNullElement = Array.Exists(m_Transform, t => t == null);
+            if (!hasNullElement)
+                return 0;
+
+            List<Transform> transformList = new List<Transform>(m_Transform);
+            int count = transformList.RemoveAll(t => t == null);
+            if (m_Transform.Length != transformList.Count)
+                m_Transform = transformList.ToArray();
+            return count;
+        }
+
         internal void RemoveTransformsByIds(IList<int> idsToRemove)
         {
             if (!m_TransformData.IsCreated)
                 return;
             m_JobHandle.Complete();
-            for (var i = idsToRemove.Count - 1; i >= 0; --i)
+            for (int i = idsToRemove.Count - 1; i >= 0; --i)
             {
-                var id = idsToRemove[i];
+                int id = idsToRemove[i];
                 if (!m_TransformData.ContainsKey(id))
                 {
                     idsToRemove.Remove(id);
                     continue;
                 }
 
-                var transformData = m_TransformData[id];
+                TransformData transformData = m_TransformData[id];
                 if (transformData.refCount > 1)
                 {
                     transformData.refCount -= 1;
@@ -225,11 +238,11 @@ namespace UnityEngine.U2D.Animation
             if (idsToRemove.Count == 0)
                 return;
 
-            var transformList = new List<Transform>(m_Transform);
-            foreach (var id in idsToRemove)
+            List<Transform> transformList = new List<Transform>(m_Transform);
+            foreach (int id in idsToRemove)
             {
                 m_TransformData.Remove(id);
-                var index = transformList.FindIndex(t => t.GetInstanceID() == id);
+                int index = transformList.FindIndex(t => t.GetInstanceID() == id);
                 if (index >= 0)
                     transformList.RemoveAt(index);
             }
@@ -244,16 +257,15 @@ namespace UnityEngine.U2D.Animation
             m_JobHandle.Complete();
             if (m_TransformData.ContainsKey(transformId))
             {
-                var transformData = m_TransformData[transformId];
+                TransformData transformData = m_TransformData[transformId];
                 if (transformData.refCount == 1)
                 {
                     m_TransformData.Remove(transformId);
-                    var index = Array.FindIndex(m_Transform, t => t.GetInstanceID() == transformId);
+                    int index = Array.FindIndex(m_Transform, t => t.GetInstanceID() == transformId);
                     if (index >= 0)
                     {
                         ArrayRemoveAt(ref m_Transform, index);
                     }
-
                     m_Dirty = true;
                 }
                 else

@@ -144,8 +144,8 @@ namespace UnityEngine.U2D.IK
             m_DefaultLocalRotations = new Quaternion[transformCount];
             m_StoredLocalRotations = new Quaternion[transformCount];
 
-            var currentTransform = effector;
-            var index = transformCount - 1;
+            Transform currentTransform = effector;
+            int index = transformCount - 1;
 
             while (currentTransform && index >= 0)
             {
@@ -159,15 +159,15 @@ namespace UnityEngine.U2D.IK
 
         void PrepareLengths()
         {
-            var currentTransform = effector;
-            var index = transformCount - 1;
+            Transform currentTransform = effector;
+            int index = transformCount - 1;
 
             if (m_Lengths == null || m_Lengths.Length != transformCount - 1)
                 m_Lengths = new float[transformCount - 1];
 
             while (currentTransform && index >= 0)
             {
-                var parent = currentTransform.parent;
+                Transform parent = currentTransform.parent;
                 if (parent && index > 0)
                     m_Lengths[index - 1] = parent.TransformVector((Vector2)currentTransform.localPosition).magnitude;
 
@@ -182,8 +182,8 @@ namespace UnityEngine.U2D.IK
         /// <param name="targetRotationIsConstrained">True to constrain the target rotation. False otherwise.</param>
         public void RestoreDefaultPose(bool targetRotationIsConstrained)
         {
-            var count = targetRotationIsConstrained ? transformCount : transformCount - 1;
-            for (var i = 0; i < count; ++i)
+            int count = targetRotationIsConstrained ? transformCount : transformCount - 1;
+            for (int i = 0; i < count; ++i)
                 m_Transforms[i].localRotation = m_DefaultLocalRotations[i];
         }
 
@@ -192,7 +192,7 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         public void StoreLocalRotations()
         {
-            for (var i = 0; i < m_Transforms.Length; ++i)
+            for (int i = 0; i < m_Transforms.Length; ++i)
                 m_StoredLocalRotations[i] = m_Transforms[i].localRotation;
         }
 
@@ -203,8 +203,8 @@ namespace UnityEngine.U2D.IK
         /// <param name="targetRotationIsConstrained">True to constrain target rotation. False otherwise.</param>
         public void BlendFkToIk(float finalWeight, bool targetRotationIsConstrained)
         {
-            var count = targetRotationIsConstrained ? transformCount : transformCount - 1;
-            for (var i = 0; i < count; ++i)
+            int count = targetRotationIsConstrained ? transformCount : transformCount - 1;
+            for (int i = 0; i < count; ++i)
                 m_Transforms[i].localRotation = Quaternion.Slerp(m_StoredLocalRotations[i], m_Transforms[i].localRotation, finalWeight);
         }
     }

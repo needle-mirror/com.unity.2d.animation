@@ -15,7 +15,7 @@ namespace UnityEditor.U2D.Animation
 
         internal Rect Do(int controlID)
         {
-            var eventType = Event.current.GetTypeForControl(controlID);
+            EventType eventType = Event.current.GetTypeForControl(controlID);
 
             if (eventType == EventType.MouseDown)
             {
@@ -28,7 +28,7 @@ namespace UnityEditor.U2D.Animation
 
             m_Position = Slider2D.Do(controlID, m_Position);
 
-            var rect = new Rect();
+            Rect rect = new Rect();
             rect.min = m_StartPosition;
             rect.max = m_Position;
 

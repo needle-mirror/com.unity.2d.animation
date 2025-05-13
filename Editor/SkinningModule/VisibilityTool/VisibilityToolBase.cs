@@ -9,6 +9,7 @@ namespace UnityEditor.U2D.Animation
     {
         VisualElement view { get; }
         string name { get; }
+        string tooltip { get; }
         void Activate();
         void Deactivate();
         bool isAvailable { get; }
@@ -61,7 +62,7 @@ namespace UnityEditor.U2D.Animation
             {
                 GUILayout.BeginHorizontal(EditorStyles.toolbar);
                 EditorGUI.BeginChangeCheck();
-                var opacity = GUILayout.HorizontalSlider(GetOpacityValue(), 0, 1, Styles.preSlider, Styles.preSliderThumb);
+                float opacity = GUILayout.HorizontalSlider(GetOpacityValue(), 0, 1, Styles.preSlider, Styles.preSliderThumb);
                 if (EditorGUI.EndChangeCheck())
                     SetOpacityValue(opacity);
                 GUILayout.EndHorizontal();
@@ -93,7 +94,7 @@ namespace UnityEditor.U2D.Animation
     {
         static internal class VisibilityIconStyle
         {
-            public static readonly GUIContent visibilityOnIcon  = new GUIContent(EditorIconUtility.LoadIconResource("Visibility_Tool", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), L10n.Tr("On"));
+            public static readonly GUIContent visibilityOnIcon = new GUIContent(EditorIconUtility.LoadIconResource("Visibility_Tool", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), L10n.Tr("On"));
             public static readonly GUIContent visibilityOffIcon = new GUIContent(EditorIconUtility.LoadIconResource("Visibility_Hidded", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), L10n.Tr("Off"));
         }
 

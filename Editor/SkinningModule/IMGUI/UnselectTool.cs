@@ -12,14 +12,14 @@ namespace UnityEditor.U2D.Animation
             get { return m_Unselector.selection; }
             set { m_Unselector.selection = value; }
         }
-        public Action onUnselect = () => {};
+        public Action onUnselect = () => { };
 
         public void OnGUI()
         {
             Debug.Assert(cacheUndo != null);
             Debug.Assert(selection != null);
 
-            var e = Event.current;
+            Event e = Event.current;
 
             if (selection.Count > 0 && e.type == EventType.MouseDown && e.button == 1 && !e.alt)
             {
