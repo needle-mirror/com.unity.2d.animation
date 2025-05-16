@@ -1,6 +1,6 @@
 # Changelog
 
-## [11.0.0] - 2025-05-13
+## [12.0.0] - 2025-05-16
 ### Changed
 - Update minimum Unity version.
 
