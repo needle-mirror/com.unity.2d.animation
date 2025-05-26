@@ -24,8 +24,6 @@ You can change a Label's sprite reference by selecting a different sprite from t
 
 To revert sprite reference changes made to selected Labels, right-click the Label(s) and select **Revert Selected Overrides** from the [context menu](SL-Editor-UI.md#label-context-menu) to restore all sprite references back to their original inherited state from the Main Library.
 
-![](images/2D-animation-SLAsset-label-revert.png)<br/>_Revert changes to Labels in inherited Categories by selecting **Revert Selected Overrides**._
-
 To revert all overrides in the selected inherited Category, select **Revert All Overrides** from the context menu.
 
 **Caution:** Overrides aren't included in the [save state](SL-Editor-UI.md#saving-options) of the Sprite Library Editor, and reverting overrides will remove all overrides regardless of the previous save state. To undo the last action, press Ctrl+Z (macOS: Cmd+Z).

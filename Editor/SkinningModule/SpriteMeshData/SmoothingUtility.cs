@@ -27,24 +27,24 @@ namespace UnityEditor.U2D.Animation
             for (int i = 0; i < boneWeightIn.Length; ++i)
             {
                 s_BoneWeight.SetFromBoneWeight(boneWeightIn[i]);
-                for (var j = 0; j < s_BoneWeight.Count; ++j)
+                for (int j = 0; j < s_BoneWeight.Count; ++j)
                 {
                     if (s_BoneWeight[j].enabled)
                         m_DataInTemp[i, s_BoneWeight[j].boneIndex] = s_BoneWeight[j].weight;
                 }
             }
 
-            for (var i = 0; i < iterations; ++i)
+            for (int i = 0; i < iterations; ++i)
                 SmoothPerVertexData(indices, m_DataInTemp, m_DataOutTemp);
 
-            for (var i = 0; i < boneWeightIn.Length; ++i)
+            for (int i = 0; i < boneWeightIn.Length; ++i)
             {
                 s_BoneWeight.Clear();
 
-                for (var j = 0; j < boneCount; ++j)
+                for (int j = 0; j < boneCount; ++j)
                 {
-                    var weight = m_DataOutTemp[i, j];
-                    var boneIndex = weight > 0f ? j : 0;
+                    float weight = m_DataOutTemp[i, j];
+                    int boneIndex = weight > 0f ? j : 0;
                     s_BoneWeight.AddChannel(boneIndex, weight, weight > 0);
                 }
 
@@ -83,7 +83,7 @@ namespace UnityEditor.U2D.Animation
 
             for (int i = 0; i < rowLength; ++i)
             {
-                var dInv = 1f / Mathf.Max(1f, m_DenominatorTemp[i]);
+                float dInv = 1f / Mathf.Max(1f, m_DenominatorTemp[i]);
                 for (int j = 0; j < colLength; ++j)
                     dataOut[i, j] *= dInv;
             }

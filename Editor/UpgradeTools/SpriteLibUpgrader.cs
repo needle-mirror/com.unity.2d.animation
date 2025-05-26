@@ -1,14 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor.SceneManagement;
 using UnityEditor.U2D.Sprites;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.U2D.Animation;
-
 using Object = UnityEngine.Object;
 
 namespace UnityEditor.U2D.Animation.Upgrading
@@ -49,25 +48,25 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         static Dictionary<Type, List<FieldInfo>> GetSpriteLibReferenceLookup()
         {
-            var result = new Dictionary<Type, List<FieldInfo>>();
+            Dictionary<Type, List<FieldInfo>> result = new Dictionary<Type, List<FieldInfo>>();
 
-            var allObjectsWithSpriteLibProperties = TypeCache
+            IEnumerable<Type> allObjectsWithSpriteLibProperties = TypeCache
                 .GetTypesDerivedFrom<Component>()
                 .Where(type => type
                     .GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                     .Any(HasSpriteLibField));
 
-            foreach (var property in allObjectsWithSpriteLibProperties)
+            foreach (Type property in allObjectsWithSpriteLibProperties)
             {
                 if (!result.ContainsKey(property))
                     result.Add(property, new List<FieldInfo>());
 
-                var libraryFields = property
+                List<FieldInfo> libraryFields = property
                     .GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                     .Where(HasSpriteLibField)
                     .ToList();
 
-                foreach (var field in libraryFields)
+                foreach (FieldInfo field in libraryFields)
                 {
                     result[property].Add(field);
                 }
@@ -86,8 +85,8 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         internal override List<Object> GetUpgradableAssets()
         {
-            var rootFolder = m_OnlySearchInAssets ? new[] { "Assets" } : null;
-            var assetPaths = AssetDatabase.FindAssets(k_SpriteLibTypeId, rootFolder)
+            string[] rootFolder = m_OnlySearchInAssets ? new[] { "Assets" } : null;
+            string[] assetPaths = AssetDatabase.FindAssets(k_SpriteLibTypeId, rootFolder)
                 .Select(AssetDatabase.GUIDToAssetPath).ToArray();
 
             if (m_OnlyFindOldAssets)
@@ -97,7 +96,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                     .ToArray();
             }
 
-            var assets = assetPaths
+            List<Object> assets = assetPaths
                 .Select(AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>)
                 .Cast<Object>()
                 .ToList();
@@ -108,11 +107,11 @@ namespace UnityEditor.U2D.Animation.Upgrading
         {
             EditorUtility.DisplayProgressBar(Contents.ProgressBarTitle, Contents.VerifyingSelection, 0f);
 
-            var entries = new List<UpgradeEntry>();
+            List<UpgradeEntry> entries = new List<UpgradeEntry>();
 
-            var libraryIndexPairs = new Dictionary<int, SpriteLibraryAsset>();
+            Dictionary<int, SpriteLibraryAsset> libraryIndexPairs = new Dictionary<int, SpriteLibraryAsset>();
             string msg;
-            foreach (var obj in objects)
+            foreach (ObjectIndexPair obj in objects)
             {
                 if (obj.Target == null)
                 {
@@ -145,19 +144,19 @@ namespace UnityEditor.U2D.Animation.Upgrading
                     });
                 }
             }
-            var oldLibraries = libraryIndexPairs.Values.ToList();
+            List<SpriteLibraryAsset> oldLibraries = libraryIndexPairs.Values.ToList();
 
             EditorUtility.DisplayProgressBar(Contents.ProgressBarTitle, Contents.CreatingNewLibraries, 0.2f);
             m_Logger.AddLineBreak();
             m_Logger.Add(Contents.CreatingNewLibraries);
-            var newSourceAssetPaths = CreateNewAssetLibraries(libraryIndexPairs);
+            List<(int, string)> newSourceAssetPaths = CreateNewAssetLibraries(libraryIndexPairs);
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-            var newLibraries = LoadNewLibraries(newSourceAssetPaths);
+            List<SpriteLibraryAsset> newLibraries = LoadNewLibraries(newSourceAssetPaths);
 
             EditorUtility.DisplayProgressBar(Contents.ProgressBarTitle, Contents.ReassignAssetsInComponents, 0.4f);
             m_Logger.AddLineBreak();
             m_Logger.Add(Contents.ReassignAssetsInComponents);
-            var assetPaths = GetAllAssetPaths(libraryIndexPairs);
+            string[] assetPaths = GetAllAssetPaths(libraryIndexPairs);
             if (assetPaths.Length > 0)
                 ReassignAssets(assetPaths, oldLibraries, newLibraries);
 
@@ -167,7 +166,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
             RemoveOldLibraries(oldLibraries);
             AssetDatabase.Refresh();
 
-            for (var i = 0; i < newLibraries.Count; ++i)
+            for (int i = 0; i < newLibraries.Count; ++i)
             {
                 UpgradeResult result;
                 if (m_IndicesWithAssetBundleConnection.Contains(newSourceAssetPaths[i].Item1))
@@ -196,7 +195,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
             if (m_AssetBundlesNeedingUpgrade.Count > 0)
                 AddAssetBundlesToLog();
 
-            var report = new UpgradeReport()
+            UpgradeReport report = new UpgradeReport()
             {
                 UpgradeEntries = entries,
                 Log = m_Logger.GetLog()
@@ -209,14 +208,14 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         static string[] GetAllAssetPaths(Dictionary<int, SpriteLibraryAsset> spriteLibraries)
         {
-            var ids = new List<string>();
-            foreach(var lib in spriteLibraries.Values)
+            List<string> ids = new List<string>();
+            foreach (SpriteLibraryAsset lib in spriteLibraries.Values)
                 ids.Add(GetObjectIDString(lib));
-            var spriteLibIds = ids.ToArray();
+            string[] spriteLibIds = ids.ToArray();
 
-            var assetPaths = new List<string>();
-            var allAssetPaths = AssetDatabase.GetAllAssetPaths();
-            foreach (var path in allAssetPaths)
+            List<string> assetPaths = new List<string>();
+            string[] allAssetPaths = AssetDatabase.GetAllAssetPaths();
+            foreach (string path in allAssetPaths)
             {
                 if (!IsPrefabOrScenePath(path, spriteLibIds))
                     continue;
@@ -253,12 +252,12 @@ namespace UnityEditor.U2D.Animation.Upgrading
         {
             if (strings != null && strings.Length > 0)
             {
-                using (var file = File.OpenText(path))
+                using (StreamReader file = File.OpenText(path))
                 {
                     string line;
                     while ((line = file.ReadLine()) != null)
                     {
-                        for (var i = 0; i < strings.Length; i++)
+                        for (int i = 0; i < strings.Length; i++)
                         {
                             if (line.Contains(strings[i]))
                                 return true;
@@ -272,22 +271,22 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         List<(int, string)> CreateNewAssetLibraries(Dictionary<int, SpriteLibraryAsset> spriteLibraries)
         {
-            var newLibraryPaths = new List<(int, string)>();
-            foreach (var pair in spriteLibraries)
+            List<(int, string)> newLibraryPaths = new List<(int, string)>();
+            foreach (KeyValuePair<int, SpriteLibraryAsset> pair in spriteLibraries)
             {
-                var sourceAsset = pair.Value;
+                SpriteLibraryAsset sourceAsset = pair.Value;
 
-                var path = AssetDatabase.GetAssetPath(sourceAsset);
-                var currentAssetPath = Path.GetDirectoryName(path);
-                var fileName = Path.GetFileNameWithoutExtension(path);
-                var convertFileName = fileName + SpriteLibrarySourceAsset.extension;
+                string path = AssetDatabase.GetAssetPath(sourceAsset);
+                string currentAssetPath = Path.GetDirectoryName(path);
+                string fileName = Path.GetFileNameWithoutExtension(path);
+                string convertFileName = fileName + SpriteLibrarySourceAsset.extension;
                 convertFileName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(currentAssetPath, convertFileName));
 
-                var destAsset = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();
+                SpriteLibrarySourceAsset destAsset = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();
                 destAsset.SetLibrary(new List<SpriteLibCategoryOverride>(sourceAsset.categories.Count));
-                foreach (var sourceCat in sourceAsset.categories)
+                foreach (SpriteLibCategory sourceCat in sourceAsset.categories)
                 {
-                    var destCat = new SpriteLibCategoryOverride()
+                    SpriteLibCategoryOverride destCat = new SpriteLibCategoryOverride()
                     {
                         overrideEntries = new List<SpriteCategoryEntryOverride>(sourceCat.categoryList.Count),
                         name = sourceCat.name,
@@ -295,7 +294,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                         fromMain = false
                     };
                     destAsset.AddCategory(destCat);
-                    foreach (var entry in sourceCat.categoryList)
+                    foreach (SpriteCategoryEntry entry in sourceCat.categoryList)
                     {
                         destCat.overrideEntries.Add(new SpriteCategoryEntryOverride()
                         {
@@ -307,7 +306,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                     }
                 }
 
-                var assetBundle = AssetDatabase.GetImplicitAssetBundleName(path);
+                string assetBundle = AssetDatabase.GetImplicitAssetBundleName(path);
                 if (!string.IsNullOrEmpty(assetBundle))
                 {
                     m_AssetBundlesNeedingUpgrade.Add(assetBundle);
@@ -325,10 +324,10 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         static List<SpriteLibraryAsset> LoadNewLibraries(List<(int, string)> sourceAssetPaths)
         {
-            var newLibraries = new List<SpriteLibraryAsset>();
-            foreach (var path in sourceAssetPaths)
+            List<SpriteLibraryAsset> newLibraries = new List<SpriteLibraryAsset>();
+            foreach ((int, string) path in sourceAssetPaths)
             {
-                var newLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(path.Item2);
+                SpriteLibraryAsset newLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(path.Item2);
                 newLibraries.Add(newLibraryAsset);
             }
 
@@ -337,17 +336,17 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void ReassignAssets(string[] assetPaths, List<SpriteLibraryAsset> oldLibraries, List<SpriteLibraryAsset> newLibraries)
         {
-            var index = 0;
-            foreach (var assetPath in assetPaths)
+            int index = 0;
+            foreach (string assetPath in assetPaths)
             {
                 m_Logger.Add($"Scanning {assetPath} for components with SpriteLibraryAsset references in need of reassignment.");
-                var ext = Path.GetExtension(assetPath);
+                string ext = Path.GetExtension(assetPath);
                 if (ext == ".prefab")
                     UpgradePrefab(assetPath, oldLibraries, newLibraries, UpgradeGameObject);
                 else if (ext == ".unity")
                     UpgradeScene(assetPath, oldLibraries, newLibraries, UpgradeGameObject);
 
-                var assetBundle = AssetDatabase.GetImplicitAssetBundleName(assetPath);
+                string assetBundle = AssetDatabase.GetImplicitAssetBundleName(assetPath);
                 if (!string.IsNullOrEmpty(assetBundle))
                 {
                     m_AssetBundlesNeedingUpgrade.Add(assetBundle);
@@ -361,10 +360,10 @@ namespace UnityEditor.U2D.Animation.Upgrading
         static void UpgradePrefab(string path, List<SpriteLibraryAsset> oldLibraries, List<SpriteLibraryAsset> newLibraries,
             Action<GameObject, List<SpriteLibraryAsset>, List<SpriteLibraryAsset>> objectUpgrader)
         {
-            var objects = AssetDatabase.LoadAllAssetsAtPath(path);
+            Object[] objects = AssetDatabase.LoadAllAssetsAtPath(path);
 
-            var firstIndex = 0;
-            for (var i = 0; i < objects.Length; i++)
+            int firstIndex = 0;
+            for (int i = 0; i < objects.Length; i++)
             {
                 if (objects[i] as GameObject)
                 {
@@ -375,16 +374,16 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
             if (!PrefabUtility.IsPartOfImmutablePrefab(objects[firstIndex]))
             {
-                foreach (var obj in objects)
+                foreach (Object obj in objects)
                 {
-                    var go = obj as GameObject;
+                    GameObject go = obj as GameObject;
                     if (go != null)
                     {
                         objectUpgrader(go, oldLibraries, newLibraries);
                     }
                 }
 
-                var asset = objects[firstIndex] as GameObject;
+                GameObject asset = objects[firstIndex] as GameObject;
                 PrefabUtility.SavePrefabAsset(asset.transform.root.gameObject);
             }
         }
@@ -392,9 +391,9 @@ namespace UnityEditor.U2D.Animation.Upgrading
         static void UpgradeScene(string path, List<SpriteLibraryAsset> oldLibraries, List<SpriteLibraryAsset> newLibraries,
             Action<GameObject, List<SpriteLibraryAsset>, List<SpriteLibraryAsset>> objectUpgrader)
         {
-            var scene = default(Scene);
-            var openedByUser = false;
-            for (var i = 0; i < SceneManager.sceneCount && !openedByUser; i++)
+            Scene scene = default(Scene);
+            bool openedByUser = false;
+            for (int i = 0; i < SceneManager.sceneCount && !openedByUser; i++)
             {
                 scene = SceneManager.GetSceneAt(i);
                 if (path == scene.path)
@@ -404,8 +403,8 @@ namespace UnityEditor.U2D.Animation.Upgrading
             if (!openedByUser)
                 scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Additive);
 
-            var gameObjects = scene.GetRootGameObjects();
-            foreach (var go in gameObjects)
+            GameObject[] gameObjects = scene.GetRootGameObjects();
+            foreach (GameObject go in gameObjects)
                 objectUpgrader(go, oldLibraries, newLibraries);
 
             EditorSceneManager.SaveScene(scene);
@@ -415,22 +414,22 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void UpgradeGameObject(GameObject go, List<SpriteLibraryAsset> oldLibraries, List<SpriteLibraryAsset> newLibraries)
         {
-            var types = k_SpriteLibraryReferenceLookup.Keys;
-            foreach (var referenceType in types)
+            Dictionary<Type, List<FieldInfo>>.KeyCollection types = k_SpriteLibraryReferenceLookup.Keys;
+            foreach (Type referenceType in types)
             {
-                var components = go.GetComponentsInChildren(referenceType);
-                foreach (var component in components)
+                Component[] components = go.GetComponentsInChildren(referenceType);
+                foreach (Component component in components)
                 {
                     if (PrefabUtility.IsPartOfPrefabInstance(component))
                         continue;
 
-                    var fieldInfos = k_SpriteLibraryReferenceLookup[referenceType];
-                    foreach (var field in fieldInfos)
+                    List<FieldInfo> fieldInfos = k_SpriteLibraryReferenceLookup[referenceType];
+                    foreach (FieldInfo field in fieldInfos)
                     {
-                        var asset = field.GetValue(component);
+                        object asset = field.GetValue(component);
                         if (asset is SpriteLibraryAsset spriteLibAsset)
                         {
-                            var index = oldLibraries.FindIndex(x => x.GetHashCode() == spriteLibAsset.GetHashCode());
+                            int index = oldLibraries.FindIndex(x => x.GetHashCode() == spriteLibAsset.GetHashCode());
                             if (index == -1)
                                 continue;
 
@@ -439,9 +438,9 @@ namespace UnityEditor.U2D.Animation.Upgrading
                         }
                         else if (asset is SpriteLibraryAsset[] spriteLibArray)
                         {
-                            for (var i = 0; i < spriteLibArray.Length; ++i)
+                            for (int i = 0; i < spriteLibArray.Length; ++i)
                             {
-                                var index = oldLibraries.FindIndex(x => x.GetHashCode() == spriteLibArray[i].GetHashCode());
+                                int index = oldLibraries.FindIndex(x => x.GetHashCode() == spriteLibArray[i].GetHashCode());
                                 if (index == -1)
                                     continue;
 
@@ -453,9 +452,9 @@ namespace UnityEditor.U2D.Animation.Upgrading
                         }
                         else if (asset is List<SpriteLibraryAsset> spriteLibList)
                         {
-                            for (var i = 0; i < spriteLibList.Count; ++i)
+                            for (int i = 0; i < spriteLibList.Count; ++i)
                             {
-                                var index = oldLibraries.FindIndex(x => x.GetHashCode() == spriteLibList[i].GetHashCode());
+                                int index = oldLibraries.FindIndex(x => x.GetHashCode() == spriteLibList[i].GetHashCode());
                                 if (index == -1)
                                     continue;
 
@@ -472,10 +471,10 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         void RemoveOldLibraries(List<SpriteLibraryAsset> oldLibraries)
         {
-            foreach (var library in oldLibraries)
+            foreach (SpriteLibraryAsset library in oldLibraries)
             {
-                var path = AssetDatabase.GetAssetPath(library);
-                var isPsbFile = UpgradeUtilities.IsPsbImportedFile(path);
+                string path = AssetDatabase.GetAssetPath(library);
+                bool isPsbFile = UpgradeUtilities.IsPsbImportedFile(path);
                 if (!string.IsNullOrEmpty(path) && !isPsbFile)
                 {
                     m_Logger.Add($"Deleting {path} from project");
@@ -487,11 +486,11 @@ namespace UnityEditor.U2D.Animation.Upgrading
         // Leaving this in if we want to cleanup .psbs in the future
         void RemoveSpriteLibFromPsb(string path)
         {
-            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
 
-            var factory = new SpriteDataProviderFactories();
+            SpriteDataProviderFactories factory = new SpriteDataProviderFactories();
             factory.Init();
-            var dataProvider = factory.GetSpriteEditorDataProviderFromObject(texture);
+            ISpriteEditorDataProvider dataProvider = factory.GetSpriteEditorDataProviderFromObject(texture);
             dataProvider.InitSpriteEditorDataProvider();
             if (dataProvider.targetObject == null)
             {
@@ -499,8 +498,8 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 return;
             }
 
-            var so = new SerializedObject(dataProvider.targetObject);
-            var property = so.FindProperty(k_PsbImporterCategoriesId);
+            SerializedObject so = new SerializedObject(dataProvider.targetObject);
+            SerializedProperty property = so.FindProperty(k_PsbImporterCategoriesId);
             if (property != null && property.isArray)
             {
                 property.arraySize = 0;
@@ -508,7 +507,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 dataProvider.Apply();
                 m_Logger.Add($"Removed the Sprite Library asset inside {path}");
 
-                var assetImporter = dataProvider.targetObject as AssetImporter;
+                AssetImporter assetImporter = dataProvider.targetObject as AssetImporter;
                 assetImporter.SaveAndReimport();
                 m_Logger.Add($"Saved and re-imported the file.");
             }
@@ -522,7 +521,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
         {
             m_Logger.AddLineBreak();
             m_Logger.Add("[NOTE] The following AssetBundles need to be rebuilt:");
-            foreach(var assetBundle in m_AssetBundlesNeedingUpgrade)
+            foreach (string assetBundle in m_AssetBundlesNeedingUpgrade)
                 m_Logger.Add(assetBundle);
         }
     }

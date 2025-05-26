@@ -14,7 +14,7 @@ namespace UnityEngine.U2D.Animation
                 canDispose = false;
             }
 
-            if(!canDispose)
+            if (!canDispose)
                 nativeArray = new NativeArray<T>(size, allocator);
         }
 
@@ -24,7 +24,7 @@ namespace UnityEngine.U2D.Animation
             if (canDispose && nativeArray.Length == size)
                 return;
 
-            var newArray = new NativeArray<T>(size, allocator);
+            NativeArray<T> newArray = new NativeArray<T>(size, allocator);
             if (canDispose)
             {
                 NativeArray<T>.Copy(nativeArray, newArray, size < nativeArray.Length ? size : nativeArray.Length);
@@ -45,8 +45,8 @@ namespace UnityEngine.U2D.Animation
             if ((dstEndIndex - dstStartIndex) != (srcEndIndex - srcStartIndex))
                 throw new System.ArgumentException($"Destination and Source copy counts must match.", nameof(slice));
 
-            var dstSizeOf = UnsafeUtility.SizeOf<T>();
-            var srcSizeOf = UnsafeUtility.SizeOf<T>();
+            int dstSizeOf = UnsafeUtility.SizeOf<T>();
+            int srcSizeOf = UnsafeUtility.SizeOf<T>();
 
             byte* srcPtr = (byte*)slice.GetUnsafeReadOnlyPtr();
             srcPtr = srcPtr + (srcStartIndex * srcSizeOf);

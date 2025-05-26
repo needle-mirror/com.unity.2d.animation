@@ -94,7 +94,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (skeleton != null)
             {
-                foreach (var bone in skeleton.bones)
+                foreach (BoneCache bone in skeleton.bones)
                     bone.isVisible = visibility;
             }
         }
@@ -118,7 +118,7 @@ namespace UnityEditor.U2D.Animation
 
         public void SetDepth(BoneCache bone, int depth)
         {
-            var characterBone = bone.ToCharacterIfNeeded();
+            BoneCache characterBone = bone.ToCharacterIfNeeded();
             characterBone.depth = depth;
 
             if (characterBone != bone || skinningCache.mode == SkinningMode.Character)
@@ -129,7 +129,7 @@ namespace UnityEditor.U2D.Animation
 
         public void SetBoneColor(BoneCache bone, Color color)
         {
-            var characterBone = bone.ToCharacterIfNeeded();
+            BoneCache characterBone = bone.ToCharacterIfNeeded();
             characterBone.bindPoseColor = color;
 
             if (characterBone != bone || skinningCache.mode == SkinningMode.Character)
@@ -140,7 +140,7 @@ namespace UnityEditor.U2D.Animation
 
         public void SetName(BoneCache bone, string name)
         {
-            var characterBone = bone.ToCharacterIfNeeded();
+            BoneCache characterBone = bone.ToCharacterIfNeeded();
             characterBone.name = name;
             if (characterBone != bone || skinningCache.mode == SkinningMode.Character)
             {

@@ -8,7 +8,7 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(skeleton != null);
 
-            foreach (var bone in bones)
+            foreach (BoneCache bone in bones)
             {
                 Debug.Assert(bone != null);
                 Debug.Assert(skeleton.Contains(bone));
@@ -21,7 +21,7 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(skeleton != null);
 
-            foreach (var bone in bones)
+            foreach (BoneCache bone in bones)
             {
                 Debug.Assert(bone != null);
                 Debug.Assert(skeleton.Contains(bone));
@@ -37,12 +37,12 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(skeleton != null);
 
-            foreach (var bone in bones)
+            foreach (BoneCache bone in bones)
             {
                 Debug.Assert(bone != null);
                 Debug.Assert(skeleton.Contains(bone));
 
-                var childrenWorldPose = bone.GetChildrenWoldPose();
+                Pose[] childrenWorldPose = bone.GetChildrenWoldPose();
 
                 if (bone.chainedChild != null && ArrayUtility.Contains(bones, bone.chainedChild) == false)
                     bone.chainedChild = null;
@@ -60,13 +60,13 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(skeleton != null);
 
-            foreach (var bone in bones)
+            foreach (BoneCache bone in bones)
             {
                 Debug.Assert(bone != null);
                 Debug.Assert(skeleton.Contains(bone));
 
-                var childrenWorldPose = bone.GetChildrenWoldPose();
-                var endPosition = bone.endPosition;
+                Pose[] childrenWorldPose = bone.GetChildrenWoldPose();
+                Vector3 endPosition = bone.endPosition;
 
                 bone.position += deltaPosition;
 
@@ -89,7 +89,7 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(bone != null);
             Debug.Assert(skeleton.Contains(bone));
 
-            var childrenStorage = bone.GetChildrenWoldPose();
+            Pose[] childrenStorage = bone.GetChildrenWoldPose();
             bone.endPosition = endPosition;
             bone.SetChildrenWorldPose(childrenStorage);
         }
@@ -99,13 +99,13 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(skeleton.Contains(boneToSplit));
             Debug.Assert(boneToSplit.length > splitLength);
 
-            var endPosition = boneToSplit.endPosition;
-            var chainedChild = boneToSplit.chainedChild;
-            var splitPosition = boneToSplit.position + boneToSplit.right * splitLength;
+            Vector3 endPosition = boneToSplit.endPosition;
+            BoneCache chainedChild = boneToSplit.chainedChild;
+            Vector3 splitPosition = boneToSplit.position + boneToSplit.right * splitLength;
 
             boneToSplit.length = splitLength;
 
-            var bone = skeleton.CreateBone(boneToSplit, splitPosition, endPosition, true, name);
+            BoneCache bone = skeleton.CreateBone(boneToSplit, splitPosition, endPosition, true, name);
 
             if (chainedChild != null)
             {
@@ -123,7 +123,7 @@ namespace UnityEditor.U2D.Animation
             if (parentBone != null)
                 Debug.Assert(skeleton.Contains(parentBone));
 
-            var bone = skeleton.skinningCache.CreateCache<BoneCache>();
+            BoneCache bone = skeleton.skinningCache.CreateCache<BoneCache>();
 
             bone.SetParent(parentBone);
             bone.name = name;
@@ -159,7 +159,7 @@ namespace UnityEditor.U2D.Animation
 
         public static void AddBones(this SkeletonCache skeleton, BoneCache[] bones, bool worldPositionStays)
         {
-            foreach (var bone in bones)
+            foreach (BoneCache bone in bones)
                 skeleton.AddBone(bone, worldPositionStays);
         }
 
@@ -167,7 +167,7 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(skeleton != null);
 
-            foreach (var bone in bones)
+            foreach (BoneCache bone in bones)
             {
                 Debug.Assert(bone != null);
                 Debug.Assert(skeleton.Contains(bone));

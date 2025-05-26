@@ -1,6 +1,6 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -39,9 +39,9 @@ namespace UnityEditor.U2D.Animation
             while (editableBoneWeight.Count < 4)
                 editableBoneWeight.AddChannel(0, 0f, false);
 
-            for (var i = 0; i < 4; ++i)
+            for (int i = 0; i < 4; ++i)
             {
-                var weight = boneWeight.GetWeight(i);
+                float weight = boneWeight.GetWeight(i);
                 editableBoneWeight[i].boneIndex = boneWeight.GetBoneIndex(i);
                 editableBoneWeight[i].weight = weight;
                 editableBoneWeight[i].enabled = weight > 0f;
@@ -50,14 +50,14 @@ namespace UnityEditor.U2D.Animation
 
         public static BoneWeight ToBoneWeight(this EditableBoneWeight editableBoneWeight, bool sortByWeight)
         {
-            var boneWeight = new BoneWeight();
+            BoneWeight boneWeight = new BoneWeight();
 
             if (editableBoneWeight.Count > 0)
             {
                 s_BoneWeightDataList.Clear();
                 s_BoneWeightDataList.Capacity = editableBoneWeight.Count;
 
-                for (var i = 0; i < editableBoneWeight.Count; ++i)
+                for (int i = 0; i < editableBoneWeight.Count; ++i)
                 {
                     s_BoneWeightDataList.Add(new BoneWeightData()
                     {
@@ -69,9 +69,9 @@ namespace UnityEditor.U2D.Animation
                 if (sortByWeight)
                     s_BoneWeightDataList.Sort();
 
-                var count = Mathf.Min(editableBoneWeight.Count, 4);
+                int count = Mathf.Min(editableBoneWeight.Count, 4);
 
-                for (var i = 0; i < count; ++i)
+                for (int i = 0; i < count; ++i)
                 {
                     BoneWeightExtensions.SetBoneIndex(ref boneWeight, i, s_BoneWeightDataList[i].boneIndex);
                     BoneWeightExtensions.SetWeight(ref boneWeight, i, s_BoneWeightDataList[i].weight);
@@ -108,7 +108,7 @@ namespace UnityEditor.U2D.Animation
         {
             for (int i = 0; i < editableBoneWeight.Count; ++i)
             {
-                var weight = editableBoneWeight[i].weight;
+                float weight = editableBoneWeight[i].weight;
 
                 if (!editableBoneWeight[i].enabled)
                     weight = 0f;
@@ -120,9 +120,9 @@ namespace UnityEditor.U2D.Animation
 
         public static float Sum(this EditableBoneWeight editableBoneWeight)
         {
-            var sum = 0f;
+            float sum = 0f;
 
-            for (var i = 0; i < editableBoneWeight.Count; ++i)
+            for (int i = 0; i < editableBoneWeight.Count; ++i)
                 if (editableBoneWeight[i].enabled)
                     sum += editableBoneWeight[i].weight;
 
@@ -133,14 +133,14 @@ namespace UnityEditor.U2D.Animation
         {
             ValidateChannels(editableBoneWeight);
 
-            var sum = editableBoneWeight.Sum();
+            float sum = editableBoneWeight.Sum();
 
             if (sum == 0f || sum == 1f)
                 return;
 
-            var sumInv = 1f / sum;
+            float sumInv = 1f / sum;
 
-            for (var i = 0; i < editableBoneWeight.Count; ++i)
+            for (int i = 0; i < editableBoneWeight.Count; ++i)
                 if (editableBoneWeight[i].enabled)
                     editableBoneWeight[i].weight *= sumInv;
         }
@@ -149,8 +149,8 @@ namespace UnityEditor.U2D.Animation
         {
             ValidateChannels(editableBoneWeight);
 
-            var validChannelCount = 0;
-            var sum = 0f;
+            int validChannelCount = 0;
+            float sum = 0f;
 
             for (int i = 0; i < editableBoneWeight.Count; ++i)
             {
@@ -164,9 +164,9 @@ namespace UnityEditor.U2D.Animation
             if (validChannelCount == 0)
                 return;
 
-            var targetSum = 1f - editableBoneWeight[masterChannel].weight;
+            float targetSum = 1f - editableBoneWeight[masterChannel].weight;
 
-            for (var i = 0; i < editableBoneWeight.Count; ++i)
+            for (int i = 0; i < editableBoneWeight.Count; ++i)
             {
                 if (i != masterChannel && editableBoneWeight[i].enabled)
                 {
@@ -180,14 +180,14 @@ namespace UnityEditor.U2D.Animation
 
         public static void UnifyChannelsWithSameBoneIndex(this EditableBoneWeight editableBoneWeight)
         {
-            for (var i = 0; i < editableBoneWeight.Count; ++i)
+            for (int i = 0; i < editableBoneWeight.Count; ++i)
             {
                 if (!editableBoneWeight[i].enabled)
                     continue;
 
                 bool weightChanged = false;
 
-                for (var j = i + 1; j < editableBoneWeight.Count; ++j)
+                for (int j = i + 1; j < editableBoneWeight.Count; ++j)
                 {
                     if (editableBoneWeight[j].boneIndex == editableBoneWeight[i].boneIndex)
                     {
@@ -204,7 +204,7 @@ namespace UnityEditor.U2D.Animation
 
         public static void FilterChannels(this EditableBoneWeight editableBoneWeight, float weightTolerance)
         {
-            for (var i = 0; i < editableBoneWeight.Count; ++i)
+            for (int i = 0; i < editableBoneWeight.Count; ++i)
             {
                 if (editableBoneWeight[i].weight <= weightTolerance)
                 {
@@ -233,7 +233,7 @@ namespace UnityEditor.U2D.Animation
                 if (!channel.enabled)
                     continue;
 
-                var weight = channel.weight * (1f - t);
+                float weight = channel.weight * (1f - t);
 
                 if (weight > 0f)
                     result.AddChannel(channel.boneIndex, weight, true);
@@ -244,7 +244,7 @@ namespace UnityEditor.U2D.Animation
                 if (!channel.enabled)
                     continue;
 
-                var weight = channel.weight * t;
+                float weight = channel.weight * t;
 
                 if (weight > 0f)
                     result.AddChannel(channel.boneIndex, weight, true);

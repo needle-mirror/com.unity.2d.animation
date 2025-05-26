@@ -17,7 +17,7 @@ namespace UnityEditor.U2D.Layout
                 button.text = text;
             if (!String.IsNullOrEmpty(imageResourcePath))
             {
-                var texture = ResourceLoader.Load<Texture>(imageResourcePath);
+                Texture texture = ResourceLoader.Load<Texture>(imageResourcePath);
                 if (texture != null)
                 {
                     Image image = new Image();

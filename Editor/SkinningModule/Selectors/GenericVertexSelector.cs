@@ -15,7 +15,7 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(spriteMeshData != null);
             Debug.Assert(SelectionCallback != null);
 
-            for (var i = 0; i < spriteMeshData.vertexCount; i++)
+            for (int i = 0; i < spriteMeshData.vertexCount; i++)
                 selection.Select(i, SelectionCallback(i));
         }
     }

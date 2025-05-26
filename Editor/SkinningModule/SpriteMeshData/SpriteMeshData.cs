@@ -57,11 +57,11 @@ namespace UnityEditor.U2D.Animation
 
         void UpdateOutlineEdges()
         {
-            var indicesNativeArr = new NativeArray<ushort>(m_Indices.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-            for (var i = 0; i < indicesNativeArr.Length; ++i)
+            NativeArray<ushort> indicesNativeArr = new NativeArray<ushort>(m_Indices.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            for (int i = 0; i < indicesNativeArr.Length; ++i)
                 indicesNativeArr[i] = (ushort)m_Indices[i];
 
-            var outlineNativeArr = MeshUtilities.GetOutlineEdges(indicesNativeArr);
+            NativeArray<int2> outlineNativeArr = MeshUtilities.GetOutlineEdges(indicesNativeArr);
             m_OutlineEdges = outlineNativeArr.Length > 0 ? outlineNativeArr.ToArray() : new int2[0];
 
             outlineNativeArr.Dispose();
@@ -104,11 +104,11 @@ namespace UnityEditor.U2D.Animation
         {
             ClearVertexPositionOverride();
 
-            var listOfVertices = new List<Vector2>(m_Vertices);
+            List<Vector2> listOfVertices = new List<Vector2>(m_Vertices);
             listOfVertices.Add(position);
             m_Vertices = listOfVertices.ToArray();
 
-            var listOfWeights = new List<EditableBoneWeight>(m_VertexWeights);
+            List<EditableBoneWeight> listOfWeights = new List<EditableBoneWeight>(m_VertexWeights);
             listOfWeights.Add(EditableBoneWeightUtility.CreateFromBoneWeight(weight));
             m_VertexWeights = listOfWeights.ToArray();
         }
@@ -117,11 +117,11 @@ namespace UnityEditor.U2D.Animation
         {
             ClearVertexPositionOverride();
 
-            var listOfVertices = new List<Vector2>(m_Vertices);
+            List<Vector2> listOfVertices = new List<Vector2>(m_Vertices);
             listOfVertices.RemoveAt(index);
             m_Vertices = listOfVertices.ToArray();
 
-            var listOfWeights = new List<EditableBoneWeight>(m_VertexWeights);
+            List<EditableBoneWeight> listOfWeights = new List<EditableBoneWeight>(m_VertexWeights);
             listOfWeights.RemoveAt(index);
             m_VertexWeights = listOfWeights.ToArray();
         }

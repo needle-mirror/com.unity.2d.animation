@@ -47,7 +47,7 @@ namespace UnityEditor.U2D.Animation
 
         private SkeletonMode OverrideMode()
         {
-            var modeOverride = mode;
+            SkeletonMode modeOverride = mode;
 
             //Disable SkeletonManipulation if character exists and we are in SpriteSheet mode
             if (skinningCache.mode == SkinningMode.SpriteSheet && skinningCache.hasCharacter && editBindPose)

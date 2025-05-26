@@ -111,8 +111,8 @@ namespace UnityEditor.U2D.Animation
         }
         public static BoneInspectorPanel GenerateFromUXML()
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/BoneInspectorPanel.uxml");
-            var clone = visualTree.CloneTree().Q<BoneInspectorPanel>("BoneInspectorPanel");
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/BoneInspectorPanel.uxml");
+            BoneInspectorPanel clone = visualTree.CloneTree().Q<BoneInspectorPanel>("BoneInspectorPanel");
             clone.LocalizeTextInChildren();
             clone.BindElements();
             return clone;

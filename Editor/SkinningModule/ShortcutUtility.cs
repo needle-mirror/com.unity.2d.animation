@@ -1,5 +1,5 @@
-using UnityEngine.UIElements;
 using UnityEditor.ShortcutManagement;
+using UnityEngine.UIElements;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -48,7 +48,7 @@ namespace UnityEditor.U2D.Animation
 
         private void OnBindingChanged(ShortcutBindingChangedEventArgs args)
         {
-            foreach (var id in m_ShortcutIds)
+            foreach (string id in m_ShortcutIds)
             {
                 if (args.shortcutId == id)
                 {
@@ -65,9 +65,9 @@ namespace UnityEditor.U2D.Animation
 
         public void AddShortcutToButtonTooltip(VisualElement rootElement, string buttonName, string shortcutBindingId)
         {
-            var button = rootElement.Q<Button>(buttonName);
-            var binding = ShortcutManager.instance.GetShortcutBinding(shortcutBindingId);
-            var bindingString = binding.ToString();
+            Button button = rootElement.Q<Button>(buttonName);
+            ShortcutBinding binding = ShortcutManager.instance.GetShortcutBinding(shortcutBindingId);
+            string bindingString = binding.ToString();
 
             if (!string.IsNullOrEmpty(bindingString))
                 button.tooltip += $" ({bindingString})";

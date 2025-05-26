@@ -22,7 +22,7 @@ namespace UnityEditor.U2D.Animation
 
         protected static Toolbar GetClone(string uxmlPath, string toolbarId)
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>(uxmlPath);
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>(uxmlPath);
             return visualTree.CloneTree().Q<Toolbar>(toolbarId);
         }
 
@@ -36,7 +36,7 @@ namespace UnityEditor.U2D.Animation
 
         public void SetButtonChecked(Button toCheck)
         {
-            var buttons = this.Query<Button>();
+            UQueryBuilder<Button> buttons = this.Query<Button>();
             buttons.ForEach((button) => { button.SetChecked(button == toCheck); });
         }
 
@@ -66,12 +66,12 @@ namespace UnityEditor.U2D.Animation
 
         protected void RestoreButtonTooltips(string uxmlPath, string toolbarId)
         {
-            var clone = GetClone(uxmlPath, toolbarId);
-            var clonedButtons = clone.Query<Button>().ToList();
-            var originalButtons = this.Query<Button>().ToList();
+            Toolbar clone = GetClone(uxmlPath, toolbarId);
+            System.Collections.Generic.List<Button> clonedButtons = clone.Query<Button>().ToList();
+            System.Collections.Generic.List<Button> originalButtons = this.Query<Button>().ToList();
 
             Assert.AreEqual(originalButtons.Count, clonedButtons.Count);
-            for (var i = 0; i < clonedButtons.Count; ++i)
+            for (int i = 0; i < clonedButtons.Count; ++i)
             {
                 originalButtons[i].tooltip = clonedButtons[i].tooltip;
                 originalButtons[i].LocalizeTextInChildren();

@@ -63,7 +63,7 @@ namespace UnityEditor.U2D.Animation
             m_FlipXToggle = this.Q<Toggle>("FlipXField");
             m_FlipYToggle = this.Q<Toggle>("FlipYField");
 
-            var pasteButton = this.Q<Button>("PasteButton");
+            Button pasteButton = this.Q<Button>("PasteButton");
             pasteButton.clickable.clicked += OnPasteActivated;
         }
 
@@ -79,8 +79,8 @@ namespace UnityEditor.U2D.Animation
 
         public static PastePanel GenerateFromUXML()
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/PastePanel.uxml");
-            var clone = visualTree.CloneTree().Q<PastePanel>("PastePanel");
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/PastePanel.uxml");
+            PastePanel clone = visualTree.CloneTree().Q<PastePanel>("PastePanel");
             clone.LocalizeTextInChildren();
             clone.BindElements();
             return clone;

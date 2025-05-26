@@ -42,7 +42,7 @@ namespace UnityEditor.U2D.Animation
         {
             get
             {
-                var sprite = Selection.activeObject as Sprite;
+                Sprite sprite = Selection.activeObject as Sprite;
 
                 if (sprite != null)
                     return sprite.GetSpriteID().ToString();
@@ -108,7 +108,7 @@ namespace UnityEditor.U2D.Animation
 
         void SetToSpriteEditor()
         {
-            var id = "";
+            string id = "";
 
             if (selectedSprite != null)
                 id = selectedSprite.id;
@@ -129,8 +129,8 @@ namespace UnityEditor.U2D.Animation
             {
                 if (IsSelectionRequested())
                 {
-                    var mousePosition = Handles.inverseMatrix.MultiplyPoint(Event.current.mousePosition);
-                    var newSelected = TrySelect(mousePosition);
+                    Vector3 mousePosition = Handles.inverseMatrix.MultiplyPoint(Event.current.mousePosition);
+                    SpriteCache newSelected = TrySelect(mousePosition);
                     if (selectedSprite != newSelected)
                     {
                         using (skinningCache.UndoScope(TextContent.selectionChange))
@@ -153,37 +153,37 @@ namespace UnityEditor.U2D.Animation
             if (selectedSprite != null)
                 m_Sprites.Add(selectedSprite);
 
-            var currentSelectedIndex = m_Sprites.FindIndex(x => x == selectedSprite) + 1;
-            var notVisiblePart = skinningCache.hasCharacter && skinningCache.mode == SkinningMode.Character
+            int currentSelectedIndex = m_Sprites.FindIndex(x => x == selectedSprite) + 1;
+            IEnumerable<SpriteCache> notVisiblePart = skinningCache.hasCharacter && skinningCache.mode == SkinningMode.Character
                 ? skinningCache.character.parts.Where(x => !x.isVisible).Select(x => x.sprite)
                 : new SpriteCache[0];
             for (int index = 0; index < m_Sprites.Count; ++index)
             {
-                var sprite = m_Sprites[(currentSelectedIndex + index) % m_Sprites.Count];
-                var meshPreview = sprite.GetMeshPreview();
+                SpriteCache sprite = m_Sprites[(currentSelectedIndex + index) % m_Sprites.Count];
+                MeshPreviewCache meshPreview = sprite.GetMeshPreview();
                 if (notVisiblePart.Contains(sprite))
                     continue;
 
                 Debug.Assert(meshPreview != null);
 
-                var spritePosition = sprite.GetLocalToWorldMatrixFromMode().MultiplyPoint3x4(Vector3.zero);
-                var ray = new Ray((Vector3)mousePosition - spritePosition + Vector3.back, Vector3.forward);
-                var bounds = meshPreview.mesh.bounds;
+                Vector3 spritePosition = sprite.GetLocalToWorldMatrixFromMode().MultiplyPoint3x4(Vector3.zero);
+                Ray ray = new Ray((Vector3)mousePosition - spritePosition + Vector3.back, Vector3.forward);
+                Bounds bounds = meshPreview.mesh.bounds;
 
                 if (sprite.GetMesh().indices.Length >= 3)
                 {
                     if (bounds.IntersectRay(ray))
                     {
-                        var mesh = sprite.GetMesh();
+                        MeshCache mesh = sprite.GetMesh();
 
                         Debug.Assert(mesh != null);
 
-                        var indices = mesh.indices;
-                        for (var i = 0; i < indices.Length; i += 3)
+                        int[] indices = mesh.indices;
+                        for (int i = 0; i < indices.Length; i += 3)
                         {
-                            var p1 = meshPreview.vertices[indices[i]];
-                            var p2 = meshPreview.vertices[indices[i + 1]];
-                            var p3 = meshPreview.vertices[indices[i + 2]];
+                            Vector3 p1 = meshPreview.vertices[indices[i]];
+                            Vector3 p2 = meshPreview.vertices[indices[i + 1]];
+                            Vector3 p3 = meshPreview.vertices[indices[i + 2]];
 
                             if (MathUtility.Intersect(p1, p2, p3, ray))
                                 return sprite;

@@ -29,7 +29,7 @@ namespace UnityEditor.U2D.Animation
 
         public static MeshToolbar GenerateFromUXML()
         {
-            var clone = GetClone(k_UxmlPath, k_ToolbarId) as MeshToolbar;
+            MeshToolbar clone = GetClone(k_UxmlPath, k_ToolbarId) as MeshToolbar;
             clone.BindElements();
             clone.SetupShortcutUtility();
             clone.LocalizeTextInChildren();
@@ -44,7 +44,7 @@ namespace UnityEditor.U2D.Animation
 
         private void BindElements()
         {
-            var button = this.Q<Button>(k_SelectGeometryId);
+            Button button = this.Q<Button>(k_SelectGeometryId);
             button.clickable.clicked += () => { SetMeshTool(Tools.EditGeometry); };
 
             button = this.Q<Button>(k_CreateVertexId);
@@ -77,7 +77,7 @@ namespace UnityEditor.U2D.Animation
         public void UpdateToggleState()
         {
             //TODO: Make UI not be aware of BaseTool, Cache, etc. Use Tool enum
-            var button = this.Q<Button>(k_SelectGeometryId);
+            Button button = this.Q<Button>(k_SelectGeometryId);
             SetButtonChecked(button, skinningCache.GetTool(Tools.EditGeometry).isActive);
 
             button = this.Q<Button>(k_CreateVertexId);

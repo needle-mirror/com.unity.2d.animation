@@ -23,12 +23,12 @@ namespace UnityEditor.U2D.Animation
         /// </param>
         public override void OnImportAsset(AssetImportContext ctx)
         {
-            var spriteLib = ScriptableObject.CreateInstance<SpriteLibraryAsset>();
+            SpriteLibraryAsset spriteLib = ScriptableObject.CreateInstance<SpriteLibraryAsset>();
             spriteLib.name = Path.GetFileNameWithoutExtension(assetPath);
-            var sourceAsset = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(assetPath);
+            Object[] sourceAsset = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(assetPath);
             if (sourceAsset?.Length > 0)
             {
-                var sourceLibraryAsset = sourceAsset[0] as SpriteLibrarySourceAsset;
+                SpriteLibrarySourceAsset sourceLibraryAsset = sourceAsset[0] as SpriteLibrarySourceAsset;
                 if (sourceLibraryAsset != null)
                 {
                     if (!HasValidMainLibrary(sourceLibraryAsset, assetPath))
@@ -36,10 +36,10 @@ namespace UnityEditor.U2D.Animation
 
                     UpdateSpriteLibrarySourceAssetLibraryWithMainAsset(sourceLibraryAsset);
 
-                    foreach (var cat in sourceLibraryAsset.library)
+                    foreach (SpriteLibCategoryOverride cat in sourceLibraryAsset.library)
                     {
                         spriteLib.AddCategoryLabel(null, cat.name, null);
-                        foreach (var entry in cat.overrideEntries)
+                        foreach (SpriteCategoryEntryOverride entry in cat.overrideEntries)
                         {
                             spriteLib.AddCategoryLabel(entry.spriteOverride, cat.name, entry.name);
                         }
@@ -53,19 +53,19 @@ namespace UnityEditor.U2D.Animation
                 }
             }
 
-            ctx.AddObjectToAsset("SpriteLib", spriteLib, EditorIconUtility.LoadIconResource("Animation.SpriteLibrary", "ComponentIcons", "ComponentIcons"));
+            ctx.AddObjectToAsset("SpriteLib", spriteLib);
         }
 
         internal static void UpdateSpriteLibrarySourceAssetLibraryWithMainAsset(SpriteLibrarySourceAsset sourceLibraryAsset)
         {
-            var so = new SerializedObject(sourceLibraryAsset);
-            var library = so.FindProperty(SpriteLibrarySourceAssetPropertyString.library);
-            var mainLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryGUID);
-            var mainLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(mainLibraryAssetAssetPath);
+            SerializedObject so = new SerializedObject(sourceLibraryAsset);
+            SerializedProperty library = so.FindProperty(SpriteLibrarySourceAssetPropertyString.library);
+            string mainLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryGUID);
+            SpriteLibraryAsset mainLibraryAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(mainLibraryAssetAssetPath);
             SpriteLibraryUtilitiesEditor.UpdateLibraryWithNewMainLibrary(mainLibraryAsset, library);
             if (so.hasModifiedProperties)
             {
-                var modHashProperty = so.FindProperty(SpriteLibrarySourceAssetPropertyString.modificationHash);
+                SerializedProperty modHashProperty = so.FindProperty(SpriteLibrarySourceAssetPropertyString.modificationHash);
                 modHashProperty.longValue = mainLibraryAsset != null ? mainLibraryAsset.modificationHash : SpriteLibraryUtility.GenerateHash();
                 so.ApplyModifiedPropertiesWithoutUndo();
             }
@@ -76,14 +76,14 @@ namespace UnityEditor.U2D.Animation
             if (string.IsNullOrEmpty(sourceLibraryAsset.primaryLibraryGUID))
                 return false;
 
-            var primaryLibraryPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryGUID);
+            string primaryLibraryPath = AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryGUID);
             if (assetPath == primaryLibraryPath)
                 return false;
 
-            var primaryAssetParentChain = GetAssetParentChain(AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(primaryLibraryPath));
-            foreach (var parentLibrary in primaryAssetParentChain)
+            List<SpriteLibraryAsset> primaryAssetParentChain = GetAssetParentChain(AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(primaryLibraryPath));
+            foreach (SpriteLibraryAsset parentLibrary in primaryAssetParentChain)
             {
-                var parentPath = AssetDatabase.GetAssetPath(parentLibrary);
+                string parentPath = AssetDatabase.GetAssetPath(parentLibrary);
                 if (parentPath == assetPath)
                     return false;
             }
@@ -93,8 +93,8 @@ namespace UnityEditor.U2D.Animation
 
         internal static SpriteLibrarySourceAsset LoadSpriteLibrarySourceAsset(string path)
         {
-            var loadedObjects = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(path);
-            foreach (var obj in loadedObjects)
+            Object[] loadedObjects = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(path);
+            foreach (Object obj in loadedObjects)
             {
                 if (obj is SpriteLibrarySourceAsset)
                     return (SpriteLibrarySourceAsset)obj;
@@ -114,7 +114,7 @@ namespace UnityEditor.U2D.Animation
         [MenuItem("internal:Assets/Convert to SpriteLibrarySourceAsset", true)]
         static bool ConvertToSpriteLibrarySourceAssetValidate()
         {
-            foreach (var obj in Selection.objects)
+            foreach (Object obj in Selection.objects)
             {
                 if (obj is SpriteLibraryAsset)
                     return true;
@@ -126,22 +126,22 @@ namespace UnityEditor.U2D.Animation
         [MenuItem("internal:Assets/Convert to SpriteLibrarySourceAsset")]
         static void ConvertToSourceAsset()
         {
-            foreach (var obj in Selection.objects)
+            foreach (Object obj in Selection.objects)
             {
                 if (obj is SpriteLibraryAsset)
                 {
-                    var asset = (SpriteLibraryAsset)obj;
-                    var path = AssetDatabase.GetAssetPath(asset);
-                    var currentAssetPath = Path.GetDirectoryName(path);
-                    var fileName = Path.GetFileNameWithoutExtension(path);
-                    var convertFileName = fileName + SpriteLibrarySourceAsset.extension;
+                    SpriteLibraryAsset asset = (SpriteLibraryAsset)obj;
+                    string path = AssetDatabase.GetAssetPath(asset);
+                    string currentAssetPath = Path.GetDirectoryName(path);
+                    string fileName = Path.GetFileNameWithoutExtension(path);
+                    string convertFileName = fileName + SpriteLibrarySourceAsset.extension;
                     convertFileName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(currentAssetPath, convertFileName));
-                    var convertAsset = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();
+                    SpriteLibrarySourceAsset convertAsset = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();
                     convertAsset.SetLibrary(new List<SpriteLibCategoryOverride>(asset.categories.Count));
-                    for (var i = 0; i < asset.categories.Count; ++i)
+                    for (int i = 0; i < asset.categories.Count; ++i)
                     {
-                        var category = asset.categories[i];
-                        var newCategory = new SpriteLibCategoryOverride()
+                        SpriteLibCategory category = asset.categories[i];
+                        SpriteLibCategoryOverride newCategory = new SpriteLibCategoryOverride()
                         {
                             overrideEntries = new List<SpriteCategoryEntryOverride>(category.categoryList.Count),
                             name = category.name,
@@ -149,7 +149,7 @@ namespace UnityEditor.U2D.Animation
                             fromMain = false
                         };
                         convertAsset.AddCategory(newCategory);
-                        for (var j = 0; j < category.categoryList.Count; ++j)
+                        for (int j = 0; j < category.categoryList.Count; ++j)
                         {
                             newCategory.overrideEntries.Add(new SpriteCategoryEntryOverride()
                             {
@@ -170,14 +170,14 @@ namespace UnityEditor.U2D.Animation
 
         internal static SpriteLibraryAsset GetAssetParent(SpriteLibraryAsset asset)
         {
-            var currentAssetPath = AssetDatabase.GetAssetPath(asset);
+            string currentAssetPath = AssetDatabase.GetAssetPath(asset);
             if (AssetImporter.GetAtPath(currentAssetPath) is SpriteLibrarySourceAssetImporter)
             {
-                var sourceAsset = LoadSpriteLibrarySourceAsset(currentAssetPath);
-                var primaryLibraryId = sourceAsset != null ? sourceAsset.primaryLibraryGUID : null;
+                SpriteLibrarySourceAsset sourceAsset = LoadSpriteLibrarySourceAsset(currentAssetPath);
+                string primaryLibraryId = sourceAsset != null ? sourceAsset.primaryLibraryGUID : null;
                 if (primaryLibraryId != null)
                 {
-                    var primaryLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(primaryLibraryId);
+                    string primaryLibraryAssetAssetPath = AssetDatabase.GUIDToAssetPath(primaryLibraryId);
                     return AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(primaryLibraryAssetAssetPath);
                 }
             }
@@ -187,10 +187,10 @@ namespace UnityEditor.U2D.Animation
 
         internal static List<SpriteLibraryAsset> GetAssetParentChain(SpriteLibraryAsset asset)
         {
-            var chain = new List<SpriteLibraryAsset>();
+            List<SpriteLibraryAsset> chain = new List<SpriteLibraryAsset>();
             if (asset != null)
             {
-                var parent = GetAssetParent(asset);
+                SpriteLibraryAsset parent = GetAssetParent(asset);
                 while (parent != null && !chain.Contains(parent))
                 {
                     chain.Add(parent);
@@ -203,9 +203,9 @@ namespace UnityEditor.U2D.Animation
 
         internal static SpriteLibraryAsset GetAssetFromSelection()
         {
-            foreach (var selectedObject in Selection.objects)
+            foreach (Object selectedObject in Selection.objects)
             {
-                var selectedAsset = selectedObject as SpriteLibraryAsset;
+                SpriteLibraryAsset selectedAsset = selectedObject as SpriteLibraryAsset;
                 if (selectedAsset != null)
                     return selectedAsset;
             }

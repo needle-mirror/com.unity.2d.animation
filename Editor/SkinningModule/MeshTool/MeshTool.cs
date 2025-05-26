@@ -81,7 +81,7 @@ namespace UnityEditor.U2D.Animation
 
         internal void SetupSprite(SpriteCache sprite)
         {
-            var mesh = sprite.GetMesh();
+            MeshCache mesh = sprite.GetMesh();
 
             if (m_Mesh != null
                 && m_Mesh != mesh
@@ -116,15 +116,15 @@ namespace UnityEditor.U2D.Animation
 
             SetupGUI();
 
-            var handlesMatrix = Handles.matrix;
+            Matrix4x4 handlesMatrix = Handles.matrix;
             Handles.matrix *= m_Mesh.sprite.GetLocalToWorldMatrixFromMode();
 
             BeginPositionOverride();
 
             EditorGUI.BeginChangeCheck();
 
-            var guiEnabled = GUI.enabled;
-            var moveAction = m_SpriteMeshController.spriteMeshView.IsActionHot(MeshEditorAction.MoveEdge) || m_SpriteMeshController.spriteMeshView.IsActionHot(MeshEditorAction.MoveVertex);
+            bool guiEnabled = GUI.enabled;
+            bool moveAction = m_SpriteMeshController.spriteMeshView.IsActionHot(MeshEditorAction.MoveEdge) || m_SpriteMeshController.spriteMeshView.IsActionHot(MeshEditorAction.MoveVertex);
             GUI.enabled = (!skinningCache.IsOnVisualElement() && guiEnabled) || moveAction;
             m_SpriteMeshController.OnGUI();
             GUI.enabled = guiEnabled;
@@ -144,14 +144,14 @@ namespace UnityEditor.U2D.Animation
         {
             if (m_Mesh != null)
             {
-                var skeleton = skinningCache.GetEffectiveSkeleton(m_Mesh.sprite);
+                SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(m_Mesh.sprite);
                 Debug.Assert(skeleton != null);
 
                 if (skeleton.isPosePreview)
                 {
-                    var overrideVertices = m_Mesh.sprite.GetMeshPreview().vertices;
-                    var convertedVerts = new Vector2[overrideVertices.Count];
-                    for (var i = 0; i < convertedVerts.Length; ++i)
+                    System.Collections.Generic.List<Vector3> overrideVertices = m_Mesh.sprite.GetMeshPreview().vertices;
+                    Vector2[] convertedVerts = new Vector2[overrideVertices.Count];
+                    for (int i = 0; i < convertedVerts.Length; ++i)
                         convertedVerts[i] = new Vector2(overrideVertices[i].x, overrideVertices[i].y);
                     m_Mesh.SetVertexPositionsOverride(convertedVerts);
                 }

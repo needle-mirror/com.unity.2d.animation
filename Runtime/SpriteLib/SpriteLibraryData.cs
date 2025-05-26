@@ -56,10 +56,10 @@ namespace UnityEngine.U2D.Animation
         public void UpdateOverrideCount()
         {
             // Count only 'new' labels in given category. If it's not from main, then count all categories.
-            var overrideCount = 0;
+            int overrideCount = 0;
             if (fromMain)
             {
-                foreach (var label in overrideEntries)
+                foreach (SpriteCategoryEntryOverride label in overrideEntries)
                 {
                     if (!label.fromMain || label.sprite != label.spriteOverride)
                         overrideCount++;
@@ -75,7 +75,7 @@ namespace UnityEngine.U2D.Animation
 
         public void RenameDuplicateOverrideEntries()
         {
-            if(overrideEntries != null)
+            if (overrideEntries != null)
                 SpriteLibraryAsset.RenameDuplicate(overrideEntries, (_, _) => { });
         }
     }

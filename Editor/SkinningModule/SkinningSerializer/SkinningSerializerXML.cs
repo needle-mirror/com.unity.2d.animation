@@ -18,7 +18,7 @@ namespace UnityEditor.U2D.Animation
                 {
                     using (XmlTextReader xmlReader = new XmlTextReader(textReader))
                     {
-                        var xmlSerializer = new XmlSerializer(typeof(List<UnityEngine.U2D.SpriteBone>));
+                        XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<UnityEngine.U2D.SpriteBone>));
                         result = xmlSerializer.CanDeserialize(xmlReader);
                     }
                 }
@@ -36,7 +36,7 @@ namespace UnityEditor.U2D.Animation
             {
                 using (XmlTextReader xmlReader = new XmlTextReader(textReader))
                 {
-                    var xmlSerializer = new XmlSerializer(typeof(SkinningCopyData));
+                    XmlSerializer xmlSerializer = new XmlSerializer(typeof(SkinningCopyData));
                     if (!xmlSerializer.CanDeserialize(xmlReader))
                     {
                         throw new InvalidOperationException(

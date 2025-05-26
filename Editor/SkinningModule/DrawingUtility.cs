@@ -48,7 +48,7 @@ namespace UnityEditor.U2D.Animation
         {
             GL.Color(Handles.color);
 
-            var right = Vector3.Cross(normal, p2 - p1).normalized;
+            Vector3 right = Vector3.Cross(normal, p2 - p1).normalized;
 
             GL.Vertex(p1 + right * (widthP1 * 0.5f));
             GL.Vertex(p1 - right * (widthP1 * 0.5f));
@@ -60,8 +60,8 @@ namespace UnityEditor.U2D.Animation
 
         public static void DrawBox(Rect position)
         {
-            var points = new Vector3[5];
-            var i = 0;
+            Vector3[] points = new Vector3[5];
+            int i = 0;
             points[i++] = new Vector3(position.xMin, position.yMin, 0f);
             points[i++] = new Vector3(position.xMax, position.yMin, 0f);
             points[i++] = new Vector3(position.xMax, position.yMax, 0f);
@@ -101,10 +101,10 @@ namespace UnityEditor.U2D.Animation
 
         static Rect GetGUIStyleRect(GUIStyle style, Vector3 position)
         {
-            var vector = HandleUtility.WorldToGUIPoint(position);
+            Vector2 vector = HandleUtility.WorldToGUIPoint(position);
 
-            var fixedWidth = style.fixedWidth;
-            var fixedHeight = style.fixedHeight;
+            float fixedWidth = style.fixedWidth;
+            float fixedHeight = style.fixedHeight;
 
             return new Rect(vector.x - fixedWidth / 2f, vector.y - fixedHeight / 2f, fixedWidth, fixedHeight);
         }
@@ -114,14 +114,14 @@ namespace UnityEditor.U2D.Animation
             if (Event.current.type != EventType.Repaint)
                 return;
 
-            var corners = new Vector3[4];
-            for (var i = 0; i < 4; i++)
+            Vector3[] corners = new Vector3[4];
+            for (int i = 0; i < 4; i++)
             {
                 Vector3 point = GetLocalRectPoint(rect, i);
                 corners[i] = rotation * point + position;
             }
 
-            var points = new Vector3[]
+            Vector3[] points = new Vector3[]
             {
                 corners[0],
                 corners[1],
@@ -130,17 +130,17 @@ namespace UnityEditor.U2D.Animation
                 corners[0]
             };
 
-            var prevColor = Handles.color;
+            Color prevColor = Handles.color;
             Handles.color = color;
 
-            var offset = new Vector2(1f, 1f);
+            Vector2 offset = new Vector2(1f, 1f);
             if (!Camera.current)
             {
                 offset.y *= -1;
             }
 
-            var faceColor = new Color(1f, 1f, 1f, rectAlpha);
-            var outlineColor = new Color(1f, 1f, 1f, outlineAlpha);
+            Color faceColor = new Color(1f, 1f, 1f, rectAlpha);
+            Color outlineColor = new Color(1f, 1f, 1f, outlineAlpha);
             Handles.DrawSolidRectangleWithOutline(points, faceColor, outlineColor);
             Handles.color = prevColor;
         }

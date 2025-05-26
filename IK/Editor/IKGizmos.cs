@@ -20,24 +20,24 @@ namespace UnityEditor.U2D.IK
 
         public void DoSolversGUI(IKManager2D manager)
         {
-            var solvers = manager.solvers;
-            for (var s = 0; s < solvers.Count; s++)
+            List<Solver2D> solvers = manager.solvers;
+            for (int s = 0; s < solvers.Count; s++)
             {
-                var solver = solvers[s];
+                Solver2D solver = solvers[s];
                 if (solver == null || !solver.isValid || !solver.isActiveAndEnabled)
                     continue;
 
-                var solverData = manager.GetSolverEditorData(solver);
+                IKManager2D.SolverEditorData solverData = manager.GetSolverEditorData(solver);
                 if (!solverData.showGizmo)
                     return;
 
                 DrawSolver(solver, solverData.color);
 
-                var allChainsHaveTargets = solver.allChainsHaveTargets;
+                bool allChainsHaveTargets = solver.allChainsHaveTargets;
 
-                for (var c = 0; c < solver.chainCount; ++c)
+                for (int c = 0; c < solver.chainCount; ++c)
                 {
-                    var chain = solver.GetChain(c);
+                    IKChain2D chain = solver.GetChain(c);
                     if (chain == null)
                         continue;
 
@@ -59,7 +59,7 @@ namespace UnityEditor.U2D.IK
         {
             int controlId = GUIUtility.GetControlID(kTargetHashCode, FocusType.Passive);
 
-            var color = FadeFromChain(Color.white, chain);
+            Color color = FadeFromChain(Color.white, chain);
 
             if (!isDragging && (color.a == 0f || !IsVisible(chain.target.position)))
                 return;
@@ -67,7 +67,7 @@ namespace UnityEditor.U2D.IK
             EditorGUI.BeginChangeCheck();
 
             Handles.color = color;
-            var newPosition = Handles.Slider2D(controlId, chain.target.position, chain.target.forward, chain.target.up, chain.target.right, HandleUtility.GetHandleSize(chain.effector.position) * kCircleHandleRadius, Handles.CircleHandleCap, Vector2.zero);
+            Vector3 newPosition = Handles.Slider2D(controlId, chain.target.position, chain.target.forward, chain.target.up, chain.target.right, HandleUtility.GetHandleSize(chain.effector.position) * kCircleHandleRadius, Handles.CircleHandleCap, Vector2.zero);
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -87,7 +87,7 @@ namespace UnityEditor.U2D.IK
         {
             int controlId = GUIUtility.GetControlID(kTargetHashCode, FocusType.Passive);
 
-            var color = FadeFromChain(Color.white, chain);
+            Color color = FadeFromChain(Color.white, chain);
 
             if (!isDragging && (color.a == 0f || !IsVisible(chain.effector.position)))
                 return;
@@ -127,7 +127,7 @@ namespace UnityEditor.U2D.IK
 
                 for (int i = 0; i < l_solver.chainCount; ++i)
                 {
-                    var chain = l_solver.GetChain(i);
+                    IKChain2D chain = l_solver.GetChain(i);
                     if (chain.effector != null)
                         m_ChainPositionOverrides[chain] = chain.effector.position;
                 }
@@ -136,7 +136,7 @@ namespace UnityEditor.U2D.IK
 
         private void SetSolverPositionOverrides()
         {
-            foreach (var pair in m_ChainPositionOverrides)
+            foreach (KeyValuePair<IKChain2D, Vector3> pair in m_ChainPositionOverrides)
                 IKEditorManager.instance.SetChainPositionOverride(pair.Key, pair.Value);
         }
 
@@ -154,7 +154,7 @@ namespace UnityEditor.U2D.IK
 
             for (int i = 0; i < solver.chainCount; ++i)
             {
-                var chain = solver.GetChain(i);
+                IKChain2D chain = solver.GetChain(i);
                 if (chain != null)
                     DrawChain(chain, color, solver.allChainsHaveTargets);
             }
@@ -171,11 +171,11 @@ namespace UnityEditor.U2D.IK
             Transform currentTransform = chain.effector;
             for (int i = 0; i < chain.transformCount - 1; ++i)
             {
-                var parentPosition = currentTransform.parent.position;
-                var position = currentTransform.position;
+                Vector3 parentPosition = currentTransform.parent.position;
+                Vector3 position = currentTransform.position;
                 Vector3 projectedLocalPosition = Vector3.Project(currentTransform.localPosition, Vector3.right);
                 Vector3 projectedEndPoint = currentTransform.parent.position + currentTransform.parent.TransformVector(projectedLocalPosition);
-                var visible = IsVisible(projectedEndPoint) || IsVisible(position);
+                bool visible = IsVisible(projectedEndPoint) || IsVisible(position);
 
                 if (visible && currentTransform.localPosition.sqrMagnitude != projectedLocalPosition.sqrMagnitude)
                 {
@@ -198,8 +198,8 @@ namespace UnityEditor.U2D.IK
             currentTransform = chain.effector;
             for (int i = 0; i < chain.transformCount; ++i)
             {
-                var position = currentTransform.position;
-                var size = HandleUtility.GetHandleSize(position);
+                Vector3 position = currentTransform.position;
+                float size = HandleUtility.GetHandleSize(position);
 
                 if (IsVisible(position))
                     Handles.DrawSolidDisc(position, currentTransform.forward, kNodeRadius * size);
@@ -212,10 +212,10 @@ namespace UnityEditor.U2D.IK
 
         private Color FadeFromChain(Color color, IKChain2D chain)
         {
-            var size = HandleUtility.GetHandleSize(chain.effector.position);
-            var scaleFactor = 1f;
-            var lengths = chain.lengths;
-            foreach (var length in lengths)
+            float size = HandleUtility.GetHandleSize(chain.effector.position);
+            float scaleFactor = 1f;
+            float[] lengths = chain.lengths;
+            foreach (float length in lengths)
                 scaleFactor = Mathf.Max(scaleFactor, length);
 
             return FadeFromSize(color, size, kFadeStart * scaleFactor, kFadeEnd * scaleFactor);
@@ -230,7 +230,7 @@ namespace UnityEditor.U2D.IK
 
         private bool IsVisible(Vector3 position)
         {
-            var screenPos = HandleUtility.GUIPointToScreenPixelCoordinate(HandleUtility.WorldToGUIPoint(position));
+            Vector2 screenPos = HandleUtility.GUIPointToScreenPixelCoordinate(HandleUtility.WorldToGUIPoint(position));
             if (screenPos.x < 0f || screenPos.x > Camera.current.pixelWidth || screenPos.y < 0f || screenPos.y > Camera.current.pixelHeight)
                 return false;
 

@@ -33,14 +33,14 @@ namespace UnityEditor.U2D.Animation
 
         public override SpriteBoneData GetBoneData(int index)
         {
-            var worldToLocalMatrix = sprite.worldToLocalMatrix;
+            Matrix4x4 worldToLocalMatrix = sprite.worldToLocalMatrix;
 
             //We expect m_Bones to contain character's bones references if character exists. Sprite's skeleton bones otherwise.
             if (sprite.skinningCache.hasCharacter)
                 worldToLocalMatrix = sprite.GetCharacterPart().worldToLocalMatrix;
 
             SpriteBoneData spriteBoneData;
-            var bone = m_Bones[index];
+            BoneCache bone = m_Bones[index];
 
             if (bone == null)
                 spriteBoneData = new SpriteBoneData();
@@ -84,24 +84,24 @@ namespace UnityEditor.U2D.Animation
 
         void FixWeights(BoneCache[] newBones)
         {
-            var newBonesList = new List<BoneCache>(newBones);
-            var indexMap = new Dictionary<int, int>();
+            List<BoneCache> newBonesList = new List<BoneCache>(newBones);
+            Dictionary<int, int> indexMap = new Dictionary<int, int>();
 
-            for (var i = 0; i < m_Bones.Count; ++i)
+            for (int i = 0; i < m_Bones.Count; ++i)
             {
-                var bone = m_Bones[i];
-                var newIndex = newBonesList.IndexOf(bone);
+                BoneCache bone = m_Bones[i];
+                int newIndex = newBonesList.IndexOf(bone);
 
                 if (newIndex != -1)
                     indexMap.Add(i, newIndex);
             }
 
-            for (var i = 0; i < vertexWeights.Length; ++i)
+            for (int i = 0; i < vertexWeights.Length; ++i)
             {
-                var boneWeight = vertexWeights[i];
-                for (var m = 0; m < boneWeight.Count; ++m)
+                EditableBoneWeight boneWeight = vertexWeights[i];
+                for (int m = 0; m < boneWeight.Count; ++m)
                 {
-                    var boneRemoved = indexMap.TryGetValue(boneWeight[m].boneIndex, out var newIndex) == false;
+                    bool boneRemoved = indexMap.TryGetValue(boneWeight[m].boneIndex, out int newIndex) == false;
 
                     if (boneRemoved)
                     {

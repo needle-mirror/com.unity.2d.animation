@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using Unity.Collections;
-using Unity.Jobs;
 using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine.U2D.Common;
+using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine.Assertions;
+using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -31,7 +31,7 @@ namespace UnityEngine.U2D.Animation
 
         static void ClearFallbackBuffer()
         {
-            if(s_FallbackBuffer != null)
+            if (s_FallbackBuffer != null)
                 s_FallbackBuffer.Release();
 
             s_FallbackBuffer = null;
@@ -43,12 +43,12 @@ namespace UnityEngine.U2D.Animation
         {
             if (material == null)
                 return false;
-            var shader = material.shader;
+            Shader shader = material.shader;
             if (shader == null)
                 return false;
 
-            var supportedKeywords = shader.keywordSpace.keywords;
-            for (var i = 0; i < supportedKeywords.Length; ++i)
+            Rendering.LocalKeyword[] supportedKeywords = shader.keywordSpace.keywords;
+            for (int i = 0; i < supportedKeywords.Length; ++i)
             {
                 if (supportedKeywords[i].name == k_GpuSkinningShaderKeyword)
                     return true;
@@ -98,7 +98,7 @@ namespace UnityEngine.U2D.Animation
                 m_BoneTransformsComputeBuffer.Release();
             m_BoneTransformsComputeBuffer = null;
 
-            foreach (var material in m_KeywordEnabledMaterials.Values)
+            foreach (Material material in m_KeywordEnabledMaterials.Values)
                 material.DisableKeyword(k_GpuSkinningShaderKeyword);
             m_KeywordEnabledMaterials.Clear();
             Shader.SetGlobalBuffer(k_GlobalSpriteBoneBufferId, s_FallbackBuffer);
@@ -106,16 +106,16 @@ namespace UnityEngine.U2D.Animation
 
         internal override void UpdateMaterial(SpriteSkin spriteSkin)
         {
-            var sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
+            Material sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
             if (!sharedMaterial.IsKeywordEnabled(k_GpuSkinningShaderKeyword))
                 sharedMaterial.EnableKeyword(k_GpuSkinningShaderKeyword);
         }
 
         internal override bool AddSpriteSkin(SpriteSkin spriteSkin)
         {
-            var success = base.AddSpriteSkin(spriteSkin);
+            bool success = base.AddSpriteSkin(spriteSkin);
 
-            var sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
+            Material sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
             if (!sharedMaterial.IsKeywordEnabled(k_GpuSkinningShaderKeyword))
             {
                 sharedMaterial.EnableKeyword(k_GpuSkinningShaderKeyword);
@@ -130,7 +130,7 @@ namespace UnityEngine.U2D.Animation
             BatchRemoveSpriteSkins();
             BatchAddSpriteSkins();
 
-            var count = m_SpriteSkins.Count;
+            int count = m_SpriteSkins.Count;
             if (count == 0)
             {
                 m_LocalToWorldTransformAccessJob.ResetCache();
@@ -149,9 +149,9 @@ namespace UnityEngine.U2D.Animation
             Assert.AreEqual(m_BoneTransformBuffers.Length, count);
             Assert.AreEqual(m_BoneTransformBufferSizes.Length, count);
 
-            PrepareDataForDeformation(out var localToWorldJobHandle, out var worldToLocalJobHandle);
+            PrepareDataForDeformation(out JobHandle localToWorldJobHandle, out JobHandle worldToLocalJobHandle);
 
-            if (!GotVerticesToDeform(out var vertexBufferSize))
+            if (!GotVerticesToDeform(out int vertexBufferSize))
             {
                 localToWorldJobHandle.Complete();
                 worldToLocalJobHandle.Complete();
@@ -159,11 +159,11 @@ namespace UnityEngine.U2D.Animation
                 return;
             }
 
-            var skinBatch = m_SkinBatchArray[0];
+            PerSkinJobData skinBatch = m_SkinBatchArray[0];
             ResizeBuffers(vertexBufferSize, in skinBatch);
 
-            var batchCount = m_SpriteSkinData.Length;
-            var jobHandle = SchedulePrepareJob(batchCount);
+            int batchCount = m_SpriteSkinData.Length;
+            JobHandle jobHandle = SchedulePrepareJob(batchCount);
 
             Profiling.scheduleJobs.Begin();
             jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle, jobHandle);
@@ -184,9 +184,9 @@ namespace UnityEngine.U2D.Animation
 
             SetComputeBuffer();
 
-            foreach (var spriteSkin in m_SpriteSkins)
+            foreach (SpriteSkin spriteSkin in m_SpriteSkins)
             {
-                var didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
+                bool didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
                 spriteSkin.PostDeform(didDeform);
             }
 
@@ -195,8 +195,8 @@ namespace UnityEngine.U2D.Animation
 
         void ResizeBuffers(int vertexBufferSize, in PerSkinJobData skinBatch)
         {
-            var noOfBones = skinBatch.bindPosesIndex.y;
-            var noOfVerticesInBatch = skinBatch.verticesIndex.y;
+            int noOfBones = skinBatch.bindPosesIndex.y;
+            int noOfVerticesInBatch = skinBatch.verticesIndex.y;
 
             m_DeformedVerticesBuffer = BufferManager.instance.GetBuffer(m_ObjectId, vertexBufferSize);
             NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, noOfBones);
@@ -224,7 +224,7 @@ namespace UnityEngine.U2D.Animation
 
         unsafe JobHandle ScheduleCopySpriteRendererBoneTransformBuffersJob(JobHandle jobHandle, int batchCount)
         {
-            var copySpriteRendererBoneTransformBuffersJob = new CopySpriteRendererBoneTransformBuffersJob()
+            CopySpriteRendererBoneTransformBuffersJob copySpriteRendererBoneTransformBuffersJob = new CopySpriteRendererBoneTransformBuffersJob()
             {
                 isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
                 spriteSkinData = m_SpriteSkinData,

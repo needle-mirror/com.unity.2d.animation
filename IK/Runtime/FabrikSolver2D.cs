@@ -73,12 +73,12 @@ namespace UnityEngine.U2D.IK
                 m_WorldPositions = new Vector3[m_Chain.transformCount];
             }
 
-            for (var i = 0; i < m_Chain.transformCount; ++i)
+            for (int i = 0; i < m_Chain.transformCount; ++i)
             {
                 m_Positions[i] = GetPointOnSolverPlane(m_Chain.transforms[i].position);
             }
 
-            for (var i = 0; i < m_Chain.transformCount - 1; ++i)
+            for (int i = 0; i < m_Chain.transformCount - 1; ++i)
             {
                 m_Lengths[i] = (m_Positions[i + 1] - m_Positions[i]).magnitude;
             }
@@ -92,20 +92,20 @@ namespace UnityEngine.U2D.IK
         {
             Profiler.BeginSample(nameof(FabrikSolver2D.DoUpdateIK));
 
-            var targetPosition = targetPositions[0];
+            Vector3 targetPosition = targetPositions[0];
             targetPosition = GetPointOnSolverPlane(targetPosition);
             if (FABRIK2D.Solve(targetPosition, iterations, tolerance, m_Lengths, ref m_Positions))
             {
                 // Convert all plane positions to world positions
-                for (var i = 0; i < m_Positions.Length; ++i)
+                for (int i = 0; i < m_Positions.Length; ++i)
                 {
                     m_WorldPositions[i] = GetWorldPositionFromSolverPlanePoint(m_Positions[i]);
                 }
 
-                for (var i = 0; i < m_Chain.transformCount - 1; ++i)
+                for (int i = 0; i < m_Chain.transformCount - 1; ++i)
                 {
-                    var startLocalPosition = (Vector2)m_Chain.transforms[i + 1].localPosition;
-                    var endLocalPosition = (Vector2)m_Chain.transforms[i].InverseTransformPoint(m_WorldPositions[i + 1]);
+                    Vector2 startLocalPosition = (Vector2)m_Chain.transforms[i + 1].localPosition;
+                    Vector2 endLocalPosition = (Vector2)m_Chain.transforms[i].InverseTransformPoint(m_WorldPositions[i + 1]);
                     m_Chain.transforms[i].localRotation *= Quaternion.AngleAxis(Vector2.SignedAngle(startLocalPosition, endLocalPosition), Vector3.forward);
                 }
             }

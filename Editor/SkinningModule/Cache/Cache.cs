@@ -9,7 +9,7 @@ namespace UnityEditor.U2D.Animation
     {
         public static T Create<T>() where T : Cache
         {
-            var cache = CreateInstance<T>();
+            T cache = CreateInstance<T>();
             cache.hideFlags = HideFlags.DontSave;
             cache.name = cache.GetType().ToString();
             return cache;
@@ -81,7 +81,7 @@ namespace UnityEditor.U2D.Animation
 
         public T CreateCache<T>() where T : CacheObject
         {
-            var cacheObject = FindRemovedCacheObject<T>();
+            T cacheObject = FindRemovedCacheObject<T>();
 
             if (cacheObject != null)
             {
@@ -125,14 +125,14 @@ namespace UnityEditor.U2D.Animation
 
             undo.ClearUndo(this);
 
-            var cacheObjects = m_CacheObjects.ToArray();
+            CacheObject[] cacheObjects = m_CacheObjects.ToArray();
 
-            foreach (var cacheObject in cacheObjects)
+            foreach (CacheObject cacheObject in cacheObjects)
                 DestroyImmediate(cacheObject);
 
             cacheObjects = m_RemovedCacheObjects.ToArray();
 
-            foreach (var cacheObject in cacheObjects)
+            foreach (CacheObject cacheObject in cacheObjects)
                 DestroyImmediate(cacheObject);
 
             m_CacheObjects.Clear();

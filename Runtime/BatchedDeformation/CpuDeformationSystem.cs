@@ -22,7 +22,7 @@ namespace UnityEngine.U2D.Animation
 
         internal override void UpdateMaterial(SpriteSkin spriteSkin)
         {
-            var sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
+            Material sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
             if (sharedMaterial.IsKeywordEnabled(k_GpuSkinningShaderKeyword))
                 sharedMaterial.DisableKeyword(k_GpuSkinningShaderKeyword);
         }
@@ -32,7 +32,7 @@ namespace UnityEngine.U2D.Animation
             BatchRemoveSpriteSkins();
             BatchAddSpriteSkins();
 
-            var count = m_SpriteSkins.Count;
+            int count = m_SpriteSkins.Count;
             if (count == 0)
             {
                 m_LocalToWorldTransformAccessJob.ResetCache();
@@ -48,9 +48,9 @@ namespace UnityEngine.U2D.Animation
             Assert.AreEqual(m_Buffers.Length, count);
             Assert.AreEqual(m_BufferSizes.Length, count);
 
-            PrepareDataForDeformation(out var localToWorldJobHandle, out var worldToLocalJobHandle);
+            PrepareDataForDeformation(out JobHandle localToWorldJobHandle, out JobHandle worldToLocalJobHandle);
 
-            if (!GotVerticesToDeform(out var vertexBufferSize))
+            if (!GotVerticesToDeform(out int vertexBufferSize))
             {
                 localToWorldJobHandle.Complete();
                 worldToLocalJobHandle.Complete();
@@ -58,11 +58,11 @@ namespace UnityEngine.U2D.Animation
                 return;
             }
 
-            var skinBatch = m_SkinBatchArray[0];
+            PerSkinJobData skinBatch = m_SkinBatchArray[0];
             ResizeBuffers(vertexBufferSize, in skinBatch);
 
-            var batchCount = m_SpriteSkinData.Length;
-            var jobHandle = SchedulePrepareJob(batchCount);
+            int batchCount = m_SpriteSkinData.Length;
+            JobHandle jobHandle = SchedulePrepareJob(batchCount);
 
             Profiling.scheduleJobs.Begin();
             jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle, jobHandle);
@@ -82,9 +82,9 @@ namespace UnityEngine.U2D.Animation
                 InternalEngineBridge.SetBatchDeformableBufferAndLocalAABBArray(m_SpriteRenderers, m_Buffers, m_BufferSizes, m_BoundsData);
             }
 
-            foreach (var spriteSkin in m_SpriteSkins)
+            foreach (SpriteSkin spriteSkin in m_SpriteSkins)
             {
-                var didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
+                bool didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
                 spriteSkin.PostDeform(didDeform);
 
             }

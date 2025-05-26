@@ -48,7 +48,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             pickingMode = PickingMode.Ignore;
 
-            var scrollView = this.Q<ScrollView>();
+            ScrollView scrollView = this.Q<ScrollView>();
             scrollView.pickingMode = PickingMode.Ignore;
             scrollView.contentContainer.pickingMode = PickingMode.Ignore;
             scrollView.contentViewport.pickingMode = PickingMode.Ignore;
@@ -123,14 +123,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (renamingIndex == -1)
                 return;
 
-            var changedId = renamingIndex;
+            int changedId = renamingIndex;
             renamingIndex = -1;
             if (changedId >= 0)
             {
-                var ve = GetRootElementForIndex(changedId);
+                VisualElement ve = GetRootElementForIndex(changedId);
                 if (ve != null)
                 {
-                    var text = ve.Q<TextField>();
+                    TextField text = ve.Q<TextField>();
                     text.Blur();
 
                     if (!cancelled)
@@ -224,14 +224,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (renamingIndex == -1)
                 return;
 
-            var changedId = renamingIndex;
+            int changedId = renamingIndex;
             renamingIndex = -1;
             if (changedId >= 0)
             {
-                var ve = GetElementAt(changedId);
+                VisualElement ve = GetElementAt(changedId);
                 if (ve != null)
                 {
-                    var text = ve.Q<TextField>();
+                    TextField text = ve.Q<TextField>();
                     text.Blur();
 
                     if (!cancelled)
@@ -264,7 +264,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             itemsSource = sourceList;
             UpdateColumnCount();
 
-            var scroll = scrollView.scrollOffset;
+            Vector2 scroll = scrollView.scrollOffset;
             scrollView.scrollOffset = Vector2.zero;
             scrollView.scrollOffset = scroll;
         }
@@ -285,7 +285,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void UpdateColumnCount()
         {
-            var newColumnCount = (int)(m_Width / itemHeight);
+            int newColumnCount = (int)(m_Width / itemHeight);
 
             if (columnCount != newColumnCount)
             {

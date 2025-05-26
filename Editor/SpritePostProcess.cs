@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using Unity.Collections;
 using System.Linq;
+using Unity.Collections;
 using UnityEditor.U2D.Sprites;
-using UnityEngine.U2D.Animation;
+using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.U2D;
+using UnityEngine.U2D.Animation;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -14,21 +14,23 @@ namespace UnityEditor.U2D.Animation
     {
         void OnPreprocessAsset()
         {
-            var dataProvider = GetSpriteEditorDataProvider(assetPath);
+            ISpriteEditorDataProvider dataProvider = GetSpriteEditorDataProvider(assetPath);
             if (dataProvider != null)
                 InjectMainSkeletonBones(dataProvider);
         }
 
+#pragma warning disable UNT0033 // suppress warning incorrect method case
         void OnPostprocessSprites(Texture2D texture, Sprite[] sprites)
+#pragma warning restore UNT0033
         {
-            var ai = GetSpriteEditorDataProvider(assetPath);
+            ISpriteEditorDataProvider ai = GetSpriteEditorDataProvider(assetPath);
             if (ai != null)
             {
                 // Injecting these bones a second time, because the Sprite Rect positions
                 // might have updated between OnPreprocessAsset and OnPostprocessSprites.
                 InjectMainSkeletonBones(ai);
 
-                var definitionScale = CalculateDefinitionScale(texture, ai.GetDataProvider<ITextureDataProvider>());
+                float definitionScale = CalculateDefinitionScale(texture, ai.GetDataProvider<ITextureDataProvider>());
                 ai.InitSpriteEditorDataProvider();
                 PostProcessBoneData(ai, definitionScale, sprites);
                 PostProcessSpriteMeshData(ai, definitionScale, sprites, assetImporter);
@@ -41,15 +43,15 @@ namespace UnityEditor.U2D.Animation
 
         static void InjectMainSkeletonBones(ISpriteEditorDataProvider dataProvider)
         {
-            var characterDataProvider = dataProvider.GetDataProvider<ICharacterDataProvider>();
-            var mainSkeletonBonesDataProvider = dataProvider.GetDataProvider<IMainSkeletonDataProvider>();
+            ICharacterDataProvider characterDataProvider = dataProvider.GetDataProvider<ICharacterDataProvider>();
+            IMainSkeletonDataProvider mainSkeletonBonesDataProvider = dataProvider.GetDataProvider<IMainSkeletonDataProvider>();
             if (characterDataProvider == null || mainSkeletonBonesDataProvider == null)
                 return;
 
-            var skinningCache = Cache.Create<SkinningCache>();
+            SkinningCache skinningCache = Cache.Create<SkinningCache>();
             skinningCache.Create(dataProvider, new SkinningCachePersistentStateTemp());
 
-            var skeletonBones = mainSkeletonBonesDataProvider.GetMainSkeletonData().bones ?? new SpriteBone[0];
+            SpriteBone[] skeletonBones = mainSkeletonBonesDataProvider.GetMainSkeletonData().bones ?? new SpriteBone[0];
             RemapCharacterPartsToNewBones(skinningCache, skeletonBones);
 
             SkinningModule.ApplyChanges(skinningCache, dataProvider);
@@ -57,18 +59,18 @@ namespace UnityEditor.U2D.Animation
 
         static void RemapCharacterPartsToNewBones(SkinningCache skinningCache, SpriteBone[] newBones)
         {
-            var skeleton = skinningCache.character.skeleton;
-            var previousStateBones = skeleton.bones;
-            var skeletonBones = skinningCache.CreateBoneCacheFromSpriteBones(newBones, 1.0f);
+            SkeletonCache skeleton = skinningCache.character.skeleton;
+            BoneCache[] previousStateBones = skeleton.bones;
+            BoneCache[] skeletonBones = skinningCache.CreateBoneCacheFromSpriteBones(newBones, 1.0f);
             skeleton.SetBones(skeletonBones);
 
-            for (var i = 0; i < skinningCache.character.parts.Length; i++)
+            for (int i = 0; i < skinningCache.character.parts.Length; i++)
             {
-                var characterPart = skinningCache.character.parts[i];
-                var useGuids = !skeletonBones.All(newBone => previousStateBones.All(oldBone => newBone.guid != oldBone.guid));
+                CharacterPartCache characterPart = skinningCache.character.parts[i];
+                bool useGuids = !skeletonBones.All(newBone => previousStateBones.All(oldBone => newBone.guid != oldBone.guid));
                 characterPart.bones = useGuids ? characterPart.bones.Select(partBone => Array.Find(skeletonBones, skeletonBone => partBone.guid == skeletonBone.guid)).ToArray() : characterPart.bones.Select(partBone => skeletonBones.ElementAtOrDefault(Array.FindIndex(previousStateBones, oldBone => partBone.guid == oldBone.guid))).ToArray();
 
-                var mesh = skinningCache.GetMesh(characterPart.sprite);
+                MeshCache mesh = skinningCache.GetMesh(characterPart.sprite);
                 if (mesh != null)
                     mesh.SetCompatibleBoneSet(characterPart.bones);
 
@@ -78,8 +80,8 @@ namespace UnityEditor.U2D.Animation
 
         static void RefreshSpriteSkinCache()
         {
-            var spriteSkins = GameObject.FindObjectsByType<SpriteSkin>(FindObjectsSortMode.None);
-            foreach (var ss in spriteSkins)
+            SpriteSkin[] spriteSkins = GameObject.FindObjectsByType<SpriteSkin>(FindObjectsSortMode.None);
+            foreach (SpriteSkin ss in spriteSkins)
             {
                 ss.ResetSprite();
             }
@@ -90,16 +92,16 @@ namespace UnityEditor.U2D.Animation
             if (outpriteBone[i] != null)
                 return;
             UnityEngine.U2D.SpriteBone sp = spriteBone[i];
-            var isRoot = sp.parentId == -1;
-            var position = isRoot ? (spriteBone[i].position - Vector3.Scale(spriteRect.rect.size, spriteRect.pivot)) : spriteBone[i].position;
+            bool isRoot = sp.parentId == -1;
+            Vector3 position = isRoot ? (spriteBone[i].position - Vector3.Scale(spriteRect.rect.size, spriteRect.pivot)) : spriteBone[i].position;
             position.z = 0f;
             sp.position = position * definitionScale / pixelsPerUnit;
             sp.length = spriteBone[i].length * definitionScale / pixelsPerUnit;
             outpriteBone[i] = sp;
 
             // Calculate bind poses
-            var worldPosition = Vector3.zero;
-            var worldRotation = Quaternion.identity;
+            Vector3 worldPosition = Vector3.zero;
+            Quaternion worldRotation = Quaternion.identity;
 
             if (sp.parentId == -1)
             {
@@ -113,15 +115,15 @@ namespace UnityEditor.U2D.Animation
                     CalculateLocaltoWorldMatrix(sp.parentId, spriteRect, definitionScale, pixelsPerUnit, spriteBone, ref outpriteBone, ref bindPose);
                 }
 
-                var parentBindPose = bindPose[sp.parentId];
-                var invParentBindPose = Matrix4x4.Inverse(parentBindPose);
+                Matrix4x4 parentBindPose = bindPose[sp.parentId];
+                Matrix4x4 invParentBindPose = Matrix4x4.Inverse(parentBindPose);
 
                 worldPosition = invParentBindPose.MultiplyPoint(sp.position);
                 worldRotation = sp.rotation * invParentBindPose.rotation;
             }
 
             // Practically Matrix4x4.SetTRInverse
-            var rot = Quaternion.Inverse(worldRotation);
+            Quaternion rot = Quaternion.Inverse(worldRotation);
             Matrix4x4 mat = Matrix4x4.identity;
             mat = Matrix4x4.Rotate(rot);
             mat = mat * Matrix4x4.Translate(-worldPosition);
@@ -132,30 +134,30 @@ namespace UnityEditor.U2D.Animation
 
         static bool PostProcessBoneData(ISpriteEditorDataProvider spriteDataProvider, float definitionScale, Sprite[] sprites)
         {
-            var boneDataProvider = spriteDataProvider.GetDataProvider<ISpriteBoneDataProvider>();
-            var textureDataProvider = spriteDataProvider.GetDataProvider<ITextureDataProvider>();
+            ISpriteBoneDataProvider boneDataProvider = spriteDataProvider.GetDataProvider<ISpriteBoneDataProvider>();
+            ITextureDataProvider textureDataProvider = spriteDataProvider.GetDataProvider<ITextureDataProvider>();
 
             if (sprites == null || sprites.Length == 0 || boneDataProvider == null || textureDataProvider == null)
                 return false;
 
-            var dataChanged = false;
-            var spriteRects = spriteDataProvider.GetSpriteRects();
-            foreach (var sprite in sprites)
+            bool dataChanged = false;
+            SpriteRect[] spriteRects = spriteDataProvider.GetSpriteRects();
+            foreach (Sprite sprite in sprites)
             {
-                var guid = sprite.GetSpriteID();
+                GUID guid = sprite.GetSpriteID();
                 {
-                    var spriteBone = boneDataProvider.GetBones(guid);
+                    List<SpriteBone> spriteBone = boneDataProvider.GetBones(guid);
                     if (spriteBone == null)
                         continue;
 
-                    var spriteBoneCount = spriteBone.Count;
+                    int spriteBoneCount = spriteBone.Count;
                     if (spriteBoneCount == 0)
                         continue;
 
-                    var spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
+                    SpriteRect spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
 
-                    var bindPose = new NativeArray<Matrix4x4>(spriteBoneCount, Allocator.Temp);
-                    var outputSpriteBones = new UnityEngine.U2D.SpriteBone? [spriteBoneCount];
+                    NativeArray<Matrix4x4> bindPose = new NativeArray<Matrix4x4>(spriteBoneCount, Allocator.Temp);
+                    SpriteBone?[] outputSpriteBones = new UnityEngine.U2D.SpriteBone?[spriteBoneCount];
                     for (int i = 0; i < spriteBoneCount; ++i)
                     {
                         CalculateLocaltoWorldMatrix(i, spriteRect, definitionScale, sprite.pixelsPerUnit, spriteBone, ref outputSpriteBones, ref bindPose);
@@ -174,50 +176,50 @@ namespace UnityEditor.U2D.Animation
 
         static bool PostProcessSpriteMeshData(ISpriteEditorDataProvider spriteDataProvider, float definitionScale, Sprite[] sprites, AssetImporter assetImporter)
         {
-            var spriteMeshDataProvider = spriteDataProvider.GetDataProvider<ISpriteMeshDataProvider>();
-            var boneDataProvider = spriteDataProvider.GetDataProvider<ISpriteBoneDataProvider>();
-            var textureDataProvider = spriteDataProvider.GetDataProvider<ITextureDataProvider>();
-            var outlineDataProvider = spriteDataProvider.GetDataProvider<ISpriteOutlineDataProvider>();
+            ISpriteMeshDataProvider spriteMeshDataProvider = spriteDataProvider.GetDataProvider<ISpriteMeshDataProvider>();
+            ISpriteBoneDataProvider boneDataProvider = spriteDataProvider.GetDataProvider<ISpriteBoneDataProvider>();
+            ITextureDataProvider textureDataProvider = spriteDataProvider.GetDataProvider<ITextureDataProvider>();
+            ISpriteOutlineDataProvider outlineDataProvider = spriteDataProvider.GetDataProvider<ISpriteOutlineDataProvider>();
             if (sprites == null || sprites.Length == 0 || spriteMeshDataProvider == null || textureDataProvider == null)
                 return false;
 
-            var dataChanged = false;
-            var spriteRects = spriteDataProvider.GetSpriteRects();
-            var showMeshOverwriteWarning = SkinningModuleSettings.showSpriteMeshOverwriteWarning;
-            foreach (var sprite in sprites)
+            bool dataChanged = false;
+            SpriteRect[] spriteRects = spriteDataProvider.GetSpriteRects();
+            bool showMeshOverwriteWarning = SkinningModuleSettings.showSpriteMeshOverwriteWarning;
+            foreach (Sprite sprite in sprites)
             {
-                var guid = sprite.GetSpriteID();
-                var vertices = spriteMeshDataProvider.GetVertices(guid);
+                GUID guid = sprite.GetSpriteID();
+                Vertex2DMetaData[] vertices = spriteMeshDataProvider.GetVertices(guid);
                 int[] indices = null;
                 if (vertices.Length > 2)
                     indices = spriteMeshDataProvider.GetIndices(guid);
 
-                var spriteBone = boneDataProvider.GetBones(guid);
-                var hasBones = spriteBone is { Count: > 0 };
+                List<SpriteBone> spriteBone = boneDataProvider.GetBones(guid);
+                bool hasBones = spriteBone is { Count: > 0 };
 
                 if (indices != null && indices.Length > 2 && vertices.Length > 2)
                 {
-                    var spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
-                    var hasInvalidWeights = false;
+                    SpriteRect spriteRect = spriteRects.First(s => { return s.spriteID == guid; });
+                    bool hasInvalidWeights = false;
 
-                    var vertexArray = new NativeArray<Vector3>(vertices.Length, Allocator.Temp);
-                    var boneWeightArray = new NativeArray<BoneWeight>(vertices.Length, Allocator.Temp);
+                    NativeArray<Vector3> vertexArray = new NativeArray<Vector3>(vertices.Length, Allocator.Temp);
+                    NativeArray<BoneWeight> boneWeightArray = new NativeArray<BoneWeight>(vertices.Length, Allocator.Temp);
 
                     for (int i = 0; i < vertices.Length; ++i)
                     {
-                        var boneWeight = vertices[i].boneWeight;
+                        BoneWeight boneWeight = vertices[i].boneWeight;
 
                         vertexArray[i] = (Vector3)(vertices[i].position - Vector2.Scale(spriteRect.rect.size, spriteRect.pivot)) * definitionScale / sprite.pixelsPerUnit;
                         boneWeightArray[i] = boneWeight;
 
                         if (hasBones && !hasInvalidWeights)
                         {
-                            var sum = boneWeight.weight0 + boneWeight.weight1 + boneWeight.weight2 + boneWeight.weight3;
+                            float sum = boneWeight.weight0 + boneWeight.weight1 + boneWeight.weight2 + boneWeight.weight3;
                             hasInvalidWeights = sum < 0.999f;
                         }
                     }
 
-                    var indicesArray = new NativeArray<ushort>(indices.Length, Allocator.Temp);
+                    NativeArray<ushort> indicesArray = new NativeArray<ushort>(indices.Length, Allocator.Temp);
                     for (int i = 0; i < indices.Length; ++i)
                         indicesArray[i] = (ushort)indices[i];
 
@@ -235,7 +237,7 @@ namespace UnityEditor.U2D.Animation
                     // Deformed Sprites require proper Tangent Channels if Lit. Enable Tangent channels.
                     if (hasBones)
                     {
-                        var tangentArray = new NativeArray<Vector4>(vertices.Length, Allocator.Temp);
+                        NativeArray<Vector4> tangentArray = new NativeArray<Vector4>(vertices.Length, Allocator.Temp);
                         for (int i = 0; i < vertices.Length; ++i)
                             tangentArray[i] = new Vector4(1.0f, 0.0f, 0, -1.0f);
                         sprite.SetVertexAttribute<Vector4>(VertexAttribute.Tangent, tangentArray);
@@ -251,10 +253,10 @@ namespace UnityEditor.U2D.Animation
                 {
                     if (hasBones)
                     {
-                        var boneWeightArray = new NativeArray<BoneWeight>(sprite.GetVertexCount(), Allocator.Temp);
-                        var defaultBoneWeight = new BoneWeight() { weight0 = 1f };
+                        NativeArray<BoneWeight> boneWeightArray = new NativeArray<BoneWeight>(sprite.GetVertexCount(), Allocator.Temp);
+                        BoneWeight defaultBoneWeight = new BoneWeight() { weight0 = 1f };
 
-                        for (var i = 0; i < boneWeightArray.Length; ++i)
+                        for (int i = 0; i < boneWeightArray.Length; ++i)
                             boneWeightArray[i] = defaultBoneWeight;
 
                         sprite.SetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight, boneWeightArray);
@@ -282,7 +284,7 @@ namespace UnityEditor.U2D.Animation
 
         static ISpriteEditorDataProvider GetSpriteEditorDataProvider(string assetPath)
         {
-            var dataProviderFactories = new SpriteDataProviderFactories();
+            SpriteDataProviderFactories dataProviderFactories = new SpriteDataProviderFactories();
             dataProviderFactories.Init();
             return dataProviderFactories.GetSpriteEditorDataProviderFromObject(AssetImporter.GetAtPath(assetPath));
         }

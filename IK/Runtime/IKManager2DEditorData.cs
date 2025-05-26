@@ -19,8 +19,8 @@ namespace UnityEngine.U2D.IK
 
         void OnEditorDataValidate()
         {
-            var solverDataLength = m_SolverEditorData.Count;
-            for (var i = solverDataLength; i < m_Solvers.Count; ++i)
+            int solverDataLength = m_SolverEditorData.Count;
+            for (int i = solverDataLength; i < m_Solvers.Count; ++i)
             {
                 AddSolverEditorData();
             }
@@ -28,7 +28,7 @@ namespace UnityEngine.U2D.IK
 
         internal SolverEditorData GetSolverEditorData(Solver2D solver)
         {
-            var index = m_Solvers.FindIndex(x => x == solver);
+            int index = m_Solvers.FindIndex(x => x == solver);
             if (index >= 0)
             {
                 if (index >= m_SolverEditorData.Count)
@@ -50,7 +50,7 @@ namespace UnityEngine.U2D.IK
 
         void RemoveSolverEditorData(Solver2D solver)
         {
-            var index = m_Solvers.FindIndex(x => x == solver);
+            int index = m_Solvers.FindIndex(x => x == solver);
             if (index >= 0)
                 m_SolverEditorData.RemoveAt(index);
         }

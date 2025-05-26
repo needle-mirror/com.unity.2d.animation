@@ -28,7 +28,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
             try
             {
                 if (s_Upgraders.ContainsKey(upgradeMode))
-                    report =  s_Upgraders[upgradeMode].UpgradeSelection(selection);
+                    report = s_Upgraders[upgradeMode].UpgradeSelection(selection);
             }
             catch
             {

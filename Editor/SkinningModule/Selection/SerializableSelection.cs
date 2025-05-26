@@ -32,11 +32,11 @@ namespace UnityEditor.U2D.Animation
         {
             get
             {
-                var set = m_Selection;
+                HashSet<T> set = m_Selection;
 
                 if (m_SelectionInProgress)
                 {
-                    var union = new HashSet<T>(m_Selection);
+                    HashSet<T> union = new HashSet<T>(m_Selection);
                     union.UnionWith(m_TemporalSelection);
                     set = union;
                 }
@@ -46,7 +46,7 @@ namespace UnityEditor.U2D.Animation
             set
             {
                 Clear();
-                foreach (var element in value)
+                foreach (T element in value)
                     Select(element, true);
             }
         }
@@ -115,7 +115,7 @@ namespace UnityEditor.U2D.Animation
             if (set.Count == 0)
                 return GetInvalidElement();
 
-            using (var enumerator = set.GetEnumerator())
+            using (HashSet<T>.Enumerator enumerator = set.GetEnumerator())
             {
                 Debug.Assert(enumerator.MoveNext());
                 return enumerator.Current;

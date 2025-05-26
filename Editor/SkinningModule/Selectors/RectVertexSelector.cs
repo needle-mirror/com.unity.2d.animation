@@ -10,7 +10,7 @@ namespace UnityEditor.U2D.Animation
 
         public void Select()
         {
-            for (var i = 0; i < spriteMeshData.vertexCount; i++)
+            for (int i = 0; i < spriteMeshData.vertexCount; i++)
             {
                 if (rect.Contains(spriteMeshData.vertices[i], true))
                     selection.Select(i, true);

@@ -44,13 +44,13 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             m_SpriteResolverLabel.AddToClassList(Styles.spriteResolverNameLabel);
             Add(m_SpriteResolverLabel);
 
-            var categoryAndLabelNameHolder = new VisualElement();
+            VisualElement categoryAndLabelNameHolder = new VisualElement();
             categoryAndLabelNameHolder.AddToClassList(Styles.categoryAndLabelNameContainer);
             Add(categoryAndLabelNameHolder);
 
             m_CategoryContainer = categoryContainer;
             m_CategoryContainer.onSelectionChange += OnCategorySelected;
-            var categoryContainerVisual = m_CategoryContainer.visualElement;
+            VisualElement categoryContainerVisual = m_CategoryContainer.visualElement;
             categoryContainerVisual.RegisterCallback<FocusInEvent>(OnFocusIn);
             categoryContainerVisual.RegisterCallback<FocusOutEvent>(OnFocusOut);
             categoryAndLabelNameHolder.Add(categoryContainerVisual);
@@ -61,7 +61,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
             m_LabelContainer = labelContainer;
             m_LabelContainer.onSelectionChange += OnLabelSelected;
-            var labelContainerVisual = m_LabelContainer.visualElement;
+            VisualElement labelContainerVisual = m_LabelContainer.visualElement;
             labelContainerVisual.RegisterCallback<FocusInEvent>(OnFocusIn);
             labelContainerVisual.RegisterCallback<FocusOutEvent>(OnFocusOut);
             Add(labelContainerVisual);
@@ -104,7 +104,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void ReadCategoryAndLabelFromSelection()
         {
-            var resolver = spriteResolver;
+            SpriteResolver resolver = spriteResolver;
             if (resolver == null)
                 return;
 
@@ -116,7 +116,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void UpdateVisuals()
         {
-            var resolver = spriteResolver;
+            SpriteResolver resolver = spriteResolver;
             if (resolver == null)
                 return;
 
@@ -126,7 +126,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             m_AvailableLabels = new List<Tuple<string, Sprite>>();
             if (resolver.spriteLibrary != null)
             {
-                foreach (var labelName in GetAvailableLabels(resolver, m_Category))
+                foreach (string labelName in GetAvailableLabels(resolver, m_Category))
                     m_AvailableLabels.Add(new Tuple<string, Sprite>(labelName, resolver.spriteLibrary.GetSprite(m_Category, labelName)));
             }
 
@@ -148,17 +148,17 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void OnCategorySelected(int newSelection)
         {
-            var resolver = spriteResolver;
+            SpriteResolver resolver = spriteResolver;
             if (resolver == null)
                 return;
 
-            var categoryName = (string)m_CategoryContainer.GetItem(newSelection);
+            string categoryName = (string)m_CategoryContainer.GetItem(newSelection);
             if (categoryName == null || categoryName == m_Category)
                 return;
 
-            var availableLabels = resolver.spriteLibrary != null ? resolver.spriteLibrary.GetEntryNames(categoryName) : null;
-            var labelList = availableLabels != null ? new List<string>(availableLabels) : new List<string>();
-            var labelName = string.Empty;
+            IEnumerable<string> availableLabels = resolver.spriteLibrary != null ? resolver.spriteLibrary.GetEntryNames(categoryName) : null;
+            List<string> labelList = availableLabels != null ? new List<string>(availableLabels) : new List<string>();
+            string labelName = string.Empty;
             if (labelList.Count > 0)
                 labelName = labelList.Contains(m_Label) ? m_Label : labelList[0];
 
@@ -170,11 +170,11 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void OnLabelSelected(int newSelection)
         {
-            var resolver = spriteResolver;
+            SpriteResolver resolver = spriteResolver;
             if (resolver == null)
                 return;
 
-            var (labelName, _) = (Tuple<string, Sprite>)m_LabelContainer.GetItem(newSelection);
+            (string labelName, Sprite _) = (Tuple<string, Sprite>)m_LabelContainer.GetItem(newSelection);
             if (string.IsNullOrWhiteSpace(labelName) || labelName == m_Label)
                 return;
 
@@ -193,14 +193,14 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             switch (evt.keyCode)
             {
                 case KeyCode.LeftArrow:
-                    var previousIndex = m_CurrentSelection.selectedIndex - 1;
+                    int previousIndex = m_CurrentSelection.selectedIndex - 1;
                     if (previousIndex < 0)
                         previousIndex += m_CurrentSelection.itemCount;
                     m_CurrentSelection.Select(previousIndex);
                     evt.StopPropagation();
                     break;
                 case KeyCode.RightArrow:
-                    var nextIndex = m_CurrentSelection.selectedIndex + 1;
+                    int nextIndex = m_CurrentSelection.selectedIndex + 1;
                     if (nextIndex >= m_CurrentSelection.itemCount)
                         nextIndex = 0;
                     m_CurrentSelection?.Select(nextIndex);
@@ -215,14 +215,14 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void OnFocusIn(FocusInEvent evt)
         {
-            var navigable = (INavigableElement)evt.currentTarget;
+            INavigableElement navigable = (INavigableElement)evt.currentTarget;
             if (navigable != null)
                 m_CurrentSelection = navigable;
         }
 
         void OnFocusOut(FocusOutEvent evt)
         {
-            var navigable = (INavigableElement)evt.currentTarget;
+            INavigableElement navigable = (INavigableElement)evt.currentTarget;
             if (navigable != null && m_CurrentSelection == navigable)
                 m_CurrentSelection = null;
         }
@@ -232,7 +232,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             if (spriteResolver == null || spriteResolver.spriteLibrary == null)
                 return new List<string>();
 
-            var availableCategories = spriteResolver.spriteLibrary.categoryNames;
+            IEnumerable<string> availableCategories = spriteResolver.spriteLibrary.categoryNames;
             return availableCategories != null ? new List<string>(availableCategories) : new List<string>();
         }
 
@@ -241,14 +241,14 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             if (spriteResolver == null || spriteResolver.spriteLibrary == null || string.IsNullOrEmpty(categoryName))
                 return new List<string>();
 
-            var availableLabels = spriteResolver.spriteLibrary.GetEntryNames(categoryName);
+            IEnumerable<string> availableLabels = spriteResolver.spriteLibrary.GetEntryNames(categoryName);
             return availableLabels != null ? new List<string>(availableLabels) : new List<string>();
         }
 
         void UpdateAnimationColor()
         {
-            var spriteResolverObject = spriteResolver;
-            var animationState = PropertyAnimationState.NotAnimated;
+            SpriteResolver spriteResolverObject = spriteResolver;
+            PropertyAnimationState animationState = PropertyAnimationState.NotAnimated;
             if (spriteResolverObject != null && m_SpriteHashProperty != null)
             {
                 if (InternalEditorBridge.IsAnimated(spriteResolverObject, m_SpriteHashProperty))

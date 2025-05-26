@@ -50,7 +50,7 @@ namespace UnityEditor.U2D.Animation
 
     internal class GUIWrapper : IGUIWrapper
     {
-        private Handles.CapFunction nullCap = (int c, Vector3 p , Quaternion r, float s, EventType ev) => {};
+        private Handles.CapFunction nullCap = (int c, Vector3 p, Quaternion r, float s, EventType ev) => { };
         private int m_MultiStepHotControl = 0;
 
         public Vector2 mousePosition

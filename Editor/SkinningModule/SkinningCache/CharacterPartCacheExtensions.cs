@@ -7,21 +7,21 @@ namespace UnityEditor.U2D.Animation
     {
         public static void SyncSpriteSheetSkeleton(this CharacterPartCache characterPart)
         {
-            var skinningCache = characterPart.skinningCache;
-            var character = skinningCache.character;
-            var characterSkeleton = character.skeleton;
-            var spriteSkeleton = characterPart.sprite.GetSkeleton();
-            var spriteSkeletonBones = spriteSkeleton.bones;
-            var characterPartBones = characterPart.bones;
+            SkinningCache skinningCache = characterPart.skinningCache;
+            CharacterCache character = skinningCache.character;
+            SkeletonCache characterSkeleton = character.skeleton;
+            SkeletonCache spriteSkeleton = characterPart.sprite.GetSkeleton();
+            BoneCache[] spriteSkeletonBones = spriteSkeleton.bones;
+            BoneCache[] characterPartBones = characterPart.bones;
 
             if (spriteSkeletonBones.Length != characterPartBones.Length)
                 return;
 
-            for (var i = 0; i < characterPartBones.Length; ++i)
+            for (int i = 0; i < characterPartBones.Length; ++i)
             {
-                var spriteBone = spriteSkeletonBones[i];
-                var characterBone = characterPartBones[i];
-                var childWorldPose = spriteBone.GetChildrenWoldPose();
+                BoneCache spriteBone = spriteSkeletonBones[i];
+                BoneCache characterBone = characterPartBones[i];
+                Pose[] childWorldPose = spriteBone.GetChildrenWoldPose();
 
                 spriteBone.position = spriteSkeleton.localToWorldMatrix.MultiplyPoint3x4(
                     characterPart.worldToLocalMatrix.MultiplyPoint3x4(characterBone.position));
@@ -43,24 +43,24 @@ namespace UnityEditor.U2D.Animation
 
         public static void DissociateUnusedBones(this CharacterPartCache characterPart)
         {
-            var skinningCache = characterPart.skinningCache;
-            var bones = characterPart.bones;
+            SkinningCache skinningCache = characterPart.skinningCache;
+            BoneCache[] bones = characterPart.bones;
 
             if (bones.Length == 0)
                 return;
 
             Debug.Assert(characterPart.sprite != null);
 
-            var mesh = characterPart.sprite.GetMesh();
+            MeshCache mesh = characterPart.sprite.GetMesh();
 
             Debug.Assert(mesh != null);
 
-            var weights = mesh.vertexWeights;
-            var newBonesSet = new HashSet<BoneCache>();
+            EditableBoneWeight[] weights = mesh.vertexWeights;
+            HashSet<BoneCache> newBonesSet = new HashSet<BoneCache>();
 
-            foreach (var weight in weights)
+            foreach (EditableBoneWeight weight in weights)
             {
-                foreach (var channel in weight)
+                foreach (BoneWeightChannel channel in weight)
                     if (channel.enabled)
                         newBonesSet.Add(bones[channel.boneIndex]);
             }

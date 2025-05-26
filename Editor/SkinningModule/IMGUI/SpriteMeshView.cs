@@ -117,8 +117,8 @@ namespace UnityEditor.U2D.Animation
 
         public void BeginLayout()
         {
-            var vertexControlID = guiWrapper.GetControlID(m_VertexHashCode, FocusType.Passive);
-            var edgeControlID = guiWrapper.GetControlID(m_EdgeHashCode, FocusType.Passive);
+            int vertexControlID = guiWrapper.GetControlID(m_VertexHashCode, FocusType.Passive);
+            int edgeControlID = guiWrapper.GetControlID(m_EdgeHashCode, FocusType.Passive);
 
             if (guiWrapper.eventType == EventType.Layout || guiWrapper.eventType == EventType.MouseMove)
             {
@@ -146,7 +146,7 @@ namespace UnityEditor.U2D.Animation
             guiWrapper.LayoutControl(m_HoveredEdgeControlID, m_NearestEdgeDistance);
             guiWrapper.LayoutControl(m_HoveredVertexControlID, m_NearestVertexDistance);
 
-            if(guiWrapper.IsControlNearest(m_HoveredVertexControlID))
+            if (guiWrapper.IsControlNearest(m_HoveredVertexControlID))
                 m_HoveredVertex = m_NearestVertex;
 
             if (guiWrapper.IsControlNearest(m_HoveredEdgeControlID))
@@ -161,7 +161,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (guiWrapper.eventType == EventType.Layout)
             {
-                var distance = guiWrapper.DistanceToCircle(position, kVertexRadius);
+                float distance = guiWrapper.DistanceToCircle(position, kVertexRadius);
 
                 if (distance <= m_NearestVertexDistance)
                 {
@@ -175,7 +175,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (guiWrapper.eventType == EventType.Layout)
             {
-                var distance = guiWrapper.DistanceToSegment(startPosition, endPosition);
+                float distance = guiWrapper.DistanceToSegment(startPosition, endPosition);
 
                 if (distance < m_NearestEdgeDistance)
                 {
@@ -366,15 +366,15 @@ namespace UnityEditor.U2D.Animation
             if (guiWrapper.isAltDown || !guiWrapper.IsControlHot(0))
                 return false;
 
-            var canCreateEdge = CanCreateEdge();
-            var canSplitEdge = CanSplitEdge();
+            bool canCreateEdge = CanCreateEdge();
+            bool canSplitEdge = CanSplitEdge();
 
             if (action == MeshEditorAction.None)
                 return guiWrapper.IsControlNearest(defaultControlID);
 
             if (action == MeshEditorAction.CreateVertex)
             {
-                if(!frame.Contains(mouseWorldPosition))
+                if (!frame.Contains(mouseWorldPosition))
                     return false;
 
                 if (mode == SpriteMeshViewMode.EditGeometry)
@@ -449,7 +449,7 @@ namespace UnityEditor.U2D.Animation
                 return false;
             }
 
-            if(action != MeshEditorAction.None)
+            if (action != MeshEditorAction.None)
                 return guiWrapper.IsMouseDown(0);
 
             return false;
@@ -468,7 +468,7 @@ namespace UnityEditor.U2D.Animation
 
         private bool CanCreateEdge()
         {
-            if(!frame.Contains(mouseWorldPosition) || !(guiWrapper.IsControlNearest(defaultControlID) || guiWrapper.IsControlNearest(m_HoveredVertexControlID) || guiWrapper.IsControlNearest(m_HoveredEdgeControlID)))
+            if (!frame.Contains(mouseWorldPosition) || !(guiWrapper.IsControlNearest(defaultControlID) || guiWrapper.IsControlNearest(m_HoveredVertexControlID) || guiWrapper.IsControlNearest(m_HoveredEdgeControlID)))
                 return false;
 
             if (mode == SpriteMeshViewMode.EditGeometry)
@@ -482,7 +482,7 @@ namespace UnityEditor.U2D.Animation
 
         private bool CanSplitEdge()
         {
-            if(!frame.Contains(mouseWorldPosition) || !(guiWrapper.IsControlNearest(defaultControlID) || guiWrapper.IsControlNearest(m_HoveredEdgeControlID)))
+            if (!frame.Contains(mouseWorldPosition) || !(guiWrapper.IsControlNearest(defaultControlID) || guiWrapper.IsControlNearest(m_HoveredEdgeControlID)))
                 return false;
 
             if (mode == SpriteMeshViewMode.EditGeometry)
@@ -507,19 +507,19 @@ namespace UnityEditor.U2D.Animation
 
         public void DoRepaint()
         {
-            if(guiWrapper.eventType != EventType.Layout)
+            if (guiWrapper.eventType != EventType.Layout)
                 return;
 
-            var action = MeshEditorAction.None;
+            MeshEditorAction action = MeshEditorAction.None;
 
-            if(IsActionActive(MeshEditorAction.CreateVertex))
+            if (IsActionActive(MeshEditorAction.CreateVertex))
                 action = MeshEditorAction.CreateVertex;
-            else if(IsActionActive(MeshEditorAction.CreateEdge))
+            else if (IsActionActive(MeshEditorAction.CreateEdge))
                 action = MeshEditorAction.CreateEdge;
-            else if(IsActionActive(MeshEditorAction.SplitEdge))
+            else if (IsActionActive(MeshEditorAction.SplitEdge))
                 action = MeshEditorAction.SplitEdge;
 
-            if(m_PreviousActiveAction != action)
+            if (m_PreviousActiveAction != action)
             {
                 m_PreviousActiveAction = action;
                 guiWrapper.Repaint();

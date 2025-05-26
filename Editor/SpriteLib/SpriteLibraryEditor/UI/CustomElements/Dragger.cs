@@ -106,7 +106,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             {
                 if (!isActive)
                 {
-                    var delta = evt.position - m_StartPosition;
+                    Vector3 delta = evt.position - m_StartPosition;
                     if (delta.sqrMagnitude > dragThreshold * dragThreshold && (acceptDrag == null || acceptDrag.Invoke()))
                     {
                         if (!target.HasPointerCapture(evt.pointerId))

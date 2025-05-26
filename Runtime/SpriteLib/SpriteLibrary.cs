@@ -10,7 +10,7 @@ namespace UnityEngine.U2D.Animation
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Library")]
-    [IconAttribute(IconUtility.IconPath + "Animation.SpriteLibrary.png")]
+    [IconAttribute(IconUtility.IconPath + "Animation.SpriteLibrary.asset")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SL-component.html")]
     public class SpriteLibrary : MonoBehaviour, IPreviewable
@@ -120,7 +120,7 @@ namespace UnityEngine.U2D.Animation
 
         List<SpriteCategoryEntry> GetEntries(string category, bool addIfNotExist)
         {
-            var index = m_Library.FindIndex(x => x.name == category);
+            int index = m_Library.FindIndex(x => x.name == category);
             if (index < 0)
             {
                 if (!addIfNotExist)
@@ -138,7 +138,7 @@ namespace UnityEngine.U2D.Animation
 
         static SpriteCategoryEntry GetEntry(List<SpriteCategoryEntry> entries, string entry, bool addIfNotExist)
         {
-            var index = entries.FindIndex(x => x.name == entry);
+            int index = entries.FindIndex(x => x.name == entry);
             if (index < 0)
             {
                 if (!addIfNotExist)
@@ -161,9 +161,9 @@ namespace UnityEngine.U2D.Animation
         /// <param name="label">Label name to add override.</param>
         public void AddOverride(SpriteLibraryAsset spriteLib, string category, string label)
         {
-            var sprite = spriteLib.GetSprite(category, label);
-            var entries = GetEntries(category, true);
-            var entry = GetEntry(entries, label, true);
+            Sprite sprite = spriteLib.GetSprite(category, label);
+            List<SpriteCategoryEntry> entries = GetEntries(category, true);
+            SpriteCategoryEntry entry = GetEntry(entries, label, true);
             entry.sprite = sprite;
             CacheOverrides();
         }
@@ -175,14 +175,14 @@ namespace UnityEngine.U2D.Animation
         /// <param name="category">Category name from the Sprite Library Asset to add override.</param>
         public void AddOverride(SpriteLibraryAsset spriteLib, string category)
         {
-            var categoryHash = SpriteLibraryUtility.GetStringHash(category);
-            var cat = spriteLib.categories.FirstOrDefault(x => x.hash == categoryHash);
+            int categoryHash = SpriteLibraryUtility.GetStringHash(category);
+            SpriteLibCategory cat = spriteLib.categories.FirstOrDefault(x => x.hash == categoryHash);
             if (cat != null)
             {
-                var entries = GetEntries(category, true);
-                for (var i = 0; i < cat.categoryList.Count; ++i)
+                List<SpriteCategoryEntry> entries = GetEntries(category, true);
+                for (int i = 0; i < cat.categoryList.Count; ++i)
                 {
-                    var ent = cat.categoryList[i];
+                    SpriteCategoryEntry ent = cat.categoryList[i];
                     GetEntry(entries, ent.name, true).sprite = ent.sprite;
                 }
 
@@ -209,7 +209,7 @@ namespace UnityEngine.U2D.Animation
         /// <param name="category">Category overrides to remove.</param>
         public void RemoveOverride(string category)
         {
-            var index = m_Library.FindIndex(x => x.name == category);
+            int index = m_Library.FindIndex(x => x.name == category);
             if (index >= 0)
             {
                 m_Library.RemoveAt(index);
@@ -225,10 +225,10 @@ namespace UnityEngine.U2D.Animation
         /// <param name="label">Label to remove.</param>
         public void RemoveOverride(string category, string label)
         {
-            var entries = GetEntries(category, false);
+            List<SpriteCategoryEntry> entries = GetEntries(category, false);
             if (entries != null)
             {
-                var index = entries.FindIndex(x => x.name == label);
+                int index = entries.FindIndex(x => x.name == label);
                 if (index >= 0)
                 {
                     entries.RemoveAt(index);
@@ -246,7 +246,7 @@ namespace UnityEngine.U2D.Animation
         /// <returns>True if override exist, false otherwise.</returns>
         public bool HasOverride(string category, string label)
         {
-            var catOverride = GetEntries(category, false);
+            List<SpriteCategoryEntry> catOverride = GetEntries(category, false);
             if (catOverride != null)
                 return GetEntry(catOverride, label, false) != null;
             return false;
@@ -257,8 +257,8 @@ namespace UnityEngine.U2D.Animation
         /// </summary>
         public void RefreshSpriteResolvers()
         {
-            var spriteResolvers = GetComponentsInChildren<SpriteResolver>();
-            foreach (var sr in spriteResolvers)
+            SpriteResolver[] spriteResolvers = GetComponentsInChildren<SpriteResolver>();
+            foreach (SpriteResolver sr in spriteResolvers)
             {
                 sr.ResolveSpriteToSpriteRenderer();
 #if UNITY_EDITOR
@@ -294,12 +294,12 @@ namespace UnityEngine.U2D.Animation
             {
                 m_PreviousSpriteLibraryAsset = m_SpriteLibraryAsset.GetInstanceID();
                 m_PreviousModificationHash = m_SpriteLibraryAsset.modificationHash;
-                foreach (var category in m_SpriteLibraryAsset.categories)
+                foreach (SpriteLibCategory category in m_SpriteLibraryAsset.categories)
                 {
-                    var catName = category.name;
+                    string catName = category.name;
                     m_CategoryEntryCache.Add(catName, new HashSet<string>());
-                    var cacheEntryName = m_CategoryEntryCache[catName];
-                    foreach (var entry in category.categoryList)
+                    HashSet<string> cacheEntryName = m_CategoryEntryCache[catName];
+                    foreach (SpriteCategoryEntry entry in category.categoryList)
                     {
                         m_CategoryEntryHashCache.Add(GetHashForCategoryAndEntry(catName, entry.name), new CategoryEntrySprite()
                         {
@@ -312,19 +312,19 @@ namespace UnityEngine.U2D.Animation
                 }
             }
 
-            foreach (var category in m_Library)
+            foreach (SpriteLibCategory category in m_Library)
             {
-                var catName = category.name;
+                string catName = category.name;
                 if (!m_CategoryEntryCache.ContainsKey(catName))
                     m_CategoryEntryCache.Add(catName, new HashSet<string>());
-                var cacheEntryName = m_CategoryEntryCache[catName];
+                HashSet<string> cacheEntryName = m_CategoryEntryCache[catName];
 
-                foreach (var ent in category.categoryList)
+                foreach (SpriteCategoryEntry ent in category.categoryList)
                 {
                     if (!cacheEntryName.Contains(ent.name))
                         cacheEntryName.Add(ent.name);
 
-                    var hash = GetHashForCategoryAndEntry(catName, ent.name);
+                    int hash = GetHashForCategoryAndEntry(catName, ent.name);
                     if (!m_CategoryEntryHashCache.ContainsKey(hash))
                     {
                         m_CategoryEntryHashCache.Add(hash, new CategoryEntrySprite()
@@ -336,7 +336,7 @@ namespace UnityEngine.U2D.Animation
                     }
                     else
                     {
-                        var e = m_CategoryEntryHashCache[hash];
+                        CategoryEntrySprite e = m_CategoryEntryHashCache[hash];
                         e.sprite = ent.sprite;
                         m_CategoryEntryHashCache[hash] = e;
                     }

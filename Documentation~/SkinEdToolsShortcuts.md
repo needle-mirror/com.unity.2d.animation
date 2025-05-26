@@ -1,6 +1,6 @@
 # Editor tools and shortcuts
 
-![](images/LabelledEditorTools.png)<br/>Labelled 2D Animation Skinning Editor tools
+![The Skinning Editor window. The Editor toolbar is at the top, and the tools in a column on the left.](images/LabelledEditorTools.png)<br/>Labelled 2D Animation Skinning Editor tools
 
 The Skinning Editor tools are split-up into the following groups:
 
@@ -23,7 +23,7 @@ This toolbar lets you toggle between __Character__ and __Sprite Sheet__ modes. I
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
 | ![Toggle View Mode](images/icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the __Character__ and __Sprite Sheet__ view modes. |
-| ![Visibility eyecon](images/icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite meshes and bones in the editor window. |
+| ![Visibility icon](images/icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite meshes and bones in the editor window. |
 | __Toggle Tool Text__                                         | Shift + `            | Show or hide text on tool buttons.                           |
 
 ## Pose tools
@@ -39,8 +39,6 @@ This is a toolbar that contains the options to __Preview Pose__ and restore the 
 ### Pivot Panel
 
 The __Pivot Panel__ appears when you enable the __Set Pivot__ tool.
-
-![](images/2D-animation-v8-pose-pivot-panel.png)
 
 Property  | Function
 --|--
@@ -61,8 +59,6 @@ Use the __Bone Tools__ to create and edit the bones of your character and their 
 
 The __Bone panel__ appears at the lower right of the editor window when you select a bone with one of the **Bone Tools** active.
 
-![](images/2D-animation-v6-bone-panel.png)
-
 | Property       | Function                                                     |
 | -------------- | ------------------------------------------------------------ |
 | __Name__       | Displays the name of the selected bone. Enter a new name here to rename the selected bone. |
@@ -74,12 +70,12 @@ The __Bone panel__ appears at the lower right of the editor window when you sele
 ### Setting the Depth value
 The following examples show how the **Depth** value of a selected bone affects the render order of the mesh vertices it influences. In this example, the selected bone (orange) and has an intitial **Depth** value of 1.
 
-![](images/2D-animation-bone-depth1.png)
+![Close-up of a character's sprite with its bones visible. The selected bone is colored in orange. The sprite weighted to the bone appears in front other sprites.](images/2D-animation-bone-depth1.png)
 Example 1: With the **Depth** value of 1, the vertices that are influenced by it (the blue are of the Sprite and mesh) appear in front of the other vertices, which have a lower **Depth** value.
 
 However, by setting the bone's **Depth** to -1 instead,
 
-![](images/2D-animation-bone-depth2.png)
+![Close-up of a character's sprite with its bones visible. The selected bone is colored in orange. The sprite weighted to the bone appears behind the other sprites.](images/2D-animation-bone-depth2.png)
 When the selected bone’s **Depth** is set to -1 instead, the vertices that are influenced by it appears behind of the other vertices.
 
 ## Geometry tools
@@ -98,7 +94,7 @@ Use the __Geometry tools__ to generate and edit the meshes of the different Spri
 
 The __Geometry panel__ is only visible when __Auto Geometry__ is enabled. It contains the available settings that affect how the geometry of selected Sprites are generated.
 
-![](images/GeoPanel.png)<br/>Visible only when **Auto Geometry** is enabled.
+Visible only when **Auto Geometry** is enabled.
 
 | __Property__                                       | __Function__                                                 |
 | -------------------------------------------------- | ------------------------------------------------------------ |
@@ -124,8 +120,6 @@ To add weights to your Sprites, you can first ensure that there are [bones](#bon
 
 ### Weights panel
 
-![](images/Weights_panel.png)
-
 The Weights panel appears at the lower right of the Sprite Editor window when __Auto Weights__ under the Weight tools is selected.
 
 | __Property__              | __Function__                                                 |
@@ -136,8 +130,6 @@ The Weights panel appears at the lower right of the Sprite Editor window when __
 | __Clear__                 | Clear the weights of the selected Sprite, or of all Sprites if no specific Sprite is selected. |
 
 ### Weight Slider
-
-![](images/WeightSlider.png)
 
 | __Property__                                | __Function__                                                 |
 | ------------------------------------------- | ------------------------------------------------------------ |
@@ -151,8 +143,6 @@ The Weights panel appears at the lower right of the Sprite Editor window when __
 | __Vertex Weight__                           | Adjust the bone weights of selected vertices.                |
 
 ### Weight Brush
-
-![](images/WeightBrush.png)
 
 | __Property__                             | __Function__                                                 |
 | ---------------------------------------- | ------------------------------------------------------------ |
@@ -170,7 +160,7 @@ The Weights panel appears at the lower right of the Sprite Editor window when __
 
 The __Bone Influences panel__ displays a list of bones that are currently influencing the selected Sprite mesh.
 
-![](images/BoneInfluencesExample.png)
+![The Bone Influences panel, next to the leg of a model that has three bones.](images/BoneInfluencesExample.png)
 
 When the Skinning Editor is set to [Character mode](#editor-toolbar), the Bone Influences panel allows you to add a bone to the list which includes its influence in the deformation of the selected Sprite’s mesh, or remove a bone from the list which removes its influence instead.
 
@@ -180,17 +170,13 @@ To add a bone to the list, select the bone in the __Skinning Editor__ window and
 
 You can rearrange the bone order in the Bone Influences panel by selecting and the dragging the respective bone entries up or down the list.
 
-![](images/BoneInfluences_order.png)
-
 The order of the bones in the Bone Influences panel determines the order of the bones on the __Sprite Skin__ component. This is especially important when replacing the Sprite for deformation in the __Sprite Renderer__, such as when using [Sprite Swap](SpriteSwapIntro.md), as you can ensure the bone order remains the same between the Sprites and that the correct Transform drives the correct deformation.
-
-![](images/BoneInfluences_orderSpriteSkin.png)
 
 ### Sprite Influences panel
 
 The __Sprite Influences panel__ displays a list of Sprite meshes that are currently being influenced by the selected bone.
 
-![](images/SpriteInfluencesExample.png)
+![The Sprite Influence panel next to a model with one bone highlighted. The list in the Sprite Influence panel indicates that the bone influences the body, amulet, and scarf meshes.](images/SpriteInfluencesExample.png)
 
 When the __Skinning Editor__ is set to [Character mode](#editor-toolbar), the Sprite Influences panel allows you to remove an unwanted Sprite mesh from the list so that it’s not influenced by the selected bone. It’s also possible to add a selected Sprite to the list which will include the selected bone’s influence in its deformation.
 
@@ -219,9 +205,6 @@ To copy sprite data, select a sprite and then select __Copy__. This copies the m
 
 ### Paste behavior
 To paste copied sprite data, select the __Paste__ button. This opens the Paste panel at the lower right of the editor window which contains the following data options. Select which data you want to paste from the copied sprite data.
-
-
-![](images/PasteDialog.png)<br/>Paste dialog box.
 
 | __Option__ | Function                                      |
 | ---------- | --------------------------------------------- |

@@ -21,26 +21,26 @@ namespace UnityEditor.U2D.Animation
             if (bone == null)
                 return null;
 
-            var skinningCache = bone.skinningCache;
+            SkinningCache skinningCache = bone.skinningCache;
 
             if (skinningCache.hasCharacter)
             {
                 if (bone.skeleton != skinningCache.character.skeleton)
                 {
-                    var selectedSprite = skinningCache.selectedSprite;
+                    SpriteCache selectedSprite = skinningCache.selectedSprite;
 
                     if (selectedSprite == null)
                         return null;
 
-                    var skeleton = selectedSprite.GetSkeleton();
-                    var characterPart = selectedSprite.GetCharacterPart();
+                    SkeletonCache skeleton = selectedSprite.GetSkeleton();
+                    CharacterPartCache characterPart = selectedSprite.GetCharacterPart();
 
                     Debug.Assert(skeleton != null);
                     Debug.Assert(characterPart != null);
                     Debug.Assert(bone.skeleton == skeleton);
                     Debug.Assert(skeleton.boneCount == characterPart.boneCount);
 
-                    var index = skeleton.IndexOf(bone);
+                    int index = skeleton.IndexOf(bone);
 
                     if (index == -1)
                         bone = null;
@@ -57,27 +57,27 @@ namespace UnityEditor.U2D.Animation
             if (bone == null)
                 return null;
 
-            var skinningCache = bone.skinningCache;
+            SkinningCache skinningCache = bone.skinningCache;
 
             if (skinningCache.hasCharacter && skinningCache.mode == SkinningMode.SpriteSheet)
             {
-                var selectedSprite = skinningCache.selectedSprite;
+                SpriteCache selectedSprite = skinningCache.selectedSprite;
 
                 if (selectedSprite == null)
                     return null;
 
-                var characterSkeleton = skinningCache.character.skeleton;
+                SkeletonCache characterSkeleton = skinningCache.character.skeleton;
 
                 Debug.Assert(bone.skeleton == characterSkeleton);
 
-                var skeleton = selectedSprite.GetSkeleton();
-                var characterPart = selectedSprite.GetCharacterPart();
+                SkeletonCache skeleton = selectedSprite.GetSkeleton();
+                CharacterPartCache characterPart = selectedSprite.GetCharacterPart();
 
                 Debug.Assert(skeleton != null);
                 Debug.Assert(characterPart != null);
                 Debug.Assert(skeleton.boneCount == characterPart.boneCount);
 
-                var index = characterPart.IndexOf(bone);
+                int index = characterPart.IndexOf(bone);
 
                 if (index == -1)
                     bone = null;
@@ -90,8 +90,8 @@ namespace UnityEditor.U2D.Animation
 
         public static UnityEngine.U2D.SpriteBone ToSpriteBone(this BoneCache bone, Matrix4x4 rootTransform, int parentId)
         {
-            var position = bone.localPosition;
-            var rotation = bone.localRotation;
+            Vector3 position = bone.localPosition;
+            Quaternion rotation = bone.localRotation;
 
             if (parentId == -1)
             {
@@ -113,11 +113,11 @@ namespace UnityEditor.U2D.Animation
 
         public static UnityEngine.U2D.SpriteBone[] ToSpriteBone(this BoneCache[] bones, Matrix4x4 rootTransform)
         {
-            var spriteBones = new List<UnityEngine.U2D.SpriteBone>();
+            List<UnityEngine.U2D.SpriteBone> spriteBones = new List<UnityEngine.U2D.SpriteBone>();
 
-            foreach (var bone in bones)
+            foreach (BoneCache bone in bones)
             {
-                var parentId = -1;
+                int parentId = -1;
 
                 if (ArrayUtility.Contains(bones, bone.parentBone))
                     parentId = Array.IndexOf(bones, bone.parentBone);

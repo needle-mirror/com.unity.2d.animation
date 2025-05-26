@@ -33,9 +33,9 @@ namespace UnityEngine.U2D.IK
 
         public override bool AreBonesVisible(IList<int> boneTransformIds)
         {
-            for (var i = 0; i < boneTransformIds.Count; i++)
+            for (int i = 0; i < boneTransformIds.Count; i++)
             {
-                var boneId = boneTransformIds[i];
+                int boneId = boneTransformIds[i];
                 if (m_BoneVisibilityCount.ContainsKey(boneId))
                     return m_BoneVisibilityCount[boneId] > 0;
             }
@@ -48,8 +48,8 @@ namespace UnityEngine.U2D.IK
             m_SpriteSkinRegistries = new Dictionary<SpriteSkin, SpriteSkinRegistry>();
             m_BoneVisibilityCount = new Dictionary<int, int>();
 
-            var spriteSkins = SpriteSkinContainer.instance.spriteSkins;
-            for (var i = 0; i < spriteSkins.Count; i++)
+            IReadOnlyList<SpriteSkin> spriteSkins = SpriteSkinContainer.instance.spriteSkins;
+            for (int i = 0; i < spriteSkins.Count; i++)
                 UpdateSpriteSkinVisibility(spriteSkins[i]);
 
             AddListeners();
@@ -79,9 +79,9 @@ namespace UnityEngine.U2D.IK
 
         protected override void OnUpdate()
         {
-            foreach (var (spriteSkin, registry) in m_SpriteSkinRegistries)
+            foreach ((SpriteSkin spriteSkin, SpriteSkinRegistry registry) in m_SpriteSkinRegistries)
             {
-                var isVisible = spriteSkin.spriteRenderer.isVisible;
+                bool isVisible = spriteSkin.spriteRenderer.isVisible;
                 if (registry.isVisible != isVisible)
                 {
                     registry.isVisible = isVisible;
@@ -107,8 +107,8 @@ namespace UnityEngine.U2D.IK
 
         void UpdateSpriteSkinVisibility(SpriteSkin spriteSkin)
         {
-            var visible = spriteSkin.spriteRenderer.isVisible;
-            var registry = RegisterSpriteSkinBonesMapping(spriteSkin);
+            bool visible = spriteSkin.spriteRenderer.isVisible;
+            SpriteSkinRegistry registry = RegisterSpriteSkinBonesMapping(spriteSkin);
             if (registry.isVisible == visible)
                 return;
 
@@ -122,15 +122,15 @@ namespace UnityEngine.U2D.IK
             if (IsSpriteSkinRegistered(spriteSkin))
                 return m_SpriteSkinRegistries[spriteSkin];
 
-            var bones = spriteSkin.boneTransforms ?? Array.Empty<Transform>();
-            var records = new int[bones.Length];
-            var newRegistry = new SpriteSkinRegistry(records, false);
-            for (var i = 0; i < bones.Length; i++)
+            Transform[] bones = spriteSkin.boneTransforms ?? Array.Empty<Transform>();
+            int[] records = new int[bones.Length];
+            SpriteSkinRegistry newRegistry = new SpriteSkinRegistry(records, false);
+            for (int i = 0; i < bones.Length; i++)
             {
-                var bone = bones[i];
+                Transform bone = bones[i];
                 if (bone == null)
                     continue;
-                var id = bone.GetInstanceID();
+                int id = bone.GetInstanceID();
                 records[i] = id;
             }
 
@@ -143,7 +143,7 @@ namespace UnityEngine.U2D.IK
             if (!IsSpriteSkinRegistered(spriteSkin))
                 return;
 
-            var registry = m_SpriteSkinRegistries[spriteSkin];
+            SpriteSkinRegistry registry = m_SpriteSkinRegistries[spriteSkin];
             registry.isVisible = false;
 
             m_SpriteSkinRegistries.Remove(spriteSkin);
@@ -153,17 +153,17 @@ namespace UnityEngine.U2D.IK
 
         void RecalculateVisibility(SpriteSkinRegistry registry)
         {
-            var bones = registry.boneIds;
+            int[] bones = registry.boneIds;
 
-            var visible = registry.isVisible;
-            var countOperation = visible ? 1 : -1;
+            bool visible = registry.isVisible;
+            int countOperation = visible ? 1 : -1;
 
-            for (var i = 0; i < bones.Length; i++)
+            for (int i = 0; i < bones.Length; i++)
             {
-                var bone = bones[i];
+                int bone = bones[i];
                 if (m_BoneVisibilityCount.ContainsKey(bone))
                 {
-                    var count = m_BoneVisibilityCount[bone] + countOperation;
+                    int count = m_BoneVisibilityCount[bone] + countOperation;
                     if (count <= 0)
                         m_BoneVisibilityCount.Remove(bone);
                     else

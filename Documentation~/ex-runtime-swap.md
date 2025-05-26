@@ -1,7 +1,7 @@
 # Runtime Swap
 This sample demonstrates how you can use the Sprite Library API to override a specific Entry. Note that the sample requires the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) installed. Open the `6 Runtime Swap` Scene to see the sample in action.
 
-![](images/2D-animation-samples-runtimeswap.png)
+![A knight character, and a selection of alternate sprites for his head, arms, and legs that convert him into a skeleton.](images/2D-animation-samples-runtimeswap.png)
 The graphic Assets are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`:
 
 - `Knight.psb`

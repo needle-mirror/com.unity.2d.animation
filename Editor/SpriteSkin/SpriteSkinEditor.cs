@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEditorInternal;
-using UnityEngine.U2D.Animation;
+using UnityEngine;
 using UnityEngine.U2D;
+using UnityEngine.U2D.Animation;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -40,8 +40,8 @@ namespace UnityEditor.U2D.Animation
 
         void OnEnable()
         {
-            var listOfSkins = new List<SpriteSkin>(targets.Length);
-            foreach (var obj in targets)
+            List<SpriteSkin> listOfSkins = new List<SpriteSkin>(targets.Length);
+            foreach (Object obj in targets)
             {
                 if (obj is SpriteSkin skin)
                 {
@@ -78,7 +78,7 @@ namespace UnityEditor.U2D.Animation
 
         void UpdateSpriteCache()
         {
-            for (var i = 0; i < m_SpriteSkins.Length; ++i)
+            for (int i = 0; i < m_SpriteSkins.Length; ++i)
             {
                 m_CurrentSprites[i] = m_SpriteSkins[i].sprite;
             }
@@ -104,7 +104,7 @@ namespace UnityEditor.U2D.Animation
                 m_NeedsRebind = true;
             }
 
-            var hasSpriteChanged = HasAnySpriteChanged();
+            bool hasSpriteChanged = HasAnySpriteChanged();
             if (m_ReorderableList == null || hasSpriteChanged)
             {
                 UpdateSpriteCache();
@@ -144,9 +144,9 @@ namespace UnityEditor.U2D.Animation
 
         bool HasAnySpriteChanged()
         {
-            for (var i = 0; i < m_SpriteSkins.Length; ++i)
+            for (int i = 0; i < m_SpriteSkins.Length; ++i)
             {
-                var sprite = m_SpriteSkins[i].sprite;
+                Sprite sprite = m_SpriteSkins[i].sprite;
                 if (m_CurrentSprites[i] != sprite)
                     return true;
             }
@@ -169,9 +169,9 @@ namespace UnityEditor.U2D.Animation
 
         void InitializeBoneTransformArray()
         {
-            var hasSameNumberOfBones = true;
-            var noOfBones = -1;
-            for (var i = 0; i < m_SpriteSkins.Length; ++i)
+            bool hasSameNumberOfBones = true;
+            int noOfBones = -1;
+            for (int i = 0; i < m_SpriteSkins.Length; ++i)
             {
                 if (m_SpriteSkins[i] == null || m_CurrentSprites[i] == null)
                     continue;
@@ -186,14 +186,14 @@ namespace UnityEditor.U2D.Animation
 
             if (hasSameNumberOfBones)
             {
-                var elementCount = m_BoneTransformsProperty.arraySize;
-                var bones = m_CurrentSprites[0] != null ? m_CurrentSprites[0].GetBones() : new SpriteBone[0];
+                int elementCount = m_BoneTransformsProperty.arraySize;
+                SpriteBone[] bones = m_CurrentSprites[0] != null ? m_CurrentSprites[0].GetBones() : new SpriteBone[0];
 
                 if (elementCount != bones.Length)
                 {
                     m_BoneTransformsProperty.arraySize = bones.Length;
 
-                    for (var i = elementCount; i < m_BoneTransformsProperty.arraySize; ++i)
+                    for (int i = elementCount; i < m_BoneTransformsProperty.arraySize; ++i)
                         m_BoneTransformsProperty.GetArrayElementAtIndex(i).objectReferenceValue = null;
 
                     m_NeedsRebind = true;
@@ -208,18 +208,18 @@ namespace UnityEditor.U2D.Animation
             m_ReorderableList.elementHeightCallback = _ => EditorGUIUtility.singleLineHeight + 6;
             m_ReorderableList.drawElementCallback = (rect, index, _, _) =>
             {
-                var content = GUIContent.none;
+                GUIContent content = GUIContent.none;
 
                 if (m_CurrentSprites[0] != null)
                 {
-                    var bones = m_CurrentSprites[0].GetBones();
+                    SpriteBone[] bones = m_CurrentSprites[0].GetBones();
                     if (index < bones.Length)
                         content = new GUIContent(bones[index].name);
                 }
 
                 rect.y += 2f;
                 rect.height = EditorGUIUtility.singleLineHeight;
-                var element = m_BoneTransformsProperty.GetArrayElementAtIndex(index);
+                SerializedProperty element = m_BoneTransformsProperty.GetArrayElementAtIndex(index);
 
                 EditorGUI.showMixedValue = m_BoneTransformsProperty.hasMultipleDifferentValues;
                 EditorGUI.PropertyField(rect, element, content);
@@ -229,11 +229,11 @@ namespace UnityEditor.U2D.Animation
 
         void Rebind()
         {
-            foreach (var skin in m_SpriteSkins)
+            foreach (SpriteSkin skin in m_SpriteSkins)
             {
                 if (skin.sprite == null || skin.rootBone == null)
                     continue;
-                if (!SpriteSkinHelpers.GetSpriteBonesTransforms(skin, out var transforms))
+                if (!SpriteSkinHelpers.GetSpriteBonesTransforms(skin, out Transform[] transforms))
                     Debug.LogWarning($"Rebind failed for {skin.name}. Could not find all bones required by the Sprite: {skin.sprite.name}.");
                 skin.SetBoneTransforms(transforms);
 
@@ -246,7 +246,7 @@ namespace UnityEditor.U2D.Animation
 
         void ResetBounds(string undoName = "Reset Bounds")
         {
-            foreach (var skin in m_SpriteSkins)
+            foreach (SpriteSkin skin in m_SpriteSkins)
             {
                 if (!skin.isValid)
                     continue;
@@ -266,9 +266,9 @@ namespace UnityEditor.U2D.Animation
 
         bool EnableCreateBones()
         {
-            foreach (var skin in m_SpriteSkins)
+            foreach (SpriteSkin skin in m_SpriteSkins)
             {
-                var sprite = skin.sprite;
+                Sprite sprite = skin.sprite;
                 if (sprite != null && skin.rootBone == null)
                     return true;
             }
@@ -283,7 +283,7 @@ namespace UnityEditor.U2D.Animation
 
         bool IsAnyTargetValid()
         {
-            foreach (var skin in m_SpriteSkins)
+            foreach (SpriteSkin skin in m_SpriteSkins)
             {
                 if (skin.isValid)
                     return true;
@@ -296,9 +296,9 @@ namespace UnityEditor.U2D.Animation
         {
             if (GUILayout.Button("Create Bones", GUILayout.MaxWidth(125f)))
             {
-                foreach (var skin in m_SpriteSkins)
+                foreach (SpriteSkin skin in m_SpriteSkins)
                 {
-                    var sprite = skin.sprite;
+                    Sprite sprite = skin.sprite;
                     if (sprite == null || skin.rootBone != null)
                         continue;
 
@@ -306,7 +306,7 @@ namespace UnityEditor.U2D.Animation
 
                     skin.CreateBoneHierarchy();
 
-                    foreach (var transform in skin.boneTransforms)
+                    foreach (Transform transform in skin.boneTransforms)
                         Undo.RegisterCreatedObjectUndo(transform.gameObject, "Create Bones");
 
                     ResetBoundsIfNeeded(skin);
@@ -323,7 +323,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (GUILayout.Button("Reset Bind Pose", GUILayout.MaxWidth(125f)))
             {
-                foreach (var skin in m_SpriteSkins)
+                foreach (SpriteSkin skin in m_SpriteSkins)
                 {
                     if (!skin.isValid)
                         continue;
@@ -338,15 +338,15 @@ namespace UnityEditor.U2D.Animation
         {
             EditorGUILayout.Space();
 
-            var preAppendObjectName = targets.Length > 1;
+            bool preAppendObjectName = targets.Length > 1;
 
-            foreach (var skin in m_SpriteSkins)
+            foreach (SpriteSkin skin in m_SpriteSkins)
             {
-                var validationResult = skin.Validate();
+                SpriteSkinState validationResult = skin.Validate();
                 if (validationResult == SpriteSkinState.Ready)
                     continue;
 
-                var text = "";
+                string text = "";
                 switch (validationResult)
                 {
                     case SpriteSkinState.SpriteNotFound:

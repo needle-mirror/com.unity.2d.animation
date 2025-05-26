@@ -1,7 +1,7 @@
 using System;
 using System.IO;
-using UnityEditor.U2D.Common;
 using UnityEditor.ShortcutManagement;
+using UnityEditor.U2D.Common;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
 using UnityEngine.UIElements;
@@ -53,14 +53,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         [MenuItem("Window/2D/Sprite Library Editor")]
         public static SpriteLibraryEditorWindow OpenWindow()
         {
-            var window = GetWindow<SpriteLibraryEditorWindow>();
+            SpriteLibraryEditorWindow window = GetWindow<SpriteLibraryEditorWindow>();
             window.m_Controller.SelectAsset(SpriteLibrarySourceAssetImporter.GetAssetFromSelection());
             return window;
         }
 
         public static SpriteLibraryEditorWindow OpenWindowForAsset(SpriteLibraryAsset asset = null)
         {
-            var window = GetWindow<SpriteLibraryEditorWindow>();
+            SpriteLibraryEditorWindow window = GetWindow<SpriteLibraryEditorWindow>();
             if (asset == null)
                 asset = SpriteLibrarySourceAssetImporter.GetAssetFromSelection();
             window.m_Controller.SelectAsset(asset);
@@ -94,16 +94,16 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             m_ControllerEvents = new ControllerEvents();
             m_ViewEvents = new ViewEvents();
-            var model = CreateInstance<SpriteLibraryEditorModel>();
+            SpriteLibraryEditorModel model = CreateInstance<SpriteLibraryEditorModel>();
             model.hideFlags = HideFlags.HideAndDontSave;
 
             minSize = new Vector2(k_MinWidth, k_MinHeight);
 
             m_Controller = new WindowController(this, model, m_ControllerEvents, m_ViewEvents);
 
-            var uiAsset = ResourceLoader.Load<VisualTreeAsset>("SpriteLibraryEditor/SpriteLibraryEditorWindow.uxml");
+            VisualTreeAsset uiAsset = ResourceLoader.Load<VisualTreeAsset>("SpriteLibraryEditor/SpriteLibraryEditorWindow.uxml");
 
-            var ui = uiAsset.CloneTree();
+            TemplateContainer ui = uiAsset.CloneTree();
             if (EditorGUIUtility.isProSkin)
                 ui.AddToClassList("Dark");
             ui.StretchToParentSize();
@@ -111,10 +111,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_EditorWindowRoot = ui.Q("EditorWindowRoot");
 
             m_CreateAssetElement = new VisualElement { name = "CreateAssetParent" };
-            var descriptionLabel = new Label { name = "DescriptionLabel", text = TextContent.spriteLibraryNoAssetSelected };
+            Label descriptionLabel = new Label { name = "DescriptionLabel", text = TextContent.spriteLibraryNoAssetSelected };
             descriptionLabel.AddToClassList(k_AssetNotSelectedLabelClassName);
             m_CreateAssetElement.Add(descriptionLabel);
-            var createNewButton = new Button { name = "CreateNewAssetButton", text = TextContent.spriteLibraryCreateNewAsset };
+            Button createNewButton = new Button { name = "CreateNewAssetButton", text = TextContent.spriteLibraryCreateNewAsset };
             createNewButton.clicked += HandleCreateNewAsset;
             m_CreateAssetElement.Add(createNewButton);
             ui.Add(m_CreateAssetElement);
@@ -137,7 +137,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             HandleEditorPrefs();
 
-            var currentSelection = SpriteLibrarySourceAssetImporter.GetAssetFromSelection();
+            SpriteLibraryAsset currentSelection = SpriteLibrarySourceAssetImporter.GetAssetFromSelection();
             if (!m_LockTracker.IsLocked() && m_Controller.GetSelectedAsset() != currentSelection)
                 m_Controller.SelectAsset(currentSelection);
 
@@ -217,14 +217,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void ToggleBetweenMainViewAndEmptyView()
         {
-            var isEditingAsset = m_Controller.GetSelectedAsset() != null;
+            bool isEditingAsset = m_Controller.GetSelectedAsset() != null;
             m_EditorWindowRoot.style.display = isEditingAsset ? DisplayStyle.Flex : DisplayStyle.None;
             m_CreateAssetElement.style.display = isEditingAsset ? DisplayStyle.None : DisplayStyle.Flex;
         }
 
         void HandleCreateNewAsset()
         {
-            var newAssetPath = EditorUtility.SaveFilePanelInProject(TextContent.spriteLibraryCreateTitle,
+            string newAssetPath = EditorUtility.SaveFilePanelInProject(TextContent.spriteLibraryCreateTitle,
                 SpriteLibrarySourceAsset.defaultName, SpriteLibrarySourceAsset.extension.Substring(1),
                 TextContent.spriteLibraryCreateMessage);
 
@@ -236,8 +236,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public static void HandleUnsavedChangesOnApply()
         {
-            var windows = Resources.FindObjectsOfTypeAll(typeof(SpriteLibraryEditorWindow));
-            var window = windows.Length > 0 ? (SpriteLibraryEditorWindow)windows[0] : null;
+            UnityEngine.Object[] windows = Resources.FindObjectsOfTypeAll(typeof(SpriteLibraryEditorWindow));
+            SpriteLibraryEditorWindow window = windows.Length > 0 ? (SpriteLibraryEditorWindow)windows[0] : null;
             if (window != null)
             {
                 if (window.hasUnsavedChanges)
@@ -247,11 +247,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         public static void TriggerAssetModifiedOnApply()
         {
-            var windows = Resources.FindObjectsOfTypeAll(typeof(SpriteLibraryEditorWindow));
-            var window = windows.Length > 0 ? (SpriteLibraryEditorWindow)windows[0] : null;
+            UnityEngine.Object[] windows = Resources.FindObjectsOfTypeAll(typeof(SpriteLibraryEditorWindow));
+            SpriteLibraryEditorWindow window = windows.Length > 0 ? (SpriteLibraryEditorWindow)windows[0] : null;
             if (window != null)
             {
-                var controller = window.m_Controller;
+                WindowController controller = window.m_Controller;
                 controller.SelectAsset(controller.GetSelectedAsset(), true);
             }
         }

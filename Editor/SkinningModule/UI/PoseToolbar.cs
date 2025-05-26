@@ -34,7 +34,7 @@ namespace UnityEditor.U2D.Animation
 
         public static PoseToolbar GenerateFromUXML()
         {
-            var clone = GetClone(k_UxmlPath, k_ToolbarId) as PoseToolbar;
+            PoseToolbar clone = GetClone(k_UxmlPath, k_ToolbarId) as PoseToolbar;
             clone.BindElements();
             clone.SetupShortcutUtility();
             clone.LocalizeTextInChildren();
@@ -90,7 +90,7 @@ namespace UnityEditor.U2D.Animation
             else
             {
                 m_PivotBtn.SetHiddenFromLayout(true);
-                var tool = skinningCache.GetTool(Tools.CharacterPivotTool);
+                BaseTool tool = skinningCache.GetTool(Tools.CharacterPivotTool);
                 if (tool != null && tool.isActive)
                     SetSkeletonTool(Tools.EditPose);
             }
@@ -124,8 +124,8 @@ namespace UnityEditor.U2D.Animation
 
         public void UpdateResetButtonState()
         {
-            var skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
-            var isResetEnabled = skeleton != null && skeleton.isPosePreview;
+            SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
+            bool isResetEnabled = skeleton != null && skeleton.isPosePreview;
             m_RestoreBtn.SetEnabled(isResetEnabled);
         }
 

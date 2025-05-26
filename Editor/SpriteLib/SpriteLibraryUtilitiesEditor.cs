@@ -14,15 +14,15 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(!string.IsNullOrEmpty(savePath) && !string.IsNullOrEmpty(Path.GetFileName(savePath)));
 
-            var serializedObject = new SerializedObject(spriteLibrary);
-            var masterLibraryProperty = serializedObject.FindProperty(SpriteLibraryComponentPropertyString.spriteLibraryAsset);
-            var libraryProperty = serializedObject.FindProperty(SpriteLibraryComponentPropertyString.library);
+            SerializedObject serializedObject = new SerializedObject(spriteLibrary);
+            SerializedProperty masterLibraryProperty = serializedObject.FindProperty(SpriteLibraryComponentPropertyString.spriteLibraryAsset);
+            SerializedProperty libraryProperty = serializedObject.FindProperty(SpriteLibraryComponentPropertyString.library);
 
-            var masterLibraryPath = masterLibraryProperty.objectReferenceValue != null ? AssetDatabase.GetAssetPath(masterLibraryProperty.objectReferenceValue) : "";
+            string masterLibraryPath = masterLibraryProperty.objectReferenceValue != null ? AssetDatabase.GetAssetPath(masterLibraryProperty.objectReferenceValue) : "";
 
-            var overrides = new List<SpriteLibCategoryOverride>();
+            List<SpriteLibCategoryOverride> overrides = new List<SpriteLibCategoryOverride>();
             CopySpriteLibraryToOverride(overrides, libraryProperty);
-            var assetToSave = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();
+            SpriteLibrarySourceAsset assetToSave = ScriptableObject.CreateInstance<SpriteLibrarySourceAsset>();
             assetToSave.SetLibrary(overrides);
             if (!string.IsNullOrEmpty(masterLibraryPath))
                 assetToSave.SetPrimaryLibraryGUID(AssetDatabase.AssetPathToGUID(masterLibraryPath));
@@ -30,7 +30,7 @@ namespace UnityEditor.U2D.Animation
             Object.DestroyImmediate(assetToSave);
 
             AssetDatabase.ImportAsset(savePath);
-            var savedAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(savePath);
+            SpriteLibraryAsset savedAsset = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(savePath);
             if (savedAsset == null)
             {
                 Debug.LogError($"Failed to export Sprite Library Asset to {savePath} asset.");
@@ -50,10 +50,10 @@ namespace UnityEditor.U2D.Animation
 
             destination.Clear();
 
-            var categoryEntries = library.GetArrayElementAtIndex(0);
-            for (var i = 0; i < library.arraySize; ++i)
+            SerializedProperty categoryEntries = library.GetArrayElementAtIndex(0);
+            for (int i = 0; i < library.arraySize; ++i)
             {
-                var overrideCategory = new SpriteLibCategoryOverride()
+                SpriteLibCategoryOverride overrideCategory = new SpriteLibCategoryOverride()
                 {
                     categoryList = new List<SpriteCategoryEntry>(),
                     entryOverrideCount = 0,
@@ -61,12 +61,12 @@ namespace UnityEditor.U2D.Animation
                     name = categoryEntries.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue,
                     overrideEntries = new List<SpriteCategoryEntryOverride>()
                 };
-                var entries = categoryEntries.FindPropertyRelative(SpriteLibraryPropertyString.categoryList);
-                var overrideCategoryEntries = overrideCategory.overrideEntries;
+                SerializedProperty entries = categoryEntries.FindPropertyRelative(SpriteLibraryPropertyString.categoryList);
+                List<SpriteCategoryEntryOverride> overrideCategoryEntries = overrideCategory.overrideEntries;
                 if (entries.arraySize > 0)
                 {
-                    var entry = entries.GetArrayElementAtIndex(0);
-                    for (var j = 0; j < entries.arraySize; ++j)
+                    SerializedProperty entry = entries.GetArrayElementAtIndex(0);
+                    for (int j = 0; j < entries.arraySize; ++j)
                     {
                         overrideCategoryEntries.Add(new SpriteCategoryEntryOverride()
                         {
@@ -86,18 +86,18 @@ namespace UnityEditor.U2D.Animation
 
         public static void UpdateLibraryWithNewMainLibrary(SpriteLibraryAsset newMainLibrary, SerializedProperty destLibrary)
         {
-            var emptyStringArray = Array.Empty<string>();
-            var newCategories = newMainLibrary != null ? newMainLibrary.GetCategoryNames().ToArray() : emptyStringArray;
+            string[] emptyStringArray = Array.Empty<string>();
+            string[] newCategories = newMainLibrary != null ? newMainLibrary.GetCategoryNames().ToArray() : emptyStringArray;
 
             // populate new primary
-            var newCategoryIndex = 0;
-            foreach (var newCategory in newCategories)
+            int newCategoryIndex = 0;
+            foreach (string newCategory in newCategories)
             {
                 SerializedProperty existingCategory = null;
                 if (destLibrary.arraySize > 0)
                 {
-                    var cat = destLibrary.GetArrayElementAtIndex(0);
-                    for (var i = 0; i < destLibrary.arraySize; ++i)
+                    SerializedProperty cat = destLibrary.GetArrayElementAtIndex(0);
+                    for (int i = 0; i < destLibrary.arraySize; ++i)
                     {
                         if (cat.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue == newCategory)
                         {
@@ -128,15 +128,15 @@ namespace UnityEditor.U2D.Animation
 
                 newCategoryIndex++;
 
-                var newEntries = newMainLibrary.GetCategoryLabelNames(newCategory);
-                var entries = existingCategory.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries);
-                var newEntryIndex = 0;
-                foreach (var newEntry in newEntries)
+                IEnumerable<string> newEntries = newMainLibrary.GetCategoryLabelNames(newCategory);
+                SerializedProperty entries = existingCategory.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries);
+                int newEntryIndex = 0;
+                foreach (string newEntry in newEntries)
                 {
                     SerializedProperty cacheEntry = null;
                     if (entries.arraySize > 0)
                     {
-                        var ent = entries.GetArrayElementAtIndex(0);
+                        SerializedProperty ent = entries.GetArrayElementAtIndex(0);
                         for (int j = 0; j < entries.arraySize; ++j)
                         {
                             if (ent.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue == newEntry)
@@ -151,7 +151,7 @@ namespace UnityEditor.U2D.Animation
                         }
                     }
 
-                    var mainSprite = newMainLibrary.GetSprite(newCategory, newEntry);
+                    Sprite mainSprite = newMainLibrary.GetSprite(newCategory, newEntry);
                     if (cacheEntry == null)
                     {
                         entries.InsertArrayElementAtIndex(newEntryIndex);
@@ -170,25 +170,25 @@ namespace UnityEditor.U2D.Animation
             }
 
             // Remove any library or entry that is not in primary and not overridden
-            for (var i = 0; i < destLibrary.arraySize; ++i)
+            for (int i = 0; i < destLibrary.arraySize; ++i)
             {
-                var categoryProperty = destLibrary.GetArrayElementAtIndex(i);
-                var categoryEntriesProperty = categoryProperty.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries);
-                var categoryFromMainProperty = categoryProperty.FindPropertyRelative(SpriteLibraryPropertyString.fromMain);
+                SerializedProperty categoryProperty = destLibrary.GetArrayElementAtIndex(i);
+                SerializedProperty categoryEntriesProperty = categoryProperty.FindPropertyRelative(SpriteLibraryPropertyString.overrideEntries);
+                SerializedProperty categoryFromMainProperty = categoryProperty.FindPropertyRelative(SpriteLibraryPropertyString.fromMain);
 
-                var categoryName = categoryProperty.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
-                var categoryInPrimary = newCategories.Contains(categoryName);
-                var entriesInPrimary = categoryInPrimary ? newMainLibrary.GetCategoryLabelNames(categoryName) : emptyStringArray;
+                string categoryName = categoryProperty.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
+                bool categoryInPrimary = newCategories.Contains(categoryName);
+                IEnumerable<string> entriesInPrimary = categoryInPrimary ? newMainLibrary.GetCategoryLabelNames(categoryName) : emptyStringArray;
 
-                var categoryOverride = 0;
-                for (var j = 0; j < categoryEntriesProperty.arraySize; ++j)
+                int categoryOverride = 0;
+                for (int j = 0; j < categoryEntriesProperty.arraySize; ++j)
                 {
-                    var entry = categoryEntriesProperty.GetArrayElementAtIndex(j);
-                    var entryName = entry.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
-                    var entryInPrimary = entriesInPrimary.Contains(entryName);
-                    var entryFromMainProperty = entry.FindPropertyRelative(SpriteLibraryPropertyString.fromMain);
-                    var overrideSpriteProperty = entry.FindPropertyRelative(SpriteLibraryPropertyString.spriteOverride);
-                    var spriteProperty = entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite);
+                    SerializedProperty entry = categoryEntriesProperty.GetArrayElementAtIndex(j);
+                    string entryName = entry.FindPropertyRelative(SpriteLibraryPropertyString.name).stringValue;
+                    bool entryInPrimary = entriesInPrimary.Contains(entryName);
+                    SerializedProperty entryFromMainProperty = entry.FindPropertyRelative(SpriteLibraryPropertyString.fromMain);
+                    SerializedProperty overrideSpriteProperty = entry.FindPropertyRelative(SpriteLibraryPropertyString.spriteOverride);
+                    SerializedProperty spriteProperty = entry.FindPropertyRelative(SpriteLibraryPropertyString.sprite);
                     if (!entryInPrimary)
                     {
                         // Entry no longer in new primary.

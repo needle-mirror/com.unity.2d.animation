@@ -82,8 +82,8 @@ namespace UnityEngine.U2D.IK
             if (m_Positions == null || m_Positions.Length != m_Chain.transformCount)
                 m_Positions = new Vector3[m_Chain.transformCount];
 
-            var root = m_Chain.rootTransform;
-            for (var i = 0; i < m_Chain.transformCount; ++i)
+            Transform root = m_Chain.rootTransform;
+            for (int i = 0; i < m_Chain.transformCount; ++i)
                 m_Positions[i] = root.TransformPoint((Vector2)root.InverseTransformPoint(m_Chain.transforms[i].position));
         }
 
@@ -95,17 +95,17 @@ namespace UnityEngine.U2D.IK
         {
             Profiler.BeginSample(nameof(CCDSolver2D.DoUpdateIK));
 
-            var root = m_Chain.rootTransform;
-            var targetPosition = targetPositions[0];
-            var targetLocalPosition2D = (Vector2)root.InverseTransformPoint(targetPosition);
+            Transform root = m_Chain.rootTransform;
+            Vector3 targetPosition = targetPositions[0];
+            Vector2 targetLocalPosition2D = (Vector2)root.InverseTransformPoint(targetPosition);
             targetPosition = root.TransformPoint(targetLocalPosition2D);
 
             if (CCD2D.Solve(targetPosition, GetPlaneRootTransform().forward, iterations, tolerance, Mathf.Lerp(k_MinVelocity, k_MaxVelocity, m_Velocity), ref m_Positions))
             {
-                for (var i = 0; i < m_Chain.transformCount - 1; ++i)
+                for (int i = 0; i < m_Chain.transformCount - 1; ++i)
                 {
-                    var startLocalPosition = (Vector2)m_Chain.transforms[i + 1].localPosition;
-                    var endLocalPosition = (Vector2)m_Chain.transforms[i].InverseTransformPoint(m_Positions[i + 1]);
+                    Vector2 startLocalPosition = (Vector2)m_Chain.transforms[i + 1].localPosition;
+                    Vector2 endLocalPosition = (Vector2)m_Chain.transforms[i].InverseTransformPoint(m_Positions[i + 1]);
                     m_Chain.transforms[i].localRotation *= Quaternion.AngleAxis(Vector2.SignedAngle(startLocalPosition, endLocalPosition), Vector3.forward);
                 }
             }

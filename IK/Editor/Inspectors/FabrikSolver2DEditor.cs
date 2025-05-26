@@ -29,7 +29,7 @@ namespace UnityEditor.U2D.IK
         void OnEnable()
         {
             m_Solver = target as FabrikSolver2D;
-            var chainProperty = serializedObject.FindProperty("m_Chain");
+            SerializedProperty chainProperty = serializedObject.FindProperty("m_Chain");
             m_TargetProperty = chainProperty.FindPropertyRelative("m_TargetTransform");
             m_EffectorProperty = chainProperty.FindPropertyRelative("m_EffectorTransform");
             m_TransformCountProperty = chainProperty.FindPropertyRelative("m_TransformCount");
@@ -42,7 +42,7 @@ namespace UnityEditor.U2D.IK
         /// </summary>
         public override void OnInspectorGUI()
         {
-            var chain = m_Solver.GetChain(0);
+            IKChain2D chain = m_Solver.GetChain(0);
 
             serializedObject.Update();
             EditorGUILayout.PropertyField(m_EffectorProperty, Contents.effectorLabel);

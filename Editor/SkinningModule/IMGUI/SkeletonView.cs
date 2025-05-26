@@ -128,7 +128,7 @@ namespace UnityEditor.U2D.Animation
             if (mode == SkeletonMode.Disabled)
                 return;
 
-            var sliderData = new SliderData()
+            SliderData sliderData = new SliderData()
             {
                 position = GetMouseWorldPosition(forward, position),
                 forward = forward,
@@ -137,7 +137,7 @@ namespace UnityEditor.U2D.Animation
             };
 
             {
-                var distance = m_GUIWrapper.DistanceToSegmentClamp(position, endPosition);
+                float distance = m_GUIWrapper.DistanceToSegmentClamp(position, endPosition);
 
                 if (distance <= m_NearestDistance)
                 {
@@ -149,7 +149,7 @@ namespace UnityEditor.U2D.Animation
             }
 
             {
-                var distance = m_GUIWrapper.DistanceToCircle(position, GetBoneRadiusForPicking(position) * 2f);
+                float distance = m_GUIWrapper.DistanceToCircle(position, GetBoneRadiusForPicking(position) * 2f);
 
                 if (distance <= m_NearestDistance)
                 {
@@ -165,7 +165,7 @@ namespace UnityEditor.U2D.Animation
                     IsCapable(SkeletonAction.MoveEndPosition) ||
                     IsCapable(SkeletonAction.CreateBone)))
             {
-                var distance = m_GUIWrapper.DistanceToCircle(endPosition, GetBoneRadiusForPicking(endPosition));
+                float distance = m_GUIWrapper.DistanceToCircle(endPosition, GetBoneRadiusForPicking(endPosition));
 
                 if (distance <= m_NearestDistance)
                 {
@@ -216,8 +216,8 @@ namespace UnityEditor.U2D.Animation
         {
             deltaAngle = 0f;
 
-            var oldPosition = m_HotSliderData.position;
-            if (DoSliderAction(SkeletonAction.RotateBone, m_HoveredBodyControlID, ref m_RotateControlID, out var newPosition))
+            Vector3 oldPosition = m_HotSliderData.position;
+            if (DoSliderAction(SkeletonAction.RotateBone, m_HoveredBodyControlID, ref m_RotateControlID, out Vector3 newPosition))
             {
                 deltaAngle = Vector3.SignedAngle(oldPosition - pivot, (Vector3)newPosition - pivot, normal);
                 return true;
@@ -230,8 +230,8 @@ namespace UnityEditor.U2D.Animation
         {
             deltaPosition = Vector3.zero;
 
-            var oldPosition = m_HotSliderData.position;
-            if (DoSliderAction(SkeletonAction.MoveBone, m_HoveredJointControlID, ref m_MoveControlID, out var newPosition))
+            Vector3 oldPosition = m_HotSliderData.position;
+            if (DoSliderAction(SkeletonAction.MoveBone, m_HoveredJointControlID, ref m_MoveControlID, out Vector3 newPosition))
             {
                 deltaPosition = newPosition - oldPosition;
                 return true;
@@ -244,8 +244,8 @@ namespace UnityEditor.U2D.Animation
         {
             deltaPosition = Vector3.zero;
 
-            var oldPosition = m_HotSliderData.position;
-            if (DoSliderAction(SkeletonAction.FreeMoveBone, m_HoveredBodyControlID, ref m_FreeMoveControlID, out var newPosition))
+            Vector3 oldPosition = m_HotSliderData.position;
+            if (DoSliderAction(SkeletonAction.FreeMoveBone, m_HoveredBodyControlID, ref m_FreeMoveControlID, out Vector3 newPosition))
             {
                 deltaPosition = newPosition - oldPosition;
                 return true;
@@ -258,8 +258,8 @@ namespace UnityEditor.U2D.Animation
         {
             deltaPosition = Vector3.zero;
 
-            var oldPosition = m_HotSliderData.position;
-            if (DoSliderAction(SkeletonAction.MoveJoint, m_HoveredJointControlID, ref m_MoveJointControlID, out var newPosition))
+            Vector3 oldPosition = m_HotSliderData.position;
+            if (DoSliderAction(SkeletonAction.MoveJoint, m_HoveredJointControlID, ref m_MoveJointControlID, out Vector3 newPosition))
             {
                 deltaPosition = newPosition - oldPosition;
                 return true;
@@ -510,13 +510,13 @@ namespace UnityEditor.U2D.Animation
 
         public void DrawBone(Vector3 position, Vector3 right, Vector3 forward, float length, Color color, bool isChained, bool isSelected, bool isJointHovered, bool isTailHovered, bool isHot)
         {
-            var endPosition = position + right * length;
-            var rotation = Quaternion.LookRotation(forward, Vector3.Cross(right, forward));
-            var boneJointColor = new Color(0f, 0f, 0f, 0.75f * color.a);
-            var tailColor = new Color(0f, 0f, 0f, 0.75f * color.a);
-            var hoveredColor = Handles.preselectionColor;
-            var selectedColor = Handles.selectedColor;
-            var drawRectCap = false;
+            Vector3 endPosition = position + right * length;
+            Quaternion rotation = Quaternion.LookRotation(forward, Vector3.Cross(right, forward));
+            Color boneJointColor = new Color(0f, 0f, 0f, 0.75f * color.a);
+            Color tailColor = new Color(0f, 0f, 0f, 0.75f * color.a);
+            Color hoveredColor = Handles.preselectionColor;
+            Color selectedColor = Handles.selectedColor;
+            bool drawRectCap = false;
 
             if (isJointHovered)
                 boneJointColor = hoveredColor;
@@ -566,9 +566,9 @@ namespace UnityEditor.U2D.Animation
 
         public void DrawCursors(bool canBeActive)
         {
-            var mouseScreenRect = new Rect(m_GUIWrapper.mousePosition.x - 100f, m_GUIWrapper.mousePosition.y - 100f, 200f, 200f);
+            Rect mouseScreenRect = new Rect(m_GUIWrapper.mousePosition.x - 100f, m_GUIWrapper.mousePosition.y - 100f, 200f, 200f);
 
-            var isRotateHot = IsActionHot(SkeletonAction.RotateBone);
+            bool isRotateHot = IsActionHot(SkeletonAction.RotateBone);
             if ((canBeActive && IsActionActive(SkeletonAction.RotateBone)) || isRotateHot)
                 EditorGUIUtility.AddCursorRect(mouseScreenRect, MouseCursor.RotateArrow);
 

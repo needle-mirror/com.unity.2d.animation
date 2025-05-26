@@ -1,8 +1,8 @@
 #define WRITE_TO_JSON
 using System;
 using System.Collections.Generic;
-using UnityEngine.Analytics;
 using UnityEngine;
+using UnityEngine.Analytics;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -447,21 +447,21 @@ namespace UnityEditor.U2D.Animation
         {
             if (m_CurrentEvent != null)
             {
-                var toolEvent = m_CurrentEvent.Value;
-                var eventCount = toolEvent.animation_events.Count;
+                AnimationToolUsageEvent toolEvent = m_CurrentEvent.Value;
+                int eventCount = toolEvent.animation_events.Count;
                 if (eventCount > 0 && toolEvent.animation_events[eventCount - 1].sub_type == evt.sub_type && toolEvent.animation_events[eventCount - 1].data == evt.data)
                 {
-                    var e = toolEvent.animation_events[eventCount - 1];
+                    AnimationEvent e = toolEvent.animation_events[eventCount - 1];
                     e.repeated_event += 1;
                     toolEvent.animation_events[eventCount - 1] = e;
                 }
                 else
                 {
-                    var elementCountPlus = k_AnimationToolUsageEventElementCount + (eventCount + 1 * k_AnimationEventElementCount);
+                    int elementCountPlus = k_AnimationToolUsageEventElementCount + (eventCount + 1 * k_AnimationEventElementCount);
                     if (elementCountPlus >= AnalyticConstant.k_MaxNumberOfElements)
                     {
                         // We reached the max number of events. Change the last one to truncated
-                        var e = toolEvent.animation_events[eventCount - 1];
+                        AnimationEvent e = toolEvent.animation_events[eventCount - 1];
                         if (e.sub_type != AnimationEventType.Truncated)
                         {
                             e.sub_type = AnimationEventType.Truncated;
@@ -520,7 +520,7 @@ namespace UnityEditor.U2D.Animation
             int[] boneCount = null;
             int boneRootCount = 0;
             GetChainBoneStatistic(bones, out chainBoneCount, out maxDepth, out boneRootCount, out boneCount);
-            var applyEvent = new AnimationToolApplyEvent()
+            AnimationToolApplyEvent applyEvent = new AnimationToolApplyEvent()
             {
                 instance_id = m_InstanceId,
                 character_mode = m_Model.hasCharacter,
@@ -540,25 +540,25 @@ namespace UnityEditor.U2D.Animation
             List<int> boneDepthList = new List<int>();
             List<int> countList = new List<int>();
             boneRootCount = 0;
-            foreach (var b in bones)
+            foreach (BoneCache b in bones)
             {
                 if (b.parentBone == null)
                 {
                     ++boneRootCount;
-                    var chain = 0;
-                    var chainDepth = 0;
-                    var tempBone = b;
-                    var count = 1;
+                    int chain = 0;
+                    int chainDepth = 0;
+                    BoneCache tempBone = b;
+                    int count = 1;
                     while (tempBone != null)
                     {
                         ++chainDepth;
                         tempBone = tempBone.chainedChild;
                     }
 
-                    foreach (var b1 in bones)
+                    foreach (BoneCache b1 in bones)
                     {
                         // if this bone is part of this root
-                        var parentBone = b1.parentBone;
+                        BoneCache parentBone = b1.parentBone;
                         while (parentBone != null)
                         {
                             if (parentBone == b)
@@ -569,7 +569,7 @@ namespace UnityEditor.U2D.Animation
                                 if (b1.parentBone != null && b1.parentBone.chainedChild != b1)
                                 {
                                     ++chain;
-                                    var chainDepth1 = 0;
+                                    int chainDepth1 = 0;
                                     tempBone = b1;
                                     while (tempBone != null)
                                     {

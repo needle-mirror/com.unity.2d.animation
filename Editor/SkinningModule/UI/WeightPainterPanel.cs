@@ -31,11 +31,11 @@ namespace UnityEditor.U2D.Animation
         private WeightInspectorIMGUIPanel m_WeightInspectorPanel;
         private UnityEngine.UIElements.PopupWindow m_PopupWindow;
 
-        public event Action<int> bonePopupChanged = (s) => {};
-        public event Action sliderStarted = () => {};
-        public event Action<float> sliderChanged = (s) => {};
-        public event Action sliderEnded = () => {};
-        public event Action weightsChanged = () => {};
+        public event Action<int> bonePopupChanged = (s) => { };
+        public event Action sliderStarted = () => { };
+        public event Action<float> sliderChanged = (s) => { };
+        public event Action sliderEnded = () => { };
+        public event Action weightsChanged = () => { };
 
         public WeightPainterMode paintMode
         {
@@ -162,7 +162,7 @@ namespace UnityEditor.U2D.Animation
 
             m_AmountField.RegisterValueChangedCallback((evt) =>
             {
-                var newValue = Mathf.Clamp(evt.newValue, m_AmountSlider.lowValue, m_AmountSlider.highValue);
+                float newValue = Mathf.Clamp(evt.newValue, m_AmountSlider.lowValue, m_AmountSlider.highValue);
 
                 if (focusController.focusedElement == m_AmountField && !newValue.Equals(m_AmountSlider.value))
                 {
@@ -185,7 +185,7 @@ namespace UnityEditor.U2D.Animation
 
         private void SetupMode()
         {
-            var boneElement = this.Q<VisualElement>("Bone");
+            VisualElement boneElement = this.Q<VisualElement>("Bone");
             boneElement.SetHiddenFromLayout(mode == WeightEditorMode.Smooth);
             SetupAmountSlider();
         }
@@ -273,14 +273,14 @@ namespace UnityEditor.U2D.Animation
 
         public static WeightPainterPanel GenerateFromUXML()
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/WeightPainterPanel.uxml");
-            var clone = visualTree.CloneTree().Q<WeightPainterPanel>("WeightPainterPanel");
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/WeightPainterPanel.uxml");
+            WeightPainterPanel clone = visualTree.CloneTree().Q<WeightPainterPanel>("WeightPainterPanel");
             clone.LocalizeTextInChildren();
 
             // EnumField can only get type of Enum from the current running assembly when defined through UXML
             // Manually create the EnumField here
-            var mode = clone.Q<VisualElement>("Mode");
-            var modeField = new EnumField(WeightEditorMode.AddAndSubtract);
+            VisualElement mode = clone.Q<VisualElement>("Mode");
+            EnumField modeField = new EnumField(WeightEditorMode.AddAndSubtract);
             modeField.name = "ModeField";
             modeField.label = TextContent.mode;
             modeField.tooltip = TextContent.modeTooltip;

@@ -30,7 +30,7 @@ namespace UnityEditor.U2D.Animation
 
         public static RigToolbar GenerateFromUXML()
         {
-            var clone = GetClone(k_UxmlPath, k_ToolbarId) as RigToolbar;
+            RigToolbar clone = GetClone(k_UxmlPath, k_ToolbarId) as RigToolbar;
             clone.BindElements();
             clone.SetupShortcutUtility();
             clone.LocalizeTextInChildren();
@@ -69,7 +69,7 @@ namespace UnityEditor.U2D.Animation
 
         public void UpdatePasteButtonEnabledState()
         {
-            var tool = skinningCache.GetTool(Tools.CopyPaste) as CopyTool;
+            CopyTool tool = skinningCache.GetTool(Tools.CopyPaste) as CopyTool;
             m_PasteBtn.SetEnabled(tool.hasValidCopiedData);
         }
 

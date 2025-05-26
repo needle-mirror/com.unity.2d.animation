@@ -7,27 +7,27 @@ namespace UnityEngine.U2D.Animation
     {
         public static void CacheChildren(Transform current, Dictionary<int, List<SpriteSkin.TransformData>> cache)
         {
-            var nameHash = current.name.GetHashCode();
-            var entry = new SpriteSkin.TransformData()
+            int nameHash = current.name.GetHashCode();
+            SpriteSkin.TransformData entry = new SpriteSkin.TransformData()
             {
                 fullName = string.Empty,
                 transform = current
             };
-            if (cache.TryGetValue(nameHash, out var value))
+            if (cache.TryGetValue(nameHash, out List<SpriteSkin.TransformData> value))
                 value.Add(entry);
             else
                 cache.Add(nameHash, new List<SpriteSkin.TransformData>(1) { entry });
 
-            for (var i = 0; i < current.childCount; ++i)
+            for (int i = 0; i < current.childCount; ++i)
                 CacheChildren(current.GetChild(i), cache);
         }
 
         public static string GenerateTransformPath(Transform rootBone, Transform child)
         {
-            var path = child.name;
+            string path = child.name;
             if (child == rootBone)
                 return path;
-            var parent = child.parent;
+            Transform parent = child.parent;
             do
             {
                 path = parent.name + "/" + path;
@@ -39,8 +39,8 @@ namespace UnityEngine.U2D.Animation
 
         public static bool GetSpriteBonesTransforms(SpriteSkin spriteSkin, out Transform[] outTransform)
         {
-            var rootBone = spriteSkin.rootBone;
-            var spriteBones = spriteSkin.sprite.GetBones();
+            Transform rootBone = spriteSkin.rootBone;
+            SpriteBone[] spriteBones = spriteSkin.sprite.GetBones();
 
             if (rootBone == null)
                 throw new ArgumentException("rootBone parameter cannot be null");
@@ -49,16 +49,16 @@ namespace UnityEngine.U2D.Animation
 
             outTransform = new Transform[spriteBones.Length];
 
-            var boneObjects = rootBone.GetComponentsInChildren<Bone>();
+            Bone[] boneObjects = rootBone.GetComponentsInChildren<Bone>();
             if (boneObjects != null && boneObjects.Length >= spriteBones.Length)
             {
                 using (SpriteSkin.Profiling.getSpriteBonesTransformFromGuid.Auto())
                 {
-                    var i = 0;
+                    int i = 0;
                     for (; i < spriteBones.Length; ++i)
                     {
-                        var boneHash = spriteBones[i].guid;
-                        var boneTransform = Array.Find(boneObjects, x => (x.guid == boneHash));
+                        string boneHash = spriteBones[i].guid;
+                        Bone boneTransform = Array.Find(boneObjects, x => (x.guid == boneHash));
                         if (boneTransform == null)
                             break;
 
@@ -70,7 +70,7 @@ namespace UnityEngine.U2D.Animation
                 }
             }
 
-            var hierarchyCache = spriteSkin.hierarchyCache;
+            Dictionary<int, List<SpriteSkin.TransformData>> hierarchyCache = spriteSkin.hierarchyCache;
             if (hierarchyCache.Count == 0)
                 spriteSkin.CacheHierarchy();
 
@@ -83,11 +83,11 @@ namespace UnityEngine.U2D.Animation
             using (SpriteSkin.Profiling.getSpriteBonesTransformFromPath.Auto())
             {
                 string[] bonePath = null;
-                var foundBones = true;
-                for (var i = 0; i < spriteBones.Length; ++i)
+                bool foundBones = true;
+                for (int i = 0; i < spriteBones.Length; ++i)
                 {
-                    var nameHash = spriteBones[i].name.GetHashCode();
-                    if (!hierarchyCache.TryGetValue(nameHash, out var children))
+                    int nameHash = spriteBones[i].name.GetHashCode();
+                    if (!hierarchyCache.TryGetValue(nameHash, out List<SpriteSkin.TransformData> children))
                     {
                         outNewBoneTransform[i] = null;
                         foundBones = false;
@@ -103,7 +103,7 @@ namespace UnityEngine.U2D.Animation
                         if (bonePath[i] == null)
                             CalculateBoneTransformsPath(i, spriteBones, bonePath);
 
-                        var m = 0;
+                        int m = 0;
                         for (; m < children.Count; ++m)
                         {
                             if (children[m].fullName.Contains(bonePath[i]))
@@ -127,9 +127,9 @@ namespace UnityEngine.U2D.Animation
 
         static void CalculateBoneTransformsPath(int index, SpriteBone[] spriteBones, string[] paths)
         {
-            var spriteBone = spriteBones[index];
-            var parentId = spriteBone.parentId;
-            var bonePath = spriteBone.name;
+            SpriteBone spriteBone = spriteBones[index];
+            int parentId = spriteBone.parentId;
+            string bonePath = spriteBone.name;
             if (parentId != -1)
             {
                 if (paths[parentId] == null)

@@ -115,8 +115,8 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         public override VisualElement CreatePanelContent()
         {
-            var overlayElement = new SpriteSwapVisualElement { style = { width = Settings.preferredWidth, height = Settings.preferredHeight } };
-            var toolbar = overlayElement.Q<OverlayToolbar>();
+            SpriteSwapVisualElement overlayElement = new SpriteSwapVisualElement { style = { width = Settings.preferredWidth, height = Settings.preferredHeight } };
+            OverlayToolbar toolbar = overlayElement.Q<OverlayToolbar>();
             toolbar.onFilterToggled += OnFilterToggled;
             toolbar.onLockToggled += OnLockToggled;
             toolbar.onResetSliderValue += OnResetThumbnailSize;
@@ -162,8 +162,8 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void OnHierarchyChanged()
         {
-            var needUpdate = false;
-            foreach (var spriteResolver in m_Selection)
+            bool needUpdate = false;
+            foreach (SpriteResolver spriteResolver in m_Selection)
             {
                 if (spriteResolver == null)
                 {
@@ -183,7 +183,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void OnAttachToPanel(AttachToPanelEvent evt)
         {
-            var element = (SpriteSwapVisualElement)evt.target;
+            SpriteSwapVisualElement element = (SpriteSwapVisualElement)evt.target;
             if (element != null)
             {
                 m_MainVisualElement = element;
@@ -200,7 +200,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void OnDetachFromPanel(DetachFromPanelEvent evt)
         {
-            var element = (SpriteSwapVisualElement)evt.currentTarget;
+            SpriteSwapVisualElement element = (SpriteSwapVisualElement)evt.currentTarget;
             if (element == m_MainVisualElement)
                 m_MainVisualElement = null;
         }
@@ -267,7 +267,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             if (Settings.locked && !force)
                 return;
 
-            var gameObjects = Selection.gameObjects.Where(go => go.activeInHierarchy).ToArray();
+            GameObject[] gameObjects = Selection.gameObjects.Where(go => go.activeInHierarchy).ToArray();
             m_Selection = GetSelectedSpriteResolvers(gameObjects);
 
             UpdateResolverList();
@@ -278,8 +278,8 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             if (!isViewInitialized)
                 return;
 
-            var filtered = false;
-            var filteredSelection = Settings.filter ? FilterSelection(out filtered) : selection;
+            bool filtered = false;
+            SpriteResolver[] filteredSelection = Settings.filter ? FilterSelection(out filtered) : selection;
             m_MainVisualElement.SetSpriteResolvers(filteredSelection);
             m_MainVisualElement.SetFiltered(filtered);
         }
@@ -295,27 +295,27 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         SpriteResolver[] FilterSelection(out bool filtered)
         {
             filtered = false;
-            var filteredSelection = new List<SpriteResolver>();
+            List<SpriteResolver> filteredSelection = new List<SpriteResolver>();
             if (selection != null)
             {
-                for (var i = 0; i < selection.Length; i++)
+                for (int i = 0; i < selection.Length; i++)
                 {
-                    var spriteResolver = selection[i];
-                    var spriteLibrary = spriteResolver.spriteLibrary;
+                    SpriteResolver spriteResolver = selection[i];
+                    SpriteLibrary spriteLibrary = spriteResolver.spriteLibrary;
                     if (spriteLibrary == null)
                     {
                         filtered = true;
                         continue;
                     }
 
-                    var selectedCategory = spriteResolver.GetCategory();
+                    string selectedCategory = spriteResolver.GetCategory();
                     if (string.IsNullOrEmpty(selectedCategory))
                     {
                         filtered = true;
                         continue;
                     }
 
-                    var labelNames = spriteLibrary.GetEntryNames(selectedCategory);
+                    IEnumerable<string> labelNames = spriteLibrary.GetEntryNames(selectedCategory);
                     if (labelNames != null && labelNames.Count() > 1)
                         filteredSelection.Add(spriteResolver);
                     else
@@ -328,19 +328,19 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         static SpriteResolver[] GetSelectedSpriteResolvers(GameObject[] selectedGameObjects)
         {
-            var spriteResolvers = new HashSet<SpriteResolver>();
+            HashSet<SpriteResolver> spriteResolvers = new HashSet<SpriteResolver>();
             if (selectedGameObjects != null)
             {
-                for (var o = 0; o < selectedGameObjects.Length; o++)
+                for (int o = 0; o < selectedGameObjects.Length; o++)
                 {
-                    var gameObject = selectedGameObjects[o];
+                    GameObject gameObject = selectedGameObjects[o];
                     if (gameObject == null || !gameObject.activeSelf)
                         continue;
 
-                    var children = gameObject.GetComponentsInChildren<SpriteResolver>();
-                    for (var c = 0; c < children.Length; c++)
+                    SpriteResolver[] children = gameObject.GetComponentsInChildren<SpriteResolver>();
+                    for (int c = 0; c < children.Length; c++)
                     {
-                        var spriteResolver = children[c];
+                        SpriteResolver spriteResolver = children[c];
                         spriteResolvers.Add(spriteResolver);
                     }
                 }

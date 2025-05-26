@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using UnityEngine;
-using Unity.Collections;
-using Unity.Mathematics;
-using Unity.Collections.LowLevel.Unsafe;
-using ModuleHandle = UnityEngine.U2D.Common.UTess.ModuleHandle;
 using Unity.Burst;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
+using Unity.Mathematics;
+using UnityEngine;
+using ModuleHandle = UnityEngine.U2D.Common.UTess.ModuleHandle;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -67,16 +67,16 @@ namespace UnityEditor.U2D.Animation
         {
             // In almost all cases subdivided mesh weights fine. Non-subdivide is only a fail-safe.
             bool success = false;
-            var sanitizedEdges = SanitizeEdges(edges, vertices.Length);
-            var weights = CalculateInternal(vertices, indices, sanitizedEdges, controlPoints, bones, pins, k_NumSamples, ref success);
+            int2[] sanitizedEdges = SanitizeEdges(edges, vertices.Length);
+            BoneWeight[] weights = CalculateInternal(vertices, indices, sanitizedEdges, controlPoints, bones, pins, k_NumSamples, ref success);
             return weights;
         }
 
         public JobHandle CalculateJob(string name, in float2[] vertices, in int[] indices, in int2[] edges, in float2[] controlPoints, in int2[] bones, in int[] pins, SpriteJobData sd)
         {
             // In almost all cases subdivided mesh weights fine. Non-subdivide is only a fail-safe.
-            var sanitizedEdges = SanitizeEdges(edges, vertices.Length);
-            var bbwJob = new BiharmonicsJob();
+            int2[] sanitizedEdges = SanitizeEdges(edges, vertices.Length);
+            BiharmonicsJob bbwJob = new BiharmonicsJob();
             bbwJob.weights = sd.weights;
             bbwJob.inputVertices = new NativeArray<float2>(vertices, Allocator.TempJob);
             bbwJob.inputIndices = new NativeArray<int>(indices, Allocator.TempJob);
@@ -92,8 +92,8 @@ namespace UnityEditor.U2D.Animation
 
         static int2[] SanitizeEdges(in int2[] edges, int noOfVertices)
         {
-            var tmpEdges = new List<int2>(edges);
-            for (var i = tmpEdges.Count - 1; i >= 0; i--)
+            List<int2> tmpEdges = new List<int2>(edges);
+            for (int i = tmpEdges.Count - 1; i >= 0; i--)
             {
                 if (tmpEdges[i].x >= noOfVertices || tmpEdges[i].y >= noOfVertices)
                     tmpEdges.RemoveAt(i);
@@ -108,15 +108,15 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(numSamples > 0);
             int j = 0;
 
-            for (var i = 0; i < edges.Length; i++)
+            for (int i = 0; i < edges.Length; i++)
             {
-                var edge = edges[i];
-                var tip = points[edge.x];
-                var tail = points[edge.y];
+                int2 edge = edges[i];
+                float2 tip = points[edge.x];
+                float2 tail = points[edge.y];
 
-                for (var s = 0; s < numSamples; s++)
+                for (int s = 0; s < numSamples; s++)
                 {
-                    var f = (s + 1f) / (float)(numSamples + 1f);
+                    float f = (s + 1f) / (float)(numSamples + 1f);
                     sampledEdges[j++] = f * tail + (1f - f) * tip;
                 }
             }
@@ -126,20 +126,20 @@ namespace UnityEditor.U2D.Animation
         // Triangulate Bone Samplers.  todo: Burst it.
         static void TriangulateSamplers_(in NativeArray<float2> samplers, ref NativeArray<float2> triVertices, ref int vtxCount, ref NativeArray<int> triIndices, ref int idxCount)
         {
-            foreach (var v in samplers)
+            foreach (float2 v in samplers)
             {
-                var vtxCount_ = vtxCount;
-                var triCount_ = idxCount / 3;
+                int vtxCount_ = vtxCount;
+                int triCount_ = idxCount / 3;
 
-                for (var i = 0; i < triCount_; ++i)
+                for (int i = 0; i < triCount_; ++i)
                 {
-                    var i1 = triIndices[0 + (i * 3)];
-                    var i2 = triIndices[1 + (i * 3)];
-                    var i3 = triIndices[2 + (i * 3)];
-                    var v1 = triVertices[i1];
-                    var v2 = triVertices[i2];
-                    var v3 = triVertices[i3];
-                    var inside = ModuleHandle.IsInsideTriangle(v, v1, v2, v3);
+                    int i1 = triIndices[0 + (i * 3)];
+                    int i2 = triIndices[1 + (i * 3)];
+                    int i3 = triIndices[2 + (i * 3)];
+                    float2 v1 = triVertices[i1];
+                    float2 v2 = triVertices[i2];
+                    float2 v3 = triVertices[i3];
+                    bool inside = ModuleHandle.IsInsideTriangle(v, v1, v2, v3);
                     if (inside)
                     {
                         triVertices[vtxCount] = v;
@@ -157,21 +157,21 @@ namespace UnityEditor.U2D.Animation
         // Triangulate Skipped Original Points. These points are discarded during PlanarGrapg cleanup. But bbw only cares if these are part of any geometry. So just insert them. todo: Burst it.
         static void TriangulateInternal_(in NativeArray<int> internalIndices, in int internalIndexCount, in NativeArray<float2> triVertices, ref NativeArray<int> triIndices, ref int idxCount)
         {
-            var triangleCount = idxCount / 3;
+            int triangleCount = idxCount / 3;
 
             for (int j = 0; j < internalIndexCount; ++j)
             {
-                var index = internalIndices[j];
-                var v = triVertices[index];
-                for (var i = 0; i < triangleCount; ++i)
+                int index = internalIndices[j];
+                float2 v = triVertices[index];
+                for (int i = 0; i < triangleCount; ++i)
                 {
-                    var i1 = triIndices[0 + (i * 3)];
-                    var i2 = triIndices[1 + (i * 3)];
-                    var i3 = triIndices[2 + (i * 3)];
-                    var v1 = triVertices[i1];
-                    var v2 = triVertices[i2];
-                    var v3 = triVertices[i3];
-                    var c1 = (float)Math.Round(ModuleHandle.OrientFast(v1, v2, v), 2);
+                    int i1 = triIndices[0 + (i * 3)];
+                    int i2 = triIndices[1 + (i * 3)];
+                    int i3 = triIndices[2 + (i * 3)];
+                    float2 v1 = triVertices[i1];
+                    float2 v2 = triVertices[i2];
+                    float2 v3 = triVertices[i3];
+                    float c1 = (float)Math.Round(ModuleHandle.OrientFast(v1, v2, v), 2);
                     if (c1 == 0)
                     {
                         triIndices[0 + (i * 3)] = i1; triIndices[1 + (i * 3)] = index; triIndices[2 + (i * 3)] = i3;
@@ -179,7 +179,7 @@ namespace UnityEditor.U2D.Animation
                     }
                     else
                     {
-                        var c2 = (float)Math.Round(ModuleHandle.OrientFast(v2, v3, v), 2);
+                        float c2 = (float)Math.Round(ModuleHandle.OrientFast(v2, v3, v), 2);
                         if (c2 == 0)
                         {
                             triIndices[0 + (i * 3)] = i2; triIndices[1 + (i * 3)] = index; triIndices[2 + (i * 3)] = i1;
@@ -187,7 +187,7 @@ namespace UnityEditor.U2D.Animation
                         }
                         else
                         {
-                            var c3 = (float)Math.Round(ModuleHandle.OrientFast(v3, v1, v), 2);
+                            float c3 = (float)Math.Round(ModuleHandle.OrientFast(v3, v1, v), 2);
                             if (c3 == 0)
                             {
                                 triIndices[0 + (i * 3)] = i3; triIndices[1 + (i * 3)] = index; triIndices[2 + (i * 3)] = i2;
@@ -202,31 +202,31 @@ namespace UnityEditor.U2D.Animation
         [BurstCompile]
         static internal void CalculateInternal_(in NativeArray<float2> inputVertices, in NativeArray<int> inputIndices, in NativeArray<int2> inputEdges, in NativeArray<float2> inputControlPoints, in NativeArray<int2> inputBones, in NativeArray<int> inputPins, int numSamples, int iterations, int supressWarnings, ref NativeArray<BoneWeight> weights)
         {
-            for (var i = 0; i < weights.Length; ++i)
+            for (int i = 0; i < weights.Length; ++i)
                 weights[i] = defaultWeight;
             if (inputVertices.Length < 3)
                 return;
 
-            var indices = new NativeArray<int>(inputIndices, Allocator.Temp);
-            var vertices = new NativeArray<float2>(inputVertices, Allocator.Temp);
-            var controlPoints = new NativeArray<float2>(inputControlPoints, Allocator.Temp);
-            var boneSamples = new NativeArray<float2>(inputBones.Length * numSamples, Allocator.Temp);
+            NativeArray<int> indices = new NativeArray<int>(inputIndices, Allocator.Temp);
+            NativeArray<float2> vertices = new NativeArray<float2>(inputVertices, Allocator.Temp);
+            NativeArray<float2> controlPoints = new NativeArray<float2>(inputControlPoints, Allocator.Temp);
+            NativeArray<float2> boneSamples = new NativeArray<float2>(inputBones.Length * numSamples, Allocator.Temp);
 
             SampleBones_(in inputControlPoints, in inputBones, numSamples, ref boneSamples);
 
             // Copy Original Indices. Every new vertex introduced to the sampler creates 3 triangles.
-            var cntIndices = 0;
-            var indicesCnt = 8 * (indices.Length + ((inputControlPoints.Length + inputBones.Length) * 3));
-            var tmpIndices = new NativeArray<int>(indicesCnt, Allocator.Temp);
-            for (var i = 0; i < indices.Length / 3; ++i)
+            int cntIndices = 0;
+            int indicesCnt = 8 * (indices.Length + ((inputControlPoints.Length + inputBones.Length) * 3));
+            NativeArray<int> tmpIndices = new NativeArray<int>(indicesCnt, Allocator.Temp);
+            for (int i = 0; i < indices.Length / 3; ++i)
             {
-                var i1 = indices[0 + (i * 3)];
-                var i2 = indices[1 + (i * 3)];
-                var i3 = indices[2 + (i * 3)];
-                var v1 = vertices[i1];
-                var v2 = vertices[i2];
-                var v3 = vertices[i3];
-                var rt = (float)Math.Round(ModuleHandle.OrientFast(v1, v2, v3), 2);
+                int i1 = indices[0 + (i * 3)];
+                int i2 = indices[1 + (i * 3)];
+                int i3 = indices[2 + (i * 3)];
+                float2 v1 = vertices[i1];
+                float2 v2 = vertices[i2];
+                float2 v3 = vertices[i3];
+                float rt = (float)Math.Round(ModuleHandle.OrientFast(v1, v2, v3), 2);
                 if (rt != 0)
                 {
                     tmpIndices[cntIndices++] = i1;
@@ -236,12 +236,12 @@ namespace UnityEditor.U2D.Animation
             }
 
             // Insert Samplers.
-            var internalPoints = new NativeArray<int>(vertices.Length, Allocator.Temp);
-            var internalPointsCnt = 0;
-            for (var i = 0; i < vertices.Length; ++i)
+            NativeArray<int> internalPoints = new NativeArray<int>(vertices.Length, Allocator.Temp);
+            int internalPointsCnt = 0;
+            for (int i = 0; i < vertices.Length; ++i)
             {
-                var counter = 0;
-                for (var m = 0; m < cntIndices; ++m)
+                int counter = 0;
+                for (int m = 0; m < cntIndices; ++m)
                 {
                     if (tmpIndices[m] == i)
                         counter++;
@@ -251,9 +251,9 @@ namespace UnityEditor.U2D.Animation
             }
             TriangulateInternal_(in internalPoints, in internalPointsCnt, in vertices, ref tmpIndices, ref cntIndices);
 
-            var cntVertices = 0;
-            var verticesCnt = 8 * (vertices.Length + boneSamples.Length + controlPoints.Length);
-            var tmpVertices = new NativeArray<float2>(verticesCnt, Allocator.Temp);
+            int cntVertices = 0;
+            int verticesCnt = 8 * (vertices.Length + boneSamples.Length + controlPoints.Length);
+            NativeArray<float2> tmpVertices = new NativeArray<float2>(verticesCnt, Allocator.Temp);
             for (int i = 0; i < vertices.Length; i++)
                 tmpVertices[cntVertices++] = vertices[i];
 
@@ -263,7 +263,7 @@ namespace UnityEditor.U2D.Animation
             unsafe
             {
 
-                var result = Bbw(iterations, (IntPtr)tmpVertices.GetUnsafePtr(), cntVertices, inputVertices.Length,
+                int result = Bbw(iterations, (IntPtr)tmpVertices.GetUnsafePtr(), cntVertices, inputVertices.Length,
                                 (IntPtr)tmpIndices.GetUnsafePtr(), cntIndices,
                                 (IntPtr)controlPoints.GetUnsafePtr(), controlPoints.Length,
                                 (IntPtr)inputBones.GetUnsafePtr(), inputBones.Length,
@@ -284,9 +284,9 @@ namespace UnityEditor.U2D.Animation
             }
 
             bool done = false;
-            for (var i = 0; i < weights.Length; ++i)
+            for (int i = 0; i < weights.Length; ++i)
             {
-                var weight = weights[i];
+                BoneWeight weight = weights[i];
 
                 if (weight.Sum() == 0f)
                     weights[i] = defaultWeight;
@@ -298,7 +298,7 @@ namespace UnityEditor.U2D.Animation
         static BoneWeight[] CalculateInternal(in float2[] inputVertices, in int[] inputIndices, in int2[] inputEdges, in float2[] inputControlPoints, in int2[] inputBones, in int[] inputPins, int numSamples, ref bool done)
         {
 
-            var bbwJob = new BiharmonicsJob();
+            BiharmonicsJob bbwJob = new BiharmonicsJob();
             bbwJob.weights = new NativeArray<BoneWeight>(inputVertices.Length, Allocator.Persistent);
             bbwJob.inputVertices = new NativeArray<float2>(inputVertices, Allocator.TempJob);
             bbwJob.inputIndices = new NativeArray<int>(inputIndices, Allocator.TempJob);
@@ -309,9 +309,9 @@ namespace UnityEditor.U2D.Animation
             bbwJob.numSamples = numSamples;
             bbwJob.numIterations = k_NumIterations;
             bbwJob.supressCommonWarnings = PlayerSettings.suppressCommonWarnings ? 1 : 0;
-            var bbwJobHandle = bbwJob.Schedule();
+            JobHandle bbwJobHandle = bbwJob.Schedule();
             bbwJobHandle.Complete();
-            var weights = bbwJob.weights.ToArray();
+            BoneWeight[] weights = bbwJob.weights.ToArray();
             bbwJob.weights.Dispose();
             return weights;
         }

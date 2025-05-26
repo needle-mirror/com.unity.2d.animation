@@ -13,7 +13,7 @@ namespace UnityEditor.U2D.Animation
             if (bones == null)
                 return;
 
-            foreach (var bone in bones)
+            foreach (BoneCache bone in bones)
             {
                 if (!bone.isVisible)
                     continue;

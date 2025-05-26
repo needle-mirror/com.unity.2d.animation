@@ -54,11 +54,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             m_ViewEvents = viewEvents;
 
-            var tabHeaderLabel = this.Q(SpriteLibraryEditorWindow.tabHeaderName).Q<Label>();
+            Label tabHeaderLabel = this.Q(SpriteLibraryEditorWindow.tabHeaderName).Q<Label>();
             tabHeaderLabel.text = "Categories";
             tabHeaderLabel.tooltip = TextContent.spriteLibraryCategoriesTooltip;
 
-            var containerOverlay = new VisualElement { pickingMode = PickingMode.Ignore };
+            VisualElement containerOverlay = new VisualElement { pickingMode = PickingMode.Ignore };
             Add(containerOverlay);
             containerOverlay.StretchToParentSize();
 
@@ -108,6 +108,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_LocalListView.selectionChanged += OnSelectionChanged;
             m_LocalListView.Rebuild();
             m_LocalListContainer.Add(m_LocalListView);
+
+            // Fix for DANB-895. Not sure I like this solution, but it is for a rare edge case.
+            // The maxHeight was already a large figure, but DANB-895 exceeded it.
+            m_LocalListView.style.maxHeight = float.PositiveInfinity;
+            m_LocalListView.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
         }
 
         void ReorderCategories(DragPerformEvent dragPerformEvent)
@@ -115,24 +120,24 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!CanModifyCategories())
                 return;
 
-            var inherited = m_InheritedCategoriesData.Select(cat => cat.name);
-            var local = m_LocalListView.itemsSource.Cast<CategoryData>().Select(cat => cat.name);
+            IEnumerable<string> inherited = m_InheritedCategoriesData.Select(cat => cat.name);
+            IEnumerable<string> local = m_LocalListView.itemsSource.Cast<CategoryData>().Select(cat => cat.name);
             m_ViewEvents.onReorderCategories.Invoke(inherited.Concat(local).ToList());
         }
 
         void OnBindLocalItem(VisualElement e, int i)
         {
-            var category = m_LocalCategoriesData[i];
-            var categoryName = category.name;
+            CategoryData category = m_LocalCategoriesData[i];
+            string categoryName = category.name;
 
-            var label = e.Q<Label>();
+            Label label = e.Q<Label>();
 
             label.text = categoryName;
 
-            var useText = i == m_LocalListView.renamingIndex;
+            bool useText = i == m_LocalListView.renamingIndex;
             label.style.display = useText ? DisplayStyle.None : DisplayStyle.Flex;
 
-            var text = e.Q<TextField>();
+            TextField text = e.Q<TextField>();
             if (text != null)
                 e.Remove(text);
             if (useText)
@@ -144,7 +149,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 text.RegisterCallback<FocusOutEvent>(OnTextFocusOut);
             }
 
-            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
+            VisualElement overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = categoryName;
         }
 
@@ -156,11 +161,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         VisualElement OnMakeLocalItem()
         {
-            var e = new VisualElement { name = "LocalItemParent" };
+            VisualElement e = new VisualElement { name = "LocalItemParent" };
 
-            var label = new Label { name = IRenamableCollection.labelElementName, pickingMode = PickingMode.Ignore, style = { display = DisplayStyle.None } };
+            Label label = new Label { name = IRenamableCollection.labelElementName, pickingMode = PickingMode.Ignore, style = { display = DisplayStyle.None } };
 
-            var overlay = new VisualElement { pickingMode = PickingMode.Ignore };
+            VisualElement overlay = new VisualElement { pickingMode = PickingMode.Ignore };
             e.Add(overlay);
             overlay.StretchToParentSize();
 
@@ -195,17 +200,22 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_InheritedListView.selectionChanged += OnSelectionChanged;
             m_InheritedListView.Rebuild();
             m_InheritedListContainer.Add(m_InheritedListView);
+
+            // Fix for DANB-895. Not sure I like this solution, but it is for a rare edge case.
+            // The maxHeight was already a large figure, but DANB-895 exceeded it.
+            m_InheritedListView.style.maxHeight = float.PositiveInfinity;
+            m_InheritedListView.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
         }
 
         VisualElement OnMakeInheritedItem()
         {
-            var e = new VisualElement { name = "InheritedItemParent" };
+            VisualElement e = new VisualElement { name = "InheritedItemParent" };
 
-            var label = new Label() { pickingMode = PickingMode.Ignore };
+            Label label = new Label() { pickingMode = PickingMode.Ignore };
             label.AddToClassList(k_ListTextClassName);
             e.AddToClassList(k_ListItemClassName);
 
-            var overlay = new VisualElement { name = DragAndDropManipulator.overlayClassName, pickingMode = PickingMode.Ignore };
+            VisualElement overlay = new VisualElement { name = DragAndDropManipulator.overlayClassName, pickingMode = PickingMode.Ignore };
             e.Add(overlay);
             overlay.StretchToParentSize();
 
@@ -221,19 +231,19 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnBindInheritedItem(VisualElement e, int i)
         {
-            var label = e.Q<Label>();
-            var category = m_InheritedCategoriesData[i];
+            Label label = e.Q<Label>();
+            CategoryData category = m_InheritedCategoriesData[i];
             label.text = category.name;
 
             e.EnableInClassList(SpriteLibraryEditorWindow.overrideClassName, category.isOverride);
 
-            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
+            VisualElement overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = category.name;
         }
 
         static void OnUnbindItem(VisualElement e, int i)
         {
-            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
+            VisualElement overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = null;
 
             e.RemoveFromClassList(SpriteLibraryEditorWindow.overrideClassName);
@@ -309,7 +319,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             m_LocalCategoriesData = new List<CategoryData>();
             m_InheritedCategoriesData = new List<CategoryData>();
-            foreach (var categoryData in m_Categories)
+            foreach (CategoryData categoryData in m_Categories)
             {
                 if (categoryData.fromMain)
                     m_InheritedCategoriesData.Add(categoryData);
@@ -356,7 +366,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (i < 0 || string.IsNullOrEmpty(newName))
                 return;
 
-            var category = (CategoryData)listView.itemsSource[i];
+            CategoryData category = (CategoryData)listView.itemsSource[i];
 
             if (category == null || string.IsNullOrEmpty(newName) || newName == category.name)
                 return;
@@ -366,25 +376,25 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnSelectionChanged(IEnumerable<object> selection)
         {
-            var newSelection = selection.Cast<CategoryData>().Select(d => d.name).ToList();
+            List<string> newSelection = selection.Cast<CategoryData>().Select(d => d.name).ToList();
             m_ViewEvents.onSelectCategories?.Invoke(newSelection);
         }
 
         void UpdateFoldouts()
         {
-            var localCount = m_LocalCategoriesData.Count;
-            var inheritedCount = m_InheritedCategoriesData.Count;
+            int localCount = m_LocalCategoriesData.Count;
+            int inheritedCount = m_InheritedCategoriesData.Count;
 
-            var displayInherited = m_Categories.Any(cat => cat.fromMain);
+            bool displayInherited = m_Categories.Any(cat => cat.fromMain);
             m_InheritedFoldout.style.display = displayInherited ? DisplayStyle.Flex : DisplayStyle.None;
 
-            var inheritedHeight = m_InheritedFoldout.value && displayInherited ? inheritedCount * k_ListItemHeight + k_FoldoutHeight : k_FoldoutHeight;
+            int inheritedHeight = m_InheritedFoldout.value && displayInherited ? inheritedCount * k_ListItemHeight + k_FoldoutHeight : k_FoldoutHeight;
             m_InheritedFoldout.style.minHeight = m_InheritedFoldout.style.height = inheritedHeight;
 
-            var localHeight = m_LocalFoldout.value ? localCount * k_ListItemHeight + k_FoldoutHeight : k_FoldoutHeight;
+            int localHeight = m_LocalFoldout.value ? localCount * k_ListItemHeight + k_FoldoutHeight : k_FoldoutHeight;
             m_LocalFoldout.style.minHeight = m_LocalFoldout.style.height = localHeight;
 
-            var offset = displayInherited ? k_FoldoutHeight : 0;
+            int offset = displayInherited ? k_FoldoutHeight : 0;
             m_CategoryListsContainer.style.minHeight = m_CategoryListsContainer.style.height = localHeight + inheritedHeight + offset;
         }
 
@@ -392,12 +402,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             m_SelectedCategories = categories;
 
-            var localSelection = new List<int>();
-            var inheritedSelection = new List<int>();
-            foreach (var category in categories.Select(categoryName => m_Categories.FirstOrDefault(c => c.name == categoryName)))
+            List<int> localSelection = new List<int>();
+            List<int> inheritedSelection = new List<int>();
+            foreach (CategoryData category in categories.Select(categoryName => m_Categories.FirstOrDefault(c => c.name == categoryName)))
             {
-                var localIndex = m_LocalCategoriesData.IndexOf(category);
-                var inheritedIndex = m_InheritedCategoriesData.IndexOf(category);
+                int localIndex = m_LocalCategoriesData.IndexOf(category);
+                int inheritedIndex = m_InheritedCategoriesData.IndexOf(category);
                 if (localIndex >= 0)
                     localSelection.Add(localIndex);
 
@@ -418,7 +428,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void PostRefreshUI()
         {
-            var show = m_Categories.Count == 0 && !m_IsFiltered;
+            bool show = m_Categories.Count == 0 && !m_IsFiltered;
             m_InfoLabel.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
             m_CategoryListsScrollContainer.style.display = show ? DisplayStyle.None : DisplayStyle.Flex;
 
@@ -428,7 +438,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         bool CanRenameAtId(int i)
         {
-            var selectionCount = m_LocalListView.selectedIndices?.Count() ?? 0;
+            int selectionCount = m_LocalListView.selectedIndices?.Count() ?? 0;
             return selectionCount == 1;
         }
 
@@ -439,10 +449,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             evt.menu.AppendAction(TextContent.spriteLibraryCreateCategory, _ => CreateNewCategory());
 
-            var selectionCount = m_LocalListView.selectedIndices?.Count() ?? 0;
-            var canRenameStatus = selectionCount == 1 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
+            int selectionCount = m_LocalListView.selectedIndices?.Count() ?? 0;
+            DropdownMenuAction.Status canRenameStatus = selectionCount == 1 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
             evt.menu.AppendAction(TextContent.spriteLibraryRenameCategory, _ => RenameSelected(), canRenameStatus);
-            var canDeleteCategoryStatus = selectionCount > 0 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
+            DropdownMenuAction.Status canDeleteCategoryStatus = selectionCount > 0 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
             evt.menu.AppendAction(TextContent.spriteLibraryDeleteCategories, _ => DeleteSelected(), canDeleteCategoryStatus);
         }
     }

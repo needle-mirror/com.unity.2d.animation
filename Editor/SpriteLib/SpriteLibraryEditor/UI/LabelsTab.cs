@@ -58,11 +58,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_LabelsContainer = this.Q<VisualElement>("LabelsContainer");
             m_LabelsContainer.pickingMode = PickingMode.Ignore;
 
-            var tabHeaderLabel = this.Q(SpriteLibraryEditorWindow.tabHeaderName).Q<Label>();
+            Label tabHeaderLabel = this.Q(SpriteLibraryEditorWindow.tabHeaderName).Q<Label>();
             tabHeaderLabel.text = "Labels";
             tabHeaderLabel.tooltip = TextContent.spriteLibraryLabelsTooltip;
 
-            var container = new VisualElement { pickingMode = PickingMode.Ignore };
+            VisualElement container = new VisualElement { pickingMode = PickingMode.Ignore };
             Add(container);
             container.StretchToParentSize();
 
@@ -157,7 +157,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void UpdateShowInfoLabel()
         {
-            var show = false;
+            bool show = false;
             if (m_SelectedCategories.Count == 1 && m_LabelData.Count == 0)
             {
                 m_InfoLabel.text = TextContent.spriteLabelColumnEmpty;
@@ -188,9 +188,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (newView == ViewType.List)
             {
                 m_ItemsCollection = new RenamableListView
-                    { reorderable = true, CanRenameAtIndex = CanRenameAtId, selectionType = SelectionType.Multiple };
+                { reorderable = true, CanRenameAtIndex = CanRenameAtId, selectionType = SelectionType.Multiple };
 
-                var renamableList = m_ItemsCollection as RenamableListView;
+                RenamableListView renamableList = m_ItemsCollection as RenamableListView;
                 Debug.Assert(renamableList != null);
                 renamableList.makeItem += MakeListItem;
                 renamableList.bindItem += BindListItem;
@@ -200,7 +200,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             else
             {
                 m_ItemsCollection = new RenamableGridView { CanRenameAtIndex = CanRenameAtId, selectionType = SelectionType.Multiple };
-                var renamableGrid = m_ItemsCollection as RenamableGridView;
+                RenamableGridView renamableGrid = m_ItemsCollection as RenamableGridView;
                 Debug.Assert(renamableGrid != null);
                 renamableGrid.makeItem += MakeGridItem;
                 renamableGrid.bindItem += BindGridItem;
@@ -213,13 +213,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         static void UnbindCollectionItem(VisualElement e, int i)
         {
-            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
+            VisualElement overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = null;
         }
 
         void InitializeItemsCollection()
         {
-            var collectionVisualItem = (VisualElement)m_ItemsCollection;
+            VisualElement collectionVisualItem = (VisualElement)m_ItemsCollection;
             m_LabelsContainer.Add(collectionVisualItem);
             collectionVisualItem.StretchToParentSize();
 
@@ -246,7 +246,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 }
                 else if (evt.commandName == SpriteLibraryEditorWindow.renameCommandName)
                 {
-                    var selectedId = m_SelectedLabels.Select(label => m_LabelData.FindIndex(l => l.name == label)).FirstOrDefault();
+                    int selectedId = m_SelectedLabels.Select(label => m_LabelData.FindIndex(l => l.name == label)).FirstOrDefault();
                     if (CanRenameAtId(selectedId))
                     {
                         evt.StopPropagation();
@@ -260,7 +260,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnGeometryChanged(GeometryChangedEvent evt)
         {
-            var width = resolvedStyle.width;
+            float width = resolvedStyle.width;
             m_ItemsCollection.SetWidth(width);
         }
 
@@ -269,14 +269,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!CanModifyLabels())
                 return;
 
-            var inherited = m_LabelData.Where(l => l.fromMain);
-            var toReorder = m_ItemsCollection.GetItemSource().Cast<LabelData>().Except(inherited);
+            IEnumerable<LabelData> inherited = m_LabelData.Where(l => l.fromMain);
+            IEnumerable<LabelData> toReorder = m_ItemsCollection.GetItemSource().Cast<LabelData>().Except(inherited);
             m_ViewEvents.onReorderLabels?.Invoke(inherited.Select(l => l.name).Concat(toReorder.Select(l => l.name)).ToList());
         }
 
         void OnSelectionChanged(IEnumerable<object> selection)
         {
-            var newSelection = selection.Cast<LabelData>().Select(d => d.name).ToList();
+            List<string> newSelection = selection.Cast<LabelData>().Select(d => d.name).ToList();
             m_ViewEvents.onSelectLabels?.Invoke(newSelection);
         }
 
@@ -288,7 +288,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (i < 0 || i >= m_LabelData.Count || string.IsNullOrEmpty(newName))
                 return;
 
-            var label = m_LabelData[i];
+            LabelData label = m_LabelData[i];
             if (label == null || newName == label.name)
                 return;
 
@@ -298,7 +298,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         void SetSelection(List<string> labels)
         {
             m_SelectedLabels = labels;
-            var selectedIndices = m_SelectedLabels.Select(label => m_LabelData.FindIndex(l => l.name == label));
+            IEnumerable<int> selectedIndices = m_SelectedLabels.Select(label => m_LabelData.FindIndex(l => l.name == label));
             m_ItemsCollection.SetSelectionWithoutNotify(selectedIndices);
         }
 
@@ -306,7 +306,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             m_ViewEvents.onCreateNewLabel.Invoke(null);
 
-            var lastId = m_ItemsCollection.GetItemSource().Count - 1;
+            int lastId = m_ItemsCollection.GetItemSource().Count - 1;
             m_ItemsCollection.SetSelectionWithoutNotify(new List<int> { lastId });
 
             m_ItemsCollection.ScrollToItem(lastId);
@@ -326,37 +326,37 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void RevertLabelOverride(bool revertAll)
         {
-            var labels = revertAll ? m_LabelData.Select(l => l.name).ToList() : m_SelectedLabels;
+            List<string> labels = revertAll ? m_LabelData.Select(l => l.name).ToList() : m_SelectedLabels;
             m_ViewEvents.onRevertOverridenLabels?.Invoke(labels);
         }
 
         void SpriteReferenceChanged(ObjectField objectField)
         {
-            var i = (int)objectField.userData;
-            var label = m_LabelData[i].name;
+            int i = (int)objectField.userData;
+            string label = m_LabelData[i].name;
 
-            var sprite = objectField.value as Sprite;
+            Sprite sprite = objectField.value as Sprite;
             m_ViewEvents.onSetLabelSprite?.Invoke(label, sprite);
         }
 
         VisualElement MakeListItem()
         {
-            var e = new VisualElement { name = "ListElementParent" };
+            VisualElement e = new VisualElement { name = "ListElementParent" };
 
-            var overlay = new VisualElement { pickingMode = PickingMode.Ignore };
+            VisualElement overlay = new VisualElement { pickingMode = PickingMode.Ignore };
             e.Add(overlay);
             overlay.StretchToParentSize();
 
             const int spriteSizeMargin = 5;
-            var spriteSizeAdjustedForMargin = m_AdjustedViewSize - spriteSizeMargin;
-            var spriteSlot = new Image { name = "ListSpriteSlot", pickingMode = PickingMode.Ignore, style = { width = spriteSizeAdjustedForMargin, height = spriteSizeAdjustedForMargin } };
+            float spriteSizeAdjustedForMargin = m_AdjustedViewSize - spriteSizeMargin;
+            Image spriteSlot = new Image { name = "ListSpriteSlot", pickingMode = PickingMode.Ignore, style = { width = spriteSizeAdjustedForMargin, height = spriteSizeAdjustedForMargin } };
             e.Add(spriteSlot);
 
-            var label = new Label { name = IRenamableCollection.labelElementName, pickingMode = PickingMode.Ignore };
+            Label label = new Label { name = IRenamableCollection.labelElementName, pickingMode = PickingMode.Ignore };
             label.AddToClassList(k_ListLabelClassName);
             e.Add(label);
 
-            var objField = new ObjectField { objectType = typeof(Sprite), name = "LabelSpriteObjectField", allowSceneObjects = false, focusable = false };
+            ObjectField objField = new ObjectField { objectType = typeof(Sprite), name = "LabelSpriteObjectField", allowSceneObjects = false, focusable = false };
             objField.RegisterValueChangedCallback(_ => SpriteReferenceChanged(objField));
             e.Add(objField);
 
@@ -370,17 +370,17 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void BindListItem(VisualElement e, int i)
         {
-            var labelData = m_LabelData[i];
+            LabelData labelData = m_LabelData[i];
 
-            var label = e.Q<Label>();
+            Label label = e.Q<Label>();
             label.text = label.tooltip = labelData.name;
 
-            var image = e.Q<Image>();
+            Image image = e.Q<Image>();
             image.sprite = labelData.sprite;
 
-            var useText = i == m_ItemsCollection.renamingIndex;
+            bool useText = i == m_ItemsCollection.renamingIndex;
             label.style.display = useText ? DisplayStyle.None : DisplayStyle.Flex;
-            var text = e.Q<TextField>();
+            TextField text = e.Q<TextField>();
             if (text != null)
             {
                 e.Blur();
@@ -397,7 +397,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 text.RegisterCallback<FocusOutEvent>(OnTextFocusOut);
             }
 
-            var objRef = e.Q<ObjectField>();
+            ObjectField objRef = e.Q<ObjectField>();
             objRef.SetValueWithoutNotify(labelData.sprite);
             objRef.userData = i;
 
@@ -407,22 +407,22 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (labelData.categoryFromMain && !labelData.fromMain)
                 e.AddToClassList(SpriteLibraryEditorWindow.overrideClassName);
 
-            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
+            VisualElement overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = labelData.name;
         }
 
         VisualElement MakeGridItem()
         {
-            var e = new VisualElement { name = "GridElementParent" };
+            VisualElement e = new VisualElement { name = "GridElementParent" };
 
-            var spriteSlot = new Image { name = "GridElementImage", pickingMode = PickingMode.Ignore };
+            Image spriteSlot = new Image { name = "GridElementImage", pickingMode = PickingMode.Ignore };
             e.Add(spriteSlot);
 
-            var overlay = new VisualElement { pickingMode = PickingMode.Ignore };
+            VisualElement overlay = new VisualElement { pickingMode = PickingMode.Ignore };
             spriteSlot.Add(overlay);
             overlay.StretchToParentSize();
 
-            var label = new Label { name = IRenamableCollection.labelElementName, pickingMode = PickingMode.Ignore };
+            Label label = new Label { name = IRenamableCollection.labelElementName, pickingMode = PickingMode.Ignore };
             label.AddToClassList(k_GridLabelClassName);
             e.Add(label);
 
@@ -436,18 +436,18 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void BindGridItem(VisualElement e, int i)
         {
-            var labelData = m_LabelData[i];
+            LabelData labelData = m_LabelData[i];
 
-            var image = e.Q<Image>();
+            Image image = e.Q<Image>();
             image.sprite = labelData.sprite;
 
-            var label = e.Q<Label>();
+            Label label = e.Q<Label>();
             label.text = label.tooltip = labelData.name;
 
-            var useText = i == m_ItemsCollection.renamingIndex;
+            bool useText = i == m_ItemsCollection.renamingIndex;
             label.style.display = useText ? DisplayStyle.None : DisplayStyle.Flex;
 
-            var text = e.Q<TextField>();
+            TextField text = e.Q<TextField>();
             if (text != null)
             {
                 text.Blur();
@@ -474,7 +474,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             else
                 label.RemoveFromClassList(SpriteLibraryEditorWindow.overrideClassName);
 
-            var overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
+            VisualElement overlay = e.Q(className: DragAndDropManipulator.overlayClassName);
             overlay.userData = labelData.name;
         }
 
@@ -494,7 +494,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (m_LabelData == null || i < 0 || i >= m_LabelData.Count)
                 return false;
 
-            var label = m_LabelData[i];
+            LabelData label = m_LabelData[i];
             return label != null && !label.fromMain;
         }
 
@@ -509,23 +509,23 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             {
                 evt.menu.AppendAction(TextContent.spriteLibraryCreateLabel, _ => CreateNewLabel());
 
-                var selectedId = m_SelectedLabels.Select(label => m_LabelData.FindIndex(l => l.name == label)).FirstOrDefault();
-                var canModifyAt = CanModifyAtId(selectedId);
-                var canModifyStatus = canModifyAt ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
-                var canRename = CanRenameAtId(selectedId);
-                var canRenameStatus = canRename ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
+                int selectedId = m_SelectedLabels.Select(label => m_LabelData.FindIndex(l => l.name == label)).FirstOrDefault();
+                bool canModifyAt = CanModifyAtId(selectedId);
+                DropdownMenuAction.Status canModifyStatus = canModifyAt ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
+                bool canRename = CanRenameAtId(selectedId);
+                DropdownMenuAction.Status canRenameStatus = canRename ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
                 evt.menu.AppendAction(TextContent.spriteLibraryRenameLabel, _ => RenameSelected(), _ => canRenameStatus);
                 evt.menu.AppendAction(TextContent.spriteLibraryDeleteLabels, _ => DeleteSelected(), _ => canModifyStatus);
                 evt.menu.AppendSeparator();
 
-                var canRevertSelectedStatus = m_SelectedLabels.Any(l => m_LabelData.Any(labelData => CanRevertLabel(labelData) && labelData.name == l)) ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
-                var canRevertAnyStatus = m_LabelData.Any(CanRevertLabel) ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
+                DropdownMenuAction.Status canRevertSelectedStatus = m_SelectedLabels.Any(l => m_LabelData.Any(labelData => CanRevertLabel(labelData) && labelData.name == l)) ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
+                DropdownMenuAction.Status canRevertAnyStatus = m_LabelData.Any(CanRevertLabel) ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
                 evt.menu.AppendAction(TextContent.spriteLibraryRevertLabels, _ => RevertLabelOverride(false), _ => canRevertSelectedStatus);
                 evt.menu.AppendAction(TextContent.spriteLibraryRevertAllLabels, _ => RevertLabelOverride(true), _ => canRevertAnyStatus);
                 evt.menu.AppendSeparator();
             }
 
-            var sprite = m_SelectedLabels.Any() ? m_SelectedLabels.Select(label => m_LabelData.FirstOrDefault(l => l.name == label)).FirstOrDefault(l => l?.sprite != null)?.sprite : null;
+            Sprite sprite = m_SelectedLabels.Any() ? m_SelectedLabels.Select(label => m_LabelData.FirstOrDefault(l => l.name == label)).FirstOrDefault(l => l?.sprite != null)?.sprite : null;
             evt.menu.AppendAction(TextContent.spriteLibraryShowLabel, _ => Selection.objects = new UnityEngine.Object[] { sprite }, _ => sprite != null ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Hidden);
         }
 

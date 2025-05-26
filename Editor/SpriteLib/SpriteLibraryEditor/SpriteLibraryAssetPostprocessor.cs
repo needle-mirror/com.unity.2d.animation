@@ -20,12 +20,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             {
                 if (OnMovedAssetFromTo != null)
                 {
-                    for (var i = 0; i < movedAssets.Length; i++)
+                    for (int i = 0; i < movedAssets.Length; i++)
                     {
-                        var fromPath = movedFromAssetPaths[i];
+                        string fromPath = movedFromAssetPaths[i];
                         if (IsPathSpriteLibrary(fromPath))
                         {
-                            var toPath = IsPathSpriteLibrary(movedAssets[i]) ? movedAssets[i] : null;
+                            string toPath = IsPathSpriteLibrary(movedAssets[i]) ? movedAssets[i] : null;
                             OnMovedAssetFromTo.Invoke(fromPath, toPath);
                         }
                     }
@@ -34,9 +34,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             if (OnImported != null)
             {
-                for (var i = 0; i < importedAssets.Length; i++)
+                for (int i = 0; i < importedAssets.Length; i++)
                 {
-                    var assetPath = importedAssets[i];
+                    string assetPath = importedAssets[i];
                     if (IsPathSpriteLibrary(assetPath))
                         OnImported.Invoke(assetPath);
                 }
@@ -44,9 +44,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             if (OnDeleted != null)
             {
-                for (var i = 0; i < deletedAssets.Length; i++)
+                for (int i = 0; i < deletedAssets.Length; i++)
                 {
-                    var assetPath = deletedAssets[i];
+                    string assetPath = deletedAssets[i];
                     if (IsPathSpriteLibrary(assetPath))
                         OnDeleted.Invoke(assetPath);
                 }

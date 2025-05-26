@@ -9,7 +9,7 @@ The following steps are the general workflow for preparing your actor for animat
 
    - Alternatively, you can set the start-point of the new bone away from its parent bone. The child bone still belongs to the same chain and this is reflected in the [bone hierarchy](SpriteVis.md#bone-tab-and-hierarchy-tree).
 
-      ![](images/BoneChain.png)<br/>A faded link shows the red and blue bones are connected in a chain.
+      ![A character sprite with a chain of bones through the head. A faded link shows that two bones are still connected in a chain, even though they don't physically connect.](images/BoneChain.png)<br/>A faded link shows the red and blue bones are connected in a chain.
 <br/>
 2. After creating the bones of the actor, generate the geometry Mesh for the __Sprites__. It is recommended to use the [Auto Geometry](SkinEdToolsShortcuts.md#geometry-tools) tool to auto-generate the geometry Mesh.
 
@@ -28,8 +28,6 @@ The following steps are the general workflow for preparing your actor for animat
 6. To edit which bones influence a Sprite, select it and then go to the [Bone Influence](SkinEdToolsShortcuts.md#bone-influences-panel) tool. A list of bones currently influencing the Sprite’s Mesh are listed in this panel at the bottom-right of the editor.
 
    - To remove a bone, select it from the list and select __Remove (-)__ at the bottom right of the list.
-
-      ![](images/BoneInf_panel.png)<br/>Select __Remove (-)__ at the bottom right of the panel.
 
    - To add a bone as an influencer to the currently selected Sprite Mesh, select the bone in the editor window and select __Add (+)__ to add it to the list.
 

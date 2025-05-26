@@ -44,21 +44,21 @@ namespace UnityEditor.U2D.Animation
 
             m_GenerateGeometryPanel.onAutoGenerateGeometry += (float detail, byte alpha, float subdivide) =>
             {
-                var selectedSprite = skinningCache.selectedSprite;
+                SpriteCache selectedSprite = skinningCache.selectedSprite;
                 if (selectedSprite != null)
                     GenerateGeometryForSprites(new[] { selectedSprite }, detail, alpha, subdivide);
             };
 
             m_GenerateGeometryPanel.onAutoGenerateGeometryAll += (float detail, byte alpha, float subdivide) =>
             {
-                var sprites = skinningCache.GetSprites();
+                SpriteCache[] sprites = skinningCache.GetSprites();
                 GenerateGeometryForSprites(sprites, detail, alpha, subdivide);
             };
         }
 
         void GenerateGeometryForSprites(SpriteCache[] sprites, float detail, byte alpha, float subdivide)
         {
-            var cancelProgress = false;
+            bool cancelProgress = false;
 
             using (skinningCache.UndoScope(TextContent.generateGeometry))
             {
@@ -69,14 +69,14 @@ namespace UnityEditor.U2D.Animation
                 //
                 // Generate Outline
                 //
-                for (var i = 0; i < sprites.Length; ++i)
+                for (int i = 0; i < sprites.Length; ++i)
                 {
-                    var sprite = sprites[i];
+                    SpriteCache sprite = sprites[i];
                     if (!sprite.IsVisible())
                         continue;
 
                     Debug.Assert(sprite != null);
-                    var mesh = sprite.GetMesh();
+                    MeshCache mesh = sprite.GetMesh();
                     Debug.Assert(mesh != null);
 
                     m_SpriteMeshDataController.spriteMeshData = mesh;
@@ -92,13 +92,13 @@ namespace UnityEditor.U2D.Animation
                 // Generate Base Mesh Threaded.
                 //
                 const int maxDataCount = 65536;
-                var spriteList = new List<SpriteJobData>();
-                var jobHandles = new NativeArray<JobHandle>(validSpriteCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+                Dictionary<SpriteCache, SpriteJobData> dictSpriteJobData = new Dictionary<SpriteCache, SpriteJobData>();
+                NativeArray<JobHandle> jobHandles = new NativeArray<JobHandle>(validSpriteCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
                 int jobCount = 0;
 
-                for (var i = 0; i < sprites.Length; ++i)
+                for (int i = 0; i < sprites.Length; ++i)
                 {
-                    var sprite = sprites[i];
+                    SpriteCache sprite = sprites[i];
                     if (!sprite.IsVisible())
                         continue;
 
@@ -106,7 +106,7 @@ namespace UnityEditor.U2D.Animation
                     if (cancelProgress)
                         break;
 
-                    var mesh = sprite.GetMesh();
+                    MeshCache mesh = sprite.GetMesh();
                     m_SpriteMeshDataController.spriteMeshData = mesh;
 
                     SpriteJobData sd = new SpriteJobData();
@@ -117,7 +117,7 @@ namespace UnityEditor.U2D.Animation
                     sd.weights = new NativeArray<BoneWeight>(maxDataCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
                     sd.result = new NativeArray<int4>(1, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
                     sd.result[0] = int4.zero;
-                    spriteList.Add(sd);
+                    dictSpriteJobData.Add(sprite, sd);
                     if (m_GenerateGeometryPanel.generateWeights)
                     {
                         jobHandles[jobCount] = m_SpriteMeshDataController.TriangulateJob(m_Triangulator, sd);
@@ -134,21 +134,20 @@ namespace UnityEditor.U2D.Animation
                 //
                 // Generate Base Mesh Fallback.
                 //
-                for (var i = 0; i < spriteList.Count; i++)
+                foreach (SpriteJobData sd in dictSpriteJobData.Values)
                 {
-                    var sd = spriteList[i];
                     if (math.all(sd.result[0].xy))
                     {
                         sd.spriteMesh.Clear();
 
-                        var edges = new int2[sd.result[0].z];
-                        var indices = new int[sd.result[0].y];
+                        int2[] edges = new int2[sd.result[0].z];
+                        int[] indices = new int[sd.result[0].y];
 
-                        for (var j = 0; j < sd.result[0].x; ++j)
+                        for (int j = 0; j < sd.result[0].x; ++j)
                             sd.spriteMesh.AddVertex(sd.vertices[j], default(BoneWeight));
-                        for (var j = 0; j < sd.result[0].y; ++j)
+                        for (int j = 0; j < sd.result[0].y; ++j)
                             indices[j] = sd.indices[j];
-                        for (var j = 0; j < sd.result[0].z; ++j)
+                        for (int j = 0; j < sd.result[0].z; ++j)
                             edges[j] = sd.edges[j];
 
                         sd.spriteMesh.SetEdges(edges);
@@ -164,15 +163,14 @@ namespace UnityEditor.U2D.Animation
                 //
                 // Subdivide.
                 //
-
                 jobCount = 0;
                 if (subdivide > 0f)
                 {
-                    var largestAreaFactor = subdivide != 0 ? Mathf.Lerp(0.5f, 0.05f, Math.Min(subdivide, 100f) / 100f) : subdivide;
+                    float largestAreaFactor = subdivide != 0 ? Mathf.Lerp(0.5f, 0.05f, Math.Min(subdivide, 100f) / 100f) : subdivide;
 
-                    for (var i = 0; i < sprites.Length; ++i)
+                    for (int i = 0; i < sprites.Length; ++i)
                     {
-                        var sprite = sprites[i];
+                        SpriteCache sprite = sprites[i];
                         if (!sprite.IsVisible())
                             continue;
 
@@ -180,10 +178,10 @@ namespace UnityEditor.U2D.Animation
                         if (cancelProgress)
                             break;
 
-                        var mesh = sprite.GetMesh();
+                        MeshCache mesh = sprite.GetMesh();
                         m_SpriteMeshDataController.spriteMeshData = mesh;
 
-                        var sd = spriteList[i];
+                        SpriteJobData sd = dictSpriteJobData[sprite];
                         sd.spriteMesh = mesh;
                         sd.result[0] = int4.zero;
                         m_SpriteMeshDataController.Subdivide(m_Triangulator, sd, largestAreaFactor, 0f);
@@ -198,20 +196,20 @@ namespace UnityEditor.U2D.Animation
                 if (m_GenerateGeometryPanel.generateWeights)
                 {
 
-                    for (var i = 0; i < sprites.Length; i++)
+                    for (int i = 0; i < sprites.Length; i++)
                     {
-                        var sprite = sprites[i];
+                        SpriteCache sprite = sprites[i];
                         if (!sprite.IsVisible())
                             continue;
 
-                        var mesh = sprite.GetMesh();
+                        MeshCache mesh = sprite.GetMesh();
                         m_SpriteMeshDataController.spriteMeshData = mesh;
 
                         cancelProgress = EditorUtility.DisplayCancelableProgressBar(TextContent.generatingWeights, sprite.name, 0.75f + (i / progressMax));
                         if (cancelProgress)
                             break;
 
-                        var sd = spriteList[i];
+                        SpriteJobData sd = dictSpriteJobData[sprite];
                         jobHandles[jobCount] = GenerateWeights(sprite, sd);
                         jobCount++;
                     }
@@ -219,19 +217,19 @@ namespace UnityEditor.U2D.Animation
                     // Weight
                     JobHandle.CombineDependencies(jobHandles).Complete();
 
-                    for (var i = 0; i < sprites.Length; i++)
+                    for (int i = 0; i < sprites.Length; i++)
                     {
-                        var sprite = sprites[i];
+                        SpriteCache sprite = sprites[i];
                         if (!sprite.IsVisible())
                             continue;
 
-                        var mesh = sprite.GetMesh();
+                        MeshCache mesh = sprite.GetMesh();
                         m_SpriteMeshDataController.spriteMeshData = mesh;
-                        var sd = spriteList[i];
+                        SpriteJobData sd = dictSpriteJobData[sprite];
 
-                        for (var j = 0; j < mesh.vertexCount; ++j)
+                        for (int j = 0; j < mesh.vertexCount; ++j)
                         {
-                            var editableBoneWeight = EditableBoneWeightUtility.CreateFromBoneWeight(sd.weights[j]);
+                            EditableBoneWeight editableBoneWeight = EditableBoneWeightUtility.CreateFromBoneWeight(sd.weights[j]);
 
                             if (kWeightTolerance > 0f)
                             {
@@ -248,9 +246,8 @@ namespace UnityEditor.U2D.Animation
 
                 }
 
-                for (var i = 0; i < spriteList.Count; i++)
+                foreach (SpriteJobData sd in dictSpriteJobData.Values)
                 {
-                    var sd = spriteList[i];
                     sd.result.Dispose();
                     sd.indices.Dispose();
                     sd.edges.Dispose();
@@ -261,14 +258,14 @@ namespace UnityEditor.U2D.Animation
                 if (!cancelProgress)
                 {
                     skinningCache.vertexSelection.Clear();
-                    foreach(var sprite in sprites)
+                    foreach (SpriteCache sprite in sprites)
                         skinningCache.events.meshChanged.Invoke(sprite.GetMesh());
                 }
 
                 EditorUtility.ClearProgressBar();
             }
 
-            if(cancelProgress)
+            if (cancelProgress)
                 Undo.PerformUndo();
         }
 
@@ -299,7 +296,7 @@ namespace UnityEditor.U2D.Animation
 
         private void UpdateButton()
         {
-            var selectedSprite = skinningCache.selectedSprite;
+            SpriteCache selectedSprite = skinningCache.selectedSprite;
 
             if (selectedSprite == null)
                 m_GenerateGeometryPanel.SetMode(GenerateGeometryPanel.GenerateMode.Multiple);
@@ -316,7 +313,7 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(sprite != null);
 
-            var mesh = sprite.GetMesh();
+            MeshCache mesh = sprite.GetMesh();
 
             Debug.Assert(mesh != null);
 
@@ -333,7 +330,7 @@ namespace UnityEditor.U2D.Animation
             if (characterPart == null)
                 return false;
 
-            var skeleton = characterPart.skinningCache.character.skeleton;
+            SkeletonCache skeleton = characterPart.skinningCache.character.skeleton;
 
             return characterPart.boneCount == 0 ||
                     (characterPart.boneCount == 1 && characterPart.GetBone(0) == skeleton.GetBone(0));
@@ -344,7 +341,7 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(mesh != null);
 
             m_SpriteMeshDataController.spriteMeshData = mesh;
-            var JobHandle = m_SpriteMeshDataController.CalculateWeightsJob(m_WeightGenerator, null, kWeightTolerance, sd);
+            JobHandle JobHandle = m_SpriteMeshDataController.CalculateWeightsJob(m_WeightGenerator, null, kWeightTolerance, sd);
 
             return JobHandle;
         }

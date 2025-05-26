@@ -83,9 +83,9 @@ namespace UnityEngine.U2D.IK
 
         bool Validate()
         {
-            for (var i = 0; i < GetChainCount(); ++i)
+            for (int i = 0; i < GetChainCount(); ++i)
             {
-                var chain = GetChain(i);
+                IKChain2D chain = GetChain(i);
                 if (!chain.isValid)
                     return false;
             }
@@ -95,9 +95,9 @@ namespace UnityEngine.U2D.IK
 
         bool HasTargets()
         {
-            for (var i = 0; i < GetChainCount(); ++i)
+            for (int i = 0; i < GetChainCount(); ++i)
             {
-                var chain = GetChain(i);
+                IKChain2D chain = GetChain(i);
                 if (chain.target == null)
                     return false;
             }
@@ -112,26 +112,26 @@ namespace UnityEngine.U2D.IK
         {
             DoInitialize();
 
-            for (var i = 0; i < GetChainCount(); ++i)
+            for (int i = 0; i < GetChainCount(); ++i)
             {
-                var chain = GetChain(i);
+                IKChain2D chain = GetChain(i);
                 chain.Initialize();
             }
         }
 
         void Prepare()
         {
-            var rootTransform = GetPlaneRootTransform();
+            Transform rootTransform = GetPlaneRootTransform();
             if (rootTransform != null)
             {
                 m_Plane.normal = rootTransform.forward;
                 m_Plane.distance = -Vector3.Dot(m_Plane.normal, rootTransform.position);
             }
 
-            for (var i = 0; i < GetChainCount(); ++i)
+            for (int i = 0; i < GetChainCount(); ++i)
             {
-                var chain = GetChain(i);
-                var constrainTargetRotation = constrainRotation && chain.target != null;
+                IKChain2D chain = GetChain(i);
+                bool constrainTargetRotation = constrainRotation && chain.target != null;
 
                 if (m_SolveFromDefaultPose)
                     chain.RestoreDefaultPose(constrainTargetRotation);
@@ -144,9 +144,9 @@ namespace UnityEngine.U2D.IK
         {
             m_TargetPositions.Clear();
 
-            for (var i = 0; i < GetChainCount(); ++i)
+            for (int i = 0; i < GetChainCount(); ++i)
             {
-                var chain = GetChain(i);
+                IKChain2D chain = GetChain(i);
 
                 if (chain.target)
                     m_TargetPositions.Add(chain.target.position);
@@ -176,8 +176,8 @@ namespace UnityEngine.U2D.IK
             if (targetPositions.Count != chainCount)
                 return;
 
-            var finalWeight = globalWeight * weight;
-            var weightValueChanged = Math.Abs(finalWeight - m_LastFinalWeight) > 0.0001f;
+            float finalWeight = globalWeight * weight;
+            bool weightValueChanged = Math.Abs(finalWeight - m_LastFinalWeight) > 0.0001f;
             m_LastFinalWeight = finalWeight;
 
             if (finalWeight == 0f && !weightValueChanged)
@@ -195,9 +195,9 @@ namespace UnityEngine.U2D.IK
 
             if (constrainRotation)
             {
-                for (var i = 0; i < GetChainCount(); ++i)
+                for (int i = 0; i < GetChainCount(); ++i)
                 {
-                    var chain = GetChain(i);
+                    IKChain2D chain = GetChain(i);
 
                     if (chain.target)
                         chain.effector.rotation = chain.target.rotation;
@@ -210,19 +210,19 @@ namespace UnityEngine.U2D.IK
 
         void StoreLocalRotations()
         {
-            for (var i = 0; i < GetChainCount(); ++i)
+            for (int i = 0; i < GetChainCount(); ++i)
             {
-                var chain = GetChain(i);
+                IKChain2D chain = GetChain(i);
                 chain.StoreLocalRotations();
             }
         }
 
         void BlendFkToIk(float finalWeight)
         {
-            for (var i = 0; i < GetChainCount(); ++i)
+            for (int i = 0; i < GetChainCount(); ++i)
             {
-                var chain = GetChain(i);
-                var constrainTargetRotation = constrainRotation && chain.target != null;
+                IKChain2D chain = GetChain(i);
+                bool constrainTargetRotation = constrainRotation && chain.target != null;
                 chain.BlendFkToIk(finalWeight, constrainTargetRotation);
             }
         }

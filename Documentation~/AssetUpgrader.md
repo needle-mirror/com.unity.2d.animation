@@ -12,7 +12,6 @@ The 2D Animation Asset Upgrader tool eases the transition and upgrade of older a
 Before upgrading any assets in your current project, make sure to source control or back up your project.
 
 Go to **Window > 2D > 2D Animation Asset Upgrader** to open the 2D Animation Asset Upgrader.
-<br/>![](images/AssetUpgrader_Window.png)
 
 ## Upgrading Sprite Libraries
 Follow these steps to upgrade the Sprite Libraries in the project.
@@ -21,7 +20,6 @@ Follow these steps to upgrade the Sprite Libraries in the project.
 2. Select the __Sprite Libraries__ button to open the Sprite Libraries tab.
 
 3. Select the __Scan project__ button. The window then displays a list of all the Sprite Libraries that you can upgrade.
-![](images/AssetUpgrader_SpriteLibToUpgrade.png)
 
 4. Clear any Sprite Library Assets which you do not want to upgrade.
 
@@ -30,7 +28,6 @@ Follow these steps to upgrade the Sprite Libraries in the project.
 6. The editor then displays a pop-up window to inform you that the upgrade cannot be reverted, and any [Asset Bundles](https://docs.unity3d.com/Manual/AssetBundlesIntro.html) connected to the Sprite Libraries will need to be rebuilt. Select __Yes__ to proceed with the upgrade, or __No__ to cancel the upgrading process.
 
 7. Once the upgrading process is complete, the 2D Animation Asset Upgrader will display the status of the upgrading process for each of the selected assets.
-![](images/AssetUpgrader_SpriteLibUpgraded.png)
 
 8. Select the __Open upgrade log__ button to get more detailed information about the different upgrade warnings and errors that may appear. The upgrade log will also list all the Asset Bundles that need to be rebuilt for the upgrading process.
 
@@ -41,7 +38,6 @@ Follow these steps to upgrade the Animation Clips in the project:
 2. Select the **Animation Clips** button to open the Animation Clips tab.
 
 3. Select the **Scan project** button. The window then displays a list of all the Animation Clips that you can upgrade.
-![](images/AssetUpgrader_AnimationClipsToUpgrade.png)
 
 4. Clear any Animation Clips which you do not want to upgrade.
 
@@ -50,7 +46,6 @@ Follow these steps to upgrade the Animation Clips in the project:
 6. The editor then displays a pop-up window to inform you that the upgrade cannot be reverted, and that any Asset Bundles connected to the Animation Clips will need to be rebuilt. Select __Yes__ to proceed with the upgrade, or __No__ to cancel the upgrading process.
 
 7. Once the upgrading process is complete, the 2D Animation Asset Upgrader will display the status the upgrading process for each of the selected Animation Clips.
-![](images/AssetUpgrader_AnimationClipsUpgraded.png)
 
 8. Select the __Open upgrade log__ button to get more detailed information about the upgrade warnings and errors that may appear. The upgrade log will also list all the Asset Bundles that need to be rebuilt for the upgrading process.
 
@@ -82,13 +77,15 @@ The upgrade of the clip Talk failed. Some keyframes could not be converted in th
 In this example, the upgrade log shows the actions and results from upgrading an Animation Clip that contains only Label hashes, but no Category hashes. The 2D Animation Upgrader writes to the log that it cannot find a Category hash for three out of three keyframes. This results in a failure to upgrade the Animation Clip.
 
 ### When some keyframes could not be converted in the Animation Clip
-![](images/AssetUpgrader_Err_CouldNotBeConverted.png)
+
+If keyframes can't be converted in the Animation Clip, the Animation Clip displays an error. The tooltip shows the message **The upgrade of the clip failed. Some keyframes could not be converted in the animation clip.**.
+
 One of the most common reasons for this error is when an Animation Clip contains either Sprite Resolver Category hash keys or Sprite Resolver Label hash keys, but not both types of hash keys at the same time.
 
-![](images/AssetUpgrader_Err_CatLabel_InCorrect.png)
+![The Animation window with an incorrect Animation Clip setup where the Animation Clip contains only the Label hash, but not a Category hash.](images/AssetUpgrader_Err_CatLabel_InCorrect.png)
 This example shows an incorrect Animation Clip setup where the Animation Clip contains only the Label hash, but not a Category hash, which leads to the above error.
 
-![](images/AssetUpgrader_Err_CatLabel_Correct.png)
+![The Animation window with the corrected setup, where the Animation Clip contains both the Label hash and the Category hash.](images/AssetUpgrader_Err_CatLabel_Correct.png)
 This example shows the corrected setup, where the Animation Clip contains both the Label hash and the Category hash.
 
 Fix this error by recording a Sprite Swap on the first frame in the Animation Clip. Once the Sprite Swap is added, the 2D Animation Asset Upgrader is able to upgrade the Animation Clip.

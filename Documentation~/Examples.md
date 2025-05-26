@@ -1,7 +1,5 @@
 # Importing Samples
-Sample scenes are available for import from the Package Manager under **Samples**, which demonstrate the different ways you can use the features in the 2D Animation package to achieve a variety of effects and outcomes.
-
-![](images/sample-import-button.png)<br/>Select **Import** to download and install the Sample projects and Assets.
+Sample scenes are available for import from the Package Manager under **Samples**, which demonstrate the different ways you can use the features in the 2D Animation package to achieve a variety of effects and outcomes. Select **Import** to download and install the Sample projects and Assets.
 
 Each Sample project contains specific examples with ready-made Assets, demonstrating how to use the 2D Animation package's features and the results and outcomes you can achieve with them.
 

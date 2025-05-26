@@ -8,7 +8,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (ancestor != null)
             {
-                var parent = transform.parent;
+                TransformCache parent = transform.parent;
 
                 while (parent != null)
                 {
@@ -24,7 +24,7 @@ namespace UnityEditor.U2D.Animation
 
         static bool IsDescendant<T>(this T transform, T[] ancestors) where T : TransformCache
         {
-            return ancestors.FirstOrDefault( t => transform.IsDescendant<T>(t) ) != null;
+            return ancestors.FirstOrDefault(t => transform.IsDescendant<T>(t)) != null;
         }
 
         internal static T[] FindRoots<T>(this T[] transforms) where T : TransformCache
@@ -34,8 +34,8 @@ namespace UnityEditor.U2D.Animation
 
         internal static T FindRoot<T>(this T transform, T[] transforms) where T : TransformCache
         {
-            var roots = transforms.FindRoots<T>();
-            return roots.FirstOrDefault( r => transform == r || IsDescendant<T>(transform, r) );
+            T[] roots = transforms.FindRoots<T>();
+            return roots.FirstOrDefault(r => transform == r || IsDescendant<T>(transform, r));
         }
     }
 }

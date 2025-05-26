@@ -90,10 +90,10 @@ namespace UnityEditor.U2D.Animation
         {
             categoryName = null;
             labelName = null;
-            var spriteLib = spriteResolver.spriteLibrary;
+            SpriteLibrary spriteLib = spriteResolver.spriteLibrary;
             if (spriteLib != null)
             {
-                var entryHash = m_SpriteHash.intValue;
+                int entryHash = m_SpriteHash.intValue;
                 spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
 
                 if (!IsSpriteHashAssigned && (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName)))
@@ -105,8 +105,8 @@ namespace UnityEditor.U2D.Animation
 
                 if (!IsSpriteHashAssigned && (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(labelName)))
                 {
-                    var labelHash = InternalEngineBridge.ConvertFloatToInt(m_LabelHash.floatValue);
-                    var categoryHash = InternalEngineBridge.ConvertFloatToInt(m_CategoryHash.floatValue);
+                    int labelHash = InternalEngineBridge.ConvertFloatToInt(m_LabelHash.floatValue);
+                    int categoryHash = InternalEngineBridge.ConvertFloatToInt(m_CategoryHash.floatValue);
                     m_SpriteHash.intValue = SpriteResolver.ConvertCategoryLabelHashToSpriteKey(spriteLib, categoryHash, labelHash);
                     entryHash = m_SpriteHash.intValue;
                     spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
@@ -118,21 +118,21 @@ namespace UnityEditor.U2D.Animation
         {
             m_SpriteLibSelection.Clear();
 
-            var spriteLib = spriteResolver.spriteLibrary;
+            SpriteLibrary spriteLib = spriteResolver.spriteLibrary;
             string categoryName = "", labelName = "";
             if (spriteLib != null)
             {
                 GetCategoryAndLabelStringValue(out categoryName, out labelName);
-                var enumerator = spriteLib.categoryNames;
-                foreach (var category in enumerator)
+                IEnumerable<string> enumerator = spriteLib.categoryNames;
+                foreach (string category in enumerator)
                 {
                     if (!m_SpriteLibSelection.ContainsKey(category))
                     {
-                        var entries = spriteLib.GetEntryNames(category);
+                        IEnumerable<string> entries = spriteLib.GetEntryNames(category);
                         if (entries == null)
                             entries = new string[0];
 
-                        var selectionList = new SpriteCategorySelectionList()
+                        SpriteCategorySelectionList selectionList = new SpriteCategorySelectionList()
                         {
                             entryNames = entries.ToArray(),
                             sprites = entries.Select(x =>
@@ -150,9 +150,9 @@ namespace UnityEditor.U2D.Animation
 
             m_CategorySelection = new string[1 + m_SpriteLibSelection.Keys.Count];
             m_CategorySelection[0] = Style.noCategory.text;
-            for (var i = 0; i < m_SpriteLibSelection.Keys.Count; ++i)
+            for (int i = 0; i < m_SpriteLibSelection.Keys.Count; ++i)
             {
-                var selection = m_SpriteLibSelection[m_SpriteLibSelection.Keys.ElementAt(i)];
+                SpriteCategorySelectionList selection = m_SpriteLibSelection[m_SpriteLibSelection.Keys.ElementAt(i)];
                 m_CategorySelection[i + 1] = selection.categoryName;
                 if (selection.categoryName == categoryName)
                     m_CategorySelectionIndex = i + 1;
@@ -166,7 +166,7 @@ namespace UnityEditor.U2D.Animation
                     m_SpriteLibSelection[m_CategorySelection[m_CategorySelectionIndex]].sprites);
                 if (m_SpriteLibSelection.ContainsKey(categoryName))
                 {
-                    var labelIndex = Array.FindIndex(m_SpriteLibSelection[categoryName].entryNames,
+                    int labelIndex = Array.FindIndex(m_SpriteLibSelection[categoryName].entryNames,
                         x => x == labelName);
 
                     if (labelIndex >= 0 ||
@@ -202,7 +202,7 @@ namespace UnityEditor.U2D.Animation
             if (spriteResolver.spriteLibChanged)
                 UpdateSpriteLibrary();
 
-            GetCategoryAndLabelStringValue(out var currentCategoryValue, out var currentLabelValue);
+            GetCategoryAndLabelStringValue(out string currentCategoryValue, out string currentLabelValue);
 
             m_CategorySelectionIndex = Array.FindIndex(m_CategorySelection, x => x == currentCategoryValue);
             ValidateCategorySelectionIndexValue();
@@ -214,7 +214,7 @@ namespace UnityEditor.U2D.Animation
             SpriteCategorySelectionList selection;
             m_SpriteLibSelection.TryGetValue(m_CategorySelection[m_CategorySelectionIndex], out selection);
 
-            var entryNames = Style.emptyCategoryDropDownOption;
+            string[] entryNames = Style.emptyCategoryDropDownOption;
             if (selection.entryNames != null)
                 entryNames = selection.entryNames;
             if (m_LabelSelectionIndex < 0 || m_LabelSelectionIndex >= entryNames.Length)
@@ -239,7 +239,7 @@ namespace UnityEditor.U2D.Animation
                 currentCategoryValue = m_CategorySelection[m_CategorySelectionIndex];
                 if (m_SpriteLibSelection.ContainsKey(currentCategoryValue))
                 {
-                    var hash = m_SpriteLibSelection[currentCategoryValue].entryNames;
+                    string[] hash = m_SpriteLibSelection[currentCategoryValue].entryNames;
                     if (hash.Length > 0)
                     {
                         if (m_LabelSelectionIndex < 0 || m_LabelSelectionIndex >= hash.Length)
@@ -251,7 +251,7 @@ namespace UnityEditor.U2D.Animation
                 m_SpriteHash.intValue = SpriteLibrary.GetHashForCategoryAndEntry(currentCategoryValue, currentLabelValue);
                 ApplyModifiedProperty();
 
-                var sf = target as SpriteResolver;
+                SpriteResolver sf = target as SpriteResolver;
                 if (m_SpriteSkin != null)
                     m_SpriteSkin.ignoreNextSpriteChange = true;
                 sf.ResolveSpriteToSpriteRenderer();

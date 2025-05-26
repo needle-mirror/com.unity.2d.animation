@@ -126,8 +126,8 @@ namespace UnityEditor.U2D.Animation
 
         void UpdateBoneInspector()
         {
-            var selectedBone = skinningCache.skeletonSelection.activeElement;
-            var selectionCount = skinningCache.skeletonSelection.Count;
+            BoneCache selectedBone = skinningCache.skeletonSelection.activeElement;
+            int selectionCount = skinningCache.skeletonSelection.Count;
 
             m_SkeletonToolView.Hide();
 
@@ -192,7 +192,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (selectedBone != null)
             {
-                var euler = selectedBone.rotation.eulerAngles;
+                Vector3 euler = selectedBone.rotation.eulerAngles;
                 euler.z = rotation;
                 skinningCache.BeginUndoOperation(TextContent.rotateBone);
                 selectedBone.rotation = Quaternion.Euler(euler);

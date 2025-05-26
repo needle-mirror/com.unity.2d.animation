@@ -36,8 +36,8 @@ namespace UnityEditor.U2D.Animation
 
         public static bool IsVisible(this SpriteCache sprite)
         {
-            var isVisible = true;
-            var characterPart = sprite.GetCharacterPart();
+            bool isVisible = true;
+            CharacterPartCache characterPart = sprite.GetCharacterPart();
 
             if (sprite.skinningCache.mode == SkinningMode.Character && characterPart != null)
                 isVisible = characterPart.isVisible;
@@ -47,12 +47,12 @@ namespace UnityEditor.U2D.Animation
 
         public static Matrix4x4 GetLocalToWorldMatrixFromMode(this SpriteCache sprite)
         {
-            var skinningCache = sprite.skinningCache;
+            SkinningCache skinningCache = sprite.skinningCache;
 
             if (skinningCache.mode == SkinningMode.SpriteSheet)
                 return sprite.localToWorldMatrix;
 
-            var characterPart = sprite.GetCharacterPart();
+            CharacterPartCache characterPart = sprite.GetCharacterPart();
 
             Debug.Assert(characterPart != null);
 
@@ -61,20 +61,20 @@ namespace UnityEditor.U2D.Animation
 
         public static BoneCache[] GetBonesFromMode(this SpriteCache sprite)
         {
-            var skinningCache = sprite.skinningCache;
+            SkinningCache skinningCache = sprite.skinningCache;
 
             if (skinningCache.mode == SkinningMode.SpriteSheet)
                 return sprite.GetSkeleton().bones;
 
-            var characterPart = sprite.GetCharacterPart();
+            CharacterPartCache characterPart = sprite.GetCharacterPart();
             Debug.Assert(characterPart != null);
             return characterPart.bones;
         }
 
         public static void UpdateMesh(this SpriteCache sprite, BoneCache[] bones)
         {
-            var mesh = sprite.GetMesh();
-            var previewMesh = sprite.GetMeshPreview();
+            MeshCache mesh = sprite.GetMesh();
+            MeshPreviewCache previewMesh = sprite.GetMeshPreview();
 
             Debug.Assert(mesh != null);
             Debug.Assert(previewMesh != null);
@@ -86,20 +86,20 @@ namespace UnityEditor.U2D.Animation
 
         public static void SmoothFill(this SpriteCache sprite)
         {
-            var mesh = sprite.GetMesh();
+            MeshCache mesh = sprite.GetMesh();
 
             if (mesh == null)
                 return;
 
-            var controller = new SpriteMeshDataController();
+            SpriteMeshDataController controller = new SpriteMeshDataController();
             controller.spriteMeshData = mesh;
             controller.SmoothFill();
         }
 
         public static void RestoreBindPose(this SpriteCache sprite)
         {
-            var skinningCache = sprite.skinningCache;
-            var skeleton = sprite.GetSkeleton();
+            SkinningCache skinningCache = sprite.skinningCache;
+            SkeletonCache skeleton = sprite.GetSkeleton();
             Debug.Assert(skeleton != null);
             skeleton.RestoreDefaultPose();
             skinningCache.events.skeletonPreviewPoseChanged.Invoke(skeleton);
@@ -107,20 +107,20 @@ namespace UnityEditor.U2D.Animation
 
         public static bool AssociateAllBones(this SpriteCache sprite)
         {
-            var skinningCache = sprite.skinningCache;
+            SkinningCache skinningCache = sprite.skinningCache;
 
             if (skinningCache.mode == SkinningMode.SpriteSheet)
                 return false;
 
-            var character = skinningCache.character;
+            CharacterCache character = skinningCache.character;
             Debug.Assert(character != null);
             Debug.Assert(character.skeleton != null);
 
-            var characterPart = sprite.GetCharacterPart();
+            CharacterPartCache characterPart = sprite.GetCharacterPart();
 
             Debug.Assert(characterPart != null);
 
-            var bones = character.skeleton.bones.Where(x => x.isVisible).ToArray();
+            BoneCache[] bones = character.skeleton.bones.Where(x => x.isVisible).ToArray();
             characterPart.bones = bones;
 
             characterPart.sprite.UpdateMesh(bones);
@@ -130,55 +130,55 @@ namespace UnityEditor.U2D.Animation
 
         public static bool AssociatePossibleBones(this SpriteCache sprite)
         {
-            var skinningCache = sprite.skinningCache;
+            SkinningCache skinningCache = sprite.skinningCache;
 
             if (skinningCache.mode == SkinningMode.SpriteSheet)
                 return false;
 
-            var character = skinningCache.character;
+            CharacterCache character = skinningCache.character;
             Debug.Assert(character != null);
             Debug.Assert(character.skeleton != null);
 
-            var characterPart = sprite.GetCharacterPart();
+            CharacterPartCache characterPart = sprite.GetCharacterPart();
 
             Debug.Assert(characterPart != null);
 
-            var bones = character.skeleton.bones.Where(x => x.isVisible).ToArray();
-            var possibleBones = new List<BoneCache>();
+            BoneCache[] bones = character.skeleton.bones.Where(x => x.isVisible).ToArray();
+            List<BoneCache> possibleBones = new List<BoneCache>();
             // check if any of the bones overlapped
             BoneCache shortestBoneDistance = null;
-            var minDistances = float.MaxValue;
-            var characterSpriteRect = new Rect(characterPart.position.x , characterPart.position.y, characterPart.sprite.textureRect.width, characterPart.sprite.textureRect.height);
-            foreach (var bone in bones)
+            float minDistances = float.MaxValue;
+            Rect characterSpriteRect = new Rect(characterPart.position.x, characterPart.position.y, characterPart.sprite.textureRect.width, characterPart.sprite.textureRect.height);
+            foreach (BoneCache bone in bones)
             {
-                var startPoint = bone.position;
-                var endPoint = bone.endPosition;
+                Vector3 startPoint = bone.position;
+                Vector3 endPoint = bone.endPosition;
                 if (IntersectsSegment(characterSpriteRect, startPoint, endPoint))
                     possibleBones.Add(bone);
                 if (possibleBones.Count == 0)
                 {
                     // compare bone start end with rect's 4 line
                     // compare rect point with bone line
-                    var points = new Vector2[] { startPoint, endPoint };
-                    var rectLinePoints = new []
+                    Vector2[] points = new Vector2[] { startPoint, endPoint };
+                    Vector2Int[] rectLinePoints = new[]
                     {
                         new Vector2Int(0, 1),
                         new Vector2Int(0, 2),
                         new Vector2Int(1, 3),
                         new Vector2Int(2, 3),
                     };
-                    var rectPoints = new []
+                    Vector2[] rectPoints = new[]
                     {
                         new Vector2(characterSpriteRect.xMin, characterSpriteRect.yMin),
                         new Vector2(characterSpriteRect.xMin, characterSpriteRect.yMax),
                         new Vector2(characterSpriteRect.xMax, characterSpriteRect.yMin),
                         new Vector2(characterSpriteRect.xMax, characterSpriteRect.yMax)
                     };
-                    foreach (var point in points)
+                    foreach (Vector2 point in points)
                     {
-                        foreach (var rectLine in rectLinePoints)
+                        foreach (Vector2Int rectLine in rectLinePoints)
                         {
-                            var distance = PointToLineSegmentDistance(point, rectPoints[rectLine.x], rectPoints[rectLine.y]);
+                            float distance = PointToLineSegmentDistance(point, rectPoints[rectLine.x], rectPoints[rectLine.y]);
                             if (distance < minDistances)
                             {
                                 minDistances = distance;
@@ -187,9 +187,9 @@ namespace UnityEditor.U2D.Animation
                         }
                     }
 
-                    foreach (var rectPoint in rectPoints)
+                    foreach (Vector2 rectPoint in rectPoints)
                     {
-                        var distance = PointToLineSegmentDistance(rectPoint, startPoint, endPoint);
+                        float distance = PointToLineSegmentDistance(rectPoint, startPoint, endPoint);
                         if (distance < minDistances)
                         {
                             minDistances = distance;
@@ -229,7 +229,7 @@ namespace UnityEditor.U2D.Animation
 
             // Closest point is between a and b
             Vector2 e = pa - n * (c / Vector2.Dot(n, n));
-            return Vector2.Dot( e, e );
+            return Vector2.Dot(e, e);
         }
 
         static bool IntersectsSegment(Rect rect, Vector2 p1, Vector2 p2)
@@ -292,11 +292,11 @@ namespace UnityEditor.U2D.Animation
 
         public static void DeassociateUnusedBones(this SpriteCache sprite)
         {
-            var skinningCache = sprite.skinningCache;
+            SkinningCache skinningCache = sprite.skinningCache;
 
             Debug.Assert(skinningCache.mode == SkinningMode.Character);
 
-            var characterPart = sprite.GetCharacterPart();
+            CharacterPartCache characterPart = sprite.GetCharacterPart();
 
             Debug.Assert(characterPart != null);
 
@@ -305,12 +305,12 @@ namespace UnityEditor.U2D.Animation
 
         public static void DeassociateAllBones(this SpriteCache sprite)
         {
-            var skinningCache = sprite.skinningCache;
+            SkinningCache skinningCache = sprite.skinningCache;
 
             if (skinningCache.mode == SkinningMode.SpriteSheet)
                 return;
 
-            var part = sprite.GetCharacterPart();
+            CharacterPartCache part = sprite.GetCharacterPart();
             if (part.bones.Length == 0)
                 return;
 

@@ -1,7 +1,7 @@
 using System;
+using UnityEditor.IMGUI.Controls;
 using UnityEditor.U2D.Common;
 using UnityEditor.U2D.Layout;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -95,8 +95,8 @@ namespace UnityEditor.U2D.Animation
 
         static internal BoneReparentToolWindow CreateFromUXML()
         {
-            var visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/BoneReparentWindow.uxml");
-            var ve = visualTree.CloneTree().Q("BoneReparentToolWindow") as BoneReparentToolWindow;
+            VisualTreeAsset visualTree = ResourceLoader.Load<VisualTreeAsset>("SkinningModule/BoneReparentWindow.uxml");
+            BoneReparentToolWindow ve = visualTree.CloneTree().Q("BoneReparentToolWindow") as BoneReparentToolWindow;
             ve.BindElements();
             return ve;
         }
@@ -162,7 +162,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override VisibilityToolColumnHeader SetupToolColumnHeader()
         {
-            var columns = new MultiColumnHeaderState.Column[4];
+            MultiColumnHeaderState.Column[] columns = new MultiColumnHeaderState.Column[4];
             columns[0] = new MultiColumnHeaderState.Column
             {
                 headerContent = VisibilityTreeViewBase.VisibilityIconStyle.visibilityOnIcon,
@@ -205,7 +205,7 @@ namespace UnityEditor.U2D.Animation
                 allowToggleVisibility = true
             };
 
-            var multiColumnHeaderState = new MultiColumnHeaderState(columns);
+            MultiColumnHeaderState multiColumnHeaderState = new MultiColumnHeaderState(columns);
             return new VisibilityToolColumnHeader(multiColumnHeaderState)
             {
                 GetAllVisibility = GetAllVisibility,

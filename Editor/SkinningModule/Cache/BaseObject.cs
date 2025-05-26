@@ -88,7 +88,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (o is UnityEngine.Object)
             {
-                var obj = o as UnityEngine.Object;
+                UnityEngine.Object obj = o as UnityEngine.Object;
                 Undo.ClearUndo(obj);
                 UnityEngine.Object.DestroyImmediate(obj);
             }

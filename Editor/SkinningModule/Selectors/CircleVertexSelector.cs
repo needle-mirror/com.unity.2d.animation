@@ -14,7 +14,7 @@ namespace UnityEditor.U2D.Animation
             if (spriteMeshData == null)
                 return;
 
-            var sqrRadius = radius * radius;
+            float sqrRadius = radius * radius;
 
             for (int i = 0; i < spriteMeshData.vertexCount; i++)
             {

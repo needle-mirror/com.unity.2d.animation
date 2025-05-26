@@ -117,9 +117,9 @@ namespace UnityEditor.U2D.Animation
 
         void LayoutBones()
         {
-            for (var i = 0; i < skeleton.boneCount; ++i)
+            for (int i = 0; i < skeleton.boneCount; ++i)
             {
-                var bone = skeleton.GetBone(i);
+                BoneCache bone = skeleton.GetBone(i);
 
                 if (bone.isVisible && bone != hotBone)
                     view.LayoutBone(bone.GetInstanceID(), bone.position, bone.endPosition, bone.forward, bone.up, bone.right, bone.chainedChild == null);
@@ -128,9 +128,9 @@ namespace UnityEditor.U2D.Animation
 
         void HandleSelectBone()
         {
-            if (view.DoSelectBone(out var instanceID, out var additive))
+            if (view.DoSelectBone(out int instanceID, out bool additive))
             {
-                var bone = GetBone(instanceID).ToCharacterIfNeeded();
+                BoneCache bone = GetBone(instanceID).ToCharacterIfNeeded();
 
                 using (skinningCache.UndoScope(TextContent.boneSelection, true))
                 {
@@ -152,7 +152,7 @@ namespace UnityEditor.U2D.Animation
             if (view.IsActionTriggering(SkeletonAction.RotateBone))
                 m_Moved = false;
 
-            var pivot = hoveredBone;
+            BoneCache pivot = hoveredBone;
 
             if (view.IsActionHot(SkeletonAction.RotateBone))
                 pivot = hotBone;
@@ -160,13 +160,13 @@ namespace UnityEditor.U2D.Animation
             if (pivot == null)
                 return;
 
-            var selectedRootBones = selection.roots.ToSpriteSheetIfNeeded();
+            BoneCache[] selectedRootBones = selection.roots.ToSpriteSheetIfNeeded();
             pivot = pivot.FindRoot<BoneCache>(selectedRootBones);
 
             if (pivot == null)
                 return;
 
-            if (view.DoRotateBone(pivot.position, pivot.forward, out var deltaAngle))
+            if (view.DoRotateBone(pivot.position, pivot.forward, out float deltaAngle))
             {
                 if (!m_Moved)
                 {
@@ -184,7 +184,7 @@ namespace UnityEditor.U2D.Animation
             if (view.IsActionTriggering(SkeletonAction.MoveBone))
                 m_Moved = false;
 
-            if (view.DoMoveBone(out var deltaPosition))
+            if (view.DoMoveBone(out Vector3 deltaPosition))
             {
                 if (!m_Moved)
                 {
@@ -202,7 +202,7 @@ namespace UnityEditor.U2D.Animation
             if (view.IsActionTriggering(SkeletonAction.FreeMoveBone))
                 m_Moved = false;
 
-            if (view.DoFreeMoveBone(out var deltaPosition))
+            if (view.DoFreeMoveBone(out Vector3 deltaPosition))
             {
                 if (!m_Moved)
                 {
@@ -226,7 +226,7 @@ namespace UnityEditor.U2D.Animation
                     hoveredTail.chainedChild = hotBone;
             }
 
-            if (view.DoMoveJoint(out var deltaPosition))
+            if (view.DoMoveJoint(out Vector3 deltaPosition))
             {
                 if (!m_Moved)
                 {
@@ -254,7 +254,7 @@ namespace UnityEditor.U2D.Animation
                     hotBone.chainedChild = hoveredJoint;
             }
 
-            if (view.DoMoveEndPosition(out var endPosition))
+            if (view.DoMoveEndPosition(out Vector3 endPosition))
             {
                 if (!m_Moved)
                 {
@@ -278,7 +278,7 @@ namespace UnityEditor.U2D.Animation
             if (view.IsActionTriggering(SkeletonAction.ChangeLength))
                 m_Moved = false;
 
-            if (view.DoChangeLength(out var endPosition))
+            if (view.DoChangeLength(out Vector3 endPosition))
             {
                 if (!m_Moved)
                 {
@@ -288,7 +288,7 @@ namespace UnityEditor.U2D.Animation
 
                 Debug.Assert(hotBone != null);
 
-                var direction = (Vector3)endPosition - hotBone.position;
+                Vector3 direction = (Vector3)endPosition - hotBone.position;
                 hotBone.length = Vector3.Dot(direction, hotBone.right);
 
                 InvokePoseChanged();
@@ -297,7 +297,7 @@ namespace UnityEditor.U2D.Animation
 
         void HandleCreateBone()
         {
-            if (view.DoCreateBoneStart(out var position))
+            if (view.DoCreateBoneStart(out Vector3 position))
             {
                 m_PrevCreatedBone = null;
 
@@ -316,14 +316,14 @@ namespace UnityEditor.U2D.Animation
             {
                 using (skinningCache.UndoScope(TextContent.createBone))
                 {
-                    var isChained = m_PrevCreatedBone != null;
-                    var parentBone = isChained ? m_PrevCreatedBone : rootBone;
+                    bool isChained = m_PrevCreatedBone != null;
+                    BoneCache parentBone = isChained ? m_PrevCreatedBone : rootBone;
 
                     if (isChained)
                         m_CreateBoneStartPosition = m_PrevCreatedBone.endPosition;
 
-                    var name = AutoBoneName(parentBone, skeleton.bones);
-                    var bone = m_Skeleton.CreateBone(parentBone, m_CreateBoneStartPosition, position, isChained, name);
+                    string name = AutoBoneName(parentBone, skeleton.bones);
+                    BoneCache bone = m_Skeleton.CreateBone(parentBone, m_CreateBoneStartPosition, position, isChained, name);
 
                     m_PrevCreatedBone = bone;
                     m_CreateBoneStartPosition = bone.endPosition;
@@ -336,16 +336,16 @@ namespace UnityEditor.U2D.Animation
 
         void HandleSplitBone()
         {
-            if (view.DoSplitBone(out var instanceID, out var position))
+            if (view.DoSplitBone(out int instanceID, out Vector3 position))
             {
                 using (skinningCache.UndoScope(TextContent.splitBone))
                 {
-                    var boneToSplit = GetBone(instanceID);
+                    BoneCache boneToSplit = GetBone(instanceID);
 
                     Debug.Assert(boneToSplit != null);
 
-                    var splitLength = Vector3.Dot(hoveredBone.right, position - boneToSplit.position);
-                    var name = AutoBoneName(boneToSplit, skeleton.bones);
+                    float splitLength = Vector3.Dot(hoveredBone.right, position - boneToSplit.position);
+                    string name = AutoBoneName(boneToSplit, skeleton.bones);
 
                     m_Skeleton.SplitBone(boneToSplit, splitLength, name);
 
@@ -382,28 +382,28 @@ namespace UnityEditor.U2D.Animation
             if (!view.IsRepainting())
                 return;
 
-            var isNotOnVisualElement = !skinningCache.IsOnVisualElement();
+            bool isNotOnVisualElement = !skinningCache.IsOnVisualElement();
             if (view.IsActionActive(SkeletonAction.CreateBone) || view.IsActionHot(SkeletonAction.CreateBone))
             {
                 if (isNotOnVisualElement)
                 {
-                    var endPoint = view.GetMouseWorldPosition(Vector3.forward, Vector3.zero);
+                    Vector3 endPoint = view.GetMouseWorldPosition(Vector3.forward, Vector3.zero);
 
                     if (view.IsActionHot(SkeletonAction.CreateBone))
                         endPoint = m_CreateBoneStartPosition;
 
                     if (m_PrevCreatedBone == null && hoveredTail == null)
                     {
-                        var root = rootBone;
+                        BoneCache root = rootBone;
                         if (root != null)
                             view.DrawBoneParentLink(root.position, endPoint, Vector3.forward, style.GetParentLinkPreviewColor(skeleton.boneCount));
                     }
                 }
             }
 
-            for (var i = 0; i < skeleton.boneCount; ++i)
+            for (int i = 0; i < skeleton.boneCount; ++i)
             {
-                var bone = skeleton.GetBone(i);
+                BoneCache bone = skeleton.GetBone(i);
 
                 if (bone.isVisible == false || bone.parentBone == null || bone.parentBone.chainedChild == bone)
                     continue;
@@ -411,22 +411,22 @@ namespace UnityEditor.U2D.Animation
                 view.DrawBoneParentLink(bone.parent.position, bone.position, Vector3.forward, style.GetParentLinkColor(bone));
             }
 
-            for (var i = 0; i < skeleton.boneCount; ++i)
+            for (int i = 0; i < skeleton.boneCount; ++i)
             {
-                var bone = skeleton.GetBone(i);
+                BoneCache bone = skeleton.GetBone(i);
 
                 if ((view.IsActionActive(SkeletonAction.SplitBone) && hoveredBone == bone && isNotOnVisualElement) || bone.isVisible == false)
                     continue;
 
-                var isSelected = selection.Contains(bone.ToCharacterIfNeeded());
-                var isHovered = hoveredBody == bone && view.IsActionHot(SkeletonAction.None) && isNotOnVisualElement;
+                bool isSelected = selection.Contains(bone.ToCharacterIfNeeded());
+                bool isHovered = hoveredBody == bone && view.IsActionHot(SkeletonAction.None) && isNotOnVisualElement;
 
                 DrawBoneOutline(bone, style.GetOutlineColor(bone, isSelected, isHovered), style.GetOutlineScale(isSelected));
             }
 
-            for (var i = 0; i < skeleton.boneCount; ++i)
+            for (int i = 0; i < skeleton.boneCount; ++i)
             {
-                var bone = skeleton.GetBone(i);
+                BoneCache bone = skeleton.GetBone(i);
 
                 if ((view.IsActionActive(SkeletonAction.SplitBone) && hoveredBone == bone && isNotOnVisualElement) || bone.isVisible == false)
                     continue;
@@ -437,10 +437,10 @@ namespace UnityEditor.U2D.Animation
 
         void DrawBone(BoneCache bone, Color color)
         {
-            var isSelected = selection.Contains(bone.ToCharacterIfNeeded());
-            var isNotOnVisualElement = !skinningCache.IsOnVisualElement();
-            var isJointHovered = view.IsActionHot(SkeletonAction.None) && hoveredJoint == bone && isNotOnVisualElement;
-            var isTailHovered = view.IsActionHot(SkeletonAction.None) && hoveredTail == bone && isNotOnVisualElement;
+            bool isSelected = selection.Contains(bone.ToCharacterIfNeeded());
+            bool isNotOnVisualElement = !skinningCache.IsOnVisualElement();
+            bool isJointHovered = view.IsActionHot(SkeletonAction.None) && hoveredJoint == bone && isNotOnVisualElement;
+            bool isTailHovered = view.IsActionHot(SkeletonAction.None) && hoveredTail == bone && isNotOnVisualElement;
 
             view.DrawBone(bone.position, bone.right, Vector3.forward, bone.length, color, bone.chainedChild != null, isSelected, isJointHovered, isTailHovered, bone == hotBone);
         }
@@ -460,19 +460,19 @@ namespace UnityEditor.U2D.Animation
 
             if (view.IsActionActive(SkeletonAction.SplitBone) && hoveredBone != null)
             {
-                var splitLength = Vector3.Dot(hoveredBone.right, view.GetMouseWorldPosition(hoveredBone.forward, hoveredBody.position) - hoveredBone.position);
-                var position = hoveredBone.position + hoveredBone.right * splitLength;
-                var length = hoveredBone.length - splitLength;
-                var isSelected = selection.Contains(hoveredBone.ToCharacterIfNeeded());
+                float splitLength = Vector3.Dot(hoveredBone.right, view.GetMouseWorldPosition(hoveredBone.forward, hoveredBody.position) - hoveredBone.position);
+                Vector3 position = hoveredBone.position + hoveredBone.right * splitLength;
+                float length = hoveredBone.length - splitLength;
+                bool isSelected = selection.Contains(hoveredBone.ToCharacterIfNeeded());
 
                 {
-                    var color = style.GetOutlineColor(hoveredBone, false, false);
+                    Color color = style.GetOutlineColor(hoveredBone, false, false);
                     if (color.a > 0f)
                         view.DrawBoneOutline(hoveredBone.position, hoveredBone.right, Vector3.forward, splitLength, style.GetOutlineColor(hoveredBone, isSelected, true), style.GetOutlineScale(false));
 
                 }
                 {
-                    var color = style.GetPreviewOutlineColor(skeleton.boneCount);
+                    Color color = style.GetPreviewOutlineColor(skeleton.boneCount);
                     if (color.a > 0f)
                         view.DrawBoneOutline(position, hoveredBone.right, Vector3.forward, length, style.GetPreviewOutlineColor(skeleton.boneCount), style.GetOutlineScale(false));
 
@@ -503,11 +503,11 @@ namespace UnityEditor.U2D.Animation
             if (skinningCache.IsOnVisualElement())
                 return;
 
-            var color = style.GetPreviewColor(skeleton.boneCount);
-            var outlineColor = style.GetPreviewOutlineColor(skeleton.boneCount);
+            Color color = style.GetPreviewColor(skeleton.boneCount);
+            Color outlineColor = style.GetPreviewOutlineColor(skeleton.boneCount);
 
-            var startPosition = m_CreateBoneStartPosition;
-            var mousePosition = view.GetMouseWorldPosition(Vector3.forward, Vector3.zero);
+            Vector3 startPosition = m_CreateBoneStartPosition;
+            Vector3 mousePosition = view.GetMouseWorldPosition(Vector3.forward, Vector3.zero);
 
             if (view.IsActionActive(SkeletonAction.CreateBone))
             {
@@ -524,7 +524,7 @@ namespace UnityEditor.U2D.Animation
 
             if (view.IsActionHot(SkeletonAction.CreateBone))
             {
-                var direction = (mousePosition - startPosition);
+                Vector3 direction = (mousePosition - startPosition);
 
                 if (outlineColor.a > 0f)
                     view.DrawBoneOutline(startPosition, direction.normalized, Vector3.forward, direction.magnitude, outlineColor, style.GetOutlineScale(false));
@@ -543,12 +543,12 @@ namespace UnityEditor.U2D.Animation
 
         public static string AutoBoneName(BoneCache parent, IEnumerable<BoneCache> bones)
         {
-            var parentName = "root";
+            string parentName = "root";
 
             if (parent != null)
                 parentName = parent.name;
 
-            DissectBoneName(parentName, out var inheritedName, out _);
+            DissectBoneName(parentName, out string inheritedName, out _);
             int nameCounter = FindBiggestNameCounter(bones);
 
             if (inheritedName == k_DefaultRootName)
@@ -559,7 +559,7 @@ namespace UnityEditor.U2D.Animation
 
         public static string AutoNameBoneCopy(string originalBoneName, IEnumerable<BoneCache> bones)
         {
-            DissectBoneName(originalBoneName, out var inheritedName, out _);
+            DissectBoneName(originalBoneName, out string inheritedName, out _);
             int nameCounter = FindBiggestNameCounterForBone(inheritedName, bones);
 
             if (inheritedName == k_DefaultRootName)
@@ -570,10 +570,10 @@ namespace UnityEditor.U2D.Animation
 
         static int FindBiggestNameCounter(IEnumerable<BoneCache> bones)
         {
-            var autoNameCounter = 0;
-            foreach (var bone in bones)
+            int autoNameCounter = 0;
+            foreach (BoneCache bone in bones)
             {
-                DissectBoneName(bone.name, out _, out var counter);
+                DissectBoneName(bone.name, out _, out int counter);
                 if (counter > autoNameCounter)
                     autoNameCounter = counter;
             }
@@ -583,10 +583,10 @@ namespace UnityEditor.U2D.Animation
 
         static int FindBiggestNameCounterForBone(string boneName, IEnumerable<BoneCache> bones)
         {
-            var autoNameCounter = 0;
-            foreach (var bone in bones)
+            int autoNameCounter = 0;
+            foreach (BoneCache bone in bones)
             {
-                DissectBoneName(bone.name, out var inheritedName, out var counter);
+                DissectBoneName(bone.name, out string inheritedName, out int counter);
                 {
                     if (inheritedName == boneName)
                     {
@@ -603,10 +603,10 @@ namespace UnityEditor.U2D.Animation
         {
             if (IsBoneNameMatchAutoFormat(boneName))
             {
-                var tokens = boneName.Split('_');
-                var lastTokenIndex = tokens.Length - 1;
+                string[] tokens = boneName.Split('_');
+                int lastTokenIndex = tokens.Length - 1;
 
-                var tokensWithoutLast = new string[lastTokenIndex];
+                string[] tokensWithoutLast = new string[lastTokenIndex];
                 Array.Copy(tokens, tokensWithoutLast, lastTokenIndex);
                 inheritedName = string.Join("_", tokensWithoutLast);
                 counter = int.Parse(tokens[lastTokenIndex]);

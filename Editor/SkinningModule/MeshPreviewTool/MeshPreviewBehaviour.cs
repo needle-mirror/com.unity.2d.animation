@@ -34,7 +34,7 @@ namespace UnityEditor.U2D.Animation
 
         public float GetWeightMapOpacity(SpriteCache sprite)
         {
-            var skinningCache = sprite.skinningCache;
+            SkinningCache skinningCache = sprite.skinningCache;
 
             if (showWeightMap)
             {
@@ -47,7 +47,7 @@ namespace UnityEditor.U2D.Animation
 
         public bool DrawWireframe(SpriteCache sprite)
         {
-            var skinningCache = sprite.skinningCache;
+            SkinningCache skinningCache = sprite.skinningCache;
 
             if (drawWireframe)
                 return skinningCache.selectedSprite == null;
@@ -57,7 +57,7 @@ namespace UnityEditor.U2D.Animation
 
         public bool Overlay(SpriteCache sprite)
         {
-            var skinningCache = sprite.skinningCache;
+            SkinningCache skinningCache = sprite.skinningCache;
 
             if (overlaySelected && skinningCache.selectedSprite == sprite)
                 return true;
