@@ -657,6 +657,8 @@ namespace UnityEngine.U2D.Animation
         
         void BatchRemoveSpriteSkins()
         {
+            m_WorldToLocalTransformAccessJob.RemoveTransformsIfNull();
+
             if (m_SpriteSkinsToRemove.Count == 0)
                 return;
 

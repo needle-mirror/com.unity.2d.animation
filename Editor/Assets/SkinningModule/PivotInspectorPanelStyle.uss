@@ -7,11 +7,7 @@
 }
 
 #PivotInspectorPanel EnumField > Label {
-  min-width: auto;
-}
-
-#PivotInspectorPanel EnumField > VisualElement {
-  margin-left: -465px;
+  max-width: 0px;
 }
 
 #PivotInspectorPanel EnumField {
@@ -19,7 +15,7 @@
   padding-right : 0px;
   margin-left : 0px;
   padding-left : 0px;
-  flex: 1 0 auto;
+  flex-basis: 143%;
 }
 
 #PivotInspectorPanel Vector2Field FloatField > Label {

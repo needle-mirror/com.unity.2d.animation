@@ -17,7 +17,7 @@ namespace UnityEngine.U2D.Animation
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Resolver")]
-    [IconAttribute(IconUtility.IconPath + "Animation.SpriteResolver.png")]
+    [IconAttribute(IconUtility.IconPath + "Animation.SpriteResolver.asset")]
     [DefaultExecutionOrder(-2)]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@9.0/manual/SL-Resolver.html")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]

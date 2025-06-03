@@ -53,7 +53,7 @@ namespace UnityEditor.U2D.Animation
                 }
             }
 
-            ctx.AddObjectToAsset("SpriteLib", spriteLib, EditorIconUtility.LoadIconResource("Animation.SpriteLibrary", "ComponentIcons", "ComponentIcons"));
+            ctx.AddObjectToAsset("SpriteLib", spriteLib);
         }
 
         internal static void UpdateSpriteLibrarySourceAssetLibraryWithMainAsset(SpriteLibrarySourceAsset sourceLibraryAsset)

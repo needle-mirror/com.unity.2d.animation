@@ -481,7 +481,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         static bool CanRevertLabel(LabelData labelData) => labelData.categoryFromMain && !labelData.fromMain || labelData.spriteOverride;
 
-        bool CanRenameAtId(int i)
+        bool CanModifyAtId(int i)
         {
             if (!CanModifyLabels())
                 return false;
@@ -493,6 +493,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             return label != null && !label.fromMain;
         }
 
+        bool CanRenameAtId(int i)
+        {
+            return m_SelectedLabels.Count == 1 && CanModifyAtId(i);
+        }
+
         void ContextualManipulatorAddActions(ContextualMenuPopulateEvent evt)
         {
             if (CanModifyLabels())
@@ -500,8 +505,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 evt.menu.AppendAction(TextContent.spriteLibraryCreateLabel, _ => CreateNewLabel());
 
                 var selectedId = m_SelectedLabels.Select(label => m_LabelData.FindIndex(l => l.name == label)).FirstOrDefault();
-                var canModifyStatus = CanRenameAtId(selectedId) ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
-                evt.menu.AppendAction(TextContent.spriteLibraryRenameLabel, _ => RenameSelected(), _ => canModifyStatus);
+                var canModifyAt = CanModifyAtId(selectedId);
+                var canModifyStatus = canModifyAt ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
+                var canRename = CanRenameAtId(selectedId);
+                var canRenameStatus = canRename ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
+                evt.menu.AppendAction(TextContent.spriteLibraryRenameLabel, _ => RenameSelected(), _ => canRenameStatus);
                 evt.menu.AppendAction(TextContent.spriteLibraryDeleteLabels, _ => DeleteSelected(), _ => canModifyStatus);
                 evt.menu.AppendSeparator();
 

@@ -9,6 +9,7 @@ namespace UnityEditor.U2D.Animation
     {
         VisualElement view { get; }
         string name { get; }
+        string tooltip { get; }
         void Activate();
         void Deactivate();
         bool isAvailable { get; }

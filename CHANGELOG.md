@@ -1,5 +1,18 @@
 # Changelog
 
+## [9.2.1] - 2025-06-03
+
+### Fixed
+- Fix the exception when generating geometry with hidden sprites. (DANB-841)
+- Added missing tooltips to visibility window (DANB-843)
+- Fix the issue of putting a warning string "Adding null Transform to TransformAccessArray will result in degraded performance." (DANB-931)
+- Fixed misaligned text in 2D Animation preferences (DANB-879)
+- Fix blurry icons in Sprite Library Editor. (DANB-842)
+- Fix renaming multiple labels in Sprite Library Asset. (DANB-656)
+- Fixed incorrect scrollbars when a very large number of categories created in sprite library. (DANB-895)
+- Fixed blurry Sprite Library asset icons in Project window. (DANB-901)
+- Fixed unselectable pivot dropdown in skinning editor. (DANB-956)
+
 ## [9.2.0] - 2025-03-19
 
 ### Changed

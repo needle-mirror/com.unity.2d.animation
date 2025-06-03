@@ -10,7 +10,7 @@ namespace UnityEngine.U2D.Animation
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("2D Animation/Sprite Library")]
-    [IconAttribute(IconUtility.IconPath + "Animation.SpriteLibrary.png")]
+    [IconAttribute(IconUtility.IconPath + "Animation.SpriteLibrary.asset")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@9.0/manual/SL-component.html")]
     public class SpriteLibrary : MonoBehaviour, IPreviewable

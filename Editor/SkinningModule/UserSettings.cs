@@ -1,5 +1,5 @@
-using System;
 using UnityEngine;
+using UnityEditor.U2D.Common;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -160,8 +160,11 @@ namespace UnityEditor.U2D.Animation
 
         private static void SettingsGUI(string searchContext)
         {
-            s_SkinningModuleSettings.OnGUI();
-            s_SelectionOutlineSettings.OnGUI();
+            using (new SettingsWindowUtils.GUIScope())
+            {
+                s_SkinningModuleSettings.OnGUI();
+                s_SelectionOutlineSettings.OnGUI();
+            }
         }
     }
 }

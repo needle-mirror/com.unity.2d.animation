@@ -205,6 +205,19 @@ namespace UnityEngine.U2D.Animation
             return log;
         }
 
+        internal int RemoveTransformsIfNull()
+        {
+            bool hasNullElement = Array.Exists(m_Transform, t => t == null);
+            if (!hasNullElement)
+                return 0;
+
+            List<Transform> transformList = new List<Transform>(m_Transform);
+            int count = transformList.RemoveAll(t => t == null);
+            if (m_Transform.Length != transformList.Count)
+                m_Transform = transformList.ToArray();
+            return count;
+        }
+
         internal void RemoveTransformsByIds(IList<int> idsToRemove)
         {
             if (!m_TransformData.IsCreated)

@@ -13,6 +13,7 @@ namespace UnityEditor.U2D.Animation
 
         VisualElement IVisibilityTool.view { get { return (VisualElement)m_View; } }
         public string name => TextContent.bone;
+        public string tooltip => TextContent.boneTooltip;
         public bool isAvailable
         {
             get { return true; }

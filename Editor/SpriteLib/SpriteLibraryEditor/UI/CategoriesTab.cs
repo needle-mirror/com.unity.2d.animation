@@ -86,6 +86,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             m_LocalListView = new RenamableListView
             {
+                CanRenameAtIndex = CanRenameAtId,
                 selectionType = SelectionType.Multiple,
                 fixedItemHeight = k_ListItemHeight,
                 reorderable = true,
@@ -100,6 +101,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_LocalListView.selectionChanged += OnSelectionChanged;
             m_LocalListView.Rebuild();
             m_LocalListContainer.Add(m_LocalListView);
+
+            // Fix for DANB-895. Not sure I like this solution, but it is for a rare edge case.
+            // The maxHeight was already a large figure, but DANB-895 exceeded it.
+            m_LocalListView.style.maxHeight = float.PositiveInfinity;
+            m_LocalListView.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
         }
 
         void ReorderCategories(DragPerformEvent dragPerformEvent)
@@ -187,6 +193,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_InheritedListView.selectionChanged += OnSelectionChanged;
             m_InheritedListView.Rebuild();
             m_InheritedListContainer.Add(m_InheritedListView);
+
+            // Fix for DANB-895. Not sure I like this solution, but it is for a rare edge case.
+            // The maxHeight was already a large figure, but DANB-895 exceeded it.
+            m_InheritedListView.style.maxHeight = float.PositiveInfinity;
+            m_InheritedListView.Q<ScrollView>().verticalScrollerVisibility = ScrollerVisibility.Hidden;
         }
 
         VisualElement OnMakeInheritedItem()
@@ -418,6 +429,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_AddButton.tooltip = m_IsFiltered ? TextContent.spriteLibraryAddCategoryTooltipNotAvailable : TextContent.spriteLibraryAddCategoryTooltip;
         }
 
+        bool CanRenameAtId(int i)
+        {
+            var selectionCount = m_LocalListView.selectedIndices?.Count() ?? 0;
+            return selectionCount == 1;
+        }
+
         void ContextualManipulatorAddActions(ContextualMenuPopulateEvent evt)
         {
             if (!CanModifyCategories())
@@ -426,9 +443,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             evt.menu.AppendAction(TextContent.spriteLibraryCreateCategory, _ => CreateNewCategory());
 
             var selectionCount = m_LocalListView.selectedIndices?.Count() ?? 0;
-            var canRenameStatus = selectionCount == 1 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Hidden;
+            var canRenameStatus = selectionCount == 1 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
             evt.menu.AppendAction(TextContent.spriteLibraryRenameCategory, _ => RenameSelected(), canRenameStatus);
-            var canDeleteCategoryStatus = selectionCount > 0 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Hidden;
+            var canDeleteCategoryStatus = selectionCount > 0 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
             evt.menu.AppendAction(TextContent.spriteLibraryDeleteCategories, _ => DeleteSelected(), canDeleteCategoryStatus);
         }
     }
