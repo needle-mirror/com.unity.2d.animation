@@ -1,5 +1,10 @@
 # Changelog
 
+## [12.0.1] - 2025-06-04
+### Fixed
+- Replaced deprecated non-generic IMGUI TreeViewItem. (Case DANB-1004)
+- Fixed wrong USS syntax.
+
 ## [12.0.0] - 2025-05-16
 ### Changed
 - Update minimum Unity version.

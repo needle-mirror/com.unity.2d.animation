@@ -23,7 +23,7 @@ InfluenceWindow
     height: 18px;
 }
 
-.Dark . #HeaderImage
+.Dark #HeaderImage
 {
     background-image: resource("Builtin Skins/DarkSkin/images/d_rol-header.png");
 }
@@ -48,7 +48,7 @@ InfluenceWindow
 }
 
 
-.Dark . #ListView
+.Dark #ListView
 {
     background-image: resource("Builtin Skins/DarkSkin/images/d_rol-body.png");
 }
@@ -68,7 +68,7 @@ InfluenceWindow
     background-color: #D8D8D8;
 }
 
-.Dark . .ListRowOddColor
+.Dark .ListRowOddColor
 {
     background-color: #373737;
 }
@@ -78,7 +78,7 @@ InfluenceWindow
     background-color: #3C3C3C;
 }
 
-ListView . .unity-collection-view__item--selected
+ListView .unity-collection-view__item--selected
 {
     background-image: resource("Builtin Skins/LightSkin/images/ro_selected_l.png");
     -unity-slice-left: 2;
@@ -86,7 +86,7 @@ ListView . .unity-collection-view__item--selected
     -unity-slice-bottom: 3;
 }
 
-.Dark . ListView . .unity-collection-view__item--selected
+.Dark ListView .unity-collection-view__item--selected
 {
     background-image: resource("Builtin Skins/DarkSkin/images/ro_selected_d.png");
 }
@@ -97,7 +97,7 @@ ScrollView .unity-list-view__empty-label
     display: none;
 }
 
-.Dark . #ContentBackgroundImage
+.Dark #ContentBackgroundImage
 {
     background-image: resource("Builtin Skins/DarkSkin/images/d_rol-body.png");
 }
@@ -116,7 +116,7 @@ ScrollView .unity-list-view__empty-label
     top : -3px;
 }
 
-.Dark . #ButtonsContainer
+.Dark #ButtonsContainer
 {
     background-image: resource("Builtin Skins/DarkSkin/images/d_rol-tab.png");
 }
@@ -157,7 +157,7 @@ ScrollView .unity-list-view__empty-label
     /* GUIState.textColor */
     background-color: rgb(128, 128, 128);
 }
-.Dark . #AddButton
+.Dark #AddButton
 {
     background-image: resource("Icons/d_Toolbar Plus.png");
     background-color: rgba(255, 255, 255,0);
@@ -168,7 +168,7 @@ ScrollView .unity-list-view__empty-label
     background-image: resource("Icons/Toolbar Minus.png");
 }
 
-.Dark . #RemoveButton
+.Dark #RemoveButton
 {
     background-image: resource("Icons/d_Toolbar Minus.png");
     background-color: rgba(255, 255, 255, 0);

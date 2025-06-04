@@ -2,6 +2,15 @@ using System;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
+#if UNITY_6000_2_OR_NEWER
+using TreeView = UnityEditor.IMGUI.Controls.TreeView<int>;
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+#else
+using TreeView = UnityEditor.IMGUI.Controls.TreeView;
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState;
+#endif
 
 namespace UnityEditor.U2D.Animation
 {
@@ -22,7 +31,7 @@ namespace UnityEditor.U2D.Animation
     {
         IMGUIContainer m_Container;
         SearchField m_SearchField;
-        protected IMGUI.Controls.TreeView m_TreeView;
+        protected TreeView m_TreeView;
         protected TreeViewState m_TreeViewState = new TreeViewState();
 
         public Action<float> SetOpacityValue = null;
@@ -90,7 +99,7 @@ namespace UnityEditor.U2D.Animation
         }
     }
 
-    internal class VisibilityTreeViewBase : IMGUI.Controls.TreeView
+    internal class VisibilityTreeViewBase : TreeView
     {
         static internal class VisibilityIconStyle
         {

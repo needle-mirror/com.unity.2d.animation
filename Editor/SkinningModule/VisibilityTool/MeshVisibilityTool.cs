@@ -4,6 +4,13 @@ using System.Linq;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
+#if UNITY_6000_2_OR_NEWER
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+#else
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState;
+#endif
 
 namespace UnityEditor.U2D.Animation
 {
