@@ -1,5 +1,10 @@
 # Changelog
 
+## [12.0.2] - 2025-06-12
+### Fixed
+- Fix the icon quality of Sprite Swap Overlay Window. (DANB-988)
+- Fix NullReferenceException error thrown by the Sprite Library Editor window when entering Play Mode with Game View maximised (DANB-1019)
+
 ## [12.0.1] - 2025-06-04
 ### Fixed
 - Replaced deprecated non-generic IMGUI TreeViewItem. (Case DANB-1004)

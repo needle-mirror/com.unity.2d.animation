@@ -30,6 +30,14 @@ namespace UnityEngine.U2D.Animation
 
     internal static class SpriteSkinUtility
     {
+#if UNITY_INCLUDE_TESTS
+        private static bool? s_IsUsingGpuDeformationForTest;
+        public static void SetUsingGpuDeformationForTest(bool? flag)
+        {
+            s_IsUsingGpuDeformationForTest = flag;
+        }
+#endif
+
         internal static bool CanUseGpuDeformation()
         {
             return SystemInfo.supportsComputeShaders;
@@ -37,6 +45,13 @@ namespace UnityEngine.U2D.Animation
 
         internal static bool IsUsingGpuDeformation()
         {
+#if UNITY_INCLUDE_TESTS
+            if (s_IsUsingGpuDeformationForTest.HasValue)
+            {
+                return s_IsUsingGpuDeformationForTest.Value;
+            }
+#endif
+
 #if ENABLE_URP
             return CanUseGpuDeformation() &&
                 GraphicsSettings.currentRenderPipeline != null &&
@@ -49,6 +64,13 @@ namespace UnityEngine.U2D.Animation
 
         internal static bool IsGpuDeformationActive(SpriteRenderer spriteRenderer)
         {
+#if UNITY_INCLUDE_TESTS
+            if (s_IsUsingGpuDeformationForTest.HasValue)
+            {
+                return s_IsUsingGpuDeformationForTest.Value;
+            }
+#endif
+
 #if ENABLE_URP
             return CanUseGpuDeformation() &&
                 InternalEngineBridge.IsSRPBatchingEnabled(spriteRenderer) &&

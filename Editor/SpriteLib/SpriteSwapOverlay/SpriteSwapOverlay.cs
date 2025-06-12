@@ -38,7 +38,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         defaultLayout = Overlays.Layout.Panel,
         defaultWidth = k_DefaultWidth + k_WidthPadding,
         defaultHeight = k_DefaultHeight + k_HeightPadding)]
-    [Icon("Packages/com.unity.2d.animation/Editor/Assets/ComponentIcons/Animation.SpriteResolver.png")]
+    [Icon("Packages/com.unity.2d.animation/Editor/Assets/ComponentIcons/Animation.SpriteResolver.asset")]
     internal class SpriteSwapOverlay : Overlay
     {
         public static class Settings

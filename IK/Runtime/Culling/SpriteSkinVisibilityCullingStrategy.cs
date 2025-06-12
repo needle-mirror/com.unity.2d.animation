@@ -9,7 +9,7 @@ namespace UnityEngine.U2D.IK
         /// <summary>
         /// SpriteSkin registry used to keep visibility state of a SpriteSkin and bone transforms.
         /// </summary>
-        class SpriteSkinRegistry
+        internal class SpriteSkinRegistry
         {
             public int[] boneIds;
             public bool isVisible;
@@ -24,12 +24,18 @@ namespace UnityEngine.U2D.IK
         /// <summary>
         /// Maps SpriteSkins to SpriteSkinRegistry.
         /// </summary>
-        Dictionary<SpriteSkin, SpriteSkinRegistry> m_SpriteSkinRegistries;
+        private Dictionary<SpriteSkin, SpriteSkinRegistry> m_SpriteSkinRegistries;
+#if UNITY_INCLUDE_TESTS
+        internal Dictionary<SpriteSkin, SpriteSkinRegistry> SpriteSkinRegistries => m_SpriteSkinRegistries;
+#endif
 
         /// <summary>
         /// Counts (value) how many visible Sprite Skins use a given bone (key).
         /// </summary>
-        Dictionary<int, int> m_BoneVisibilityCount;
+        private Dictionary<int, int> m_BoneVisibilityCount;
+#if UNITY_INCLUDE_TESTS
+        internal Dictionary<int, int> BoneVisibilityCount => m_BoneVisibilityCount;
+#endif
 
         public override bool AreBonesVisible(IList<int> boneTransformIds)
         {

@@ -27,7 +27,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         static class Icons
         {
             public const string filter = "EditorUI.Filter";
-            public const string locked = "InspectorLock";
+            public const string locked = "Locked";
             public const string zoom = "ViewToolZoom";
         }
 
@@ -45,7 +45,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             filterToggle.RegisterValueChangedCallback(evt => onFilterToggled?.Invoke(evt.newValue));
             Add(filterToggle);
 
-            Texture2D lockIcon = (Texture2D)EditorGUIUtility.IconContent(Icons.locked).image;
+            Texture2D lockIcon = EditorIconUtility.LoadIconResource(Icons.locked, EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath);
             OverlayToggle lockToggle = new OverlayToggle(lockIcon, Styles.toggle) { tooltip = TextContent.spriteSwapLockDescription, value = SpriteSwapOverlay.Settings.locked };
             lockToggle.RegisterValueChangedCallback(evt => onLockToggled?.Invoke(evt.newValue));
             Add(lockToggle);
@@ -56,7 +56,8 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             slider.RegisterValueChangedCallback(OnSliderValueChanged);
             slider.AddToClassList(Styles.slider);
             Button resetButton = new Button { tooltip = TextContent.spriteSwapResetThumbnailSize, style = { minHeight = 18 } };
-            Image resetImage = new Image { image = (Texture2D)EditorGUIUtility.IconContent(Icons.zoom).image };
+            Texture2D zoomIcon = EditorIconUtility.LoadIconResource(Icons.zoom, EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath);
+            Image resetImage = new Image { image = zoomIcon };
             resetButton.Add(resetImage);
             resetButton.clicked += () => OnResetSliderValue(slider);
             resetButton.AddToClassList(Styles.toggle);

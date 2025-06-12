@@ -1,5 +1,4 @@
 * [Introduction to 2D Animation](index)
-  * [What's new](whats-new)
   * [2D Animation Asset Upgrader](AssetUpgrader)
 * [Preparing and importing artwork](PreparingArtwork)
   * [Sprite Skin component](SpriteSkin)
