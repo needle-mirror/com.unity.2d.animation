@@ -1,13 +1,18 @@
+using System.Runtime.CompilerServices;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
+using Unity.Profiling;
+using UnityEngine.U2D.Common.UTess;
 
 namespace UnityEngine.U2D.Animation
 {
     [BurstCompile]
     internal static class MeshUtilities
     {
+
+        static readonly ProfilerMarker k_OldOutline = new ProfilerMarker("MeshUtilities.OldOutline");
         /// <summary>
         /// Get the outline edges from a set of indices.
         /// This method expects the index array to be laid out with one triangle for every 3 indices.
@@ -16,7 +21,41 @@ namespace UnityEngine.U2D.Animation
         /// <returns>Returns a NativeArray of sorted edges. It is up to the caller to dispose this array.</returns>
         public static NativeArray<int2> GetOutlineEdges(in NativeArray<ushort> indices)
         {
-            UnsafeHashMap<int, int3> edges = new UnsafeHashMap<int, int3>(indices.Length, Allocator.Persistent);
+            k_OldOutline.Begin();
+            NativeArray<int2> sortedEdges;
+            GetOutlineEdgesFallback(indices, out sortedEdges);
+            k_OldOutline.End();
+            return sortedEdges;
+        }
+
+        public static NativeArray<int2> GetOutlineEdgesUTess(in NativeArray<ushort> indices)
+        {
+            NativeArray<int2> uTessOutput = new NativeArray<int2>(indices.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            int uTessLength = GenerateUTessOutline(indices, ref uTessOutput);
+
+            NativeArray<int2> output = new NativeArray<int2>(uTessLength, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            if (uTessLength != 0)
+            {
+                unsafe
+                {
+                    UnsafeUtility.MemCpy(output.GetUnsafePtr(), uTessOutput.GetUnsafePtr(), uTessLength * UnsafeUtility.SizeOf<int2>());
+                }
+            }
+
+            return output;
+        }
+
+        [BurstCompile]
+        static int GenerateUTessOutline(in NativeArray<ushort> indices, ref NativeArray<int2> outline)
+        {
+            // To ensure this function is Burst compiled GenerateOutlineFromTriangleIndices is wrapped within GenerateUTessOutline
+            return ModuleHandle.GenerateOutlineFromTriangleIndices(indices, ref outline);
+        }
+
+        [BurstCompile]
+        public static void GetOutlineEdgesFallback(in NativeArray<ushort> indices, out NativeArray<int2> output)
+        {
+            UnsafeHashMap<ulong, int2> edges = new UnsafeHashMap<ulong, int2>(indices.Length, Allocator.Temp);
 
             for (int i = 0; i < indices.Length; i += 3)
             {
@@ -24,65 +63,42 @@ namespace UnityEngine.U2D.Animation
                 ushort i1 = indices[i + 1];
                 ushort i2 = indices[i + 2];
 
-                int2 edge0 = new int2(i0, i1);
-                int2 edge1 = new int2(i1, i2);
-                int2 edge2 = new int2(i2, i0);
-
-                AddToEdgeMap(edge0, ref edges);
-                AddToEdgeMap(edge1, ref edges);
-                AddToEdgeMap(edge2, ref edges);
+                AddToEdgeMap(i0, i1, ref edges);
+                AddToEdgeMap(i1, i2, ref edges);
+                AddToEdgeMap(i2, i0, ref edges);
             }
 
-#if COLLECTIONS_2_0_OR_ABOVE
-            NativeList<int2> outlineEdges = new NativeList<int2>(edges.Count, Allocator.Temp);
-#else
-            var outlineEdges = new NativeList<int2>(edges.Count(), Allocator.Temp);
-#endif
-            foreach (KVPair<int, int3> edgePair in edges)
-            {
-                // If an edge is only used in one triangle, it is an outline edge.
-                if (edgePair.Value.z == 1)
-                    outlineEdges.Add(edgePair.Value.xy);
-            }
-
+            NativeArray<int2> values = edges.GetValueArray(Allocator.Temp);
+            SortEdges(values, out output);
+            values.Dispose();
             edges.Dispose();
-
-            SortEdges(outlineEdges.AsArray(), out NativeArray<int2> sortedEdges);
-            return sortedEdges;
         }
 
         [BurstCompile]
-        static void AddToEdgeMap(in int2 edge, ref UnsafeHashMap<int, int3> edgeMap)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void AddToEdgeMap(int x, int y, ref UnsafeHashMap<ulong, int2> edgeMap)
         {
-            int2 tmpEdge = math.min(edge.x, edge.y) == edge.x ? edge.xy : edge.yx;
-            int hashCode = tmpEdge.GetHashCode();
-
-            // We store the hashCode as key, so that we can do less GetHashCode-calls.
-            // Then we store the count the int3s z-value.
-            if (!edgeMap.ContainsKey(hashCode))
-                edgeMap[hashCode] = new int3(edge, 1);
-            else
-            {
-                int3 val = edgeMap[hashCode];
-                val.z++;
-                edgeMap[hashCode] = val;
-            }
+            // Use ulong as edge key for hash map (min,max vertex) to avoid struct hash overhead and redundant hash calculations.
+            int minV = math.min(x, y);
+            int maxV = math.max(x, y);
+            ulong key = ((ulong)minV << 32) | (uint)maxV;
+            if (!edgeMap.Remove(key))
+                edgeMap[key] = new int2(x, y);
         }
 
         [BurstCompile]
         static void SortEdges(in NativeArray<int2> unsortedEdges, out NativeArray<int2> sortedEdges)
         {
-            NativeArray<int2> tmpEdges = new NativeArray<int2>(unsortedEdges.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-            NativeList<int> shapeStartingEdge = new NativeList<int>(1, Allocator.Persistent);
+            NativeArray<int2> tmpEdges = new NativeArray<int2>(unsortedEdges.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            NativeList<int> shapeStartingEdge = new NativeList<int>(1, Allocator.Temp);
 
-            UnsafeHashMap<int, int> edgeMap = new UnsafeHashMap<int, int>(unsortedEdges.Length, Allocator.Persistent);
-            NativeArray<bool> usedEdges = new NativeArray<bool>(unsortedEdges.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            UnsafeHashMap<int, int> edgeMap = new UnsafeHashMap<int, int>(unsortedEdges.Length, Allocator.Temp);
+            NativeBitArray usedEdges = new NativeBitArray(unsortedEdges.Length, Allocator.Temp);
+
+            int searchStartPosition = 0;
 
             for (int i = 0; i < unsortedEdges.Length; i++)
-            {
                 edgeMap[unsortedEdges[i].x] = i;
-                usedEdges[i] = false;
-            }
 
             bool findStartingEdge = true;
             int edgeIndex = -1;
@@ -91,13 +107,25 @@ namespace UnityEngine.U2D.Animation
             {
                 if (findStartingEdge)
                 {
-                    edgeIndex = GetFirstUnusedIndex(usedEdges);
+                    for (int pos = searchStartPosition; pos < unsortedEdges.Length; pos += 64)
+                    {
+                        ulong bits = ~usedEdges.GetBits(pos, math.min(64, unsortedEdges.Length - pos));
+                        if (bits != 0)
+                        {
+                            int bitPosition = math.tzcnt(bits);
+                            edgeIndex = pos + bitPosition;
+                            searchStartPosition = edgeIndex;
+
+                            break;
+                        }
+                    }
+
                     startingEdge = edgeIndex;
                     findStartingEdge = false;
                     shapeStartingEdge.Add(i);
                 }
 
-                usedEdges[edgeIndex] = true;
+                usedEdges.Set(edgeIndex, true);
                 tmpEdges[i] = unsortedEdges[edgeIndex];
                 int nextVertex = unsortedEdges[edgeIndex].y;
                 edgeIndex = edgeMap[nextVertex];
@@ -122,18 +150,6 @@ namespace UnityEngine.U2D.Animation
             edgeMap.Dispose();
             shapeStartingEdge.Dispose();
             tmpEdges.Dispose();
-        }
-
-        [BurstCompile]
-        static int GetFirstUnusedIndex(in NativeArray<bool> usedValues)
-        {
-            for (int i = 0; i < usedValues.Length; i++)
-            {
-                if (!usedValues[i])
-                    return i;
-            }
-
-            return -1;
         }
     }
 }

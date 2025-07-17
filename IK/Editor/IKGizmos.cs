@@ -29,7 +29,7 @@ namespace UnityEditor.U2D.IK
 
                 IKManager2D.SolverEditorData solverData = manager.GetSolverEditorData(solver);
                 if (!solverData.showGizmo)
-                    return;
+                    continue;
 
                 DrawSolver(solver, solverData.color);
 

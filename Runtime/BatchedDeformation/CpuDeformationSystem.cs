@@ -7,7 +7,6 @@ namespace UnityEngine.U2D.Animation
     internal class CpuDeformationSystem : BaseDeformationSystem
     {
         const string k_GpuSkinningShaderKeyword = "SKINNED_SPRITE";
-        JobHandle m_BoundJobHandle;
         JobHandle m_CopyJobHandle;
 
         public override DeformationMethods deformationMethod => DeformationMethods.Cpu;
@@ -16,7 +15,6 @@ namespace UnityEngine.U2D.Animation
         {
             base.Cleanup();
 
-            m_BoundJobHandle.Complete();
             m_CopyJobHandle.Complete();
         }
 
@@ -68,13 +66,12 @@ namespace UnityEngine.U2D.Animation
             jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle, jobHandle);
             jobHandle = ScheduleBoneJobBatched(jobHandle, skinBatch);
 
-            m_DeformJobHandle = ScheduleSkinDeformBatchedJob(jobHandle, skinBatch);
+            m_DeformJobHandle = ScheduleSkinDeformBatchedJob(jobHandle, skinBatch, batchCount);
             m_CopyJobHandle = ScheduleCopySpriteRendererBuffersJob(jobHandle, batchCount);
-            m_BoundJobHandle = ScheduleCalculateSpriteSkinAABBJob(m_DeformJobHandle, batchCount);
             Profiling.scheduleJobs.End();
 
             JobHandle.ScheduleBatchedJobs();
-            jobHandle = JobHandle.CombineDependencies(m_BoundJobHandle, m_CopyJobHandle);
+            jobHandle = JobHandle.CombineDependencies(m_DeformJobHandle, m_CopyJobHandle);
             jobHandle.Complete();
 
             using (Profiling.setBatchDeformableBufferAndLocalAABB.Auto())
@@ -97,7 +94,6 @@ namespace UnityEngine.U2D.Animation
             m_DeformedVerticesBuffer = BufferManager.instance.GetBuffer(m_ObjectId, vertexBufferSize);
             NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, skinBatch.bindPosesIndex.y);
             NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, skinBatch.bindPosesIndex.y);
-            NativeArrayHelpers.ResizeIfNeeded(ref m_VertexLookupData, skinBatch.verticesIndex.y);
         }
     }
 }

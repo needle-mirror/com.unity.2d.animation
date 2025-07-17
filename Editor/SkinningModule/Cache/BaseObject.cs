@@ -27,7 +27,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public static BaseObject InstanceIDToObject(int instanceID)
+        public static BaseObject EntityIdToObject(int instanceID)
         {
             var obj = default(BaseObject);
             s_Objects.TryGetValue(instanceID, out obj);
@@ -94,9 +94,9 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public static BaseObject InstanceIDToObject(int instanceID)
+        public static BaseObject EntityIdToObject(int instanceID)
         {
-            return EditorUtility.InstanceIDToObject(instanceID) as BaseObject;
+            return EditorUtility.EntityIdToObject(instanceID) as BaseObject;
         }
 
         internal virtual void OnEnable() { }

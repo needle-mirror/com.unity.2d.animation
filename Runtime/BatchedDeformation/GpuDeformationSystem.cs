@@ -168,10 +168,9 @@ namespace UnityEngine.U2D.Animation
             Profiling.scheduleJobs.Begin();
             jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle, jobHandle);
             jobHandle = ScheduleBoneJobBatched(jobHandle, skinBatch);
-            m_DeformJobHandle = ScheduleSkinDeformBatchedJob(jobHandle, skinBatch);
+            m_DeformJobHandle = ScheduleSkinDeformBatchedJob(jobHandle, skinBatch, batchCount);
             jobHandle = ScheduleCopySpriteRendererBuffersJob(m_DeformJobHandle, batchCount);
             jobHandle = ScheduleCopySpriteRendererBoneTransformBuffersJob(jobHandle, batchCount);
-            jobHandle = ScheduleCalculateSpriteSkinAABBJob(jobHandle, batchCount);
             Profiling.scheduleJobs.End();
 
             JobHandle.ScheduleBatchedJobs();
@@ -196,12 +195,10 @@ namespace UnityEngine.U2D.Animation
         void ResizeBuffers(int vertexBufferSize, in PerSkinJobData skinBatch)
         {
             int noOfBones = skinBatch.bindPosesIndex.y;
-            int noOfVerticesInBatch = skinBatch.verticesIndex.y;
 
             m_DeformedVerticesBuffer = BufferManager.instance.GetBuffer(m_ObjectId, vertexBufferSize);
             NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, noOfBones);
             NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, noOfBones);
-            NativeArrayHelpers.ResizeIfNeeded(ref m_VertexLookupData, noOfVerticesInBatch);
 
             if (!IsComputeBufferValid(m_BoneTransformsComputeBuffer) || m_BoneTransformsComputeBuffer.count < noOfBones)
                 CreateComputeBuffer(noOfBones);

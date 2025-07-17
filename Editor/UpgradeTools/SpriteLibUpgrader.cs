@@ -228,7 +228,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         static string GetObjectIDString(Object obj)
         {
-            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(obj.GetInstanceID(), out string guid, out long localId))
+            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(obj.GetEntityId(), out string guid, out long localId))
                 return "fileID: " + localId + ", guid: " + guid;
 
             return null;

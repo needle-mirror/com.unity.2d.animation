@@ -1,5 +1,21 @@
 # Changelog
 
+## [13.0.0] - 2025-07-17
+
+### Changed
+- Upgraded com.unity.collections dependency to version 2.4.3.
+- Update minimum Unity version.
+- Fixed Dynamic-Batching / Skinning is broken. (DANB-1037)
+- Optimize memory usage by wrapping editor-specific fields and methods in #ifdef UNITY_EDITOR.
+- Changed TransformAccessJob to use ScheduleReadOnly for transform access jobs, enabling safe and efficient parallel execution.
+- Optimize deformation system with per-sprite processing, single-bone fast path and integrated AABB calculation
+- Improve mesh outline extraction performance by optimizing and Burst-compiling.
+- Optimize outline vertex cache update for GPU deformation and remove redundant NativeArray assignments.
+
+### Fixed
+- Fix IK gizmos not being shown for objects having multiple IKs, when the visibility of one IK is off
+- Use EditorUtility.EntityIdToObject instead of EditorUtility.InstanceIDToObject which is deprecated. (DANB-1042)
+
 ## [12.0.2] - 2025-06-12
 ### Fixed
 - Fix the icon quality of Sprite Swap Overlay Window. (DANB-988)

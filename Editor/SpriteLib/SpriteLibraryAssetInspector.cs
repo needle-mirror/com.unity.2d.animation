@@ -14,7 +14,7 @@ namespace UnityEditor.U2D.Animation
         [OnOpenAssetAttribute(OnOpenAssetAttributeMode.Execute)]
         public static bool ExecuteOpenSpriteLibraryAsset(int instanceID)
         {
-            SpriteLibraryAsset spriteLibraryAsset = EditorUtility.InstanceIDToObject(instanceID) as SpriteLibraryAsset;
+            SpriteLibraryAsset spriteLibraryAsset = EditorUtility.EntityIdToObject(instanceID) as SpriteLibraryAsset;
             if (spriteLibraryAsset != null)
             {
                 SpriteLibraryEditor.SpriteLibraryEditorWindow.OpenWindow();

@@ -43,7 +43,6 @@ namespace UnityEngine.U2D.Animation
         protected NativeArray<IntPtr> m_BoneTransformBuffers;
 
         protected NativeArray<int2> m_BoneLookupData;
-        protected NativeArray<int2> m_VertexLookupData;
         protected NativeArray<PerSkinJobData> m_SkinBatchArray;
 
         protected TransformAccessJob m_LocalToWorldTransformAccessJob;
@@ -167,7 +166,6 @@ namespace UnityEngine.U2D.Animation
 
             m_FinalBoneTransforms = new NativeArray<float4x4>(startingCount, Allocator.Persistent);
             m_BoneLookupData = new NativeArray<int2>(startingCount, Allocator.Persistent);
-            m_VertexLookupData = new NativeArray<int2>(startingCount, Allocator.Persistent);
             m_SkinBatchArray = new NativeArray<PerSkinJobData>(startingCount, Allocator.Persistent);
 
             m_IsSpriteSkinActiveForDeform = new NativeArray<bool>(startingCount, Allocator.Persistent);
@@ -272,7 +270,6 @@ namespace UnityEngine.U2D.Animation
             m_BufferSizes.DisposeIfCreated();
             m_SpriteSkinData.DisposeIfCreated();
             m_BoneLookupData.DisposeIfCreated();
-            m_VertexLookupData.DisposeIfCreated();
             m_SkinBatchArray.DisposeIfCreated();
             m_FinalBoneTransforms.DisposeIfCreated();
             m_BoundsData.DisposeIfCreated();
@@ -330,8 +327,7 @@ namespace UnityEngine.U2D.Animation
             {
                 batchDataSize = batchCount,
                 perSkinJobData = m_PerSkinJobData,
-                boneLookupData = m_BoneLookupData,
-                vertexLookupData = m_VertexLookupData
+                boneLookupData = m_BoneLookupData
             };
             return prepareJob.Schedule();
         }
@@ -352,17 +348,18 @@ namespace UnityEngine.U2D.Animation
             return jobHandle;
         }
 
-        protected JobHandle ScheduleSkinDeformBatchedJob(JobHandle jobHandle, PerSkinJobData skinBatch)
+        protected JobHandle ScheduleSkinDeformBatchedJob(JobHandle jobHandle, PerSkinJobData skinBatch, int spriteCount)
         {
-            SkinDeformBatchedJob skinJobBatched = new SkinDeformBatchedJob()
+            SkinDeformBatchedJob skinJobBatched = new SkinDeformBatchedJob
             {
-                vertices = m_DeformedVerticesBuffer.array,
-                vertexLookupData = m_VertexLookupData,
                 spriteSkinData = m_SpriteSkinData,
                 perSkinJobData = m_PerSkinJobData,
                 finalBoneTransforms = m_FinalBoneTransforms,
+                vertices = m_DeformedVerticesBuffer.array,
+                isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
+                bounds = m_BoundsData
             };
-            return skinJobBatched.Schedule(skinBatch.verticesIndex.y, 16, jobHandle);
+            return skinJobBatched.Schedule(spriteCount, 1, jobHandle);
         }
 
         protected unsafe JobHandle ScheduleCopySpriteRendererBuffersJob(JobHandle jobHandle, int batchCount)
@@ -376,18 +373,6 @@ namespace UnityEngine.U2D.Animation
                 bufferSizes = m_BufferSizes,
             };
             return copySpriteRendererBuffersJob.Schedule(batchCount, 16, jobHandle);
-        }
-
-        protected JobHandle ScheduleCalculateSpriteSkinAABBJob(JobHandle jobHandle, int batchCount)
-        {
-            CalculateSpriteSkinAABBJob updateBoundJob = new CalculateSpriteSkinAABBJob
-            {
-                vertices = m_DeformedVerticesBuffer.array,
-                isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
-                spriteSkinData = m_SpriteSkinData,
-                bounds = m_BoundsData,
-            };
-            return updateBoundJob.Schedule(batchCount, 4, jobHandle);
         }
 
         protected void DeactivateDeformableBuffers()

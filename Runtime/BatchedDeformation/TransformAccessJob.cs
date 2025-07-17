@@ -148,7 +148,7 @@ namespace UnityEngine.U2D.Animation
                 {
                     outMatrix = transformMatrix,
                 };
-                m_JobHandle = job.Schedule(m_TransformAccessArray);
+                m_JobHandle = job.ScheduleReadOnly(m_TransformAccessArray, 16);
                 Profiler.EndSample();
                 return m_JobHandle;
             }
@@ -167,7 +167,7 @@ namespace UnityEngine.U2D.Animation
                 {
                     outMatrix = transformMatrix,
                 };
-                m_JobHandle = job.Schedule(m_TransformAccessArray);
+                m_JobHandle = job.ScheduleReadOnly(m_TransformAccessArray, 16);
                 Profiler.EndSample();
                 return m_JobHandle;
             }
@@ -178,11 +178,7 @@ namespace UnityEngine.U2D.Animation
         internal string GetDebugLog()
         {
             string log = "";
-#if COLLECTIONS_2_0_OR_ABOVE
             log += "TransformData Count: " + m_TransformData.Count + "\n";
-#else
-            log += "TransformData Count: " + m_TransformData.Count() + "\n";
-#endif
             log += "Transform Count: " + m_Transform.Length + "\n";
             foreach (Transform ss in m_Transform)
             {
@@ -285,7 +281,8 @@ namespace UnityEngine.U2D.Animation
 
         public void Execute(int index, TransformAccess transform)
         {
-            outMatrix[index] = transform.localToWorldMatrix;
+            if (transform.isValid)
+                outMatrix[index] = transform.localToWorldMatrix;
         }
     }
 
@@ -297,7 +294,8 @@ namespace UnityEngine.U2D.Animation
 
         public void Execute(int index, TransformAccess transform)
         {
-            outMatrix[index] = transform.worldToLocalMatrix;
+            if (transform.isValid)
+                outMatrix[index] = transform.worldToLocalMatrix;
         }
     }
 }

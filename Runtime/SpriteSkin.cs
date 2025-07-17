@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
 using UnityEngine.Rendering;
 using UnityEngine.Scripting;
@@ -129,16 +130,20 @@ namespace UnityEngine.U2D.Animation
         [SerializeField]
         bool m_AutoRebind = false;
 
+#if UNITY_EDITOR
         // The deformed m_SpriteVertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite Asset data.
         // The order of storage if present is POSITION, NORMALS, TANGENTS.
         NativeByteArray m_DeformedVertices;
         int m_CurrentDeformVerticesLength = 0;
+#endif
         SpriteRenderer m_SpriteRenderer;
         int m_CurrentDeformSprite = 0;
         int m_SpriteId = 0;
         bool m_IsValid = false;
         SpriteSkinState m_State;
+#if UNITY_EDITOR
         int m_TransformsHash = 0;
+#endif
         bool m_ForceCpuDeformation = false;
 
         int m_TextureId;
@@ -168,8 +173,9 @@ namespace UnityEngine.U2D.Animation
         internal NativeArray<int> boneTransformId => m_BoneTransformId;
         internal int rootBoneTransformId => m_RootBoneTransformId;
         internal DeformationMethods currentDeformationMethod { get; private set; }
-        internal BaseDeformationSystem deformationSystem { get; private set; }
+        private BaseDeformationSystem m_DeformationSystem;
 
+        internal BaseDeformationSystem DeformationSystem => m_DeformationSystem;
 #if ENABLE_URP
         /// <summary>
         /// Returns an array of the outline indices.
@@ -179,8 +185,40 @@ namespace UnityEngine.U2D.Animation
 
         /// <summary>
         /// Returns an array of the deformed outline vertices.
+        /// For GPU deformation, this directly accesses the deformation buffer as Vector3 (compatible with float3 data format used in GPU deformation).
+        /// For CPU deformation, this returns the cached deformed vertices.
         /// </summary>
-        internal NativeArray<Vector3> outlineVertices => m_DeformedOutlineVertexCache;
+        internal NativeArray<Vector3> outlineVertices
+        {
+            get
+            {
+                // For GPU path, we do this on every access to ensure we always have the most up-to-date buffer.
+                if (currentDeformationMethod == DeformationMethods.Gpu && !forceCpuDeformation)
+                {
+                    unsafe
+                    {
+                        // This call ensures the deformation job is complete before accessing the buffer
+                        NativeArray<byte> buffer = m_DeformationSystem?.GetDeformableBufferForSpriteSkin(this) ?? default;
+
+                        // Return default if SpriteSkin is invalid (e.g., no sprite or no skinning info) or before first deformation
+                        if (buffer == default)
+                            return default;
+
+                        NativeArray<Vector3> vertexArray = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<Vector3>(
+                            NativeArrayUnsafeUtility.GetUnsafePtr(buffer),
+                            buffer.Length / UnsafeUtility.SizeOf<Vector3>(),
+                            Allocator.None
+                        );
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                        NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref vertexArray, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(buffer));
+#endif
+                        return vertexArray;
+                    }
+                }
+
+                return m_DeformedOutlineVertexCache;
+            }
+        }
 #endif
 
         /// <summary>
@@ -313,7 +351,7 @@ namespace UnityEngine.U2D.Animation
                 if (isActiveAndEnabled)
                 {
                     UpdateSpriteDeformationData();
-                    deformationSystem?.CopyToSpriteSkinData(this);
+                    m_DeformationSystem?.CopyToSpriteSkinData(this);
                 }
             }
         }
@@ -365,7 +403,9 @@ namespace UnityEngine.U2D.Animation
         {
             Awake();
             m_TransformId = gameObject.transform.GetInstanceID();
+#if UNITY_EDITOR
             m_TransformsHash = 0;
+#endif
             currentDeformationMethod = SpriteSkinUtility.CanSpriteSkinUseGpuDeformation(this) ? DeformationMethods.Gpu : DeformationMethods.Cpu;
 
             CacheCurrentSprite(m_AutoRebind);
@@ -388,8 +428,8 @@ namespace UnityEngine.U2D.Animation
 
             DeactivateSkinning();
             BufferManager.instance.ReturnBuffer(GetInstanceID());
-            deformationSystem?.RemoveSpriteSkin(this);
-            deformationSystem = null;
+            m_DeformationSystem?.RemoveSpriteSkin(this);
+            m_DeformationSystem = null;
             SpriteSkinContainer.instance.RemoveSpriteSkin(this);
             ResetBoneTransformIdCache();
             DisposeOutlineCaches();
@@ -441,7 +481,7 @@ namespace UnityEngine.U2D.Animation
         void OnBoneTransformChanged()
         {
             RefreshBoneTransforms();
-            deformationSystem?.CopyToSpriteSkinData(this);
+            m_DeformationSystem?.CopyToSpriteSkinData(this);
             SpriteSkinContainer.instance.BoneTransformsChanged(this);
         }
 
@@ -470,10 +510,12 @@ namespace UnityEngine.U2D.Animation
 #endif
         }
 
+#if UNITY_EDITOR
         internal void OnEditorEnable()
         {
             Awake();
         }
+#endif
 
         SpriteSkinState CacheValidFlag()
         {
@@ -505,7 +547,7 @@ namespace UnityEngine.U2D.Animation
                 if (!m_BoneCacheUpdateToDate)
                     RefreshBoneTransforms();
 
-                deformationSystem?.CopyToSpriteSkinData(this);
+                m_DeformationSystem?.CopyToSpriteSkinData(this);
             }
         }
 
@@ -519,6 +561,7 @@ namespace UnityEngine.U2D.Animation
             m_BoneCacheUpdateToDate = false;
         }
 
+#if UNITY_EDITOR
         internal NativeByteArray GetDeformedVertices(int spriteVertexCount)
         {
             if (sprite != null)
@@ -537,6 +580,7 @@ namespace UnityEngine.U2D.Animation
             m_DeformedVertices = BufferManager.instance.GetBuffer(GetInstanceID(), m_CurrentDeformVerticesLength);
             return m_DeformedVertices;
         }
+#endif
 
         /// <summary>
         /// Returns whether this SpriteSkin has currently deformed vertices.
@@ -547,7 +591,7 @@ namespace UnityEngine.U2D.Animation
             if (!m_IsValid)
                 return false;
 
-            return m_DataIndex >= 0 && deformationSystem != null && deformationSystem.IsSpriteSkinActiveForDeformation(this);
+            return m_DataIndex >= 0 && m_DeformationSystem != null && m_DeformationSystem.IsSpriteSkinActiveForDeformation(this);
         }
 
         /// <summary>
@@ -565,7 +609,7 @@ namespace UnityEngine.U2D.Animation
             if (m_DataIndex < 0)
                 throw new InvalidOperationException("There are no currently deformed vertices.");
 
-            NativeArray<byte> buffer = deformationSystem?.GetDeformableBufferForSpriteSkin(this) ?? default;
+            NativeArray<byte> buffer = m_DeformationSystem?.GetDeformableBufferForSpriteSkin(this) ?? default;
             if (buffer == default)
                 throw new InvalidOperationException("There are no currently deformed vertices.");
 
@@ -685,6 +729,7 @@ namespace UnityEngine.U2D.Animation
 #endif
         }
 
+#if UNITY_EDITOR
         static bool IsInGUIUpdateLoop() => Event.current != null;
 
         void Deform()
@@ -714,13 +759,16 @@ namespace UnityEngine.U2D.Animation
                 DeactivateSkinning();
             }
         }
+#endif
 
         internal void PostDeform(bool didDeform)
         {
             if (didDeform)
             {
 #if ENABLE_URP
-                UpdateDeformedOutlineCache();
+                // For GPU path, we directly read from the buffer, so cache update is not needed
+                if (currentDeformationMethod == DeformationMethods.Cpu || forceCpuDeformation)
+                    UpdateDeformedOutlineCache();
 #endif
                 m_VertexDeformationHash = GetNewVertexDeformationHash();
             }
@@ -743,10 +791,12 @@ namespace UnityEngine.U2D.Animation
                 }
 
                 UpdateSpriteDeformationData();
-                deformationSystem?.CopyToSpriteSkinData(this);
+                m_DeformationSystem?.CopyToSpriteSkinData(this);
 
                 CacheValidFlag();
+#if UNITY_EDITOR
                 m_TransformsHash = 0;
+#endif
             }
         }
 
@@ -810,9 +860,7 @@ namespace UnityEngine.U2D.Animation
 
             NativeArray<byte> buffer = GetCurrentDeformedVertices();
             NativeArray<int> indexCache = m_OutlineIndexCache;
-            NativeArray<Vector3> vertexCache = m_DeformedOutlineVertexCache;
-            BurstedSpriteSkinUtilities.SetVertexPositionFromByteBuffer(in buffer, in indexCache, ref vertexCache, m_SpriteVertexStreamSize);
-            m_DeformedOutlineVertexCache = vertexCache;
+            BurstedSpriteSkinUtilities.SetVertexPositionFromByteBuffer(in buffer, in indexCache, ref m_DeformedOutlineVertexCache, m_SpriteVertexStreamSize);
         }
 
         void CacheSpriteOutline()
@@ -853,18 +901,18 @@ namespace UnityEngine.U2D.Animation
 
         void CacheOutlineVertices(int cacheSize)
         {
-            m_DeformedOutlineVertexCache = new NativeArray<Vector3>(cacheSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
             m_StaticOutlineVertexCache = new NativeArray<Vector3>(cacheSize, Allocator.Persistent);
 
             NativeSlice<Vector3> vertices = sprite.GetVertexAttribute<Vector3>(VertexAttribute.Position);
-            NativeArray<Vector3> vertexCache = m_StaticOutlineVertexCache;
             for (int i = 0; i < m_OutlineIndexCache.Length; ++i)
             {
                 int index = m_OutlineIndexCache[i];
-                vertexCache[index] = vertices[index];
+                m_StaticOutlineVertexCache[index] = vertices[index];
             }
 
-            m_StaticOutlineVertexCache = vertexCache;
+            // For CPU path, allocate a NativeArray for the deformed outline cache
+            if (currentDeformationMethod == DeformationMethods.Cpu || forceCpuDeformation)
+                m_DeformedOutlineVertexCache = new NativeArray<Vector3>(cacheSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         }
 #endif
         internal void CopyToSpriteSkinData(ref SpriteSkinData data)
@@ -893,7 +941,7 @@ namespace UnityEngine.U2D.Animation
             if (needUpdate)
             {
                 UpdateSpriteDeformationData();
-                deformationSystem?.CopyToSpriteSkinData(this);
+                m_DeformationSystem?.CopyToSpriteSkinData(this);
             }
 
             return needUpdate;
@@ -937,7 +985,9 @@ namespace UnityEngine.U2D.Animation
                 m_SpriteRenderer.DeactivateDeformableBuffer();
             }
 
+#if UNITY_EDITOR
             m_TransformsHash = 0;
+#endif
         }
 
         internal void ResetSprite()
@@ -948,8 +998,8 @@ namespace UnityEngine.U2D.Animation
 
         internal void SetDeformationSystem(BaseDeformationSystem newDeformationSystem)
         {
-            deformationSystem = newDeformationSystem;
-            currentDeformationMethod = deformationSystem.deformationMethod;
+            m_DeformationSystem = newDeformationSystem;
+            currentDeformationMethod = m_DeformationSystem.deformationMethod;
         }
 
         static int CountChildren(Transform transform)

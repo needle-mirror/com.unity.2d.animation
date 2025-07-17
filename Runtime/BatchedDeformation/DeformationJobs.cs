@@ -38,8 +38,6 @@ namespace UnityEngine.U2D.Animation
         public int batchDataSize;
         [WriteOnly]
         public NativeArray<int2> boneLookupData;
-        [WriteOnly]
-        public NativeArray<int2> vertexLookupData;
 
         public void Execute()
         {
@@ -49,11 +47,6 @@ namespace UnityEngine.U2D.Animation
                 for (int k = 0, j = jobData.bindPosesIndex.x; j < jobData.bindPosesIndex.y; ++j, ++k)
                 {
                     boneLookupData[j] = new int2(i, k);
-                }
-
-                for (int k = 0, j = jobData.verticesIndex.x; j < jobData.verticesIndex.y; ++j, ++k)
-                {
-                    vertexLookupData[j] = new int2(i, k);
                 }
             }
         }
@@ -99,29 +92,24 @@ namespace UnityEngine.U2D.Animation
         public NativeSlice<byte> vertices;
 
         [ReadOnly]
-        public NativeArray<float4x4> finalBoneTransforms;
+        public NativeArray<SpriteSkinData> spriteSkinData;
         [ReadOnly]
         public NativeArray<PerSkinJobData> perSkinJobData;
         [ReadOnly]
-        public NativeArray<SpriteSkinData> spriteSkinData;
+        public NativeArray<float4x4> finalBoneTransforms;
         [ReadOnly]
-        public NativeArray<int2> vertexLookupData;
+        public NativeArray<bool> isSpriteSkinValidForDeformArray;
 
-        public unsafe void Execute(int i)
+        [WriteOnly]
+        public NativeArray<Bounds> bounds;
+
+        public unsafe void Execute(int spriteIndex)
         {
-            int j = vertexLookupData[i].x;
-            int k = vertexLookupData[i].y;
+            if (!isSpriteSkinValidForDeformArray[spriteIndex])
+                return;
 
-            PerSkinJobData perSkinData = perSkinJobData[j];
-            SpriteSkinData spriteSkin = spriteSkinData[j];
-            float3 srcVertex = (float3)spriteSkin.vertices[k];
-            float4 tangents = (float4)spriteSkin.tangents[k];
-            BoneWeight influence = spriteSkin.boneWeights[k];
-
-            int bone0 = influence.boneIndex0 + perSkinData.bindPosesIndex.x;
-            int bone1 = influence.boneIndex1 + perSkinData.bindPosesIndex.x;
-            int bone2 = influence.boneIndex2 + perSkinData.bindPosesIndex.x;
-            int bone3 = influence.boneIndex3 + perSkinData.bindPosesIndex.x;
+            SpriteSkinData spriteSkin = spriteSkinData[spriteIndex];
+            PerSkinJobData perSkinData = perSkinJobData[spriteIndex];
 
             byte* deformedPosOffset = (byte*)vertices.GetUnsafePtr();
             byte* deformedPosStart = deformedPosOffset + spriteSkin.deformVerticesStartPos;
@@ -129,56 +117,86 @@ namespace UnityEngine.U2D.Animation
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableVerticesFloat3, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
 #endif
-            if (spriteSkin.hasTangents)
-            {
-                byte* deformedTanOffset = deformedPosStart + spriteSkin.tangentVertexOffset;
-                NativeSlice<float4> deformableTangentsFloat4 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float4>(deformedTanOffset, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
+
+            byte* deformedTanOffset = deformedPosStart + spriteSkin.tangentVertexOffset;
+            NativeSlice<float4> deformableTangentsFloat4 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float4>(deformedTanOffset, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-                NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableTangentsFloat4, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
+            NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableTangentsFloat4, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
 #endif
-                float4 tangent = new float4(tangents.xyz, 0.0f);
-                tangent =
-                    math.mul(finalBoneTransforms[bone0], tangent) * influence.weight0 +
-                    math.mul(finalBoneTransforms[bone1], tangent) * influence.weight1 +
-                    math.mul(finalBoneTransforms[bone2], tangent) * influence.weight2 +
-                    math.mul(finalBoneTransforms[bone3], tangent) * influence.weight3;
-                deformableTangentsFloat4[k] = new float4(math.normalize(tangent.xyz), tangents.w);
+
+            // Find min and max positions of all vertices
+            float3 min = float.MaxValue;
+            float3 max = float.MinValue;
+
+            if (spriteSkin.boneTransformId.Length != 1)
+            {
+                for (int i = 0; i < spriteSkin.spriteVertexCount; ++i)
+                {
+                    float3 srcVertex = (float3)spriteSkin.vertices[i];
+                    float4 tangents = (float4)spriteSkin.tangents[i];
+                    BoneWeight influence = spriteSkin.boneWeights[i];
+
+                    int bone0 = influence.boneIndex0 + perSkinData.bindPosesIndex.x;
+                    int bone1 = influence.boneIndex1 + perSkinData.bindPosesIndex.x;
+                    int bone2 = influence.boneIndex2 + perSkinData.bindPosesIndex.x;
+                    int bone3 = influence.boneIndex3 + perSkinData.bindPosesIndex.x;
+
+                    if (spriteSkin.hasTangents)
+                    {
+                        float4 tangent = new float4(tangents.xyz, 0.0f);
+                        tangent =
+                            math.mul(finalBoneTransforms[bone0], tangent) * influence.weight0 +
+                            math.mul(finalBoneTransforms[bone1], tangent) * influence.weight1 +
+                            math.mul(finalBoneTransforms[bone2], tangent) * influence.weight2 +
+                            math.mul(finalBoneTransforms[bone3], tangent) * influence.weight3;
+                        deformableTangentsFloat4[i] = new float4(math.normalize(tangent.xyz), tangents.w);
+                    }
+
+                    deformableVerticesFloat3[i] =
+                        math.transform(finalBoneTransforms[bone0], srcVertex) * influence.weight0 +
+                        math.transform(finalBoneTransforms[bone1], srcVertex) * influence.weight1 +
+                        math.transform(finalBoneTransforms[bone2], srcVertex) * influence.weight2 +
+                        math.transform(finalBoneTransforms[bone3], srcVertex) * influence.weight3;
+
+                    min = math.min(min, deformableVerticesFloat3[i]);
+                    max = math.max(max, deformableVerticesFloat3[i]);
+                }
+            }
+            else
+            {
+                int bone0 = spriteSkin.boneWeights[0].boneIndex0 + perSkinData.bindPosesIndex.x;
+
+                if (spriteSkin.hasTangents)
+                {
+                    for (int i = 0; i < spriteSkin.spriteVertexCount; ++i)
+                    {
+                        float4 tangents = (float4)spriteSkin.tangents[i];
+
+                        float4 tangent = new float4(tangents.xyz, 0.0f);
+                        tangent = math.mul(finalBoneTransforms[bone0], tangent);
+                        deformableTangentsFloat4[i] = new float4(math.normalize(tangent.xyz), tangents.w);
+                    }
+                }
+
+                for (int i = 0; i < spriteSkin.spriteVertexCount; ++i)
+                {
+                    float3 srcVertex = (float3)spriteSkin.vertices[i];
+                    deformableVerticesFloat3[i] = math.transform(finalBoneTransforms[bone0], srcVertex);
+
+                    min = math.min(min, deformableVerticesFloat3[i]);
+                    max = math.max(max, deformableVerticesFloat3[i]);
+                }
             }
 
-            deformableVerticesFloat3[k] =
-                math.transform(finalBoneTransforms[bone0], srcVertex) * influence.weight0 +
-                math.transform(finalBoneTransforms[bone1], srcVertex) * influence.weight1 +
-                math.transform(finalBoneTransforms[bone2], srcVertex) * influence.weight2 +
-                math.transform(finalBoneTransforms[bone3], srcVertex) * influence.weight3;
-        }
-    }
+            // Calculate center and extents from min/max
+            float3 ext = (max - min) * 0.5F;
+            float3 ctr = min + ext;
 
-    [BurstCompile]
-    internal struct CalculateSpriteSkinAABBJob : IJobParallelFor
-    {
-        public NativeSlice<byte> vertices;
-        [ReadOnly]
-        public NativeArray<bool> isSpriteSkinValidForDeformArray;
-        [ReadOnly]
-        public NativeArray<SpriteSkinData> spriteSkinData;
-
-        [WriteOnly]
-        public NativeArray<Bounds> bounds;
-
-        public unsafe void Execute(int i)
-        {
-            if (!isSpriteSkinValidForDeformArray[i])
-                return;
-
-            SpriteSkinData spriteSkin = spriteSkinData[i];
-            byte* deformedPosOffset = (byte*)vertices.GetUnsafePtr();
-            NativeSlice<float3> deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosOffset + spriteSkin.deformVerticesStartPos, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
-
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-            NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableVerticesFloat3, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
-#endif
-
-            bounds[i] = SpriteSkinUtility.CalculateSpriteSkinBounds(deformableVerticesFloat3);
+            // Create and store bounds
+            Bounds calculatedBounds = new Bounds();
+            calculatedBounds.center = ctr;
+            calculatedBounds.extents = ext;
+            bounds[spriteIndex] = calculatedBounds;
         }
     }
 

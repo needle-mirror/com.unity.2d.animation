@@ -86,7 +86,7 @@ namespace UnityEditor.U2D.Animation
 
         static Transform GetBone(int instanceID)
         {
-            return EditorUtility.InstanceIDToObject(instanceID) as Transform;
+            return EditorUtility.EntityIdToObject(instanceID) as Transform;
         }
 
         public BoneGizmoController(ISkeletonView view, IUndo undo, IBoneGizmoToggle toggle)

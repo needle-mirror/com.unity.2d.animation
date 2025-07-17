@@ -67,7 +67,7 @@ namespace UnityEditor.U2D.Animation
 
         BoneCache GetBone(int instanceID)
         {
-            return BaseObject.InstanceIDToObject(instanceID) as BoneCache;
+            return BaseObject.EntityIdToObject(instanceID) as BoneCache;
         }
 
         void SetSkeleton(SkeletonCache newSkeleton)
