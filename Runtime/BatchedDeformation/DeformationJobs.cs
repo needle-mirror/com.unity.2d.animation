@@ -7,6 +7,10 @@ using Unity.Mathematics;
 
 namespace UnityEngine.U2D.Animation
 {
+    /// Each skin is processed differently based on this metadata.
+    /// deformVerticesStartPos: The starting position of the deformable vertices in the buffer.
+    // bindPosesIndex: A range (int2) indicating the start and end indices of the bind poses for the sprite skin.
+    // verticesIndex: A range (int2) indicating the start and end indices of the vertices for the sprite skin.
     internal struct PerSkinJobData
     {
         public int deformVerticesStartPos;
@@ -14,6 +18,7 @@ namespace UnityEngine.U2D.Animation
         public int2 verticesIndex;
     }
 
+    /// Contains the data required for deforming a sprite.
     internal struct SpriteSkinData
     {
         public NativeCustomSlice<Vector3> vertices;
@@ -25,6 +30,7 @@ namespace UnityEngine.U2D.Animation
         public int spriteVertexCount;
         public int tangentVertexOffset;
         public int deformVerticesStartPos;
+        public int previousDeformVerticesStartPos;
         public int transformId;
         public NativeCustomSlice<int> boneTransformId;
     }
@@ -90,6 +96,7 @@ namespace UnityEngine.U2D.Animation
     internal struct SkinDeformBatchedJob : IJobParallelFor
     {
         public NativeSlice<byte> vertices;
+        public NativeSlice<byte> previousVertices;
 
         [ReadOnly]
         public NativeArray<SpriteSkinData> spriteSkinData;
@@ -99,9 +106,30 @@ namespace UnityEngine.U2D.Animation
         public NativeArray<float4x4> finalBoneTransforms;
         [ReadOnly]
         public NativeArray<bool> isSpriteSkinValidForDeformArray;
+        [ReadOnly]
+        public NativeArray<bool> hasBoneTransformsChanged;
 
         [WriteOnly]
         public NativeArray<Bounds> bounds;
+
+        // The last frame when deformation occurred for each SpriteSkin
+        [WriteOnly]
+        public NativeArray<int> lastDeformedFrame;
+
+        // The current frame count
+        public int frameCount;
+
+        [BurstCompile]
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private static unsafe void CopyBuffer(byte* currentPosStart, byte* previousPosStart, int streamSize, int vertexCount)
+        {
+            for (int i = 0; i < vertexCount; ++i)
+            {
+                byte* src = previousPosStart + i * streamSize;
+                byte* dst = currentPosStart + i * streamSize;
+                UnsafeUtility.MemCpy(dst, src, streamSize);
+            }
+        }
 
         public unsafe void Execute(int spriteIndex)
         {
@@ -110,6 +138,33 @@ namespace UnityEngine.U2D.Animation
 
             SpriteSkinData spriteSkin = spriteSkinData[spriteIndex];
             PerSkinJobData perSkinData = perSkinJobData[spriteIndex];
+
+            // If deformation is not needed and previous frame cache is available
+            if (!hasBoneTransformsChanged[spriteIndex] && spriteSkin.previousDeformVerticesStartPos >= 0)
+            {
+                // Copy previous frame's vertex data (all attributes)
+                byte* currentPosStart = (byte*)vertices.GetUnsafePtr() + spriteSkin.deformVerticesStartPos;
+                byte* previousPosStart = (byte*)previousVertices.GetUnsafePtr() + spriteSkin.previousDeformVerticesStartPos;
+
+                int streamSize = spriteSkin.spriteVertexStreamSize;
+                int vertexCount = spriteSkin.spriteVertexCount;
+
+                // Using a fixed streamSize enables Burst/LLVM to optimize memcpy as a constant-size copy (SIMD/unrolled).
+                if (streamSize == 12) // Postion
+                    CopyBuffer(currentPosStart, previousPosStart, 12, vertexCount);
+                else if (streamSize == 28) // Position + Tangent
+                    CopyBuffer(currentPosStart, previousPosStart, 28, vertexCount);
+                else // Other custom formats
+                    CopyBuffer(currentPosStart, previousPosStart, streamSize, vertexCount);
+
+                // AABB (bounds) is not recalculated here because both the bone transforms and vertex data are unchanged.
+                // The bounds array is persistent and already contains the correct value from the previous frame at this index.
+
+                return;
+            }
+
+            // Deformation is performed, so record the frame
+            lastDeformedFrame[spriteIndex] = frameCount;
 
             byte* deformedPosOffset = (byte*)vertices.GetUnsafePtr();
             byte* deformedPosStart = deformedPosOffset + spriteSkin.deformVerticesStartPos;
@@ -123,7 +178,6 @@ namespace UnityEngine.U2D.Animation
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableTangentsFloat4, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
 #endif
-
             // Find min and max positions of all vertices
             float3 min = float.MaxValue;
             float3 max = float.MinValue;
@@ -192,11 +246,7 @@ namespace UnityEngine.U2D.Animation
             float3 ext = (max - min) * 0.5F;
             float3 ctr = min + ext;
 
-            // Create and store bounds
-            Bounds calculatedBounds = new Bounds();
-            calculatedBounds.center = ctr;
-            calculatedBounds.extents = ext;
-            bounds[spriteIndex] = calculatedBounds;
+            bounds[spriteIndex] = new Bounds(ctr, ext * 2);
         }
     }
 
@@ -220,6 +270,10 @@ namespace UnityEngine.U2D.Animation
             for (int index = startIndex; index < endIndex; ++index)
             {
                 SpriteSkinData spriteSkinData = spriteSkinDataArray[index];
+
+                // Save previous frame's valid buffer position (for cache)
+                spriteSkinData.previousDeformVerticesStartPos = spriteSkinData.deformVerticesStartPos;
+
                 spriteSkinData.deformVerticesStartPos = -1;
                 int vertexBufferSize = 0;
                 int vertexCount = 0;

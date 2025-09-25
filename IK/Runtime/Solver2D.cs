@@ -1,17 +1,30 @@
 using System;
 using System.Collections.Generic;
+using Unity.Profiling;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.Serialization;
 using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.IK
 {
+    interface ISolverCleanup
+    {
+        void DoCleanUp();
+    }
+
     /// <summary>
     /// Abstract class for implementing a 2D IK Solver.
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     public abstract class Solver2D : MonoBehaviour, IPreviewable
     {
+        static class Profiling
+        {
+            internal static readonly ProfilerMarker Initialize = new ProfilerMarker("Solver2D.Initialize");
+            internal static readonly ProfilerMarker Prepare = new ProfilerMarker("Solver2D.Prepare");
+            internal static readonly ProfilerMarker UpdateIK = new ProfilerMarker("Solver2D.UpdateIK");
+        }
+
         [SerializeField]
         bool m_ConstrainRotation = true;
 
@@ -25,6 +38,7 @@ namespace UnityEngine.U2D.IK
 
         Plane m_Plane;
         List<Vector3> m_TargetPositions = new List<Vector3>();
+        bool m_IsValid = false;
 
         /// <summary>
         /// Used to evaluate if Solver2D needs to be updated.
@@ -57,7 +71,7 @@ namespace UnityEngine.U2D.IK
         /// <summary>
         /// Returns true if the Solver2D is in a valid state.
         /// </summary>
-        public bool isValid => Validate();
+        public bool isValid => m_IsValid;
 
         /// <summary>
         /// Returns true if all chains in the Solver have a target.
@@ -73,12 +87,28 @@ namespace UnityEngine.U2D.IK
             set => m_Weight = Mathf.Clamp01(value);
         }
 
+        internal ref Plane GetPlane() => ref m_Plane;
+
+        /// <summary>
+        /// Finalizes the solver.
+        /// </summary>
+        ~Solver2D()
+        {
+            CleanUp();
+        }
+
+        void OnDestroy()
+        {
+            CleanUp();
+        }
+
         /// <summary>
         /// Validate new values set from the Inspector.
         /// </summary>
         protected virtual void OnValidate()
         {
             m_Weight = Mathf.Clamp01(m_Weight);
+            m_IsValid = Validate();
         }
 
         bool Validate()
@@ -110,6 +140,8 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         public void Initialize()
         {
+            Profiling.Initialize.Begin();
+
             DoInitialize();
 
             for (int i = 0; i < GetChainCount(); ++i)
@@ -117,10 +149,16 @@ namespace UnityEngine.U2D.IK
                 IKChain2D chain = GetChain(i);
                 chain.Initialize();
             }
+
+            m_IsValid = Validate();
+
+            Profiling.Initialize.End();
         }
 
         void Prepare()
         {
+            Profiling.Prepare.Begin();
+
             Transform rootTransform = GetPlaneRootTransform();
             if (rootTransform != null)
             {
@@ -138,6 +176,8 @@ namespace UnityEngine.U2D.IK
             }
 
             DoPrepare();
+
+            Profiling.Prepare.End();
         }
 
         void PrepareEffectorPositions()
@@ -183,7 +223,7 @@ namespace UnityEngine.U2D.IK
             if (finalWeight == 0f && !weightValueChanged)
                 return;
 
-            if (!isValid)
+            if (!isValid && !Validate())
                 return;
 
             if (finalWeight < 1f)
@@ -191,7 +231,11 @@ namespace UnityEngine.U2D.IK
 
             Prepare();
 
+            Profiling.UpdateIK.Begin();
+
             DoUpdateIK(targetPositions);
+
+            Profiling.UpdateIK.End();
 
             if (constrainRotation)
             {
@@ -225,6 +269,12 @@ namespace UnityEngine.U2D.IK
                 bool constrainTargetRotation = constrainRotation && chain.target != null;
                 chain.BlendFkToIk(finalWeight, constrainTargetRotation);
             }
+        }
+
+        void CleanUp()
+        {
+            if (this is ISolverCleanup solver)
+                solver.DoCleanUp();
         }
 
         /// <summary>

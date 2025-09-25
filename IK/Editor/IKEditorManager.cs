@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.U2D.Animation;
 using UnityEngine.U2D.Common;
 using UnityEngine.U2D.IK;
@@ -277,31 +278,43 @@ namespace UnityEditor.U2D.IK
 
         private void OnSceneGUI(SceneView sceneView)
         {
+            Profiler.BeginSample("IKEditorManager.OnSceneGUI()");
+
             CheckGizmoToggle();
             if (!m_CurrentEnableGizmoState)
+            {
+                Profiler.EndSample(); //IKEditorManager.OnSceneGUI()
                 return;
+            }
+
 
             if (m_SelectedGameobjects == null)
                 m_SelectedGameobjects = Selection.gameObjects;
 
-            foreach (IKManager2D ikManager2D in m_IKManagers)
+            PrefabStage currentPrefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+            IKGizmos ikGizmos = IKGizmos.instance;
+
+            using (HashSet<IKManager2D>.Enumerator enumerator = m_IKManagers.GetEnumerator())
             {
-                if (ikManager2D != null && ikManager2D.isActiveAndEnabled)
+                while (enumerator.MoveNext())
                 {
+                    IKManager2D ikManager2D = enumerator.Current;
+                    if (ikManager2D == null || !ikManager2D.isActiveAndEnabled)
+                        continue;
                     if (!EditorSceneManager.IsPreviewSceneObject(ikManager2D))
                     {
-                        if (PrefabStageUtility.GetCurrentPrefabStage() == null)
-                            IKGizmos.instance.DoSolversGUI(ikManager2D);
+                        if (currentPrefabStage == null)
+                            ikGizmos.DoSolversGUI(ikManager2D);
                     }
                     else
                     {
-                        if (PrefabStageUtility.GetCurrentPrefabStage()?.scene == ikManager2D.gameObject.scene)
-                            IKGizmos.instance.DoSolversGUI(ikManager2D);
+                        if (null != currentPrefabStage && currentPrefabStage.scene == ikManager2D.gameObject.scene)
+                            ikGizmos.DoSolversGUI(ikManager2D);
                     }
                 }
             }
 
-            if (!IKGizmos.instance.isDragging && IsDraggingATool())
+            if (!ikGizmos.isDragging && IsDraggingATool())
             {
                 //We expect the object to be selected while dragged
                 foreach (GameObject gameObject in m_SelectedGameobjects)
@@ -321,6 +334,8 @@ namespace UnityEditor.U2D.IK
 
             if (GUIUtility.hotControl == 0)
                 isDraggingATool = false;
+
+            Profiler.EndSample(); //IKEditorManager.OnSceneGUI()
         }
 
         private void SetSolverDirty(Solver2D solver)
@@ -357,9 +372,10 @@ namespace UnityEditor.U2D.IK
 
                                 if (chain.target == null)
                                     continue;
-
-                                if (!(IKUtility.IsDescendentOf(chain.target, transform) && IKUtility.IsDescendentOf(chain.rootTransform, transform)) &&
-                                    (chain.target == transform || IKUtility.IsDescendentOf(chain.target, transform) || IKUtility.IsDescendentOf(chain.effector, transform)))
+                                bool targetDescendentOfT = IKUtility.IsDescendentOf(chain.target, transform);
+                                if (!(targetDescendentOfT && IKUtility.IsDescendentOf(chain.rootTransform, transform)) &&
+                                    (chain.target == transform || targetDescendentOfT ||
+                                        IKUtility.IsDescendentOf(chain.effector, transform)))
                                 {
                                     SetManagerDirty(manager);
                                     dirty = true;

@@ -68,6 +68,8 @@ namespace UnityEngine.U2D.Animation
             CreateHelper();
         }
 
+        // Create a CPU and a GPU deformation system if the platform supports it.
+        // Both systems are needed at the same time as a shader on a sprite may not support GPU deformation.
         void CreateBatchSystems()
         {
             if (m_DeformationSystems != null)
@@ -84,6 +86,7 @@ namespace UnityEngine.U2D.Animation
                 m_DeformationSystems[i].Initialize(m_DeformationSystems[i].GetHashCode());
         }
 
+        // Create a helper GameObject, which has a DeformationManagerUpdater component which will update the deformation systems.
         void CreateHelper()
         {
             if (m_Helper != null)
@@ -160,6 +163,7 @@ namespace UnityEngine.U2D.Animation
             if (spriteSkin == null)
                 return;
 
+            // First, find the system which can handle the sprite skin.
             DeformationMethods deformationMethod = SpriteSkinUtility.IsUsingGpuDeformation() ? DeformationMethods.Gpu : DeformationMethods.Cpu;
             if (deformationMethod == DeformationMethods.Gpu && null != spriteSkin.sprite)
             {
@@ -174,7 +178,7 @@ namespace UnityEngine.U2D.Animation
                     Debug.LogWarning($"{spriteSkin.name} is using a shader without GPU deformation support. Switching the renderer over to CPU deformation.", spriteSkin);
                 }
             }
-
+            // Second, add the sprite skin to the system.
             BaseDeformationSystem deformationSystem = m_DeformationSystems[(int)deformationMethod];
             if (deformationSystem.AddSpriteSkin(spriteSkin))
                 spriteSkin.SetDeformationSystem(deformationSystem);

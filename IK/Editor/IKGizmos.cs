@@ -20,14 +20,19 @@ namespace UnityEditor.U2D.IK
 
         public void DoSolversGUI(IKManager2D manager)
         {
+            UnityEngine.Profiling.Profiler.BeginSample("IKEditorManager.DoSolversGUI()");
+
             List<Solver2D> solvers = manager.solvers;
-            for (int s = 0; s < solvers.Count; s++)
+            IList<IKManager2D.SolverEditorData> solverEditorData = manager.FindSolverEditorDataList();
+            int numSolvers = solvers.Count;
+            Debug.Assert(numSolvers == solverEditorData.Count, "IKGizmos: Mismatching number of solvers");
+            for (int s = 0; s < numSolvers; s++)
             {
                 Solver2D solver = solvers[s];
                 if (solver == null || !solver.isValid || !solver.isActiveAndEnabled)
                     continue;
 
-                IKManager2D.SolverEditorData solverData = manager.GetSolverEditorData(solver);
+                IKManager2D.SolverEditorData solverData = solverEditorData[s];
                 if (!solverData.showGizmo)
                     continue;
 
@@ -53,6 +58,8 @@ namespace UnityEditor.U2D.IK
                 if (GUIUtility.hotControl == 0)
                     isDragging = false;
             }
+
+            UnityEngine.Profiling.Profiler.EndSample(); //IKEditorManager.DoSolversGUI()
         }
 
         private void DoTargetGUI(Solver2D solver, IKChain2D chain)
@@ -67,7 +74,8 @@ namespace UnityEditor.U2D.IK
             EditorGUI.BeginChangeCheck();
 
             Handles.color = color;
-            Vector3 newPosition = Handles.Slider2D(controlId, chain.target.position, chain.target.forward, chain.target.up, chain.target.right, HandleUtility.GetHandleSize(chain.effector.position) * kCircleHandleRadius, Handles.CircleHandleCap, Vector2.zero);
+            Vector3 newPosition = Handles.Slider2D(controlId, chain.target.position, chain.target.forward, chain.target.up, chain.target.right,
+                HandleUtility.GetHandleSize(chain.effector.position) * kCircleHandleRadius, Handles.CircleHandleCap, Vector2.zero);
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -98,7 +106,8 @@ namespace UnityEditor.U2D.IK
             EditorGUI.BeginChangeCheck();
 
             Handles.color = color;
-            Vector3 newPosition = Handles.Slider2D(controlId, chain.effector.position, chain.effector.forward, chain.effector.up, chain.effector.right, HandleUtility.GetHandleSize(chain.effector.position) * kCircleHandleRadius, Handles.CircleHandleCap, Vector2.zero);
+            Vector3 newPosition = Handles.Slider2D(controlId, chain.effector.position, chain.effector.forward, chain.effector.up, chain.effector.right,
+                HandleUtility.GetHandleSize(chain.effector.position) * kCircleHandleRadius, Handles.CircleHandleCap, Vector2.zero);
 
             if (EditorGUI.EndChangeCheck())
             {

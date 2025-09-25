@@ -5,10 +5,15 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine.Jobs;
+using UnityEngine.Pool;
 using UnityEngine.Profiling;
 
 namespace UnityEngine.U2D.Animation
 {
+    // This class is used to manage the transforms and their access for jobs.
+    // The takes a list of transforms and creates a TransformAccessArray for them.
+    // The TransformAccessArray is used to schedule jobs that require access to the transforms.
+    // It can run 2 jobs internally, one to return localToWorld matrices and one to return worldToLocal matrices.
     internal class TransformAccessJob
     {
         public struct TransformData
@@ -22,11 +27,13 @@ namespace UnityEngine.U2D.Animation
                 refCount = 1;
             }
         }
-
+        // This is an array of transforms that are passed to the job.
+        // It must be an array because the TransformAccessArray requires an array of transforms.
         Transform[] m_Transform;
         TransformAccessArray m_TransformAccessArray;
         NativeHashMap<int, TransformData> m_TransformData;
         NativeArray<float4x4> m_TransformMatrix;
+        NativeArray<bool> m_TransformChanged;
         bool m_Dirty;
         JobHandle m_JobHandle;
 
@@ -54,6 +61,8 @@ namespace UnityEngine.U2D.Animation
         {
             if (m_TransformMatrix.IsCreated)
                 m_TransformMatrix.Dispose();
+            if (m_TransformChanged.IsCreated)
+                m_TransformChanged.Dispose();
             if (m_TransformAccessArray.isCreated)
                 m_TransformAccessArray.Dispose();
             if (m_TransformData.IsCreated)
@@ -69,8 +78,10 @@ namespace UnityEngine.U2D.Animation
 
         public NativeHashMap<int, TransformData> transformData => m_TransformData;
 
+        // This array can hold localToWorld or worldToLocal matrices depending on the job that was scheduled.
         public NativeArray<float4x4> transformMatrix => m_TransformMatrix;
 
+        public NativeArray<bool> transformChanged => m_TransformChanged;
 #if UNITY_INCLUDE_TESTS
         internal TransformAccessArray transformAccessArray => m_TransformAccessArray;
 #endif
@@ -103,11 +114,42 @@ namespace UnityEngine.U2D.Animation
             array[arraySize] = item;
         }
 
+        // if removing multiple items, it is more efficient to just set them to null and then call CompactArray.
         static void ArrayRemoveAt<T>(ref T[] array, int index)
         {
-            List<T> list = new List<T>(array);
-            list.RemoveAt(index);
-            array = list.ToArray();
+            int length = array.Length;
+            if (index >= length)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            // Shift elements up
+            for (int i = index; i < length - 1; ++i)
+                array[i] = array[i + 1];
+
+            // Resize array, chopping off the last element
+            Array.Resize(ref array, length - 1);
+        }
+
+        // This method is used to remove real nulls from the array and resize it.
+        static void CompactArray<T>(ref T[] array)
+        {
+            // iterate over array and remove nulls
+            int writeIndex = 0;
+            for (int i = 0; i < array.Length; i++)
+            {
+                // we use 'is not null' to avoid removing destroyed transforms, which are handled elsewhere.
+                if (array[i] is not null)
+                {
+                    if (writeIndex != i)
+                        array[writeIndex] = array[i];
+                    writeIndex++;
+                }
+            }
+
+            // Resize the array to the new length
+            if (writeIndex < array.Length)
+            {
+                Array.Resize(ref array, writeIndex);
+            }
         }
 
         void UpdateTransformIndex()
@@ -116,11 +158,21 @@ namespace UnityEngine.U2D.Animation
                 return;
             m_Dirty = false;
             Profiler.BeginSample("UpdateTransformIndex");
-            NativeArrayHelpers.ResizeIfNeeded(ref m_TransformMatrix, m_Transform.Length);
+
+            // Always recreate matrix array when transform array changes to ensure clean state
+            if (m_TransformMatrix.IsCreated)
+                m_TransformMatrix.Dispose();
+
+            // Initialize with zero matrices. Note: Unity Transform.localToWorldMatrix can never be all zeros
+            // due to homogeneous coordinate requirements (last row is always [0,0,0,1]), so zero initialization
+            // ensures proper change detection.
+            m_TransformMatrix = new NativeArray<float4x4>(m_Transform.Length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+
             if (!m_TransformAccessArray.isCreated)
                 TransformAccessArray.Allocate(m_Transform.Length, -1, out m_TransformAccessArray);
             else if (m_TransformAccessArray.capacity != m_Transform.Length)
                 m_TransformAccessArray.capacity = m_Transform.Length;
+
             m_TransformAccessArray.SetTransforms(m_Transform);
 
             for (int i = 0; i < m_Transform.Length; ++i)
@@ -137,16 +189,21 @@ namespace UnityEngine.U2D.Animation
             Profiler.EndSample();
         }
 
-        public JobHandle StartLocalToWorldJob()
+        public JobHandle StartLocalToWorldAndChangeDetectionJob()
         {
+            // No need for initialization as all values are overwritten each frame by LocalToWorldAndChangeDetectionTransformAccessJob
+            NativeArrayHelpers.ResizeIfNeeded(ref m_TransformChanged, m_Transform.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+
             if (m_Transform.Length > 0)
             {
                 m_JobHandle.Complete();
                 UpdateTransformIndex();
-                Profiler.BeginSample("StartLocalToWorldJob");
-                LocalToWorldTransformAccessJob job = new LocalToWorldTransformAccessJob()
+
+                Profiler.BeginSample("StartLocalToWorldAndChangeDetectionJob");
+                LocalToWorldAndChangeDetectionTransformAccessJob job = new LocalToWorldAndChangeDetectionTransformAccessJob()
                 {
                     outMatrix = transformMatrix,
+                    hasChanged = transformChanged,
                 };
                 m_JobHandle = job.ScheduleReadOnly(m_TransformAccessArray, 16);
                 Profiler.EndSample();
@@ -195,27 +252,47 @@ namespace UnityEngine.U2D.Animation
             return log;
         }
 
+        // Remove any destroyed transforms from m_Transform and keep the index in sync
         internal int RemoveTransformsIfNull()
         {
-            bool hasNullElement = Array.Exists(m_Transform, t => t == null);
-            if (!hasNullElement)
-                return 0;
+            int count = 0;
+            // process in reverse order to preserve array integrity on removal.
+            for (int i = m_Transform.Length - 1; i >= 0; i--)
+            {
+                // Is this transform destroyed?
+                if (!m_Transform[i])
+                {
+                    // remove from index, still safe to call GetInstanceID here.
+                    // todo:TransformData can't be removed because transform.GetInstanceID() will return zero after the transform is destroyed.
+                    m_TransformData.Remove(m_Transform[i].GetInstanceID());
+                    // remove from transform array by assigning a real null.
+                    m_Transform[i] = null;
+                    count++;
+                }
+            }
 
-            List<Transform> transformList = new List<Transform>(m_Transform);
-            int count = transformList.RemoveAll(t => t == null);
-            if (m_Transform.Length != transformList.Count)
-                m_Transform = transformList.ToArray();
+            CompactArray(ref m_Transform);
             return count;
         }
 
-        internal void RemoveTransformsByIds(IList<int> idsToRemove)
+        // Deformation manager calls this with a list of ids to remove
+        // Note: the list passed in is also modified by this method.
+        // Note: this method assumes the list is sorted.
+        internal void RemoveTransformsByIds(List<int> idsToRemove)
         {
             if (!m_TransformData.IsCreated)
                 return;
             m_JobHandle.Complete();
+
+            // catch the indexes to remove from m_Transform here
+            List<int> indexesToRemove = ListPool<int>.Get();
+
+            // Remove any ids that we do not know about
+            // Reduce refcount on ids that we do know about.
             for (int i = idsToRemove.Count - 1; i >= 0; --i)
             {
                 int id = idsToRemove[i];
+                // if we don't know about this id, remove it from the list then ignore
                 if (!m_TransformData.ContainsKey(id))
                 {
                     idsToRemove.Remove(id);
@@ -223,27 +300,41 @@ namespace UnityEngine.U2D.Animation
                 }
 
                 TransformData transformData = m_TransformData[id];
+                // reduce refcount if it is > 1
                 if (transformData.refCount > 1)
                 {
                     transformData.refCount -= 1;
                     m_TransformData[id] = transformData;
                     idsToRemove.Remove(id);
                 }
+                else // refcount will become 0 so remove it from the index, and add it to the list of indexes to remove from m_Transform
+                {
+                    m_TransformData.Remove(id);
+                    if (0 <= transformData.transformIndex)
+                        indexesToRemove.Add(transformData.transformIndex);
+                }
             }
 
-            if (idsToRemove.Count == 0)
-                return;
-
-            List<Transform> transformList = new List<Transform>(m_Transform);
-            foreach (int id in idsToRemove)
+            if (indexesToRemove.Count > 0)
             {
-                m_TransformData.Remove(id);
-                int index = transformList.FindIndex(t => t.GetInstanceID() == id);
-                if (index >= 0)
-                    transformList.RemoveAt(index);
-            }
+                // remove the transforms from the transform array in reverse order
+                // they appear to already be sorted however not sure we can assume that is always the case
+                // so we sort them here to be safe
+                indexesToRemove.Sort();
+                for (int i = indexesToRemove.Count - 1; i >= 0; i--)
+                {
+                    int index = indexesToRemove[i];
+                    // previous version of this code performed a linear search to find the index to remove
+                    // by matching GetInstanceID() of the transform.
+                    // it did not remove the transform from the transform array if there was no match
+                    // we do the same logic here by ignoring the index if it is out of bounds <gulp>
+                    if (index < m_Transform.Length)
+                        m_Transform[index] = null;
+                }
 
-            m_Transform = transformList.ToArray();
+                CompactArray(ref m_Transform);
+            }
+            ListPool<int>.Release(indexesToRemove);
         }
 
         internal void RemoveTransformById(int transformId)
@@ -251,9 +342,8 @@ namespace UnityEngine.U2D.Animation
             if (!m_TransformData.IsCreated)
                 return;
             m_JobHandle.Complete();
-            if (m_TransformData.ContainsKey(transformId))
+            if (m_TransformData.TryGetValue(transformId, out TransformData transformData))
             {
-                TransformData transformData = m_TransformData[transformId];
                 if (transformData.refCount == 1)
                 {
                     m_TransformData.Remove(transformId);
@@ -274,15 +364,21 @@ namespace UnityEngine.U2D.Animation
     }
 
     [BurstCompile]
-    internal struct LocalToWorldTransformAccessJob : IJobParallelForTransform
+    internal struct LocalToWorldAndChangeDetectionTransformAccessJob : IJobParallelForTransform
     {
-        [WriteOnly]
         public NativeArray<float4x4> outMatrix;
+        [WriteOnly]
+        public NativeArray<bool> hasChanged;
 
         public void Execute(int index, TransformAccess transform)
         {
             if (transform.isValid)
-                outMatrix[index] = transform.localToWorldMatrix;
+            {
+                float4x4 localToWorldMatrix = transform.localToWorldMatrix;
+
+                hasChanged[index] = !outMatrix[index].Equals(localToWorldMatrix);
+                outMatrix[index] = localToWorldMatrix;
+            }
         }
     }
 

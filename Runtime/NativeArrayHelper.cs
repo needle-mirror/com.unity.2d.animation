@@ -5,7 +5,7 @@ namespace UnityEngine.U2D.Animation
 {
     internal static class NativeArrayHelpers
     {
-        public static unsafe void ResizeIfNeeded<T>(ref NativeArray<T> nativeArray, int size, Allocator allocator = Allocator.Persistent) where T : struct
+        public static unsafe void ResizeIfNeeded<T>(ref NativeArray<T> nativeArray, int size, Allocator allocator = Allocator.Persistent, NativeArrayOptions options = NativeArrayOptions.ClearMemory) where T : struct
         {
             bool canDispose = nativeArray.IsCreated;
             if (canDispose && nativeArray.Length != size)
@@ -15,16 +15,16 @@ namespace UnityEngine.U2D.Animation
             }
 
             if (!canDispose)
-                nativeArray = new NativeArray<T>(size, allocator);
+                nativeArray = new NativeArray<T>(size, allocator, options);
         }
 
-        public static void ResizeAndCopyIfNeeded<T>(ref NativeArray<T> nativeArray, int size, Allocator allocator = Allocator.Persistent) where T : struct
+        public static void ResizeAndCopyIfNeeded<T>(ref NativeArray<T> nativeArray, int size, Allocator allocator = Allocator.Persistent, NativeArrayOptions options = NativeArrayOptions.ClearMemory) where T : struct
         {
             bool canDispose = nativeArray.IsCreated;
             if (canDispose && nativeArray.Length == size)
                 return;
 
-            NativeArray<T> newArray = new NativeArray<T>(size, allocator);
+            NativeArray<T> newArray = new NativeArray<T>(size, allocator, options);
             if (canDispose)
             {
                 NativeArray<T>.Copy(nativeArray, newArray, size < nativeArray.Length ? size : nativeArray.Length);

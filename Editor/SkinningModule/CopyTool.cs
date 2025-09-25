@@ -284,16 +284,15 @@ namespace UnityEditor.U2D.Animation
             bool doesCopyContainMultipleSprites = skinningCopyData.copyData.Count > 1;
             SpriteCache[] sprites = skinningCache.GetSprites();
 
-            if (doesCopyContainMultipleSprites && skinningCopyData.copyData.Count != sprites.Length && shouldPasteMesh)
-            {
-                Debug.Log(string.Format(TextContent.copyIncorrectNumberOfSprites, skinningCopyData.copyData.Count, sprites.Length));
-                return;
-            }
-
             SpriteCache selectedSprite = skinningCache.selectedSprite;
             using (skinningCache.UndoScope(TextContent.pasteData))
             {
                 float scale = skinningCopyData.pixelsPerUnit > 0f ? pixelsPerUnit / skinningCopyData.pixelsPerUnit : 1f;
+                if (!Mathf.Approximately(skinningCopyData.pixelsPerUnit, pixelsPerUnit))
+                {
+                    Debug.LogWarningFormat(TextContent.pasteSpritesScaledDifferentPPU, skinningCopyData.pixelsPerUnit, pixelsPerUnit);
+                }
+
                 HashSet<BoneCache> pastedBonesToSelect = new HashSet<BoneCache>();
 
                 BoneCache[] characterBones = Array.Empty<BoneCache>();

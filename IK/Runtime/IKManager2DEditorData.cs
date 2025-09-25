@@ -14,8 +14,7 @@ namespace UnityEngine.U2D.IK
             public static SolverEditorData defaultValue => new SolverEditorData() { color = Color.green, showGizmo = true };
         }
 
-        [SerializeField]
-        private List<SolverEditorData> m_SolverEditorData = new List<SolverEditorData>();
+        [SerializeField] private List<SolverEditorData> m_SolverEditorData = new List<SolverEditorData>();
 
         void OnEditorDataValidate()
         {
@@ -24,19 +23,6 @@ namespace UnityEngine.U2D.IK
             {
                 AddSolverEditorData();
             }
-        }
-
-        internal SolverEditorData GetSolverEditorData(Solver2D solver)
-        {
-            int index = m_Solvers.FindIndex(x => x == solver);
-            if (index >= 0)
-            {
-                if (index >= m_SolverEditorData.Count)
-                    OnEditorDataValidate();
-                return m_SolverEditorData[index];
-            }
-
-            return SolverEditorData.defaultValue;
         }
 
         void AddSolverEditorData()
@@ -53,6 +39,12 @@ namespace UnityEngine.U2D.IK
             int index = m_Solvers.FindIndex(x => x == solver);
             if (index >= 0)
                 m_SolverEditorData.RemoveAt(index);
+        }
+
+        internal IList<SolverEditorData> FindSolverEditorDataList()
+        {
+            OnEditorDataValidate();
+            return m_SolverEditorData;
         }
 
 #else

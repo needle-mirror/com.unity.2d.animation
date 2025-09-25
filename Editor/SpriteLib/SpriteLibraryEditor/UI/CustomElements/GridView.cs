@@ -1533,6 +1533,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             float pixelAlignedItemHeight = resolvedItemHeight;
             int firstVisibleIndex = Mathf.FloorToInt(offset / pixelAlignedItemHeight) * columnCount;
 
+            int lastIndex = m_RowPool[^1].lastIndex;
+            if (firstVisibleIndex > m_RowPool[0].firstIndex && (lastIndex < 0 || lastIndex >= itemsSource.Count - 1))
+            {
+                // If we are scrolling down and it reaches the end of the list, we don't need to swap the rows.
+                // We just keep the m_FirstVisibleIndex as it is.
+                firstVisibleIndex = m_FirstVisibleIndex;
+            }
+
             scrollView.contentContainer.style.paddingTop = Mathf.FloorToInt(firstVisibleIndex / (float)columnCount) * pixelAlignedItemHeight;
             scrollView.contentContainer.style.height = (Mathf.CeilToInt(itemsSource.Count / (float)columnCount) * pixelAlignedItemHeight);
 

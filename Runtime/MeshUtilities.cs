@@ -13,6 +13,7 @@ namespace UnityEngine.U2D.Animation
     {
 
         static readonly ProfilerMarker k_OldOutline = new ProfilerMarker("MeshUtilities.OldOutline");
+        static readonly ProfilerMarker k_newOutline = new ProfilerMarker("MeshUtilities.NewOutline");
         /// <summary>
         /// Get the outline edges from a set of indices.
         /// This method expects the index array to be laid out with one triangle for every 3 indices.
@@ -30,18 +31,17 @@ namespace UnityEngine.U2D.Animation
 
         public static NativeArray<int2> GetOutlineEdgesUTess(in NativeArray<ushort> indices)
         {
+            k_newOutline.Begin();
+
             NativeArray<int2> uTessOutput = new NativeArray<int2>(indices.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             int uTessLength = GenerateUTessOutline(indices, ref uTessOutput);
-
             NativeArray<int2> output = new NativeArray<int2>(uTessLength, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-            if (uTessLength != 0)
+            unsafe
             {
-                unsafe
-                {
-                    UnsafeUtility.MemCpy(output.GetUnsafePtr(), uTessOutput.GetUnsafePtr(), uTessLength * UnsafeUtility.SizeOf<int2>());
-                }
+                UnsafeUtility.MemCpy(output.GetUnsafePtr(), uTessOutput.GetUnsafePtr(), uTessLength * UnsafeUtility.SizeOf<int2>());
             }
 
+            k_newOutline.End();
             return output;
         }
 

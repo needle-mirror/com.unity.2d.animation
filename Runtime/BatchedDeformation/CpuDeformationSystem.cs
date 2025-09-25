@@ -56,6 +56,8 @@ namespace UnityEngine.U2D.Animation
                 return;
             }
 
+            int frameCount = Time.frameCount;
+
             PerSkinJobData skinBatch = m_SkinBatchArray[0];
             ResizeBuffers(vertexBufferSize, in skinBatch);
 
@@ -66,7 +68,7 @@ namespace UnityEngine.U2D.Animation
             jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle, jobHandle);
             jobHandle = ScheduleBoneJobBatched(jobHandle, skinBatch);
 
-            m_DeformJobHandle = ScheduleSkinDeformBatchedJob(jobHandle, skinBatch, batchCount);
+            m_DeformJobHandle = ScheduleSkinDeformBatchedJob(jobHandle, skinBatch, batchCount, frameCount);
             m_CopyJobHandle = ScheduleCopySpriteRendererBuffersJob(jobHandle, batchCount);
             Profiling.scheduleJobs.End();
 
@@ -80,20 +82,11 @@ namespace UnityEngine.U2D.Animation
             }
 
             foreach (SpriteSkin spriteSkin in m_SpriteSkins)
-            {
-                bool didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
-                spriteSkin.PostDeform(didDeform);
-
-            }
+                // Check if the sprite skin was deformed this frame
+                if (m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex] && m_LastDeformedFrame[spriteSkin.dataIndex] == frameCount)
+                    spriteSkin.PostDeform();
 
             DeactivateDeformableBuffers();
-        }
-
-        void ResizeBuffers(int vertexBufferSize, in PerSkinJobData skinBatch)
-        {
-            m_DeformedVerticesBuffer = BufferManager.instance.GetBuffer(m_ObjectId, vertexBufferSize);
-            NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, skinBatch.bindPosesIndex.y);
-            NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, skinBatch.bindPosesIndex.y);
         }
     }
 }

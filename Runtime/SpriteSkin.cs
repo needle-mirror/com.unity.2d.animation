@@ -92,7 +92,8 @@ namespace UnityEngine.U2D.Animation
     }
 
     /// <summary>
-    /// Deforms the Sprite that is currently assigned to the SpriteRenderer in the same GameObject.
+    /// Acts as a bridge to manage and coordinate deformation-related data for the Sprite
+    /// currently assigned to the SpriteRenderer in the same GameObject
     /// </summary>
     [Preserve]
     [ExecuteInEditMode]
@@ -113,22 +114,20 @@ namespace UnityEngine.U2D.Animation
             public static readonly ProfilerMarker getSpriteBonesTransformFromPath = new ProfilerMarker("SpriteSkin.GetSpriteBoneTransformsFromPath");
         }
 
+        // This struct is used for caching.
+        // fullName: A string representing the full hierarchical path of the transform (e.g., "Parent/Child/Grandchild").
+        // transform: A reference to the Transform object itself.
         internal struct TransformData
         {
             public string fullName;
             public Transform transform;
         }
 
-        [SerializeField]
-        Transform m_RootBone;
-        [SerializeField]
-        Transform[] m_BoneTransforms = Array.Empty<Transform>();
-        [SerializeField]
-        Bounds m_Bounds;
-        [SerializeField]
-        bool m_AlwaysUpdate = true;
-        [SerializeField]
-        bool m_AutoRebind = false;
+        [SerializeField] Transform m_RootBone;
+        [SerializeField] Transform[] m_BoneTransforms = Array.Empty<Transform>();
+        [SerializeField] Bounds m_Bounds;
+        [SerializeField] bool m_AlwaysUpdate = true;
+        [SerializeField] bool m_AutoRebind = false;
 
 #if UNITY_EDITOR
         // The deformed m_SpriteVertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite Asset data.
@@ -154,7 +153,6 @@ namespace UnityEngine.U2D.Animation
         NativeCustomSlice<Vector4> m_SpriteTangents;
         NativeCustomSlice<BoneWeight> m_SpriteBoneWeights;
         NativeCustomSlice<Matrix4x4> m_SpriteBindPoses;
-        NativeCustomSlice<int> m_BoneTransformIdNativeSlice;
         bool m_SpriteHasTangents;
         int m_SpriteVertexStreamSize;
         int m_SpriteVertexCount;
@@ -167,7 +165,6 @@ namespace UnityEngine.U2D.Animation
         NativeArray<int> m_OutlineIndexCache;
         NativeArray<Vector3> m_StaticOutlineVertexCache;
         NativeArray<Vector3> m_DeformedOutlineVertexCache;
-        int m_VertexDeformationHash = 0;
         Sprite m_Sprite;
 
         internal NativeArray<int> boneTransformId => m_BoneTransformId;
@@ -176,6 +173,21 @@ namespace UnityEngine.U2D.Animation
         private BaseDeformationSystem m_DeformationSystem;
 
         internal BaseDeformationSystem DeformationSystem => m_DeformationSystem;
+        private int _outlineDependencyCount = 0;
+
+        // Any component that uses the outline data should call these methods to register and unregister itself.
+        // otherwise the outline data will not be updated.
+        internal void RegisterOutlineDependency()
+        {
+            _outlineDependencyCount++;
+            g_OutlineDataIsAlwaysRequired = false; // TODO: remove this when URP implements RegisterOutlineDependency API
+        }
+
+        internal void UnregisterOutlineDependency() => _outlineDependencyCount = _outlineDependencyCount > 0 ? _outlineDependencyCount - 1 : 0;
+
+        private static bool g_OutlineDataIsAlwaysRequired = true; // TODO: remove this when URP implements RegisterOutlineDependency API
+        internal bool isOutlineDataRequired => _outlineDependencyCount > 0 || g_OutlineDataIsAlwaysRequired;
+
 #if ENABLE_URP
         /// <summary>
         /// Returns an array of the outline indices.
@@ -223,8 +235,9 @@ namespace UnityEngine.U2D.Animation
 
         /// <summary>
         /// Returns a hash which is updated every time the mesh is deformed.
+        /// This value is managed and updated by the DeformationSystem, not by SpriteSkin itself.
         /// </summary>
-        internal int vertexDeformationHash => m_VertexDeformationHash;
+        internal int vertexDeformationHash => m_DeformationSystem != null ? m_DeformationSystem.GetLastDeformedFrame(this) : 0;
 
         internal Sprite sprite => m_Sprite;
         internal SpriteRenderer spriteRenderer => m_SpriteRenderer;
@@ -467,7 +480,6 @@ namespace UnityEngine.U2D.Animation
                 m_BoneTransformId = new NativeArray<int>(boneCount, Allocator.Persistent);
 
             m_RootBoneTransformId = rootBone != null ? rootBone.GetInstanceID() : 0;
-            m_BoneTransformIdNativeSlice = new NativeCustomSlice<int>(m_BoneTransformId);
             for (int i = 0, j = 0; i < boneTransforms?.Length; ++i)
             {
                 if (boneTransforms[i] != null)
@@ -725,14 +737,14 @@ namespace UnityEngine.U2D.Animation
         {
 #if UNITY_EDITOR
             if (IsInGUIUpdateLoop())
-                Deform();
+                DeformForPreviewUpdate();
 #endif
         }
 
 #if UNITY_EDITOR
         static bool IsInGUIUpdateLoop() => Event.current != null;
 
-        void Deform()
+        void DeformForPreviewUpdate()
         {
             if (m_SpriteRenderer.sprite != m_Sprite)
                 OnSpriteChanged(m_SpriteRenderer);
@@ -742,7 +754,7 @@ namespace UnityEngine.U2D.Animation
             {
                 int transformHash = SpriteSkinUtility.CalculateTransformHash(this);
                 int spriteVertexCount = sprite.GetVertexStreamSize() * sprite.GetVertexCount();
-                if (spriteVertexCount > 0 && (m_TransformsHash != transformHash || vertexDeformationHash != GetNewVertexDeformationHash()))
+                if (spriteVertexCount > 0 && m_TransformsHash != transformHash)
                 {
                     NativeByteArray inputVertices = GetDeformedVertices(spriteVertexCount);
                     SpriteSkinUtility.Deform(sprite, gameObject.transform.worldToLocalMatrix, boneTransforms, inputVertices.array);
@@ -751,7 +763,7 @@ namespace UnityEngine.U2D.Animation
                     m_TransformsHash = transformHash;
                     m_CurrentDeformSprite = m_SpriteId;
 
-                    PostDeform(true);
+                    PostDeform();
                 }
             }
             else if (!InternalEngineBridge.IsUsingDeformableBuffer(spriteRenderer, IntPtr.Zero))
@@ -761,21 +773,25 @@ namespace UnityEngine.U2D.Animation
         }
 #endif
 
-        internal void PostDeform(bool didDeform)
+        internal void PostDeform()
         {
-            if (didDeform)
-            {
 #if ENABLE_URP
-                // For GPU path, we directly read from the buffer, so cache update is not needed
-                if (currentDeformationMethod == DeformationMethods.Cpu || forceCpuDeformation)
+            // For GPU path, we directly read from the buffer, so cache update is not needed
+            if (currentDeformationMethod == DeformationMethods.Cpu || forceCpuDeformation)
+            {
+                // This happens after the deformation has been applied, and copies deformed outline data back into our
+                // local copy.
+                if (isOutlineDataRequired)
                     UpdateDeformedOutlineCache();
-#endif
-                m_VertexDeformationHash = GetNewVertexDeformationHash();
             }
+#endif
         }
 
+        /// Called from OnEnable, BatchValidate, Deform, CopyToSpriteSkinData
         void CacheCurrentSprite(bool rebind)
         {
+
+            // If the sprite has not changed, early exit.
             if (m_CurrentDeformSprite == m_SpriteId)
                 return;
 
@@ -805,7 +821,6 @@ namespace UnityEngine.U2D.Animation
 #if ENABLE_URP
             CacheSpriteOutline();
 #endif
-
             if (sprite == null)
             {
                 m_TextureId = 0;
@@ -849,6 +864,7 @@ namespace UnityEngine.U2D.Animation
         }
 
 #if ENABLE_URP
+        // This method copies outline data for use of the URP ShadowCaster2D components.
         void UpdateDeformedOutlineCache()
         {
             if (sprite == null)
@@ -931,7 +947,11 @@ namespace UnityEngine.U2D.Animation
             data.spriteVertexCount = m_SpriteVertexCount;
             data.tangentVertexOffset = m_SpriteTangentVertexOffset;
             data.transformId = m_TransformId;
-            data.boneTransformId = m_BoneTransformIdNativeSlice;
+            data.boneTransformId = new NativeCustomSlice<int>(m_BoneTransformId);
+
+            // Reset deformVerticesStartPos to -1 because CopyToSpriteSkinData is called when the sprite or bone structure changes.
+            // This invalidates any previous frame cache, ensuring that deformation will be recalculated for the new configuration.
+            data.deformVerticesStartPos = -1;
         }
 
         internal bool NeedToUpdateDeformationCache()
@@ -947,12 +967,16 @@ namespace UnityEngine.U2D.Animation
             return needUpdate;
         }
 
-        internal void CacheHierarchy()
+        // Creates a cache of the hierarchy of the root bone.
+        // Each entry in the cache is list of TransformData objects, where the key is the hashCode of the transform name.
+        // Because the transform name is not definitely unique, multiple transforms can have the same hashCode, so the list of
+        // transformData entries contains the full path to the transform. This allows for disambiguation of transforms with the same name.
+        internal void CacheHierarchy(bool forceCreateCache = false)
         {
             using (Profiling.cacheHierarchy.Auto())
             {
                 hierarchyCache.Clear();
-                if (rootBone == null || !m_AutoRebind)
+                if (rootBone == null || (!m_AutoRebind && !forceCreateCache))
                     return;
 
                 int boneCount = CountChildren(rootBone);
@@ -1011,7 +1035,5 @@ namespace UnityEngine.U2D.Animation
 
             return count;
         }
-
-        static int GetNewVertexDeformationHash() => Time.frameCount;
     }
 }

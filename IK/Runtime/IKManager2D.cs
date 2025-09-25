@@ -16,6 +16,11 @@ namespace UnityEngine.U2D.IK
     [ExecuteInEditMode]
     public partial class IKManager2D : MonoBehaviour, IPreviewable
     {
+        static class Profiling
+        {
+            internal static readonly ProfilerMarker UpdateManager = new ProfilerMarker("IKManager2D.UpdateManager");
+        }
+
 #if UNITY_EDITOR
         internal static event System.Action<IKManager2D> onEnabledEditor;
         internal static event System.Action<IKManager2D> onDisabledEditor;
@@ -153,8 +158,7 @@ namespace UnityEngine.U2D.IK
             if (m_Solvers.Count == 0)
                 return;
 
-            ProfilerMarker profilerMarker = new ProfilerMarker("IKManager2D.UpdateManager");
-            profilerMarker.Begin();
+            Profiling.UpdateManager.Begin();
 
             ToggleCulling(!m_AlwaysUpdate);
 
@@ -194,7 +198,7 @@ namespace UnityEngine.U2D.IK
                 }
             }
 
-            profilerMarker.End();
+            Profiling.UpdateManager.End();
         }
 
         void CacheSolversTransformIds()

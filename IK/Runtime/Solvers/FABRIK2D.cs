@@ -1,3 +1,8 @@
+using System;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Mathematics;
+using Unity.Profiling;
 using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.U2D.IK
@@ -57,8 +62,14 @@ namespace UnityEngine.U2D.IK
     /// <summary>
     /// Utility for 2D Forward And Backward Reaching Inverse Kinematics (FABRIK) IK Solver.
     /// </summary>
+    [BurstCompile]
     public static class FABRIK2D
     {
+        static class Profiling
+        {
+            internal static readonly ProfilerMarker Solve = new ProfilerMarker("FABRIK2D.Solve");
+        }
+
         /// <summary>
         /// Solve IK based on FABRIK
         /// </summary>
@@ -70,19 +81,54 @@ namespace UnityEngine.U2D.IK
         /// <returns>Returns true if solver successfully completes within iteration limit. False otherwise.</returns>
         public static bool Solve(Vector2 targetPosition, int solverLimit, float tolerance, float[] lengths, ref Vector2[] positions)
         {
+            NativeArray<float> nativeLengths = new NativeArray<float>(lengths.Length, Allocator.Temp);
+            for (int i = 0; i < lengths.Length; ++i)
+                nativeLengths[i] = lengths[i];
+
+            NativeArray<float2> nativePositions = new NativeArray<float2>(positions.Length, Allocator.Temp);
+            for (int i = 0; i < positions.Length; ++i)
+                nativePositions[i] = new float2(positions[i].x, positions[i].y);
+
+            bool result = Solve(targetPosition, solverLimit, tolerance, nativeLengths, ref nativePositions);
+
+            for (int i = 0; i < positions.Length; ++i)
+                positions[i] = nativePositions[i];
+
+            nativeLengths.Dispose();
+            nativePositions.Dispose();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Solve IK based on FABRIK
+        /// </summary>
+        /// <param name="targetPosition">Target position.</param>
+        /// <param name="solverLimit">Solver iteration count.</param>
+        /// <param name="tolerance">Target position's tolerance.</param>
+        /// <param name="lengths">Length of the chains.</param>
+        /// <param name="positions">Chain positions.</param>
+        /// <returns>Returns true if solver successfully completes within iteration limit. False otherwise.</returns>
+        [BurstCompile]
+        internal static bool Solve(in float2 targetPosition, int solverLimit, float tolerance, in NativeArray<float> lengths, ref NativeArray<float2> positions)
+        {
+            Profiling.Solve.Begin();
+
             int last = positions.Length - 1;
             int iterations = 0;
             float sqrTolerance = tolerance * tolerance;
-            float sqrDistanceToTarget = (targetPosition - positions[last]).sqrMagnitude;
-            Vector2 originPosition = positions[0];
+            float sqrDistanceToTarget = math.lengthsq(targetPosition - positions[last]);
+            float2 originPosition = positions[0];
             while (sqrDistanceToTarget > sqrTolerance)
             {
                 Forward(targetPosition, lengths, ref positions);
                 Backward(originPosition, lengths, ref positions);
-                sqrDistanceToTarget = (targetPosition - positions[last]).sqrMagnitude;
+                sqrDistanceToTarget = math.lengthsq(targetPosition - positions[last]);
                 if (++iterations >= solverLimit)
                     break;
             }
+
+            Profiling.Solve.End();
 
             // Return whether positions have changed
             return iterations != 0;
@@ -176,6 +222,20 @@ namespace UnityEngine.U2D.IK
             }
         }
 
+        [BurstCompile]
+        static void Forward(in float2 targetPosition, in NativeArray<float> lengths, ref NativeArray<float2> positions)
+        {
+            int last = positions.Length - 1;
+            positions[last] = targetPosition;
+            for (int i = last - 1; i >= 0; --i)
+            {
+                float2 r = positions[i + 1] - positions[i];
+                float l = lengths[i] / math.length(r);
+                float2 position = (1f - l) * positions[i + 1] + l * positions[i];
+                positions[i] = position;
+            }
+        }
+
         static void Backward(Vector2 originPosition, float[] lengths, ref Vector2[] positions)
         {
             positions[0] = originPosition;
@@ -185,6 +245,20 @@ namespace UnityEngine.U2D.IK
                 Vector2 r = positions[i + 1] - positions[i];
                 float l = lengths[i] / r.magnitude;
                 Vector2 position = (1f - l) * positions[i] + l * positions[i + 1];
+                positions[i + 1] = position;
+            }
+        }
+
+        [BurstCompile]
+        static void Backward(in float2 originPosition, in NativeArray<float> lengths, ref NativeArray<float2> positions)
+        {
+            positions[0] = originPosition;
+            int last = positions.Length - 1;
+            for (int i = 0; i < last; ++i)
+            {
+                float2 r = positions[i + 1] - positions[i];
+                float l = lengths[i] / math.length(r);
+                float2 position = (1f - l) * positions[i] + l * positions[i + 1];
                 positions[i + 1] = position;
             }
         }

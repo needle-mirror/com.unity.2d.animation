@@ -1,10 +1,19 @@
 {
     "name": "Unity.2D.IK.Runtime",
+    "rootNamespace": "",
     "references": [
         "Unity.InternalAPIEngineBridge.001",
-        "Unity.2D.Animation.Runtime"
+        "Unity.2D.Animation.Runtime",
+        "Unity.Burst",
+        "Unity.Mathematics"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
-    "excludePlatforms": []
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

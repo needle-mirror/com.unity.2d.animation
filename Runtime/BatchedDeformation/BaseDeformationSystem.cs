@@ -14,6 +14,7 @@ namespace UnityEngine.U2D.Animation
         protected static class Profiling
         {
             public static readonly ProfilerMarker transformAccessJob = new ProfilerMarker("BaseDeformationSystem.TransformAccessJob");
+            public static readonly ProfilerMarker boneTransformsChangeDetection = new ProfilerMarker("BaseDeformationSystem.BoneTransformsChangeDetection");
             public static readonly ProfilerMarker getSpriteSkinBatchData = new ProfilerMarker("BaseDeformationSystem.GetSpriteSkinBatchData");
             public static readonly ProfilerMarker scheduleJobs = new ProfilerMarker("BaseDeformationSystem.ScheduleJobs");
             public static readonly ProfilerMarker setBatchDeformableBufferAndLocalAABB = new ProfilerMarker("BaseDeformationSystem.SetBatchDeformableBufferAndLocalAABB");
@@ -25,13 +26,25 @@ namespace UnityEngine.U2D.Animation
         protected int m_ObjectId;
 
         protected readonly HashSet<SpriteSkin> m_SpriteSkins = new HashSet<SpriteSkin>();
+
+#if UNITY_INCLUDE_TESTS
+        internal HashSet<SpriteSkin> SpriteSkins => m_SpriteSkins;
+#endif
+
         protected SpriteRenderer[] m_SpriteRenderers = new SpriteRenderer[0];
 
+        // This is a queue of sprite skins which will be added into m_SpriteSkins
+        // at the correct time in batch processing BatchAddSpriteSkins
         readonly HashSet<SpriteSkin> m_SpriteSkinsToAdd = new HashSet<SpriteSkin>();
+
+        // This is a queue of sprite skins which will be removed from m_SpriteSkins
+        // at the correct time in batch processing BatchRemoveSpriteSkins
         readonly HashSet<SpriteSkin> m_SpriteSkinsToRemove = new HashSet<SpriteSkin>();
+
         readonly List<int> m_TransformIdsToRemove = new List<int>();
 
         protected NativeByteArray m_DeformedVerticesBuffer;
+        protected NativeByteArray m_PreviousDeformedVerticesBuffer;
         protected NativeArray<float4x4> m_FinalBoneTransforms;
 
         protected NativeArray<bool> m_IsSpriteSkinActiveForDeform;
@@ -45,6 +58,14 @@ namespace UnityEngine.U2D.Animation
         protected NativeArray<int2> m_BoneLookupData;
         protected NativeArray<PerSkinJobData> m_SkinBatchArray;
 
+        // Indicates whether bone transforms have changed for each SpriteSkin in the current frame.
+        // Set to true if any bone transform changes require the deformation job to run.
+        protected NativeArray<bool> m_HasBoneTransformsChanged;
+
+        // The last frame when deformation occurred for each SpriteSkin.
+        // Used to determine if cached deformation data is still valid or needs to be updated.
+        protected NativeArray<int> m_LastDeformedFrame;
+
         protected TransformAccessJob m_LocalToWorldTransformAccessJob;
         protected TransformAccessJob m_WorldToLocalTransformAccessJob;
 
@@ -52,6 +73,7 @@ namespace UnityEngine.U2D.Animation
 
         internal void RemoveBoneTransforms(SpriteSkin spriteSkin)
         {
+            // if the sprite skin is not in the list, we don't need to remove it
             if (!m_SpriteSkins.Contains(spriteSkin))
                 return;
 
@@ -66,6 +88,7 @@ namespace UnityEngine.U2D.Animation
 
         internal void AddBoneTransforms(SpriteSkin spriteSkin)
         {
+            // if we are not handling this spriteskin, we don't need to add it to the job.
             if (!m_SpriteSkins.Contains(spriteSkin))
                 return;
 
@@ -82,21 +105,19 @@ namespace UnityEngine.U2D.Animation
 
         internal virtual void UpdateMaterial(SpriteSkin spriteSkin) { }
 
+        // This is called when the SpriteSkin is created or enabled
         internal virtual bool AddSpriteSkin(SpriteSkin spriteSkin)
         {
-            if (!m_SpriteSkins.Contains(spriteSkin) && !m_SpriteSkinsToAdd.Contains(spriteSkin))
+            // if we do not have the sprite skin and it is already in the m_SpriteSkinsToAdd list, we don't need to add it again
+            if (!m_SpriteSkins.Contains(spriteSkin) && m_SpriteSkinsToAdd.Add(spriteSkin))
             {
-                m_SpriteSkinsToAdd.Add(spriteSkin);
                 return true;
             }
+            // if the skin is scheduled to be removed, cancel that.
+            if (!m_SpriteSkinsToRemove.Contains(spriteSkin)) return false;
+            m_SpriteSkinsToAdd.Add(spriteSkin);
+            return true;
 
-            if (m_SpriteSkinsToRemove.Contains(spriteSkin))
-            {
-                m_SpriteSkinsToAdd.Add(spriteSkin);
-                return true;
-            }
-
-            return false;
         }
 
         internal void CopyToSpriteSkinData(SpriteSkin spriteSkin)
@@ -115,20 +136,23 @@ namespace UnityEngine.U2D.Animation
             m_SpriteRenderers[dataIndex] = spriteSkin.spriteRenderer;
         }
 
+        /// This is called when the SpriteSkin is destroyed or disabled
         internal void RemoveSpriteSkin(SpriteSkin spriteSkin)
         {
             if (spriteSkin == null)
                 return;
 
-            if (m_SpriteSkins.Contains(spriteSkin) && !m_SpriteSkinsToRemove.Contains(spriteSkin))
+            // if we are currently handling the spritekin and we have not yet removed it, mark it as being removed
+            // by adding it to the m_SpriteSkinsToRemove list
+            if (m_SpriteSkins.Contains(spriteSkin) && m_SpriteSkinsToRemove.Add(spriteSkin))
             {
-                m_SpriteSkinsToRemove.Add(spriteSkin);
+                // records the transform id to remove
                 m_TransformIdsToRemove.Add(spriteSkin.transform.GetInstanceID());
             }
+            // if is scheduled for removal, also remove it from the m_SpriteSkinsToAdd list
+            m_SpriteSkinsToAdd.Remove(spriteSkin);
 
-            if (m_SpriteSkinsToAdd.Contains(spriteSkin))
-                m_SpriteSkinsToAdd.Remove(spriteSkin);
-
+            // remove bone transforms from the transform access job
             RemoveBoneTransforms(spriteSkin);
         }
 
@@ -141,6 +165,7 @@ namespace UnityEngine.U2D.Animation
         {
             m_ObjectId = objectId;
 
+            // These two jobs have the same type, but can be configured to return localToWorld or worldToLocal matrices
             if (m_LocalToWorldTransformAccessJob == null)
                 m_LocalToWorldTransformAccessJob = new TransformAccessJob();
             if (m_WorldToLocalTransformAccessJob == null)
@@ -174,6 +199,9 @@ namespace UnityEngine.U2D.Animation
             m_BoundsData = new NativeArray<Bounds>(startingCount, Allocator.Persistent);
             m_Buffers = new NativeArray<IntPtr>(startingCount, Allocator.Persistent);
             m_BufferSizes = new NativeArray<int>(startingCount, Allocator.Persistent);
+
+            m_HasBoneTransformsChanged = new NativeArray<bool>(startingCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            m_LastDeformedFrame = new NativeArray<int>(startingCount, Allocator.Persistent);
         }
 
         protected void BatchRemoveSpriteSkins()
@@ -225,13 +253,12 @@ namespace UnityEngine.U2D.Animation
 
             foreach (SpriteSkin spriteSkin in m_SpriteSkinsToAdd)
             {
-                if (m_SpriteSkins.Contains(spriteSkin))
+                if (!m_SpriteSkins.Add(spriteSkin))
                 {
                     Debug.LogError($"Skin already exists! Name={spriteSkin.name}");
                     continue;
                 }
 
-                m_SpriteSkins.Add(spriteSkin);
                 UpdateMaterial(spriteSkin);
                 int count = m_SpriteSkins.Count;
 
@@ -254,7 +281,28 @@ namespace UnityEngine.U2D.Animation
             NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_Buffers, updatedCount);
             NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BufferSizes, updatedCount);
             NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_SpriteSkinData, updatedCount);
+
+            // Bounds may be reusable if index is unchanged.
             NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoundsData, updatedCount);
+
+            // No need to copy or initialize values as they are completely overwritten each frame by the job
+            NativeArrayHelpers.ResizeIfNeeded(ref m_HasBoneTransformsChanged, updatedCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+
+            // Must be initialized to 0, because 0 means "not deformed yet"
+            NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_LastDeformedFrame, updatedCount);
+        }
+
+        protected virtual void ResizeBuffers(int vertexBufferSize, in PerSkinJobData skinBatch)
+        {
+            if (m_DeformedVerticesBuffer != null)
+                m_PreviousDeformedVerticesBuffer = m_DeformedVerticesBuffer;
+            else
+                m_PreviousDeformedVerticesBuffer = BufferManager.instance.GetBuffer(m_ObjectId, vertexBufferSize);
+
+            m_DeformedVerticesBuffer = BufferManager.instance.GetBuffer(m_ObjectId, vertexBufferSize);
+
+            NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, skinBatch.bindPosesIndex.y);
+            NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, skinBatch.bindPosesIndex.y);
         }
 
         internal virtual void Cleanup()
@@ -273,6 +321,8 @@ namespace UnityEngine.U2D.Animation
             m_SkinBatchArray.DisposeIfCreated();
             m_FinalBoneTransforms.DisposeIfCreated();
             m_BoundsData.DisposeIfCreated();
+            m_HasBoneTransformsChanged.DisposeIfCreated();
+            m_LastDeformedFrame.DisposeIfCreated();
 
             m_LocalToWorldTransformAccessJob.Destroy();
             m_WorldToLocalTransformAccessJob.Destroy();
@@ -286,8 +336,21 @@ namespace UnityEngine.U2D.Animation
 
             using (Profiling.transformAccessJob.Auto())
             {
-                localToWorldJobHandle = m_LocalToWorldTransformAccessJob.StartLocalToWorldJob();
+                localToWorldJobHandle = m_LocalToWorldTransformAccessJob.StartLocalToWorldAndChangeDetectionJob();
                 worldToLocalJobHandle = m_WorldToLocalTransformAccessJob.StartWorldToLocalJob();
+            }
+
+            using (Profiling.boneTransformsChangeDetection.Auto())
+            {
+                BoneTransformsChangeDetectionJob boneTransformChangeDetectionJob = new BoneTransformsChangeDetectionJob
+                {
+                    transformChanged = m_LocalToWorldTransformAccessJob.transformChanged,
+                    boneTransformIndex = m_LocalToWorldTransformAccessJob.transformData,
+                    spriteSkinData = m_SpriteSkinData,
+                    hasBoneTransformsChanged = m_HasBoneTransformsChanged
+                };
+                // Use 64 as the batch size to avoid false sharing
+                boneTransformChangeDetectionJob.Schedule(m_SpriteSkinData.Length, 64, localToWorldJobHandle).Complete();
             }
 
             using (Profiling.getSpriteSkinBatchData.Auto())
@@ -348,7 +411,7 @@ namespace UnityEngine.U2D.Animation
             return jobHandle;
         }
 
-        protected JobHandle ScheduleSkinDeformBatchedJob(JobHandle jobHandle, PerSkinJobData skinBatch, int spriteCount)
+        protected JobHandle ScheduleSkinDeformBatchedJob(JobHandle jobHandle, PerSkinJobData skinBatch, int spriteCount, int frameCount)
         {
             SkinDeformBatchedJob skinJobBatched = new SkinDeformBatchedJob
             {
@@ -356,8 +419,12 @@ namespace UnityEngine.U2D.Animation
                 perSkinJobData = m_PerSkinJobData,
                 finalBoneTransforms = m_FinalBoneTransforms,
                 vertices = m_DeformedVerticesBuffer.array,
+                previousVertices = m_PreviousDeformedVerticesBuffer.array,
                 isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
-                bounds = m_BoundsData
+                hasBoneTransformsChanged = m_HasBoneTransformsChanged,
+                bounds = m_BoundsData,
+                lastDeformedFrame = m_LastDeformedFrame,
+                frameCount = frameCount
             };
             return skinJobBatched.Schedule(spriteCount, 1, jobHandle);
         }
@@ -388,6 +455,11 @@ namespace UnityEngine.U2D.Animation
         internal bool IsSpriteSkinActiveForDeformation(SpriteSkin spriteSkin)
         {
             return m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
+        }
+
+        internal int GetLastDeformedFrame(SpriteSkin spriteSkin)
+        {
+            return m_LastDeformedFrame[spriteSkin.dataIndex];
         }
 
         internal unsafe NativeArray<byte> GetDeformableBufferForSpriteSkin(SpriteSkin spriteSkin)

@@ -126,7 +126,9 @@ namespace UnityEngine.U2D.Animation
             if (s_Instance == null)
                 s_Instance = this;
 
-            needDoubleBuffering = SystemInfo.renderingThreadingMode != RenderingThreadingMode.Direct;
+            // Always use double buffering here to ensure both the current and previous frame's vertex data are available.
+            // This allows deformation skipping and cache usage, even if the buffer layout changes between frames.
+            needDoubleBuffering = true;
 #if UNITY_EDITOR
             EditorApplication.update += Update;
 #else

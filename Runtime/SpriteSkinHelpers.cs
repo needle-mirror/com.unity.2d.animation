@@ -5,6 +5,10 @@ namespace UnityEngine.U2D.Animation
 {
     internal static class SpriteSkinHelpers
     {
+        // Caches the hierarchy of transforms under the root bone.
+        // The cache stores all children of a bone, and stores their full path name and transform.
+        // The key of the cache is the hashcode of the transform name.
+        // Note: This cache is further processed in SpriteSkin.CacheHierarchy
         public static void CacheChildren(Transform current, Dictionary<int, List<SpriteSkin.TransformData>> cache)
         {
             int nameHash = current.name.GetHashCode();
@@ -13,6 +17,8 @@ namespace UnityEngine.U2D.Animation
                 fullName = string.Empty,
                 transform = current
             };
+            // Have we already cached this transform (or a transform name with the same hashcode)?
+            // This will happen when the transform name is not unique, which will be often the case.
             if (cache.TryGetValue(nameHash, out List<SpriteSkin.TransformData> value))
                 value.Add(entry);
             else
@@ -22,6 +28,7 @@ namespace UnityEngine.U2D.Animation
                 CacheChildren(current.GetChild(i), cache);
         }
 
+        // This method generates a string path from the root bone to the child transform.
         public static string GenerateTransformPath(Transform rootBone, Transform child)
         {
             string path = child.name;
@@ -37,7 +44,11 @@ namespace UnityEngine.U2D.Animation
             return path;
         }
 
-        public static bool GetSpriteBonesTransforms(SpriteSkin spriteSkin, out Transform[] outTransform)
+        // This method is used during runtime to map sprite bones to transforms.
+        // It uses a guid on the sprite bone to find the transform using a linear search.
+        // If it cannot find the transform using the guid, it will fall back to using the path of the transform
+        // and use the hierarchyCache.
+        public static bool GetSpriteBonesTransforms(SpriteSkin spriteSkin, out Transform[] outTransform, bool forceCreateCache = false)
         {
             Transform rootBone = spriteSkin.rootBone;
             SpriteBone[] spriteBones = spriteSkin.sprite.GetBones();
@@ -72,7 +83,7 @@ namespace UnityEngine.U2D.Animation
 
             Dictionary<int, List<SpriteSkin.TransformData>> hierarchyCache = spriteSkin.hierarchyCache;
             if (hierarchyCache.Count == 0)
-                spriteSkin.CacheHierarchy();
+                spriteSkin.CacheHierarchy(forceCreateCache);
 
             // If unable to successfully map via guid, fall back to path
             return GetSpriteBonesTransformFromPath(spriteBones, hierarchyCache, outTransform);

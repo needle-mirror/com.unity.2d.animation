@@ -168,9 +168,8 @@ namespace UnityEngine.U2D.Animation
             Profiling.scheduleJobs.Begin();
             jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle, jobHandle);
             jobHandle = ScheduleBoneJobBatched(jobHandle, skinBatch);
-            m_DeformJobHandle = ScheduleSkinDeformBatchedJob(jobHandle, skinBatch, batchCount);
-            jobHandle = ScheduleCopySpriteRendererBuffersJob(m_DeformJobHandle, batchCount);
-            jobHandle = ScheduleCopySpriteRendererBoneTransformBuffersJob(jobHandle, batchCount);
+            m_DeformJobHandle = ScheduleSkinDeformBatchedJob(jobHandle, skinBatch, batchCount, Time.frameCount);
+            jobHandle = ScheduleCopySpriteRendererBoneTransformBuffersJob(m_DeformJobHandle, batchCount);
             Profiling.scheduleJobs.End();
 
             JobHandle.ScheduleBatchedJobs();
@@ -183,22 +182,16 @@ namespace UnityEngine.U2D.Animation
 
             SetComputeBuffer();
 
-            foreach (SpriteSkin spriteSkin in m_SpriteSkins)
-            {
-                bool didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
-                spriteSkin.PostDeform(didDeform);
-            }
+            // NOTE: In GPU deformation system, SpriteSkin.PostDeform() does nothing (no cache or state update needed).
 
             DeactivateDeformableBuffers();
         }
 
-        void ResizeBuffers(int vertexBufferSize, in PerSkinJobData skinBatch)
+        protected override void ResizeBuffers(int vertexBufferSize, in PerSkinJobData skinBatch)
         {
-            int noOfBones = skinBatch.bindPosesIndex.y;
+            base.ResizeBuffers(vertexBufferSize, in skinBatch);
 
-            m_DeformedVerticesBuffer = BufferManager.instance.GetBuffer(m_ObjectId, vertexBufferSize);
-            NativeArrayHelpers.ResizeIfNeeded(ref m_FinalBoneTransforms, noOfBones);
-            NativeArrayHelpers.ResizeIfNeeded(ref m_BoneLookupData, noOfBones);
+            int noOfBones = skinBatch.bindPosesIndex.y;
 
             if (!IsComputeBufferValid(m_BoneTransformsComputeBuffer) || m_BoneTransformsComputeBuffer.count < noOfBones)
                 CreateComputeBuffer(noOfBones);

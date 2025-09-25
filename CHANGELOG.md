@@ -1,5 +1,18 @@
 # Changelog
 
+## [13.0.1] - 2025-09-25
+### Changed
+- Improved the performance when 2D IK Gizmos are displayed.
+- Optimize batch deformation by skipping when neither bones nor sprite data have changed.
+- Reduce memory allocation when adding and removing SpriteSkin from a deformation system.
+- Improve FABRIK performance by Burst-compiling.
+- Improve CCD performance by Burst-compiling.
+- Allow pasting sprite data between sources and destinations with different sprite counts.
+
+### Fixed
+- Fix unresponsive scrolling in Sprite Library Editor grid view after adding multiple labels. (DANB-1091)
+- Restore bone references in SpriteSkin correctly when switching between sprites with and without bone settings, even if AutoRebind is disabled. (DANB-1127)
+
 ## [13.0.0] - 2025-07-17
 
 ### Changed
