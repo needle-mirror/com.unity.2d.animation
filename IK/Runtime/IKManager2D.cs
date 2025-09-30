@@ -214,7 +214,7 @@ namespace UnityEngine.U2D.IK
                     {
                         Transform boneTransform = chain.transforms[b];
                         if (boneTransform != null)
-                            transformCache.Add(boneTransform.GetInstanceID());
+                            transformCache.Add(boneTransform.GetEntityId());
                     }
                 }
             }

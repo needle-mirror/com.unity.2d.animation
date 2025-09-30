@@ -10,7 +10,8 @@
         "Unity.2D.Sprite.Editor",
         "Unity.Mathematics",
         "Unity.Burst",
-        "Unity.Collections"
+        "Unity.Collections",
+        "Unity.2D.Triangulation.Runtime"
     ],
     "includePlatforms": [
         "Editor"

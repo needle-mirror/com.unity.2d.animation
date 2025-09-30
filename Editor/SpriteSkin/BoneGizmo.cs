@@ -258,7 +258,7 @@ namespace UnityEditor.U2D.Animation
                 if (bone != hotBone)
                 {
                     Vector3 bonePosition = bone.position;
-                    m_View.LayoutBone(bone.GetInstanceID(), bonePosition, bonePosition + bone.GetScaledRight() * length, bone.forward, bone.up, bone.right, false);
+                    m_View.LayoutBone(bone.GetEntityId(), bonePosition, bonePosition + bone.GetScaledRight() * length, bone.forward, bone.up, bone.right, false);
                 }
             }
         }

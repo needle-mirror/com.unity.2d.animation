@@ -24,12 +24,14 @@ namespace UnityEditor.U2D.Animation
             public static readonly string invalidBoneWeights = L10n.Tr("Bone weights are invalid");
             public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update", "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
             public static readonly GUIContent autoRebind = new GUIContent("Auto Rebind", "When the Sprite in SpriteRenderer is changed, SpriteSkin will try to look for the Transforms that is needed for the Sprite using the Root Bone Tranform as parent.");
+            public static readonly GUIContent boundsMode = new GUIContent("Bounds Mode", "Mode used for calculating bounds for culling. Vertex-based provides accurate culling for both CPU and GPU skinning. Bone-based provides aggressive culling and is most beneficial with GPU skinning.");
         }
 
         SerializedProperty m_RootBoneProperty;
         SerializedProperty m_BoneTransformsProperty;
         SerializedProperty m_AlwaysUpdateProperty;
         SerializedProperty m_AutoRebindProperty;
+        SerializedProperty m_BoundsModeProperty;
 
         SpriteSkin[] m_SpriteSkins;
         Sprite[] m_CurrentSprites;
@@ -57,6 +59,7 @@ namespace UnityEditor.U2D.Animation
             m_BoneTransformsProperty = serializedObject.FindProperty("m_BoneTransforms");
             m_AlwaysUpdateProperty = serializedObject.FindProperty("m_AlwaysUpdate");
             m_AutoRebindProperty = serializedObject.FindProperty("m_AutoRebind");
+            m_BoundsModeProperty = serializedObject.FindProperty("m_BoundsMode");
 
             m_CurrentSprites = new Sprite[m_SpriteSkins.Length];
 
@@ -96,6 +99,8 @@ namespace UnityEditor.U2D.Animation
             {
                 m_NeedsRebind = true;
             }
+
+            DoBoundsModeField();
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(m_RootBoneProperty, Contents.rootBoneLabel);
@@ -383,6 +388,51 @@ namespace UnityEditor.U2D.Animation
                     text = $"{skin.name}:{text}";
 
                 EditorGUILayout.HelpBox(text, MessageType.Warning);
+            }
+        }
+
+        void DoBoundsModeField()
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(m_BoundsModeProperty, Contents.boundsMode);
+
+            // Show info message if bone-based bounds is selected with CPU skinning
+            if (m_BoundsModeProperty.enumValueIndex == (int)BoundsMode.BoneBased)
+            {
+                bool hasCpuSkinnedSprites = false;
+                foreach (SpriteSkin skin in m_SpriteSkins)
+                {
+                    if (skin != null && skin.currentDeformationMethod == DeformationMethods.Cpu)
+                    {
+                        hasCpuSkinnedSprites = true;
+                        break;
+                    }
+                }
+
+                if (hasCpuSkinnedSprites)
+                    EditorGUILayout.HelpBox("Vertex-based bounds mode is accurate and efficient with CPU skinning.", MessageType.Info);
+            }
+            // Show info message if vertex-based bounds is selected with GPU skinning
+            else if (m_BoundsModeProperty.enumValueIndex == (int)BoundsMode.VertexBased)
+            {
+                bool hasGpuSkinnedSprites = false;
+                foreach (SpriteSkin skin in m_SpriteSkins)
+                {
+                    if (skin != null && skin.currentDeformationMethod == DeformationMethods.Gpu)
+                    {
+                        hasGpuSkinnedSprites = true;
+                        break;
+                    }
+                }
+
+                if (hasGpuSkinnedSprites)
+                    EditorGUILayout.HelpBox("Bone-based bounds mode can improve performance with GPU skinning.", MessageType.Info);
+            }
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                // Apply changes to all selected SpriteSkins
+                serializedObject.ApplyModifiedProperties();
             }
         }
     }

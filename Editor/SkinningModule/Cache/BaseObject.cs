@@ -17,7 +17,7 @@ namespace UnityEditor.U2D.Animation
             {
                 var obj = o as BaseObject;
                 obj.OnDestroy();
-                s_Objects.Remove(obj.GetInstanceID());
+                s_Objects.Remove(obj.GetEntityId());
             }
             else if (o is UnityEngine.Object)
             {
@@ -50,7 +50,7 @@ namespace UnityEditor.U2D.Animation
         internal virtual void OnEnable() { }
         internal virtual void OnDestroy() { }
 
-        public int GetInstanceID()
+        public int GetEntityId()
         {
             return m_InstanceID;
         }

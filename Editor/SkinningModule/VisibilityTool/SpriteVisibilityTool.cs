@@ -229,7 +229,7 @@ namespace UnityEditor.U2D.Animation
             {
                 if (groups[j].parentGroup == level)
                 {
-                    TreeViewItemBase<ISpriteVisibilityItem> item = new TreeViewItemBase<ISpriteVisibilityItem>(groups[j].GetInstanceID(), depth, groups[j].name, new SpriteVisibilityGroupItem()
+                    TreeViewItemBase<ISpriteVisibilityItem> item = new TreeViewItemBase<ISpriteVisibilityItem>(groups[j].GetEntityId(), depth, groups[j].name, new SpriteVisibilityGroupItem()
                     {
                         group = groups[j],
                     });
@@ -266,7 +266,7 @@ namespace UnityEditor.U2D.Animation
         private TreeViewItem CreateTreeViewItem(CharacterPartCache part, CharacterGroupCache[] groups, int depth)
         {
             string name = part.sprite.name;
-            return new TreeViewItemBase<ISpriteVisibilityItem>(part.sprite.GetInstanceID(), depth, name,
+            return new TreeViewItemBase<ISpriteVisibilityItem>(part.sprite.GetEntityId(), depth, name,
                 new SpriteVisibilitySpriteItem()
                 {
                     sprite = part,
@@ -311,7 +311,7 @@ namespace UnityEditor.U2D.Animation
                 TreeViewItemBase<ISpriteVisibilityItem> selected = rows.FirstOrDefault(x =>
                 {
                     SpriteVisibilitySpriteItem item = ((TreeViewItemBase<ISpriteVisibilityItem>)x).customData as SpriteVisibilitySpriteItem;
-                    if (item != null && item.sprite.sprite.GetInstanceID() == selectedIds[0])
+                    if (item != null && item.sprite.sprite.GetEntityId() == selectedIds[0])
                         return true;
                     return false;
                 }) as TreeViewItemBase<ISpriteVisibilityItem>;
@@ -331,7 +331,7 @@ namespace UnityEditor.U2D.Animation
         public int GetTreeViewSelectionID(SpriteCache sprite)
         {
             if (sprite != null)
-                return sprite.GetInstanceID();
+                return sprite.GetEntityId();
             return 0;
         }
     }

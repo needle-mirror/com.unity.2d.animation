@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
+using UnityEngine.Assertions;
 using UnityEngine.Rendering;
 using UnityEngine.Scripting;
 using UnityEngine.Scripting.APIUpdating;
@@ -92,6 +93,23 @@ namespace UnityEngine.U2D.Animation
     }
 
     /// <summary>
+    /// The mode used for calculating bounds for SpriteSkin.
+    /// </summary>
+    public enum BoundsMode
+    {
+        /// <summary>
+        /// Uses vertex-based bounds calculation for accurate culling. Works with both CPU and GPU skinning.
+        /// </summary>
+        VertexBased,
+
+        /// <summary>
+        /// Uses bone-based bounds calculation for aggressive culling. Most beneficial with GPU skinning.
+        /// </summary>
+        BoneBased
+    }
+
+    /// <summary>
+    /// Deforms the Sprite that is currently assigned to the SpriteRenderer in the same GameObject.
     /// Acts as a bridge to manage and coordinate deformation-related data for the Sprite
     /// currently assigned to the SpriteRenderer in the same GameObject
     /// </summary>
@@ -128,6 +146,7 @@ namespace UnityEngine.U2D.Animation
         [SerializeField] Bounds m_Bounds;
         [SerializeField] bool m_AlwaysUpdate = true;
         [SerializeField] bool m_AutoRebind = false;
+        [SerializeField] BoundsMode m_BoundsMode = BoundsMode.VertexBased;
 
 #if UNITY_EDITOR
         // The deformed m_SpriteVertices stores all 'HOT' channels only in single-stream and essentially depends on Sprite Asset data.
@@ -167,6 +186,9 @@ namespace UnityEngine.U2D.Animation
         NativeArray<Vector3> m_DeformedOutlineVertexCache;
         Sprite m_Sprite;
 
+        NativeArray<Bounds> m_BoneBounds;
+        internal NativeArray<Bounds> boneBounds => m_BoneBounds;
+
         internal NativeArray<int> boneTransformId => m_BoneTransformId;
         internal int rootBoneTransformId => m_RootBoneTransformId;
         internal DeformationMethods currentDeformationMethod { get; private set; }
@@ -180,13 +202,11 @@ namespace UnityEngine.U2D.Animation
         internal void RegisterOutlineDependency()
         {
             _outlineDependencyCount++;
-            g_OutlineDataIsAlwaysRequired = false; // TODO: remove this when URP implements RegisterOutlineDependency API
         }
 
         internal void UnregisterOutlineDependency() => _outlineDependencyCount = _outlineDependencyCount > 0 ? _outlineDependencyCount - 1 : 0;
 
-        private static bool g_OutlineDataIsAlwaysRequired = true; // TODO: remove this when URP implements RegisterOutlineDependency API
-        internal bool isOutlineDataRequired => _outlineDependencyCount > 0 || g_OutlineDataIsAlwaysRequired;
+        internal bool isOutlineDataRequired => _outlineDependencyCount > 0;
 
 #if ENABLE_URP
         /// <summary>
@@ -278,6 +298,25 @@ namespace UnityEngine.U2D.Animation
                     hierarchyCache.Clear();
                     CacheValidFlag();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the bounds calculation mode used for culling.
+        /// VertexBased provides accurate culling for both CPU and GPU skinning.
+        /// BoneBased provides aggressive culling and is most beneficial with GPU skinning.
+        /// </summary>
+        public BoundsMode boundsMode
+        {
+            get => m_BoundsMode;
+            set
+            {
+                if (m_BoundsMode == value)
+                    return;
+
+                m_BoundsMode = value;
+                if (isActiveAndEnabled)
+                    UpdateBoneBounds();
             }
         }
 
@@ -409,13 +448,13 @@ namespace UnityEngine.U2D.Animation
         {
             m_SpriteRenderer = GetComponent<SpriteRenderer>();
             m_Sprite = m_SpriteRenderer.sprite;
-            m_SpriteId = m_Sprite != null ? m_Sprite.GetInstanceID() : 0;
+            m_SpriteId = m_Sprite != null ? m_Sprite.GetEntityId() : 0;
         }
 
         void OnEnable()
         {
             Awake();
-            m_TransformId = gameObject.transform.GetInstanceID();
+            m_TransformId = gameObject.transform.GetEntityId();
 #if UNITY_EDITOR
             m_TransformsHash = 0;
 #endif
@@ -433,14 +472,19 @@ namespace UnityEngine.U2D.Animation
             SpriteSkinContainer.instance.AddSpriteSkin(this);
 
             m_SpriteRenderer.RegisterSpriteChangeCallback(OnSpriteChanged);
+
+            UpdateBoneBounds();
         }
 
         void OnDisable()
         {
             m_SpriteRenderer.UnregisterSpriteChangeCallback(OnSpriteChanged);
 
+            m_BoneBounds.DisposeIfCreated();
+            m_BoneBounds = default;
+
             DeactivateSkinning();
-            BufferManager.instance.ReturnBuffer(GetInstanceID());
+            BufferManager.instance.ReturnBuffer(GetEntityId());
             m_DeformationSystem?.RemoveSpriteSkin(this);
             m_DeformationSystem = null;
             SpriteSkinContainer.instance.RemoveSpriteSkin(this);
@@ -457,10 +501,27 @@ namespace UnityEngine.U2D.Animation
             CacheValidFlag();
         }
 
+        void UpdateBoneBounds()
+        {
+            // Only calculate bone AABBs when using bone-based method
+            if (m_BoundsMode == BoundsMode.BoneBased)
+            {
+                m_BoneBounds.DisposeIfCreated();
+                m_BoneBounds = SpriteSkinBoneBoundsUtility.CalculateBoneBounds(sprite);
+            }
+            else
+            {
+                // Dispose bone AABBs when using vertex-based method
+                m_BoneBounds.DisposeIfCreated();
+                m_BoneBounds = default;
+            }
+        }
+
         void OnSpriteChanged(SpriteRenderer updatedSpriteRenderer)
         {
             m_Sprite = updatedSpriteRenderer.sprite;
-            m_SpriteId = m_Sprite != null ? m_Sprite.GetInstanceID() : 0;
+            m_SpriteId = m_Sprite != null ? m_Sprite.GetEntityId() : 0;
+            UpdateBoneBounds();
         }
 
         void CacheBoneTransformIds()
@@ -479,12 +540,12 @@ namespace UnityEngine.U2D.Animation
             else
                 m_BoneTransformId = new NativeArray<int>(boneCount, Allocator.Persistent);
 
-            m_RootBoneTransformId = rootBone != null ? rootBone.GetInstanceID() : 0;
+            m_RootBoneTransformId = rootBone != null ? rootBone.GetEntityId() : 0;
             for (int i = 0, j = 0; i < boneTransforms?.Length; ++i)
             {
                 if (boneTransforms[i] != null)
                 {
-                    m_BoneTransformId[j] = boneTransforms[i].GetInstanceID();
+                    m_BoneTransformId[j] = boneTransforms[i].GetEntityId();
                     ++j;
                 }
             }
@@ -493,6 +554,7 @@ namespace UnityEngine.U2D.Animation
         void OnBoneTransformChanged()
         {
             RefreshBoneTransforms();
+            UpdateBoneBounds();
             m_DeformationSystem?.CopyToSpriteSkinData(this);
             SpriteSkinContainer.instance.BoneTransformsChanged(this);
         }
@@ -526,6 +588,12 @@ namespace UnityEngine.U2D.Animation
         internal void OnEditorEnable()
         {
             Awake();
+        }
+
+        void OnValidate()
+        {
+            if (Application.isPlaying && isActiveAndEnabled)
+                UpdateBoneBounds();
         }
 #endif
 
@@ -589,7 +657,7 @@ namespace UnityEngine.U2D.Animation
                 m_CurrentDeformVerticesLength = 0;
             }
 
-            m_DeformedVertices = BufferManager.instance.GetBuffer(GetInstanceID(), m_CurrentDeformVerticesLength);
+            m_DeformedVertices = BufferManager.instance.GetBuffer(GetEntityId(), m_CurrentDeformVerticesLength);
             return m_DeformedVertices;
         }
 #endif
@@ -835,7 +903,7 @@ namespace UnityEngine.U2D.Animation
             }
             else
             {
-                m_TextureId = sprite.texture != null ? sprite.texture.GetInstanceID() : 0;
+                m_TextureId = sprite.texture != null ? sprite.texture.GetEntityId() : 0;
                 bool cacheFullMesh = currentDeformationMethod == DeformationMethods.Cpu || forceCpuDeformation;
                 if (cacheFullMesh)
                 {
@@ -949,6 +1017,17 @@ namespace UnityEngine.U2D.Animation
             data.transformId = m_TransformId;
             data.boneTransformId = new NativeCustomSlice<int>(m_BoneTransformId);
 
+            if (m_BoundsMode == BoundsMode.BoneBased)
+            {
+                Assert.AreEqual(
+                    m_BoneTransformId.Length, m_BoneBounds.Length,
+                    "boneTransformId.Length and bones.Length must be equal.");
+
+                data.boneBounds = new NativeCustomSlice<Bounds>(m_BoneBounds);
+            }
+            else
+                data.boneBounds = NativeCustomSlice<Bounds>.Default();
+
             // Reset deformVerticesStartPos to -1 because CopyToSpriteSkinData is called when the sprite or bone structure changes.
             // This invalidates any previous frame cache, ensuring that deformation will be recalculated for the new configuration.
             data.deformVerticesStartPos = -1;
@@ -956,7 +1035,7 @@ namespace UnityEngine.U2D.Animation
 
         internal bool NeedToUpdateDeformationCache()
         {
-            int newTextureId = sprite.texture != null ? sprite.texture.GetInstanceID() : 0;
+            int newTextureId = sprite.texture != null ? sprite.texture.GetEntityId() : 0;
             bool needUpdate = newTextureId != m_TextureId;
             if (needUpdate)
             {

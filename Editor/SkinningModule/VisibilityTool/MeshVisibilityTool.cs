@@ -230,7 +230,7 @@ namespace UnityEditor.U2D.Animation
 
         private static TreeViewItem CreateTreeViewItem(SpriteCache part)
         {
-            return new TreeViewItemBase<SpriteCache>(part.GetInstanceID(), -1, part.name, part);
+            return new TreeViewItemBase<SpriteCache>(part.GetEntityId(), -1, part.name, part);
         }
 
         private void AddTreeViewItem(IList<TreeViewItem> rows, SpriteCache part)
@@ -293,7 +293,7 @@ namespace UnityEditor.U2D.Animation
             SpriteCache newSelected = null;
             if (selectedIds.Count > 0)
             {
-                TreeViewItemBase<SpriteCache> selected = GetRows().FirstOrDefault(x => ((TreeViewItemBase<SpriteCache>)x).customData.GetInstanceID() == selectedIds[0]) as TreeViewItemBase<SpriteCache>;
+                TreeViewItemBase<SpriteCache> selected = GetRows().FirstOrDefault(x => ((TreeViewItemBase<SpriteCache>)x).customData.GetEntityId() == selectedIds[0]) as TreeViewItemBase<SpriteCache>;
                 if (selected != null)
                     newSelected = selected.customData;
             }
@@ -314,7 +314,7 @@ namespace UnityEditor.U2D.Animation
                 TreeViewItemBase<SpriteCache> r = (TreeViewItemBase<SpriteCache>)rows[i];
                 if (r.customData == sprite)
                 {
-                    SetSelection(new[] { r.customData.GetInstanceID() }, TreeViewSelectionOptions.RevealAndFrame);
+                    SetSelection(new int[] { r.customData.GetEntityId() }, TreeViewSelectionOptions.RevealAndFrame);
                     break;
                 }
             }

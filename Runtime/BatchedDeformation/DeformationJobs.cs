@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -33,6 +34,7 @@ namespace UnityEngine.U2D.Animation
         public int previousDeformVerticesStartPos;
         public int transformId;
         public NativeCustomSlice<int> boneTransformId;
+        public NativeCustomSlice<Bounds> boneBounds;
     }
 
     [BurstCompile]
@@ -92,8 +94,23 @@ namespace UnityEngine.U2D.Animation
         }
     }
 
+    internal interface IDeformationMode
+    {
+        bool ShouldSkipVertexDeformation(in SpriteSkinData spriteSkin, bool isOutlineDataRequired);
+    }
+
+    internal struct CpuDeformationMode : IDeformationMode
+    {
+        public bool ShouldSkipVertexDeformation(in SpriteSkinData spriteSkin, bool isOutlineDataRequired) => false;
+    }
+
+    internal struct GpuDeformationMode : IDeformationMode
+    {
+        public bool ShouldSkipVertexDeformation(in SpriteSkinData spriteSkin, bool isOutlineDataRequired) => spriteSkin.boneBounds.Length > 0 && !isOutlineDataRequired;
+    }
+
     [BurstCompile]
-    internal struct SkinDeformBatchedJob : IJobParallelFor
+    internal struct SkinDeformBatchedJob<T> : IJobParallelFor where T : struct, IDeformationMode
     {
         public NativeSlice<byte> vertices;
         public NativeSlice<byte> previousVertices;
@@ -106,6 +123,8 @@ namespace UnityEngine.U2D.Animation
         public NativeArray<float4x4> finalBoneTransforms;
         [ReadOnly]
         public NativeArray<bool> isSpriteSkinValidForDeformArray;
+        [ReadOnly]
+        public NativeArray<bool> isOutlineDataRequiredArray;
         [ReadOnly]
         public NativeArray<bool> hasBoneTransformsChanged;
 
@@ -166,6 +185,47 @@ namespace UnityEngine.U2D.Animation
             // Deformation is performed, so record the frame
             lastDeformedFrame[spriteIndex] = frameCount;
 
+            float3 min = float.MaxValue;
+            float3 max = float.MinValue;
+
+            // If boneBounds.Length > 0, bounds calculation is handled here
+            if (spriteSkin.boneBounds.Length > 0)
+            {
+                int startIdx = perSkinData.bindPosesIndex.x;
+
+                // Transform each bone bounds using RotateExtents algorithm (SkinnedMeshRenderer approach)
+                for (int boneIndex = 0; boneIndex < spriteSkin.boneBounds.Length; ++boneIndex)
+                {
+                    Bounds bounds = spriteSkin.boneBounds[boneIndex];
+
+                    int finalBoneTransformIdx = perSkinData.bindPosesIndex.x + boneIndex;
+                    float4x4 finalBoneTransform = finalBoneTransforms[finalBoneTransformIdx];
+
+                    // Multiply by the inverse of the bind pose to get the correct bone local to SpriteSkin local transform
+                    float4x4 boneToSpriteSkinLocal = math.mul(finalBoneTransform, math.inverse(spriteSkin.bindPoses[boneIndex]));
+
+                    // Apply SkinnedMeshRenderer's RotateExtents algorithm for efficient AABB transformation
+                    // This preserves axis-alignment in the target coordinate system
+                    float3 rotatedExtents = RotateExtents(bounds.extents, boneToSpriteSkinLocal);
+                    float3 transformedCenter = math.transform(boneToSpriteSkinLocal, bounds.center);
+
+                    // Calculate final transformed AABB bounds
+                    float3 transformedMin = transformedCenter - rotatedExtents;
+                    float3 transformedMax = transformedCenter + rotatedExtents;
+
+                    // Merge with overall sprite bounds
+                    min = math.min(min, transformedMin);
+                    max = math.max(max, transformedMax);
+                }
+
+                float3 ext = (max - min) * 0.5f;
+                float3 ctr = min + ext;
+                bounds[spriteIndex] = new Bounds(ctr, ext * 2);
+            }
+
+            if (new T().ShouldSkipVertexDeformation(spriteSkin, isOutlineDataRequiredArray[spriteIndex]))
+                return;
+
             byte* deformedPosOffset = (byte*)vertices.GetUnsafePtr();
             byte* deformedPosStart = deformedPosOffset + spriteSkin.deformVerticesStartPos;
             NativeSlice<float3> deformableVerticesFloat3 = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<float3>(deformedPosStart, spriteSkin.spriteVertexStreamSize, spriteSkin.spriteVertexCount);
@@ -178,9 +238,6 @@ namespace UnityEngine.U2D.Animation
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref deformableTangentsFloat4, NativeSliceUnsafeUtility.GetAtomicSafetyHandle(vertices));
 #endif
-            // Find min and max positions of all vertices
-            float3 min = float.MaxValue;
-            float3 max = float.MinValue;
 
             if (spriteSkin.boneTransformId.Length != 1)
             {
@@ -212,6 +269,7 @@ namespace UnityEngine.U2D.Animation
                         math.transform(finalBoneTransforms[bone2], srcVertex) * influence.weight2 +
                         math.transform(finalBoneTransforms[bone3], srcVertex) * influence.weight3;
 
+                    // Find min and max positions of all vertices
                     min = math.min(min, deformableVerticesFloat3[i]);
                     max = math.max(max, deformableVerticesFloat3[i]);
                 }
@@ -237,16 +295,35 @@ namespace UnityEngine.U2D.Animation
                     float3 srcVertex = (float3)spriteSkin.vertices[i];
                     deformableVerticesFloat3[i] = math.transform(finalBoneTransforms[bone0], srcVertex);
 
+                    // Find min and max positions of all vertices
                     min = math.min(min, deformableVerticesFloat3[i]);
                     max = math.max(max, deformableVerticesFloat3[i]);
                 }
             }
 
-            // Calculate center and extents from min/max
-            float3 ext = (max - min) * 0.5F;
-            float3 ctr = min + ext;
+            // If boneBounds.Length > 0, bounds calculation is handled before
+            if (spriteSkin.boneBounds.Length == 0)
+            {
+                // Calculate center and extents from min/max
+                float3 ext = (max - min) * 0.5F;
+                float3 ctr = min + ext;
 
-            bounds[spriteIndex] = new Bounds(ctr, ext * 2);
+                bounds[spriteIndex] = new Bounds(ctr, ext * 2);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static float3 RotateExtents(float3 extents, float4x4 rotation)
+        {
+            float3 newExtents = float3.zero;
+            for (int i = 0; i < 3; i++)
+            {
+                newExtents[i] =
+                    math.abs(rotation[i][0]) * extents.x +
+                    math.abs(rotation[i][1]) * extents.y +
+                    math.abs(rotation[i][2]) * extents.z;
+            }
+            return newExtents;
         }
     }
 
@@ -331,37 +408,28 @@ namespace UnityEngine.U2D.Animation
     }
 
     [BurstCompile]
-    internal struct CopySpriteRendererBoneTransformBuffersJob : IJobParallelFor
+    internal struct CalculateBoneTransformIndicesJob : IJob
     {
         [ReadOnly]
         public NativeArray<bool> isSpriteSkinValidForDeformArray;
         [ReadOnly]
         public NativeArray<SpriteSkinData> spriteSkinData;
-        [ReadOnly]
-        public NativeArray<PerSkinJobData> perSkinJobData;
-
-        [ReadOnly, NativeDisableUnsafePtrRestriction]
-        public IntPtr ptrBoneTransforms;
 
         [WriteOnly]
-        public NativeArray<IntPtr> buffers;
-        [WriteOnly]
-        public NativeArray<int> bufferSizes;
+        public NativeArray<int> boneTransformIndices;
 
-        public void Execute(int i)
+        public void Execute()
         {
-            SpriteSkinData skinData = spriteSkinData[i];
-            PerSkinJobData skinJobData = perSkinJobData[i];
-            IntPtr startMatrix = default(IntPtr);
-            int matrixLength = 0;
-            if (isSpriteSkinValidForDeformArray[i])
-            {
-                startMatrix = ptrBoneTransforms + (skinJobData.bindPosesIndex.x * 64);
-                matrixLength = skinData.boneTransformId.Length;
-            }
+            int boneTransformIndex = 0;
 
-            buffers[i] = startMatrix;
-            bufferSizes[i] = matrixLength;
+            for (int i = 0; i < spriteSkinData.Length; ++i)
+            {
+                if (isSpriteSkinValidForDeformArray[i])
+                {
+                    boneTransformIndices[i] = boneTransformIndex;
+                    boneTransformIndex += spriteSkinData[i].boneTransformId.Length;
+                }
+            }
         }
     }
 }

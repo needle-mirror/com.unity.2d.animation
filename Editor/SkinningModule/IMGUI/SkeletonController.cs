@@ -122,7 +122,7 @@ namespace UnityEditor.U2D.Animation
                 BoneCache bone = skeleton.GetBone(i);
 
                 if (bone.isVisible && bone != hotBone)
-                    view.LayoutBone(bone.GetInstanceID(), bone.position, bone.endPosition, bone.forward, bone.up, bone.right, bone.chainedChild == null);
+                    view.LayoutBone(bone.GetEntityId(), bone.position, bone.endPosition, bone.forward, bone.up, bone.right, bone.chainedChild == null);
             }
         }
 

@@ -68,7 +68,7 @@ namespace UnityEngine.U2D.Animation
             jobHandle = JobHandle.CombineDependencies(localToWorldJobHandle, worldToLocalJobHandle, jobHandle);
             jobHandle = ScheduleBoneJobBatched(jobHandle, skinBatch);
 
-            m_DeformJobHandle = ScheduleSkinDeformBatchedJob(jobHandle, skinBatch, batchCount, frameCount);
+            m_DeformJobHandle = ScheduleSkinDeformBatchedJobCpu(jobHandle, skinBatch, batchCount, frameCount);
             m_CopyJobHandle = ScheduleCopySpriteRendererBuffersJob(jobHandle, batchCount);
             Profiling.scheduleJobs.End();
 

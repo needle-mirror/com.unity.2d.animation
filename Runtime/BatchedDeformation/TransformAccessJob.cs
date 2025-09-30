@@ -91,7 +91,7 @@ namespace UnityEngine.U2D.Animation
             if (t == null || !m_TransformData.IsCreated)
                 return;
             m_JobHandle.Complete();
-            int instanceId = t.GetInstanceID();
+            int instanceId = t.GetEntityId();
             if (m_TransformData.ContainsKey(instanceId))
             {
                 TransformData transformData = m_TransformData[instanceId];
@@ -179,7 +179,7 @@ namespace UnityEngine.U2D.Animation
             {
                 if (m_Transform[i] != null)
                 {
-                    int instanceId = m_Transform[i].GetInstanceID();
+                    int instanceId = m_Transform[i].GetEntityId();
                     TransformData transformData = m_TransformData[instanceId];
                     transformData.transformIndex = i;
                     m_TransformData[instanceId] = transformData;
@@ -239,11 +239,11 @@ namespace UnityEngine.U2D.Animation
             log += "Transform Count: " + m_Transform.Length + "\n";
             foreach (Transform ss in m_Transform)
             {
-                log += ss == null ? "null" : ss.name + " " + ss.GetInstanceID();
+                log += ss == null ? "null" : ss.name + " " + ss.GetEntityId();
                 log += "\n";
                 if (ss != null)
                 {
-                    log += "RefCount: " + m_TransformData[ss.GetInstanceID()].refCount + "\n";
+                    log += "RefCount: " + m_TransformData[ss.GetEntityId()].refCount + "\n";
                 }
 
                 log += "\n";
@@ -262,9 +262,9 @@ namespace UnityEngine.U2D.Animation
                 // Is this transform destroyed?
                 if (!m_Transform[i])
                 {
-                    // remove from index, still safe to call GetInstanceID here.
-                    // todo:TransformData can't be removed because transform.GetInstanceID() will return zero after the transform is destroyed.
-                    m_TransformData.Remove(m_Transform[i].GetInstanceID());
+                    // remove from index, still safe to call GetEntityId here.
+                    // todo:TransformData can't be removed because transform.GetEntityId() will return zero after the transform is destroyed.
+                    m_TransformData.Remove(m_Transform[i].GetEntityId());
                     // remove from transform array by assigning a real null.
                     m_Transform[i] = null;
                     count++;
@@ -325,7 +325,7 @@ namespace UnityEngine.U2D.Animation
                 {
                     int index = indexesToRemove[i];
                     // previous version of this code performed a linear search to find the index to remove
-                    // by matching GetInstanceID() of the transform.
+                    // by matching GetEntityId() of the transform.
                     // it did not remove the transform from the transform array if there was no match
                     // we do the same logic here by ignoring the index if it is out of bounds <gulp>
                     if (index < m_Transform.Length)
@@ -347,7 +347,7 @@ namespace UnityEngine.U2D.Animation
                 if (transformData.refCount == 1)
                 {
                     m_TransformData.Remove(transformId);
-                    int index = Array.FindIndex(m_Transform, t => t.GetInstanceID() == transformId);
+                    int index = Array.FindIndex(m_Transform, t => t.GetEntityId() == transformId);
                     if (index >= 0)
                     {
                         ArrayRemoveAt(ref m_Transform, index);

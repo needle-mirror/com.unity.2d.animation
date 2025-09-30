@@ -117,7 +117,7 @@ namespace UnityEditor.U2D.Animation
                 m_Analytics = new AnimationAnalytics(new UnityAnalyticsStorage(),
                     skinningCache.events,
                     new SkinningModuleAnalyticsModel(skinningCache),
-                    ai == null ? -1 : ai.GetInstanceID());
+                    ai == null ? -1 : ai.GetEntityId());
 
                 UpdateCollapseToolbar();
             }

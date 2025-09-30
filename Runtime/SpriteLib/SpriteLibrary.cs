@@ -80,7 +80,7 @@ namespace UnityEngine.U2D.Animation
         void UpdateCacheOverridesIfNeeded()
         {
             if (m_CategoryEntryCache == null ||
-                m_PreviousSpriteLibraryAsset != m_SpriteLibraryAsset?.GetInstanceID() ||
+                m_PreviousSpriteLibraryAsset != m_SpriteLibraryAsset?.GetEntityId() ||
                 m_PreviousModificationHash != m_SpriteLibraryAsset?.modificationHash)
                 CacheOverrides();
         }
@@ -292,7 +292,7 @@ namespace UnityEngine.U2D.Animation
             m_CategoryEntryCache = new Dictionary<string, HashSet<string>>();
             if (m_SpriteLibraryAsset)
             {
-                m_PreviousSpriteLibraryAsset = m_SpriteLibraryAsset.GetInstanceID();
+                m_PreviousSpriteLibraryAsset = m_SpriteLibraryAsset.GetEntityId();
                 m_PreviousModificationHash = m_SpriteLibraryAsset.modificationHash;
                 foreach (SpriteLibCategory category in m_SpriteLibraryAsset.categories)
                 {

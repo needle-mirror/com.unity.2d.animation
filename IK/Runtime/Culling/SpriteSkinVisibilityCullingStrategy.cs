@@ -136,7 +136,7 @@ namespace UnityEngine.U2D.IK
                 Transform bone = bones[i];
                 if (bone == null)
                     continue;
-                int id = bone.GetInstanceID();
+                int id = bone.GetEntityId();
                 records[i] = id;
             }
 

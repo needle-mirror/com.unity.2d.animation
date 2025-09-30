@@ -1,5 +1,16 @@
 # Changelog
 
+## [14.0.0] - 2025-09-30
+### Changed
+- Update Unity min version for package.
+- Optimize SpriteSkin to skip outline cache update when not required by shadow providers.
+- Optimize batch deformation by removing redundant buffer operations and updating batch API.
+- Add bone-based bounds calculation mode for SpriteSkin to skip CPU vertex deformation when outline data is not required.
+
+### Fixed
+- Fix chain length in FABRIK and CCD IK Solvers to not exceed the number of connected bones. (DANB-1119)
+- Prevent overlap between label and object field, and ellipsize long names (DANB-1154)
+
 ## [13.0.1] - 2025-09-25
 ### Changed
 - Improved the performance when 2D IK Gizmos are displayed.
@@ -8,6 +19,7 @@
 - Improve FABRIK performance by Burst-compiling.
 - Improve CCD performance by Burst-compiling.
 - Allow pasting sprite data between sources and destinations with different sprite counts.
+- Moved internal TriangulationUtility functions to Common.
 
 ### Fixed
 - Fix unresponsive scrolling in Sprite Library Editor grid view after adding multiple labels. (DANB-1091)

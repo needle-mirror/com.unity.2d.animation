@@ -143,7 +143,7 @@ namespace UnityEditor.U2D.Animation
                 }
                 else
                 {
-                    int spriteId = m_SpriteList[index].GetInstanceID();
+                    int spriteId = m_SpriteList[index].GetEntityId();
                     Texture2D spritePreview = InternalEditorBridge.GetAssetPreview(spriteId, m_ClientId);
                     if (spritePreview != null)
                     {

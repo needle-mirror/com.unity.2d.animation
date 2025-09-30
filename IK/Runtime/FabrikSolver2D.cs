@@ -16,7 +16,7 @@ namespace UnityEngine.U2D.IK
     [Solver2DMenu("Chain (FABRIK)")]
     [IconAttribute(IconUtility.IconPath + "Animation.IKFabrik.png")]
     [BurstCompile]
-    public sealed class FabrikSolver2D : Solver2D, ISolverCleanup
+    public sealed class FabrikSolver2D : Solver2D
     {
         const float k_MinTolerance = 0.001f;
         const int k_MinIterations = 1;
@@ -134,7 +134,7 @@ namespace UnityEngine.U2D.IK
             }
         }
 
-        void ISolverCleanup.DoCleanUp()
+        protected override void DoCleanUp()
         {
             m_Positions.DisposeIfCreated();
             m_Positions = default;

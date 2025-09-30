@@ -15,7 +15,7 @@ namespace UnityEngine.U2D.IK
     [Solver2DMenuAttribute("Chain (CCD)")]
     [IconAttribute(IconUtility.IconPath + "Animation.IKCCD.png")]
     [BurstCompile]
-    public sealed class CCDSolver2D : Solver2D, ISolverCleanup
+    public sealed class CCDSolver2D : Solver2D
     {
         const int k_MinIterations = 1;
         const float k_MinTolerance = 0.001f;
@@ -145,7 +145,7 @@ namespace UnityEngine.U2D.IK
             }
         }
 
-        void ISolverCleanup.DoCleanUp()
+        protected override void DoCleanUp()
         {
             m_Positions.DisposeIfCreated();
             m_Positions = default;

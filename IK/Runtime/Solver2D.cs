@@ -7,11 +7,6 @@ using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.IK
 {
-    interface ISolverCleanup
-    {
-        void DoCleanUp();
-    }
-
     /// <summary>
     /// Abstract class for implementing a 2D IK Solver.
     /// </summary>
@@ -273,8 +268,7 @@ namespace UnityEngine.U2D.IK
 
         void CleanUp()
         {
-            if (this is ISolverCleanup solver)
-                solver.DoCleanUp();
+            DoCleanUp();
         }
 
         /// <summary>
@@ -311,6 +305,11 @@ namespace UnityEngine.U2D.IK
         /// Override to prepare the solver for update.
         /// </summary>
         protected virtual void DoPrepare() { }
+
+        /// <summary>
+        /// Override to finalize the solver.
+        /// </summary>
+        protected virtual void DoCleanUp() { }
 
         /// <summary>
         /// Override to return the root transform of the Solver. The default implementation returns the root transform of the first chain.

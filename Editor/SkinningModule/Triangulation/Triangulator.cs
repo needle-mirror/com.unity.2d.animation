@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.U2D.Common;
 
 namespace UnityEditor.U2D.Animation
 {

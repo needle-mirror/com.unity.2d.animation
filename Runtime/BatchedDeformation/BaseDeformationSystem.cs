@@ -18,7 +18,7 @@ namespace UnityEngine.U2D.Animation
             public static readonly ProfilerMarker getSpriteSkinBatchData = new ProfilerMarker("BaseDeformationSystem.GetSpriteSkinBatchData");
             public static readonly ProfilerMarker scheduleJobs = new ProfilerMarker("BaseDeformationSystem.ScheduleJobs");
             public static readonly ProfilerMarker setBatchDeformableBufferAndLocalAABB = new ProfilerMarker("BaseDeformationSystem.SetBatchDeformableBufferAndLocalAABB");
-            public static readonly ProfilerMarker setBoneTransformsArray = new ProfilerMarker("BaseDeformationSystem.SetBoneTransformsArray");
+            public static readonly ProfilerMarker setBatchBoneTransformIndexAndLocalAABB = new ProfilerMarker("BaseDeformationSystem.SetBatchBoneTransformIndexAndLocalAABB");
         }
 
         public abstract DeformationMethods deformationMethod { get; }
@@ -49,11 +49,11 @@ namespace UnityEngine.U2D.Animation
 
         protected NativeArray<bool> m_IsSpriteSkinActiveForDeform;
         protected NativeArray<SpriteSkinData> m_SpriteSkinData;
+        protected NativeArray<bool> m_IsOutlineDataRequired;
         protected NativeArray<PerSkinJobData> m_PerSkinJobData;
         protected NativeArray<Bounds> m_BoundsData;
         protected NativeArray<IntPtr> m_Buffers;
         protected NativeArray<int> m_BufferSizes;
-        protected NativeArray<IntPtr> m_BoneTransformBuffers;
 
         protected NativeArray<int2> m_BoneLookupData;
         protected NativeArray<PerSkinJobData> m_SkinBatchArray;
@@ -147,7 +147,7 @@ namespace UnityEngine.U2D.Animation
             if (m_SpriteSkins.Contains(spriteSkin) && m_SpriteSkinsToRemove.Add(spriteSkin))
             {
                 // records the transform id to remove
-                m_TransformIdsToRemove.Add(spriteSkin.transform.GetInstanceID());
+                m_TransformIdsToRemove.Add(spriteSkin.transform.GetEntityId());
             }
             // if is scheduled for removal, also remove it from the m_SpriteSkinsToAdd list
             m_SpriteSkinsToAdd.Remove(spriteSkin);
@@ -196,6 +196,7 @@ namespace UnityEngine.U2D.Animation
             m_IsSpriteSkinActiveForDeform = new NativeArray<bool>(startingCount, Allocator.Persistent);
             m_PerSkinJobData = new NativeArray<PerSkinJobData>(startingCount, Allocator.Persistent);
             m_SpriteSkinData = new NativeArray<SpriteSkinData>(startingCount, Allocator.Persistent);
+            m_IsOutlineDataRequired = new NativeArray<bool>(startingCount, Allocator.Persistent);
             m_BoundsData = new NativeArray<Bounds>(startingCount, Allocator.Persistent);
             m_Buffers = new NativeArray<IntPtr>(startingCount, Allocator.Persistent);
             m_BufferSizes = new NativeArray<int>(startingCount, Allocator.Persistent);
@@ -286,6 +287,7 @@ namespace UnityEngine.U2D.Animation
             NativeArrayHelpers.ResizeAndCopyIfNeeded(ref m_BoundsData, updatedCount);
 
             // No need to copy or initialize values as they are completely overwritten each frame by the job
+            NativeArrayHelpers.ResizeIfNeeded(ref m_IsOutlineDataRequired, updatedCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
             NativeArrayHelpers.ResizeIfNeeded(ref m_HasBoneTransformsChanged, updatedCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 
             // Must be initialized to 0, because 0 means "not deformed yet"
@@ -321,6 +323,7 @@ namespace UnityEngine.U2D.Animation
             m_SkinBatchArray.DisposeIfCreated();
             m_FinalBoneTransforms.DisposeIfCreated();
             m_BoundsData.DisposeIfCreated();
+            m_IsOutlineDataRequired.DisposeIfCreated();
             m_HasBoneTransformsChanged.DisposeIfCreated();
             m_LastDeformedFrame.DisposeIfCreated();
 
@@ -373,6 +376,7 @@ namespace UnityEngine.U2D.Animation
             {
                 int index = spriteSkin.dataIndex;
                 m_IsSpriteSkinActiveForDeform[index] = spriteSkin.BatchValidate();
+                m_IsOutlineDataRequired[index] = spriteSkin.isOutlineDataRequired;
                 if (m_IsSpriteSkinActiveForDeform[index] && spriteSkin.NeedToUpdateDeformationCache())
                     CopyToSpriteSkinData(spriteSkin);
             }
@@ -411,9 +415,10 @@ namespace UnityEngine.U2D.Animation
             return jobHandle;
         }
 
-        protected JobHandle ScheduleSkinDeformBatchedJob(JobHandle jobHandle, PerSkinJobData skinBatch, int spriteCount, int frameCount)
+        // Duplicated for each mode because Burst does not support scheduling jobs via generic parameters.
+        protected JobHandle ScheduleSkinDeformBatchedJobCpu(JobHandle jobHandle, PerSkinJobData skinBatch, int spriteCount, int frameCount)
         {
-            SkinDeformBatchedJob skinJobBatched = new SkinDeformBatchedJob
+            SkinDeformBatchedJob<CpuDeformationMode> skinJobBatched = new SkinDeformBatchedJob<CpuDeformationMode>
             {
                 spriteSkinData = m_SpriteSkinData,
                 perSkinJobData = m_PerSkinJobData,
@@ -421,6 +426,26 @@ namespace UnityEngine.U2D.Animation
                 vertices = m_DeformedVerticesBuffer.array,
                 previousVertices = m_PreviousDeformedVerticesBuffer.array,
                 isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
+                isOutlineDataRequiredArray = m_IsOutlineDataRequired,
+                hasBoneTransformsChanged = m_HasBoneTransformsChanged,
+                bounds = m_BoundsData,
+                lastDeformedFrame = m_LastDeformedFrame,
+                frameCount = frameCount
+            };
+            return skinJobBatched.Schedule(spriteCount, 1, jobHandle);
+        }
+
+        protected JobHandle ScheduleSkinDeformBatchedJobGpu(JobHandle jobHandle, PerSkinJobData skinBatch, int spriteCount, int frameCount)
+        {
+            SkinDeformBatchedJob<GpuDeformationMode> skinJobBatched = new SkinDeformBatchedJob<GpuDeformationMode>
+            {
+                spriteSkinData = m_SpriteSkinData,
+                perSkinJobData = m_PerSkinJobData,
+                finalBoneTransforms = m_FinalBoneTransforms,
+                vertices = m_DeformedVerticesBuffer.array,
+                previousVertices = m_PreviousDeformedVerticesBuffer.array,
+                isSpriteSkinValidForDeformArray = m_IsSpriteSkinActiveForDeform,
+                isOutlineDataRequiredArray = m_IsOutlineDataRequired,
                 hasBoneTransformsChanged = m_HasBoneTransformsChanged,
                 bounds = m_BoundsData,
                 lastDeformedFrame = m_LastDeformedFrame,

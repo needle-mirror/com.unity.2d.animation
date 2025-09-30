@@ -111,7 +111,7 @@ namespace UnityEditor.U2D.Animation
 
         private static void AddTreeViewItem(IList<TreeViewItem> rows, BoneCache bone, BoneCache[] bones, int depth)
         {
-            TreeViewItemBase<BoneCache> item = new TreeViewItemBase<BoneCache>(bone.GetInstanceID(), depth, bone.name, bone);
+            TreeViewItemBase<BoneCache> item = new TreeViewItemBase<BoneCache>(bone.GetEntityId(), depth, bone.name, bone);
             rows.Add(item);
 
             BoneCache[] children = bones.Where(x => x.parentBone == bone).ToArray();
@@ -133,7 +133,7 @@ namespace UnityEditor.U2D.Animation
                         BoneCache parent = bone.parentBone;
                         while (parent != null)
                         {
-                            int parentId = parent.GetInstanceID();
+                            int parentId = parent.GetEntityId();
                             result.Add(parentId);
                             parent = parent.parentBone;
                         }
@@ -145,7 +145,7 @@ namespace UnityEditor.U2D.Animation
 
         public int[] GetIDsToSelect(BoneCache[] bones)
         {
-            return bones == null ? new int[0] : Array.ConvertAll(bones, x => x != null ? x.GetInstanceID() : 0);
+            return bones == null ? new int[0] : Array.ConvertAll(bones, x => x != null ? (int)x.GetEntityId() : 0);
         }
 
         public void SelectBones(IList<int> selectedIds, IList<TreeViewItem> items)

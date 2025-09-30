@@ -42,11 +42,12 @@ namespace UnityEngine.U2D.IK
 
             int ancestorCount = 0;
 
-            while (transform.parent)
+            Transform parent = transform.parent;
+            while (parent && parent.GetComponent<IKManager2D>() == null)
             {
                 ++ancestorCount;
 
-                transform = transform.parent;
+                parent = parent.parent;
             }
 
             return ancestorCount;

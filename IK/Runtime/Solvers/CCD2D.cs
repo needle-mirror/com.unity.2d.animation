@@ -31,6 +31,7 @@ namespace UnityEngine.U2D.IK
         /// <param name="velocity">Velocity towards target position.</param>
         /// <param name="positions">Chain positions.</param>
         /// <returns>Returns true if solver successfully completes within iteration limit. False otherwise.</returns>
+        [Obsolete("Use CCD2D.Solve(in float2 targetPosition, int solverLimit, float tolerance, float velocity, ref NativeArray<float2> positions) instead.")]
         public static bool Solve(Vector3 targetPosition, Vector3 forward, int solverLimit, float tolerance, float velocity, ref Vector3[] positions)
         {
             NativeArray<float2> nativePositions = new NativeArray<float2>(positions.Length, Allocator.Temp);
@@ -57,7 +58,7 @@ namespace UnityEngine.U2D.IK
         /// <param name="positions">Chain positions in 2D.</param>
         /// <returns>Returns true if solver successfully completes within iteration limit. False otherwise.</returns>
         [BurstCompile]
-        internal static bool Solve(in float2 targetPosition, int solverLimit, float tolerance, float velocity, ref NativeArray<float2> positions)
+        public static bool Solve(in float2 targetPosition, int solverLimit, float tolerance, float velocity, ref NativeArray<float2> positions)
         {
             Profiling.Solve.Begin();
 
