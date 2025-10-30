@@ -139,12 +139,12 @@ namespace UnityEditor.U2D.Animation
         }
     }
 
-    internal class CreateSpriteLibrarySourceAsset : ProjectWindowCallback.EndNameEditAction
+    internal class CreateSpriteLibrarySourceAsset : ProjectWindowCallback.AssetCreationEndAction
     {
         const int k_SpriteLibraryAssetMenuPriority = 30;
         string m_MainLibrary;
 
-        public override void Action(int instanceId, string pathName, string resourceFile)
+        public override void Action(EntityId entityId, string pathName, string resourceFile)
         {
             SpriteLibrarySourceAsset asset = CreateInstance<SpriteLibrarySourceAsset>();
             asset.SetPrimaryLibraryGUID(m_MainLibrary);

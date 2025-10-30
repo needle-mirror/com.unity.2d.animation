@@ -1,5 +1,10 @@
 # Changelog
 
+## [14.0.1] - 2025-10-30
+### Fixed
+- Fix bone drag and drop to preserve skeleton-wide order in Visibility window. (DANB-1120)
+- Ask whether to save when Editor Theme or Editor Font changes and there are unsaved changes in Sprite Library Editor (DANB-1165)
+
 ## [14.0.0] - 2025-09-30
 ### Changed
 - Update Unity min version for package.

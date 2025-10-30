@@ -1,1 +1,44 @@
-{"name":"com.unity.2d.animation","version":"14.0.0","unity":"6000.4","displayName":"2D Animation","description":"2D Animation provides all the necessary tooling and runtime components for skeletal animation using Sprites.","keywords":["2d","animation"],"category":"2D","dependencies":{"com.unity.2d.common":"13.0.0","com.unity.2d.sprite":"1.0.0","com.unity.collections":"2.4.3","com.unity.modules.animation":"1.0.0","com.unity.modules.uielements":"1.0.0"},"relatedPackages":{"com.unity.2d.animation.tests":"14.0.0","com.unity.2d.common.tests":"13.0.0","com.unity.2d.psdimporter":"13.0.0"},"samples":[{"displayName":"Samples","description":"Various 2D Animation sample scenes to show different usage of the 2D Animation tooling for various outcomes.","path":"Samples~/AnimationSamples"}],"unityRelease":"0a1","repository":{"revision":"a6b03a859e241b6576bbc1b321144153f3cfe3f3","type":"git","url":"https://github.cds.internal.unity3d.com/unity/2d.git"},"documentationUrl":"https://docs.unity3d.com/Packages/com.unity.2d.animation@14.0/manual/index.html","_upm":{"changelog":"### Changed\n- Update Unity min version for package.\n- Optimize SpriteSkin to skip outline cache update when not required by shadow providers.\n- Optimize batch deformation by removing redundant buffer operations and updating batch API.\n- Add bone-based bounds calculation mode for SpriteSkin to skip CPU vertex deformation when outline data is not required.\n\n### Fixed\n- Fix chain length in FABRIK and CCD IK Solvers to not exceed the number of connected bones. (DANB-1119)\n- Prevent overlap between label and object field, and ellipsize long names (DANB-1154)"}}
+{
+  "name": "com.unity.2d.animation",
+  "version": "14.0.1",
+  "unity": "6000.4",
+  "displayName": "2D Animation",
+  "description": "2D Animation provides all the necessary tooling and runtime components for skeletal animation using Sprites.",
+  "keywords": [
+    "2d",
+    "animation"
+  ],
+  "category": "2D",
+  "dependencies": {
+    "com.unity.2d.common": "13.0.0",
+    "com.unity.2d.sprite": "1.0.0",
+    "com.unity.collections": "2.4.3",
+    "com.unity.modules.animation": "1.0.0",
+    "com.unity.modules.uielements": "1.0.0"
+  },
+  "relatedPackages": {
+    "com.unity.2d.animation.tests": "14.0.1",
+    "com.unity.2d.common.tests": "13.0.0",
+    "com.unity.2d.psdimporter": "13.0.1"
+  },
+  "samples": [
+    {
+      "displayName": "Samples",
+      "description": "Various 2D Animation sample scenes to show different usage of the 2D Animation tooling for various outcomes.",
+      "path": "Samples~/AnimationSamples"
+    }
+  ],
+  "unityRelease": "0a2",
+  "_upm": {
+    "changelog": "### Fixed\n- Fix bone drag and drop to preserve skeleton-wide order in Visibility window. (DANB-1120)\n- Ask whether to save when Editor Theme or Editor Font changes and there are unsaved changes in Sprite Library Editor (DANB-1165)"
+  },
+  "upmCi": {
+    "footprint": "34b0dba1b3c2b71f497eedb21c83e7015bb8a969"
+  },
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.2d.animation@14.0/manual/index.html",
+  "repository": {
+    "url": "https://github.cds.internal.unity3d.com/unity/2d.git",
+    "type": "git",
+    "revision": "3bdad6f826a281ed82c21c60329a049cfb348f3f"
+  }
+}
