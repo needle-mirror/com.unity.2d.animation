@@ -45,3 +45,13 @@ As always, do verify the performance impact with [profiling tools](https://docs.
 2. Ensure that you enabled the **SRP Batcher** option in the [Universal Render Pipeline Asset](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest?subfolder=/manual/universalrp-asset.html).
     * If the **SRP Batcher** option is not visible, open the **More** (⋮) menu in the Rendering section and enable **Show Additional Properties**.
 3. Go to **Edit** &gt; **Project Settings** &gt; **Player** &gt; **Other Settings**. In the Rendering section, set **GPU Skinning** to **GPU (Batched)**. When **GPU Skinning** is set to **GPU (Batched)** or **GPU**, Unity performs Sprite Skin deformation on the GPU instead of the CPU.
+
+### Requirements for GPU Deformation
+
+- Use a shader that supports GPU Skinning. 
+- Avoid Shader Graph shaders.
+- Avoid [Material Property Blocks](xref:UnityEngine.MaterialPropertyBlock), which are not compatible with the SRP Batcher.
+- Avoid Sprite masks, which are not compatible with the SRP Batcher.  
+
+> [!NOTE]
+> If you don't meet any of these requirements, the rendering falls back to CPU Skinning which uses dynamic batching.

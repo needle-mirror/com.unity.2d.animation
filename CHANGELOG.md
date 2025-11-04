@@ -1,5 +1,24 @@
 # Changelog
 
+## [10.2.2] - 2025-11-04
+### Fixed
+- Prevent overlap between label and object field, and ellipsize long names (DANB-1154)
+- Ask whether to save when Editor Theme or Editor Font changes and there are unsaved changes in Sprite Library Editor (DANB-1165)
+- Fix bone drag and drop to preserve skeleton-wide order in Visibility window. (DANB-1120)
+
+### Changed
+- Allow pasting sprite data between sources and destinations with different sprite counts.
+
+### Fixed
+- Fix the icon quality of Sprite Swap Overlay Window. (DANB-988)
+- Fix NullReferenceException error thrown by the Sprite Library Editor window when entering Play Mode with Game View maximised (DANB-1019)
+- Fixed Dynamic-Batching / Skinning is broken. (DANB-1037)
+- Fix the issue where disposing SpriteSkin component with Object.DestroyImmediate is not safe in PolySpacial. (DANB-993)
+- Fix unresponsive scrolling in Sprite Library Editor grid view after adding multiple labels. (DANB-1091)
+- Restore bone references in SpriteSkin correctly when switching between sprites with and without bone settings, even if AutoRebind is disabled. (DANB-1127)
+- Fix chain length in FABRIK and CCD IK Solvers to not exceed the number of connected bones. (DANB-1119)
+- Fix NullReferenceException error thrown by the Sprite Library Editor window (DANB-1019)
+
 ## [10.2.1] - 2025-05-26
 ### Fixed
 - Fix the exception when generating geometry with hidden sprites. (DANB-841)

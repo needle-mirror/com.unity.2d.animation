@@ -190,7 +190,7 @@ namespace UnityEngine.U2D.Animation
         {
             if (spriteSkin == null)
                 return;
-            BaseDeformationSystem system = spriteSkin.deformationSystem;
+            BaseDeformationSystem system = spriteSkin.DeformationSystem;
             if (system == null)
                 return;
 

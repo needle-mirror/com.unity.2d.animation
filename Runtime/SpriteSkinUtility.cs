@@ -61,8 +61,9 @@ namespace UnityEngine.U2D.Animation
         internal static bool CanSpriteSkinUseGpuDeformation(SpriteSkin spriteSkin)
         {
 #if ENABLE_URP
-            return IsGpuDeformationActive(spriteSkin.spriteRenderer) &&
-                GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
+            return InternalEngineBridge.IsSRPBatchingEnabled(spriteSkin.spriteRenderer) &&
+                   IsUsingGpuDeformation() &&
+                   GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
 #else
             return false;
 #endif

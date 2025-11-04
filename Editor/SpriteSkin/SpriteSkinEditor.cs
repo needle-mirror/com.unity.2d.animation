@@ -233,9 +233,13 @@ namespace UnityEditor.U2D.Animation
             {
                 if (skin.sprite == null || skin.rootBone == null)
                     continue;
-                if (!SpriteSkinHelpers.GetSpriteBonesTransforms(skin, out Transform[] transforms))
+                if (!SpriteSkinHelpers.GetSpriteBonesTransforms(skin, out Transform[] transforms, forceCreateCache: true))
                     Debug.LogWarning($"Rebind failed for {skin.name}. Could not find all bones required by the Sprite: {skin.sprite.name}.");
                 skin.SetBoneTransforms(transforms);
+
+                if (!m_AutoRebindProperty.boolValue)
+                    // Clear force created cache if auto rebind is disabled
+                    skin.hierarchyCache.Clear();
 
                 ResetBoundsIfNeeded(skin);
             }

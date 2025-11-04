@@ -168,8 +168,9 @@ namespace UnityEngine.U2D.Animation
         internal NativeArray<int> boneTransformId => m_BoneTransformId;
         internal int rootBoneTransformId => m_RootBoneTransformId;
         internal DeformationMethods currentDeformationMethod { get; private set; }
-        internal BaseDeformationSystem deformationSystem { get; private set; }
+        private BaseDeformationSystem m_DeformationSystem;
 
+        internal BaseDeformationSystem DeformationSystem => m_DeformationSystem;
 #if ENABLE_URP
         /// <summary>
         /// Returns an array of the outline indices.
@@ -313,7 +314,7 @@ namespace UnityEngine.U2D.Animation
                 if (isActiveAndEnabled)
                 {
                     UpdateSpriteDeformationData();
-                    deformationSystem?.CopyToSpriteSkinData(this);
+                    m_DeformationSystem?.CopyToSpriteSkinData(this);
                 }
             }
         }
@@ -388,8 +389,8 @@ namespace UnityEngine.U2D.Animation
 
             DeactivateSkinning();
             BufferManager.instance.ReturnBuffer(GetInstanceID());
-            deformationSystem?.RemoveSpriteSkin(this);
-            deformationSystem = null;
+            m_DeformationSystem?.RemoveSpriteSkin(this);
+            m_DeformationSystem = null;
             SpriteSkinContainer.instance.RemoveSpriteSkin(this);
             ResetBoneTransformIdCache();
             DisposeOutlineCaches();
@@ -441,7 +442,7 @@ namespace UnityEngine.U2D.Animation
         void OnBoneTransformChanged()
         {
             RefreshBoneTransforms();
-            deformationSystem?.CopyToSpriteSkinData(this);
+            m_DeformationSystem?.CopyToSpriteSkinData(this);
             SpriteSkinContainer.instance.BoneTransformsChanged(this);
         }
 
@@ -505,7 +506,7 @@ namespace UnityEngine.U2D.Animation
                 if (!m_BoneCacheUpdateToDate)
                     RefreshBoneTransforms();
 
-                deformationSystem?.CopyToSpriteSkinData(this);
+                m_DeformationSystem?.CopyToSpriteSkinData(this);
             }
         }
 
@@ -547,7 +548,7 @@ namespace UnityEngine.U2D.Animation
             if (!m_IsValid)
                 return false;
 
-            return m_DataIndex >= 0 && deformationSystem != null && deformationSystem.IsSpriteSkinActiveForDeformation(this);
+            return m_DataIndex >= 0 && m_DeformationSystem != null && m_DeformationSystem.IsSpriteSkinActiveForDeformation(this);
         }
 
         /// <summary>
@@ -565,7 +566,7 @@ namespace UnityEngine.U2D.Animation
             if (m_DataIndex < 0)
                 throw new InvalidOperationException("There are no currently deformed vertices.");
 
-            NativeArray<byte> buffer = deformationSystem?.GetDeformableBufferForSpriteSkin(this) ?? default;
+            NativeArray<byte> buffer = m_DeformationSystem?.GetDeformableBufferForSpriteSkin(this) ?? default;
             if (buffer == default)
                 throw new InvalidOperationException("There are no currently deformed vertices.");
 
@@ -743,7 +744,7 @@ namespace UnityEngine.U2D.Animation
                 }
 
                 UpdateSpriteDeformationData();
-                deformationSystem?.CopyToSpriteSkinData(this);
+                m_DeformationSystem?.CopyToSpriteSkinData(this);
 
                 CacheValidFlag();
                 m_TransformsHash = 0;
@@ -893,18 +894,22 @@ namespace UnityEngine.U2D.Animation
             if (needUpdate)
             {
                 UpdateSpriteDeformationData();
-                deformationSystem?.CopyToSpriteSkinData(this);
+                m_DeformationSystem?.CopyToSpriteSkinData(this);
             }
 
             return needUpdate;
         }
 
-        internal void CacheHierarchy()
+        // Creates a cache of the hierarchy of the root bone.
+        // Each entry in the cache is list of TransformData objects, where the key is the hashCode of the transform name.
+        // Because the transform name is not definitely unique, multiple transforms can have the same hashCode, so the list of
+        // transformData entries contains the full path to the transform. This allows for disambiguation of transforms with the same name.
+        internal void CacheHierarchy(bool forceCreateCache = false)
         {
             using (Profiling.cacheHierarchy.Auto())
             {
                 hierarchyCache.Clear();
-                if (rootBone == null || !m_AutoRebind)
+                if (rootBone == null || (!m_AutoRebind && !forceCreateCache))
                     return;
 
                 int boneCount = CountChildren(rootBone);
@@ -948,8 +953,8 @@ namespace UnityEngine.U2D.Animation
 
         internal void SetDeformationSystem(BaseDeformationSystem newDeformationSystem)
         {
-            deformationSystem = newDeformationSystem;
-            currentDeformationMethod = deformationSystem.deformationMethod;
+            m_DeformationSystem = newDeformationSystem;
+            currentDeformationMethod = m_DeformationSystem.deformationMethod;
         }
 
         static int CountChildren(Transform transform)

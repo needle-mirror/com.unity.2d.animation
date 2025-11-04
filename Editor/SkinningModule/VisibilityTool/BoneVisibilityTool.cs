@@ -350,7 +350,6 @@ namespace UnityEditor.U2D.Animation
             {
                 case DragAndDropPosition.UponItem:
                 case DragAndDropPosition.OutsideItems:
-                case DragAndDropPosition.BetweenItems:
                 {
                     TreeViewItemBase<BoneCache> newParent = args.parentItem as TreeViewItemBase<BoneCache>;
                     bool validDrag = false;

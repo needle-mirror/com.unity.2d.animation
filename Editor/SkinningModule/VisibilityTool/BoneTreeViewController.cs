@@ -277,6 +277,12 @@ namespace UnityEditor.U2D.Animation
                 for (int i = draggedItems.Count - 1; i >= 0; --i)
                 {
                     BoneCache bone = ((TreeViewItemBase<BoneCache>)draggedItems[i]).customData;
+
+                    // Do not reparent if the parent is unchanged.
+                    // This prevents unnecessary operations and avoids creating redundant undo steps.
+                    if (bone.parent == parent)
+                        continue;
+
                     m_Model.SetBoneParent(parent, bone, insertAtIndex);
                     m_SkinningEvents.skeletonTopologyChanged.Invoke(bone.skeleton);
                 }
