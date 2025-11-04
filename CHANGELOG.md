@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.2.2] - 2025-11-04
+### Changed
+- Allow pasting sprite data between sources and destinations with different sprite counts.
+
+### Fixed
+- Fix NullReferenceException error thrown by the Sprite Library Editor window when entering Play Mode with Game View maximised (DANB-1019)
+
 ## [9.2.1] - 2025-06-03
 
 ### Fixed

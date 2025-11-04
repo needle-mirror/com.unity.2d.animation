@@ -35,6 +35,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         EditorMainWindow m_MainWindow;
 
         WindowController m_Controller;
+        private bool m_initialized = false;
 
         VisualElement m_EditorWindowRoot;
         VisualElement m_CreateAssetElement;
@@ -58,9 +59,12 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnDestroy()
         {
-            m_Controller.Destroy();
+            if (!m_initialized)
+                return;
 
+            m_Controller.Destroy();
             EditorApplication.playModeStateChanged -= PlayModeStateChanged;
+            m_initialized = false;
         }
 
         void InitializeWindow()
@@ -117,6 +121,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             HandleEditorPrefs();
 
             EditorApplication.playModeStateChanged += PlayModeStateChanged;
+            m_initialized = true;
         }
 
         void PlayModeStateChanged(PlayModeStateChange newState)
@@ -126,6 +131,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 if (hasUnsavedChanges)
                     HandleUnsavedChanges();
             }
+
+            m_initialized = false;
         }
 
         void HandleEditorPrefs()

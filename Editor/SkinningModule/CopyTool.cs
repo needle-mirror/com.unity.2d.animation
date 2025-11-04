@@ -296,16 +296,15 @@ namespace UnityEditor.U2D.Animation
             var doesCopyContainMultipleSprites = skinningCopyData.copyData.Count > 1;
             var sprites = skinningCache.GetSprites();
 
-            if (doesCopyContainMultipleSprites && skinningCopyData.copyData.Count != sprites.Length && shouldPasteMesh)
-            {
-                Debug.LogError(string.Format(TextContent.copyError3, sprites.Length, skinningCopyData.copyData.Count));
-                return;
-            }
-
             var selectedSprite = skinningCache.selectedSprite;
             using (skinningCache.UndoScope(TextContent.pasteData))
             {
                 var scale = skinningCopyData.pixelsPerUnit > 0f ? pixelsPerUnit / skinningCopyData.pixelsPerUnit : 1f;
+                if (!Mathf.Approximately(skinningCopyData.pixelsPerUnit, pixelsPerUnit))
+                {
+                    Debug.LogWarningFormat(TextContent.pasteSpritesScaledDifferentPPU, skinningCopyData.pixelsPerUnit, pixelsPerUnit);
+                }
+
                 var pastedBonesToSelect = new HashSet<BoneCache>();
 
                 var characterBones = Array.Empty<BoneCache>();
