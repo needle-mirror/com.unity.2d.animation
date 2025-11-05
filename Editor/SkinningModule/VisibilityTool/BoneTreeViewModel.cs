@@ -101,18 +101,39 @@ namespace UnityEditor.U2D.Animation
 
         public void SetBoneParent(BoneCache newParent, BoneCache bone, int insertAtIndex)
         {
+            // insertAtIndex is accepted for compatibility but ignored to maintain skeleton-wide
+            // index order. Always place bones based on their original skeleton index order.
+
             TransformCache parent = newParent;
 
             if (newParent == null)
                 parent = bone.skeleton;
 
+            // Save the bone's original skeleton-wide index
+            SkeletonCache skeleton = bone.skeleton;
+            int originalSkeletonIndex = skeleton.IndexOf(bone);
+
             skinningCache.RestoreBindPose();
             bone.SetParent(parent, true);
 
-            if (insertAtIndex == -1)
-                insertAtIndex = parent.childCount;
+            // Calculate the appropriate position within the new parent's children
+            // to maintain the original skeleton index order
+            int targetSiblingIndex = 0;
 
-            bone.siblingIndex = insertAtIndex;
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                BoneCache sibling = parent.children[i] as BoneCache;
+                if (sibling != null && sibling != bone)
+                {
+                    int siblingSkeletonIndex = skeleton.IndexOf(sibling);
+                    if (siblingSkeletonIndex < originalSkeletonIndex)
+                        targetSiblingIndex = i + 1;
+                    else
+                        break;
+                }
+            }
+
+            bone.siblingIndex = targetSiblingIndex;
             bone.SetDefaultPose();
         }
 

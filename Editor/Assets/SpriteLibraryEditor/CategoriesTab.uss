@@ -30,6 +30,8 @@
 
 .sprite-library-editor-window__category-list-text {
     margin-left: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .sprite-library-editor-window__category-list-item {

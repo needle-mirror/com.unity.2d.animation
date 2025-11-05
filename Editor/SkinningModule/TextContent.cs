@@ -168,7 +168,7 @@ namespace UnityEditor.U2D.Animation
         public static string influencedSprites = L10n.Tr("Sprite Influences");
 
         // Error messages
-        public static string copyIncorrectNumberOfSprites = L10n.Tr("Cannot paste Sprites ({0}) from the source, because the target has a different number of Sprites ({1}).");
+        public static string pasteSpritesScaledDifferentPPU = L10n.Tr("Pasted sprites have been scaled due to different Pixels Per Unit values (from {0} to {1}). If the result is unintended, ensure both sprites have matching Pixels Per Unit values before copying.");
         public static string spriteMeshOverwriteWarning = L10n.Tr("{0} has custom outline defined. The Sprite's mesh will be overwritten by the mesh defined in Skinning Editor.");
         public static string boneWeightsNotSumZeroWarning = L10n.Tr("Sprite {0} contains bone weights which sum zero or are not normalized. To avoid visual artifacts please consider fixing them.");
     }

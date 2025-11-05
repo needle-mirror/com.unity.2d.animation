@@ -37,7 +37,11 @@ namespace UnityEngine.U2D.Animation
             return path;
         }
 
-        public static bool GetSpriteBonesTransforms(SpriteSkin spriteSkin, out Transform[] outTransform)
+        // This method is used during runtime to map sprite bones to transforms.
+        // It uses a guid on the sprite bone to find the transform using a linear search.
+        // If it cannot find the transform using the guid, it will fall back to using the path of the transform
+        // and use the hierarchyCache.
+        public static bool GetSpriteBonesTransforms(SpriteSkin spriteSkin, out Transform[] outTransform, bool forceCreateCache = false)
         {
             Transform rootBone = spriteSkin.rootBone;
             SpriteBone[] spriteBones = spriteSkin.sprite.GetBones();
@@ -72,7 +76,7 @@ namespace UnityEngine.U2D.Animation
 
             Dictionary<int, List<SpriteSkin.TransformData>> hierarchyCache = spriteSkin.hierarchyCache;
             if (hierarchyCache.Count == 0)
-                spriteSkin.CacheHierarchy();
+                spriteSkin.CacheHierarchy(forceCreateCache);
 
             // If unable to successfully map via guid, fall back to path
             return GetSpriteBonesTransformFromPath(spriteBones, hierarchyCache, outTransform);

@@ -1,9 +1,16 @@
 # Changelog
 
+## [12.0.3] - 2025-11-05
+### Fixed
+- Fixed Dynamic-Batching / Skinning is broken. (DANB-1037)
+- Fix unresponsive scrolling in Sprite Library Editor grid view after adding multiple labels. (DANB-1091)
+- Fix bone drag and drop to preserve skeleton-wide order in Visibility window. (DANB-1120)
+
 ## [12.0.2] - 2025-06-12
 ### Fixed
 - Fix the icon quality of Sprite Swap Overlay Window. (DANB-988)
 - Fix NullReferenceException error thrown by the Sprite Library Editor window when entering Play Mode with Game View maximised (DANB-1019)
+- Fix the issue where disposing SpriteSkin component with Object.DestroyImmediate is not safe in PolySpacial. (DANB-993)
 
 ## [12.0.1] - 2025-06-04
 ### Fixed
