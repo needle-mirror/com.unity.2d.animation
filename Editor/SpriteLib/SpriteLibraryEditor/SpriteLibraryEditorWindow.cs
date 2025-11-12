@@ -88,6 +88,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             m_Controller.Destroy();
             EditorApplication.playModeStateChanged -= PlayModeStateChanged;
+            AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
             m_initialized = false;
         }
 
@@ -146,6 +147,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 m_Controller.SelectAsset(currentSelection);
 
             EditorApplication.playModeStateChanged += PlayModeStateChanged;
+            AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
             m_initialized = true;
         }
 
@@ -169,6 +171,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             }
 
             m_initialized = false;
+        }
+
+        void OnBeforeAssemblyReload()
+        {
+            if (hasUnsavedChanges)
+            {
+                HandleUnsavedChanges();
+            }
         }
 
         void HandleEditorPrefs()

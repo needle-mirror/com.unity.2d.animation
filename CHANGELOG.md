@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.0.2] - 2025-11-12
+### Fixed
+- Fix chain length in FABRIK and CCD IK Solvers to not exceed the number of connected bones. (DANB-1119)
+- Prevent overlap between label and object field, and ellipsize long names (DANB-1154)
+- Ask whether to save when Editor Theme or Editor Font changes and there are unsaved changes in Sprite Library Editor (DANB-1165)
+- Fix bone drag and drop to preserve skeleton-wide order in Visibility window. (DANB-1120)
+
 ## [13.0.1] - 2025-09-25
 ### Changed
 - Improved the performance when 2D IK Gizmos are displayed.
