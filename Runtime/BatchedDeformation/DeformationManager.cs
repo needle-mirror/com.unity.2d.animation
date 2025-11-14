@@ -1,4 +1,10 @@
 using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine.Rendering;
+
+#if ENABLE_URP
+using UnityEngine.Rendering.Universal;
+#endif
 
 namespace UnityEngine.U2D.Animation
 {
@@ -44,6 +50,22 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
+#if ENABLE_URP
+        UniversalRenderPipelineAsset urpPipelineAsset
+        {
+            get
+            {
+                RenderPipelineAsset pipelineAsset = GraphicsSettings.currentRenderPipeline as UnityEngine.Rendering.RenderPipelineAsset;
+                if (pipelineAsset != null)
+                {
+                    UniversalRenderPipelineAsset urpAsset = pipelineAsset as UniversalRenderPipelineAsset;
+                    return urpAsset;
+                }
+                return null;
+            }
+        }
+#endif        
+
         BaseDeformationSystem[] m_DeformationSystems;
 
         [SerializeField]
@@ -51,13 +73,21 @@ namespace UnityEngine.U2D.Animation
         internal GameObject helperGameObject => m_Helper;
 
         bool canUseGpuDeformation { get; set; }
+        bool m_WasUsingSRPBatcherLastFrame;
         bool m_WasUsingGpuDeformationLastFrame;
+        bool m_HandleDeformationChange;
 
         void OnEnable()
         {
             s_Instance = this;
             canUseGpuDeformation = SpriteSkinUtility.CanUseGpuDeformation();
             m_WasUsingGpuDeformationLastFrame = SpriteSkinUtility.IsUsingGpuDeformation();
+            m_WasUsingSRPBatcherLastFrame = false;
+            m_HandleDeformationChange = false;
+
+#if ENABLE_URP
+            m_WasUsingSRPBatcherLastFrame = urpPipelineAsset ? urpPipelineAsset.useSRPBatcher : false;
+#endif                      
 
             Init();
         }
@@ -127,23 +157,42 @@ namespace UnityEngine.U2D.Animation
 
         internal void Update()
         {
-            if (HasToggledGpuDeformation())
+            if (m_HandleDeformationChange)
+            {
                 MoveSpriteSkinsToActiveSystem();
+                m_HandleDeformationChange = false;
+            }
+            UpdateGpuDeformationConfig();
 
             for (int i = 0; i < m_DeformationSystems.Length; ++i)
                 m_DeformationSystems[i].Update();
         }
 
-        bool HasToggledGpuDeformation()
+        bool UpdateGpuDeformationConfig()
         {
+            // This handles the following:
+            // 1) SRP / Builtin Transition.
+            // 2) SRP Batcher Toggle Transition.
+            // 3) GPU Skinning Toggle Transition.
+
             bool isUsingGpuDeformation = SpriteSkinUtility.IsUsingGpuDeformation();
             if (isUsingGpuDeformation != m_WasUsingGpuDeformationLastFrame)
             {
                 m_WasUsingGpuDeformationLastFrame = isUsingGpuDeformation;
-                return true;
+                m_HandleDeformationChange = true;
             }
 
-            return false;
+            bool isUsingSRPBatcher = false;
+#if ENABLE_URP
+            isUsingSRPBatcher = urpPipelineAsset ? urpPipelineAsset.useSRPBatcher : false;
+#endif            
+            if (isUsingSRPBatcher != m_WasUsingSRPBatcherLastFrame)
+            {
+                m_WasUsingSRPBatcherLastFrame = isUsingSRPBatcher;
+                m_HandleDeformationChange = true;
+            }
+
+            return m_HandleDeformationChange;
         }
 
         void MoveSpriteSkinsToActiveSystem()
@@ -156,6 +205,9 @@ namespace UnityEngine.U2D.Animation
 
             foreach (SpriteSkin spriteSkin in skins)
                 AddSpriteSkin(spriteSkin);
+#if UNITY_EDITOR
+            SceneView.RepaintAll();
+#endif
         }
 
         internal void AddSpriteSkin(SpriteSkin spriteSkin)
@@ -167,6 +219,9 @@ namespace UnityEngine.U2D.Animation
             DeformationMethods deformationMethod = SpriteSkinUtility.IsUsingGpuDeformation() ? DeformationMethods.Gpu : DeformationMethods.Cpu;
             if (deformationMethod == DeformationMethods.Gpu && null != spriteSkin.sprite)
             {
+                // Deactivate Buffer for GPU.
+                spriteSkin.spriteRenderer.DeactivateDeformableBuffer();
+
                 if (!canUseGpuDeformation)
                 {
                     deformationMethod = DeformationMethods.Cpu;
@@ -175,7 +230,10 @@ namespace UnityEngine.U2D.Animation
                 else if (!SpriteSkinUtility.CanSpriteSkinUseGpuDeformation(spriteSkin))
                 {
                     deformationMethod = DeformationMethods.Cpu;
-                    Debug.LogWarning($"{spriteSkin.name} is using a shader without GPU deformation support. Switching the renderer over to CPU deformation.", spriteSkin);
+
+                    Material material = spriteSkin.GetComponent<SpriteRenderer>()?.sharedMaterial;
+                    string shaderName = material?.shader?.name ?? "Unknown";
+                    Debug.LogWarning($"{spriteSkin.name} is using a shader '{shaderName}' without GPU deformation support. Switching the renderer over to CPU deformation.", spriteSkin);
                 }
             }
             // Second, add the sprite skin to the system.

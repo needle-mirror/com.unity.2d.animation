@@ -53,10 +53,11 @@ namespace UnityEngine.U2D.Animation
 #endif
 
 #if ENABLE_URP
+            // Optimize/Refactor all redundant calls.
             return CanUseGpuDeformation() &&
                 GraphicsSettings.currentRenderPipeline != null &&
                 UniversalRenderPipeline.asset != null && UniversalRenderPipeline.asset.useSRPBatcher &&
-                InternalEngineBridge.IsGPUSkinningEnabled();
+                InternalEngineBridge.IsGPUSkinningEnabled(null);
 #else
             return false;
 #endif
@@ -72,9 +73,10 @@ namespace UnityEngine.U2D.Animation
 #endif
 
 #if ENABLE_URP
+            // Optimize/Refactor all redundant calls.
             return CanUseGpuDeformation() &&
                 InternalEngineBridge.IsSRPBatchingEnabled(spriteRenderer) &&
-                InternalEngineBridge.IsGPUSkinningEnabled();
+                InternalEngineBridge.IsGPUSkinningEnabled(spriteRenderer);
 #else
             return false;
 #endif
@@ -83,9 +85,11 @@ namespace UnityEngine.U2D.Animation
         internal static bool CanSpriteSkinUseGpuDeformation(SpriteSkin spriteSkin)
         {
 #if ENABLE_URP
-            return InternalEngineBridge.IsSRPBatchingEnabled(spriteSkin.spriteRenderer) &&
-                   IsUsingGpuDeformation() &&
-                   GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
+            // Optimize/Refactor all redundant calls.
+            var srpBatching = InternalEngineBridge.IsSRPBatchingEnabled(spriteSkin.spriteRenderer);
+            var usingGPUDeform = IsUsingGpuDeformation();
+            var shaderSupport = GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
+            return srpBatching && usingGPUDeform && shaderSupport;
 #else
             return false;
 #endif

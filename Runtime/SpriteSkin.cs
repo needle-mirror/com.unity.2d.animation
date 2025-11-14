@@ -1103,6 +1103,7 @@ namespace UnityEngine.U2D.Animation
         {
             m_DeformationSystem = newDeformationSystem;
             currentDeformationMethod = m_DeformationSystem.deformationMethod;
+            UpdateSpriteDeformationData();
         }
 
         static int CountChildren(Transform transform)

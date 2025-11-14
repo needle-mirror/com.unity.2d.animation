@@ -1,5 +1,9 @@
 # Changelog
 
+## [14.0.2] - 2025-11-14
+### Fixed
+- Fix warnings of "a shader without GPU deformation support" occurs when switching from CPU to GPU Skinning with a PSB skinned sprite (DANB-1079)
+
 ## [14.0.1] - 2025-10-30
 ### Fixed
 - Fix bone drag and drop to preserve skeleton-wide order in Visibility window. (DANB-1120)
