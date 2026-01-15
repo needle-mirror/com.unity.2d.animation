@@ -509,7 +509,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             {
                 evt.menu.AppendAction(TextContent.spriteLibraryCreateLabel, _ => CreateNewLabel());
 
-                int selectedId = m_SelectedLabels.Select(label => m_LabelData.FindIndex(l => l.name == label)).FirstOrDefault();
+                int selectedId = m_SelectedLabels.Count > 0 ? m_LabelData.FindIndex(l => l.name == m_SelectedLabels[0]) : -1;
                 bool canModifyAt = CanModifyAtId(selectedId);
                 DropdownMenuAction.Status canModifyStatus = canModifyAt ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
                 bool canRename = CanRenameAtId(selectedId);

@@ -160,6 +160,18 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             RefreshSelection();
         }
 
+        public void DeselectAsset()
+        {
+            m_SelectedAssetPath = null;
+
+            m_Model.SelectAsset(null);
+
+            m_ControllerEvents.onSelectedLibrary?.Invoke(null);
+
+            RefreshView();
+            RefreshSelection();
+        }
+
         void AddViewEventListeners()
         {
             m_ViewEvents.onCreateNewSpriteLibraryAsset.AddListener(CreateNewSpriteLibraryAsset);
@@ -197,14 +209,14 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         void AddAssetPostprocessorListeners()
         {
             SpriteLibraryAssetPostprocessor.OnImported += OnAssetModified;
-            SpriteLibraryAssetPostprocessor.OnDeleted += OnAssetModified;
+            SpriteLibraryAssetPostprocessor.OnDeleted += OnAssetDeleted;
             SpriteLibraryAssetPostprocessor.OnMovedAssetFromTo += OnAssetMoved;
         }
 
         void RemoveAssetPostprocessorListeners()
         {
             SpriteLibraryAssetPostprocessor.OnImported -= OnAssetModified;
-            SpriteLibraryAssetPostprocessor.OnDeleted -= OnAssetModified;
+            SpriteLibraryAssetPostprocessor.OnDeleted -= OnAssetDeleted;
             SpriteLibraryAssetPostprocessor.OnMovedAssetFromTo -= OnAssetMoved;
         }
 
@@ -281,6 +293,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 return;
 
             SelectAsset(AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(m_SelectedAssetPath), true);
+        }
+
+        void OnAssetDeleted(string deletedAssetPath)
+        {
+            DeselectAsset();
         }
 
         void OnAssetMoved(string sourcePath, string destinationPath)

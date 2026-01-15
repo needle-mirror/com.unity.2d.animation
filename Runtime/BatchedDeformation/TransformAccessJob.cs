@@ -130,7 +130,8 @@ namespace UnityEngine.U2D.Animation
         }
 
         // This method is used to remove real nulls from the array and resize it.
-        static void CompactArray<T>(ref T[] array)
+        // Returns true if the array size was reduced.
+        static bool CompactArray<T>(ref T[] array)
         {
             // iterate over array and remove nulls
             int writeIndex = 0;
@@ -146,10 +147,11 @@ namespace UnityEngine.U2D.Animation
             }
 
             // Resize the array to the new length
-            if (writeIndex < array.Length)
-            {
+            bool resized = writeIndex < array.Length;
+            if (resized)
                 Array.Resize(ref array, writeIndex);
-            }
+
+            return resized;
         }
 
         void UpdateTransformIndex()
@@ -271,7 +273,9 @@ namespace UnityEngine.U2D.Animation
                 }
             }
 
-            CompactArray(ref m_Transform);
+            if (CompactArray(ref m_Transform))
+                m_Dirty = true;
+
             return count;
         }
 
@@ -332,7 +336,8 @@ namespace UnityEngine.U2D.Animation
                         m_Transform[index] = null;
                 }
 
-                CompactArray(ref m_Transform);
+                if (CompactArray(ref m_Transform))
+                    m_Dirty = true;
             }
             ListPool<int>.Release(indexesToRemove);
         }

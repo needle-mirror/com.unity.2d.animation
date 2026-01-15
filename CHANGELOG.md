@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.0.3] - 2026-01-15
+### Fixed
+- Disable "Delete Selected Labels" menu when nothing is selected in SpriteLibraryEditor (DANB-1201)
+- Refresh sprite library editor when deleting asset. (DANB-1232)
+- Fix "IKGizmos: Mismatching number of solvers" errors when loading invalid prefabs (UUM-131322, DANB-1254)
+- Fix transform index corruption caused by missing dirty flag update after array compaction. (UUM-131697)
+
 ## [13.0.2] - 2025-11-12
 ### Fixed
 - Fix chain length in FABRIK and CCD IK Solvers to not exceed the number of connected bones. (DANB-1119)
