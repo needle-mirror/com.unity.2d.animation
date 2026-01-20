@@ -5,8 +5,8 @@ using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
 #if UNITY_6000_2_OR_NEWER
-using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
-using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<UnityEngine.EntityId>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<UnityEngine.EntityId>;
 #else
 using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem;
 using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState;
@@ -180,14 +180,14 @@ namespace UnityEditor.U2D.Animation
         public void OnBoneSelectionChanged(SkeletonSelection boneSelection)
         {
             BoneCache[] bones = boneSelection.elements.ToSpriteSheetIfNeeded();
-            int[] ids = GetController().GetIDsToSelect(bones);
+            EntityId[] ids = GetController().GetIDsToSelect(bones);
 
             SetSelection(ids, TreeViewSelectionOptions.RevealAndFrame);
         }
 
         public void OnBoneExpandedChanged(BoneCache[] bones)
         {
-            int[] expandIds = GetController().GetIDsToSelect(bones);
+            EntityId[] expandIds = GetController().GetIDsToSelect(bones);
             if (expandIds.Length == 0)
                 return;
 
@@ -199,7 +199,7 @@ namespace UnityEditor.U2D.Animation
             GetController().SetTreeViewBoneName(GetRows(), bone);
         }
 
-        protected override void SelectionChanged(IList<int> selectedIds)
+        protected override void SelectionChanged(IList<EntityId> selectedIds)
         {
             GetController().SelectBones(selectedIds, GetRows());
         }
@@ -306,7 +306,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override TreeViewItem BuildRoot()
         {
-            TreeViewItem root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
+            TreeViewItem root = new TreeViewItem { id = EntityId.None, depth = -1, displayName = "Root" };
             List<TreeViewItem> rows = GetController() != null ? GetController().BuildTreeView() : new List<TreeViewItem>();
             SetupParentsAndChildrenFromDepths(root, rows);
             return root;
@@ -365,7 +365,7 @@ namespace UnityEditor.U2D.Animation
                     {
                         GetController().ReparentItems(newParent, draggedRows, args.insertAtIndex);
                         Reload();
-                        List<int> selectedIDs = draggedRows.ConvertAll(b => b.id);
+                        List<EntityId> selectedIDs = draggedRows.ConvertAll(b => b.id);
                         SetSelection(selectedIDs, TreeViewSelectionOptions.RevealAndFrame);
                         SelectionChanged(selectedIDs);
                     }

@@ -113,7 +113,7 @@ namespace UnityEngine.U2D.Animation
                 m_DeformationSystems[(int)DeformationMethods.Gpu] = new GpuDeformationSystem();
 
             for (int i = 0; i < m_DeformationSystems.Length; ++i)
-                m_DeformationSystems[i].Initialize(m_DeformationSystems[i].GetHashCode());
+                m_DeformationSystems[i].Initialize((ulong)m_DeformationSystems[i].GetHashCode());
         }
 
         // Create a helper GameObject, which has a DeformationManagerUpdater component which will update the deformation systems.

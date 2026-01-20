@@ -20,6 +20,7 @@
   * [Sprite Resolver component in Unity](SL-Resolver)
   * [Setting up for Sprite Swap](SpriteSwapSetup)
     * [How to swap individual Sprites](CharacterParts)
+    * [Add new sprites to an existing rig](SpriteSwap-swap-sprites-existing-rig)
     * [Swapping Sprite Library Assets](SLASwap)
 * [Importing Samples](Examples)
   * [Simple](ex-simple)

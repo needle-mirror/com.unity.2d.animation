@@ -231,8 +231,7 @@ namespace UnityEditor.U2D.Animation
                 }
             }
 
-            m_LabelSelectionIndex = m_SpriteSelectorWidget.ShowGUI(m_LabelSelectionIndex);
-
+            m_LabelSelectionIndex = m_SpriteSelectorWidget.ShowGUI(m_LabelSelectionIndex, this);
 
             if (EditorGUI.EndChangeCheck())
             {

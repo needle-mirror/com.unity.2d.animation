@@ -95,6 +95,10 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
                 m_ListView.selectedIndex = -1;
                 m_ListView.itemsSource = newSelection;
                 m_ListView.Rebuild();
+
+                // Reset scroll position to top when changing selection.
+                // Because the scrollbar position of the ListView is not saved for each SpriteLibrary component.
+                m_ListView.ScrollToItem(0);
             }
 
             m_Selection = newSelection;

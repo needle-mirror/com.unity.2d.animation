@@ -12,7 +12,7 @@ For various examples of how you can use this feature in a Project, [import sampl
 [Drag sprites to create or edit Categories and Labels](SL-Drag.md) | Drag sprites to perform certain functions in the Sprite Library Editor automatically.
 [Sprite Library component in Unity](SL-component.md) | Understand what the Sprite Library component is and how to use its features.
 [Sprite Resolver component in Unity](SL-Resolver.md) | Understand what the Sprite Resolver component is and how to use it.
-[Setting up Sprite Swap](SpriteSwapSetup.md)  |  Understand how to set up the different components and assets needed to use Sprite Swap.
+[Setting up Sprite Swap](SpriteSwapSetup.md)  |  Understand how to set up the different components and assets needed to use Sprite Swap.|
 
 ## Additional resources
 * [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest)

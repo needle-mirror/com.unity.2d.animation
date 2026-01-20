@@ -13,14 +13,16 @@ namespace UnityEditor.U2D.Animation
         static readonly int k_TailHashCode = "Tail".GetHashCode();
         static readonly int k_CreateBoneHashCode = "CreateBone".GetHashCode();
 
-        public int InvalidID { get; set; }
+        public EntityId InvalidID { get; set; }
+
         public SkeletonMode mode { get; set; }
         public int defaultControlID { get; set; }
-        public int hoveredBoneID => m_HoveredBoneID;
-        public int hoveredJointID => m_HoveredJointID;
-        public int hoveredBodyID => m_HoveredBodyID;
-        public int hoveredTailID => m_HoveredTailID;
-        public int hotBoneID => m_HotBoneID;
+
+        public EntityId hoveredBoneID => m_HoveredBoneID;
+        public EntityId hoveredJointID => m_HoveredJointID;
+        public EntityId hoveredBodyID => m_HoveredBodyID;
+        public EntityId hoveredTailID => m_HoveredTailID;
+        public EntityId hotBoneID => m_HotBoneID;
 
         IGUIWrapper m_GUIWrapper;
         int m_RotateControlID = -1;
@@ -30,12 +32,15 @@ namespace UnityEditor.U2D.Animation
         int m_MoveEndPositionControlID = -1;
         int m_ChangeLengthControlID = -1;
         int m_CreateBoneControlID = -1;
-        int m_HoveredBoneID = 0;
-        int m_PrevHoveredBoneID = 0;
-        int m_HoveredBodyID = 0;
-        int m_HoveredJointID = 0;
-        int m_HoveredTailID = 0;
-        int m_HotBoneID = 0;
+
+        // BoneId
+        EntityId m_HoveredBoneID = EntityId.None;
+        EntityId m_PrevHoveredBoneID = EntityId.None;
+        EntityId m_HoveredBodyID = EntityId.None;
+        EntityId m_HoveredJointID = EntityId.None;
+        EntityId m_HoveredTailID = EntityId.None;
+        EntityId m_HotBoneID = EntityId.None;
+
         int m_HoveredBodyControlID = -1;
         int m_HoveredJointControlID = -1;
         int m_HoveredTailControlID = -1;
@@ -43,9 +48,11 @@ namespace UnityEditor.U2D.Animation
         float m_NearestBodyDistance;
         float m_NearestJointDistance;
         float m_NearestTailDistance;
-        int m_NearestBodyId = 0;
-        int m_NearestJointId = 0;
-        int m_NearestTailId = 0;
+
+        EntityId m_NearestBodyId = EntityId.None;
+        EntityId m_NearestJointId = EntityId.None;
+        EntityId m_NearestTailId = EntityId.None;
+
         SliderData m_HoveredSliderData = SliderData.zero;
         SliderData m_HotSliderData = SliderData.zero;
 
@@ -123,7 +130,7 @@ namespace UnityEditor.U2D.Animation
             return m_GUIWrapper.eventType == EventType.Layout;
         }
 
-        public void LayoutBone(int id, Vector3 position, Vector3 endPosition, Vector3 forward, Vector3 up, Vector3 right, bool isChainEnd)
+        public void LayoutBone(EntityId id, Vector3 position, Vector3 endPosition, Vector3 forward, Vector3 up, Vector3 right, bool isChainEnd)
         {
             if (mode == SkeletonMode.Disabled)
                 return;
@@ -190,9 +197,9 @@ namespace UnityEditor.U2D.Animation
             return k_PickingRadius;
         }
 
-        public bool DoSelectBone(out int id, out bool additive)
+        public bool DoSelectBone(out EntityId id, out bool additive)
         {
-            id = 0;
+            id = EntityId.None;
             additive = false;
 
             if (IsActionTriggering(SkeletonAction.Select))
@@ -341,7 +348,7 @@ namespace UnityEditor.U2D.Animation
             return false;
         }
 
-        public bool DoSplitBone(out int id, out Vector3 position)
+        public bool DoSplitBone(out EntityId id, out Vector3 position)
         {
             id = m_HoveredBodyID;
             position = GetMouseWorldPosition(m_HoveredSliderData.forward, m_HoveredSliderData.position);

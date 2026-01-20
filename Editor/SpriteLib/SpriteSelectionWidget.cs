@@ -42,26 +42,30 @@ namespace UnityEditor.U2D.Animation
         List<int> m_SpritePreviewNeedFetching = new();
 
         Sprite[] m_SpriteList = Array.Empty<Sprite>();
-        Texture2D[] m_SpritePreviews = Array.Empty<Texture2D>();
+        Texture[] m_SpritePreviews = Array.Empty<Texture>();
 
-        int m_ClientId = 0;
+        EntityId m_ClientId;
         int m_PreviewCacheSize = 0;
 
         Vector2 m_ScrollPos;
         Styles m_Style;
 
+        private int m_PreviewHeight = k_TargetPreviewSize;
+        private bool m_Dragging;
+        private Vector2 m_DragStartMousePos;
+        private float m_DragStartBoxHeight;
 
-        public void Initialize(int clientId)
+        public void Initialize(EntityId clientId)
         {
             m_ClientId = clientId;
         }
 
         public void Dispose()
         {
-            if (m_ClientId != 0)
+            if (m_ClientId != EntityId.None)
             {
                 InternalEditorBridge.ClearAssetPreviews(m_ClientId);
-                m_ClientId = 0;
+                m_ClientId = EntityId.None;
             }
         }
 
@@ -76,21 +80,71 @@ namespace UnityEditor.U2D.Animation
             InternalEditorBridge.SetAssetPreviewTextureCacheSize(m_PreviewCacheSize, m_ClientId);
 
             m_SpriteList = sprites;
-            m_SpritePreviews = new Texture2D[spriteCount];
+            m_SpritePreviews = new Texture[spriteCount];
 
             m_SpritePreviewNeedFetching.Capacity = spriteCount;
             for (int i = 0; i < spriteCount; ++i)
                 m_SpritePreviewNeedFetching.Add(i);
         }
 
-        public int ShowGUI(int selectedIndex)
+        public int ShowGUI(int selectedIndex, Editor editor)
         {
             if (m_Style == null)
                 m_Style = new Styles();
 
-            Rect drawRect = EditorGUILayout.GetControlRect(false, k_TargetPreviewSize + 10f, new[] { GUILayout.ExpandWidth(true) });
+            Rect drawRect = EditorGUILayout.GetControlRect(false, m_PreviewHeight + 10f, new[] { GUILayout.ExpandWidth(true) });
             if (Event.current.type == EventType.Repaint)
+            {
                 GUI.skin.box.Draw(drawRect, false, false, false, false);
+            }
+
+            // Draw the resize handle along the entire bottom edge
+            float handleHeight = 8f;
+            Rect handleRect = new Rect(
+                drawRect.xMin,
+                drawRect.yMax + handleHeight / 2f,
+                drawRect.width,
+                handleHeight
+            );
+
+            EditorGUIUtility.AddCursorRect(handleRect, MouseCursor.ResizeVertical);
+
+            // Draw a "grip" for visual feedback (three horizontal lines)
+            Handles.BeginGUI();
+            Handles.color = Color.gray;
+            for (int i = -1; i <= 1; i++)
+            {
+                float y = handleRect.center.y + i * 3f;
+                Handles.DrawLine(
+                    new Vector3(handleRect.xMin, y),
+                    new Vector3(handleRect.xMax, y)
+                );
+            }
+            Handles.EndGUI();
+
+            // Handle mouse events
+            Event e = Event.current;
+            if (e.type == EventType.MouseDown && handleRect.Contains(e.mousePosition))
+            {
+                m_Dragging = true;
+                m_DragStartMousePos = e.mousePosition;
+                m_DragStartBoxHeight = m_PreviewHeight;
+                e.Use();
+            }
+            else if (e.type == EventType.MouseUp)
+            {
+                m_Dragging = false;
+            }
+            else if (e.type == EventType.MouseDrag && m_Dragging)
+            {
+                float deltaY = e.mousePosition.y - m_DragStartMousePos.y;
+                m_PreviewHeight = (int)Mathf.Max(50, m_DragStartBoxHeight + deltaY); // Only height changes
+                e.Use();
+                editor.Repaint();
+            }
+
+            GUILayout.Space(20);
+
             if (m_SpriteList == null || m_SpriteList.Length == 0)
             {
                 return selectedIndex;
@@ -138,12 +192,12 @@ namespace UnityEditor.U2D.Animation
                 int index = m_SpritePreviewNeedFetching[i];
                 if (m_SpriteList[index] == null)
                 {
-                    m_SpritePreviews[index] = EditorGUIUtility.Load("icons/console.warnicon.png") as Texture2D;
+                    m_SpritePreviews[index] = EditorGUIUtility.Load("icons/console.warnicon.png") as Texture;
                     m_SpritePreviewNeedFetching.RemoveAt(i);
                 }
                 else
                 {
-                    int spriteId = m_SpriteList[index].GetEntityId();
+                    EntityId spriteId = m_SpriteList[index].GetEntityId();
                     Texture2D spritePreview = InternalEditorBridge.GetAssetPreview(spriteId, m_ClientId);
                     if (spritePreview != null)
                     {

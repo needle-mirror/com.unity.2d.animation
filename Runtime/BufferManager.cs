@@ -15,14 +15,14 @@ namespace UnityEngine.U2D.Animation
         /// </summary>
         public int bufferCount => m_Buffers.Length;
 
-        private readonly int m_Id;
+        private readonly ulong m_Id;
         private bool m_IsActive = true;
         private int m_DeactivateFrame = -1;
 
         private NativeByteArray[] m_Buffers;
         private int m_ActiveIndex = 0;
 
-        public VertexBuffer(int id, int size, bool needDoubleBuffering)
+        public VertexBuffer(ulong id, int size, bool needDoubleBuffering)
         {
             m_Id = id;
 
@@ -32,7 +32,7 @@ namespace UnityEngine.U2D.Animation
                 m_Buffers[i] = new NativeByteArray(new NativeArray<byte>(size, Allocator.Persistent, NativeArrayOptions.UninitializedMemory));
         }
 
-        public override int GetHashCode() => m_Id;
+        public override int GetHashCode() => m_Id.GetHashCode();
         private static int GetCurrentFrame() => Time.frameCount;
 
         public NativeByteArray GetBuffer(int size)
@@ -81,7 +81,7 @@ namespace UnityEngine.U2D.Animation
     {
         private static BufferManager s_Instance;
 
-        private Dictionary<int, VertexBuffer> m_Buffers = new Dictionary<int, VertexBuffer>();
+        private Dictionary<ulong, VertexBuffer> m_Buffers = new Dictionary<ulong, VertexBuffer>();
         private Queue<VertexBuffer> m_BuffersToDispose = new Queue<VertexBuffer>();
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace UnityEngine.U2D.Animation
             m_BuffersToDispose.Clear();
         }
 
-        public NativeByteArray GetBuffer(int id, int bufferSize)
+        public NativeByteArray GetBuffer(ulong id, int bufferSize)
         {
             Profiler.BeginSample("BufferManager.GetBuffer");
             bool foundBuffer = m_Buffers.TryGetValue(id, out VertexBuffer buffer);
@@ -172,7 +172,7 @@ namespace UnityEngine.U2D.Animation
             return buffer?.GetBuffer(bufferSize);
         }
 
-        private VertexBuffer CreateBuffer(int id, int bufferSize)
+        private VertexBuffer CreateBuffer(ulong id, int bufferSize)
         {
             if (bufferSize < 1)
             {
@@ -186,7 +186,7 @@ namespace UnityEngine.U2D.Animation
             return buffer;
         }
 
-        public void ReturnBuffer(int id)
+        public void ReturnBuffer(ulong id)
         {
             Profiler.BeginSample("BufferManager.ReturnBuffer");
             if (m_Buffers.TryGetValue(id, out VertexBuffer buffer))

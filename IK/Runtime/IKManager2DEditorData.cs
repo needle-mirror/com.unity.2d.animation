@@ -18,10 +18,18 @@ namespace UnityEngine.U2D.IK
 
         void OnEditorDataValidate()
         {
+            int solverCount = m_Solvers.Count;
             int solverDataLength = m_SolverEditorData.Count;
-            for (int i = solverDataLength; i < m_Solvers.Count; ++i)
+            for (int i = solverDataLength; i < solverCount; ++i)
             {
                 AddSolverEditorData();
+            }
+
+            // Remove extra elements
+            int editorDataCount = m_SolverEditorData.Count;
+            if (editorDataCount > solverCount)
+            {
+                m_SolverEditorData.RemoveRange(solverCount, editorDataCount - solverCount);
             }
         }
 

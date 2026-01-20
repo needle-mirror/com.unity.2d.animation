@@ -21,7 +21,6 @@ namespace UnityEditor.U2D.Animation
         private SkinningMode m_PreviousSkinningMode;
         private SpriteBoneInfluenceTool m_CharacterSpriteTool;
         private HorizontalToggleTools m_HorizontalToggleTools;
-        private AnimationAnalytics m_Analytics;
         private ModuleToolGroup m_ModuleToolGroup;
         IMeshPreviewBehaviour m_MeshPreviewBehaviourOverride = null;
         bool m_CollapseToolbar;
@@ -112,13 +111,6 @@ namespace UnityEditor.U2D.Animation
                         }
                     }
                 };
-
-                AssetImporter ai = spriteEditor.GetDataProvider<ISpriteEditorDataProvider>() as AssetImporter;
-                m_Analytics = new AnimationAnalytics(new UnityAnalyticsStorage(),
-                    skinningCache.events,
-                    new SkinningModuleAnalyticsModel(skinningCache),
-                    ai == null ? -1 : ai.GetEntityId());
-
                 UpdateCollapseToolbar();
             }
         }
@@ -146,8 +138,6 @@ namespace UnityEditor.U2D.Animation
 
             RemoveMainUI(spriteEditor.GetMainVisualContainer());
             RestoreSpriteEditor();
-            m_Analytics.Dispose();
-            m_Analytics = null;
 
             Cache.Destroy(m_SkinningCache);
         }
@@ -474,9 +464,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (apply)
             {
-                m_Analytics.FlushEvent();
                 ApplyChanges(skinningCache, spriteEditor.GetDataProvider<ISpriteEditorDataProvider>());
-                DoApplyAnalytics();
             }
             else
                 skinningCache.Revert();
@@ -493,20 +481,6 @@ namespace UnityEditor.U2D.Animation
             ApplyMesh(skinningCache, dataProvider);
             ApplyCharacter(skinningCache, dataProvider);
             skinningCache.applyingChanges = false;
-        }
-
-        private void DoApplyAnalytics()
-        {
-            SpriteCache[] sprites = skinningCache.GetSprites();
-            int[] spriteBoneCount = sprites.Select(s => s.GetSkeleton().boneCount).ToArray();
-            BoneCache[] bones = null;
-
-            if (skinningCache.hasCharacter)
-                bones = skinningCache.character.skeleton.bones;
-            else
-                bones = sprites.SelectMany(s => s.GetSkeleton().bones).ToArray();
-
-            m_Analytics.SendApplyEvent(sprites.Length, spriteBoneCount, bones);
         }
 
         static void ApplyBone(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)

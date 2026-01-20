@@ -1,13 +1,33 @@
 # Changelog
 
-## [14.0.2] - 2025-11-14
+## [15.0.0] - 2026-01-20
+
+
+### Changed
+- Update Unity min version for package.
+- Add multi row support for the overlay window of Sprite Swap. (D2D-7644)
+
 ### Fixed
-- Fix warnings of "a shader without GPU deformation support" occurs when switching from CPU to GPU Skinning with a PSB skinned sprite (DANB-1079)
+- Fix SpriteSkin BoundsMode assertion failures. (DANB-1181)
+- Disable "Delete Selected Labels" menu when nothing is selected in SpriteLibraryEditor (DANB-1201)
+- Fix sprite disappearing on undo by resetting bone transform index in DeactivateSkinning. (DANB-1238)
+- Fix SpriteSkin bone bounds update timing. (DANB-1180)
+- Fix exception occurs when changing SpriteSkin's bounds mode after deleting bones in play mode. (DANB-1224)
+- Refresh sprite library editor when deleting asset. (DANB-1232)
+- Fix "IKGizmos: Mismatching number of solvers" errors when loading invalid prefabs (DANB-1254)
+- Fix unused separation line is used in the Context Menu of the Sprite Library Editor Window (DANB-1226)
+- Fix transform index corruption caused by missing dirty flag update after array compaction. (UUM-131697)
+- Fix the ? button in the IKManager2D inspector points to an Invalid link. (UUM-131299)
+- Fix the issue that the internal class CullingManager is available in AddComponent. (UUM-131877)
+- Fix the missing documentation link of CCD Solver 2D Component. (UUM-131875)
+- Fix the missing documentation link of Fabrik Solver 2D Component. (UUM-131879)
+- Fix the missing documentation link of Limb Solver 2D Component. (UUM-131891)
 
 ## [14.0.1] - 2025-10-30
 ### Fixed
 - Fix bone drag and drop to preserve skeleton-wide order in Visibility window. (DANB-1120)
 - Ask whether to save when Editor Theme or Editor Font changes and there are unsaved changes in Sprite Library Editor (DANB-1165)
+- Fix warnings of "a shader without GPU deformation support" occurs when switching from CPU to GPU Skinning with a PSB skinned sprite (DANB-1079)
 
 ## [14.0.0] - 2025-09-30
 ### Changed

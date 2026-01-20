@@ -4,6 +4,6 @@ namespace UnityEngine.U2D.IK
 {
     internal class AlwaysUpdateCullingStrategy : BaseCullingStrategy
     {
-        public override bool AreBonesVisible(IList<int> transformIds) => true;
+        public override bool AreBonesVisible(IList<EntityId> transformIds) => true;
     }
 }

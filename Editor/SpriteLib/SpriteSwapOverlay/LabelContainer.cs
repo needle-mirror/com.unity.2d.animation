@@ -11,90 +11,61 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         static class Styles
         {
             public const string labelVisual = SpriteSwapOverlay.rootStyle + "__label-visual";
-            public const string labelContainer = SpriteSwapOverlay.rootStyle + "__label-container";
-            public const string directionButton = SpriteSwapOverlay.rootStyle + "__label-direction-button";
-            public const string labelImagesContainer = SpriteSwapOverlay.rootStyle + "__label-images-container";
             public const string labelSelected = SpriteSwapOverlay.rootStyle + "__label-selected";
         }
 
-        const string k_ScrollLeftIcon = "scrollleft_uielements";
-        const string k_ScrollRightIcon = "scrollright_uielements";
-        const string k_ScrollLeftIconDark = "d_scrollleft_uielements";
-        const string k_ScrollRightIconDark = "d_scrollright_uielements";
-
         public event Action<int> onSelectionChange;
 
-        public int itemCount => m_LabelImagesContainer.childCount;
+        public int itemCount => m_LabelImagesInternalContainer.childCount;
         public int selectedIndex { get; private set; } = -1;
 
         public VisualElement visualElement => this;
 
         List<Tuple<string, Sprite>> m_Labels;
 
-        Button m_PreviousButton;
-        Button m_NextButton;
         ScrollView m_LabelImagesContainer;
-
-        bool m_IsFocused;
-
+        private VisualElement m_LabelImagesInternalContainer;
         PropertyAnimationState m_AnimationState;
 
         public LabelContainer()
         {
-            m_Labels = new List<Tuple<string, Sprite>>();
-
-            Texture2D previousButtonIcon;
-            Texture2D nextButtonIcon;
-            if (EditorGUIUtility.isProSkin)
-            {
-                previousButtonIcon = (Texture2D)EditorGUIUtility.IconContent(k_ScrollLeftIconDark).image;
-                nextButtonIcon = (Texture2D)EditorGUIUtility.IconContent(k_ScrollRightIconDark).image;
-            }
-            else
-            {
-                previousButtonIcon = (Texture2D)EditorGUIUtility.IconContent(k_ScrollLeftIcon).image;
-                nextButtonIcon = (Texture2D)EditorGUIUtility.IconContent(k_ScrollRightIcon).image;
-            }
 
             m_LabelImagesContainer = new ScrollView
             {
                 horizontalScrollerVisibility = ScrollerVisibility.Hidden,
+                verticalScrollerVisibility = ScrollerVisibility.Auto,
+
                 nestedInteractionKind = ScrollView.NestedInteractionKind.StopScrolling,
-                mode = ScrollViewMode.Horizontal
+                mode = ScrollViewMode.Vertical
             };
-            m_LabelImagesContainer.AddToClassList(Styles.labelImagesContainer);
+            m_LabelImagesContainer.style.flexDirection = FlexDirection.Column;
+            m_LabelImagesContainer.style.flexWrap = Wrap.Wrap;
 
-            m_PreviousButton = new Button { style = { backgroundImage = Background.FromTexture2D(previousButtonIcon) } };
-            m_PreviousButton.clicked += () => m_LabelImagesContainer.horizontalScroller.ScrollPageUp();
-            m_PreviousButton.AddToClassList(Styles.directionButton);
-            m_PreviousButton.RemoveFromClassList(Button.ussClassName);
-
-            m_NextButton = new Button { style = { backgroundImage = Background.FromTexture2D(nextButtonIcon) } };
-            m_NextButton.clicked += () => m_LabelImagesContainer.horizontalScroller.ScrollPageDown();
-            m_NextButton.AddToClassList(Styles.directionButton);
-            m_NextButton.RemoveFromClassList(Button.ussClassName);
-
-            Add(m_PreviousButton);
+            m_LabelImagesInternalContainer = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    flexWrap = Wrap.Wrap
+                }
+            };
+            m_LabelImagesContainer.Add(m_LabelImagesInternalContainer);
             Add(m_LabelImagesContainer);
-            Add(m_NextButton);
 
-            AddToClassList(Styles.labelContainer);
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
 
         public void SetItems(IList labels)
         {
-            ClearItems();
-
-            if (labels == null)
-                return;
-
-            m_Labels = labels as List<Tuple<string, Sprite>>;
-            if (m_Labels == null)
-                return;
-
+            if (labels is not List<Tuple<string, Sprite>> list)
+            {
+                throw new ArgumentException("labels must be of type List<Tuple<string, Sprite>>");
+            }
+            m_Labels = list;
+            if (m_LabelImagesInternalContainer.childCount > 0)
+                m_LabelImagesInternalContainer.Clear();
             foreach ((string labelName, Sprite labelSprite) in m_Labels)
-                m_LabelImagesContainer.Add(GetVisualForLabel(labelName, labelSprite));
+                m_LabelImagesInternalContainer.Add(GetVisualForLabel(labelName, labelSprite));
         }
 
         public object GetItem(int index)
@@ -117,39 +88,24 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
 
         void OnGeometryChanged(GeometryChangedEvent evt)
         {
-            UpdateElementSize();
-            UpdateSelectionVisuals();
-            UpdateNavigationButtons();
-        }
-
-        void UpdateElementSize()
-        {
-            float paddingAndMarginsSize = 4.0f;
-            style.minHeight = style.maxHeight = SpriteSwapOverlay.Settings.thumbnailSize + paddingAndMarginsSize;
-        }
-
-        void ClearItems()
-        {
-            m_Labels.Clear();
-            selectedIndex = -1;
-            m_LabelImagesContainer.Clear();
+            m_LabelImagesInternalContainer.style.width = evt.newRect.width;
         }
 
         void OnLabelPointerDown(PointerDownEvent evt)
         {
             if (evt.currentTarget is Image image)
-                Select(m_LabelImagesContainer.IndexOf(image));
+                Select(m_LabelImagesInternalContainer.IndexOf(image));
         }
 
         void UpdateSelectionVisuals()
         {
-            foreach (VisualElement child in m_LabelImagesContainer.Children())
+            int count = m_LabelImagesInternalContainer.childCount;
+            for (int i = 0; i < count; ++i)
             {
-                if (m_LabelImagesContainer.IndexOf(child) == selectedIndex)
+                VisualElement child = m_LabelImagesInternalContainer[i];
+                if (i == selectedIndex)
                 {
-                    m_LabelImagesContainer.ScrollTo(child);
                     child.AddToClassList(Styles.labelSelected);
-
                     child.style.backgroundColor = GetColorForAnimationState(m_AnimationState);
                 }
                 else
@@ -157,13 +113,6 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
                     child.RemoveFromClassList(Styles.labelSelected);
                 }
             }
-        }
-
-        void UpdateNavigationButtons()
-        {
-            bool enableNavigationButtons = m_LabelImagesContainer.contentContainer.contentRect.width > m_LabelImagesContainer.contentRect.width;
-            m_PreviousButton.SetEnabled(enableNavigationButtons);
-            m_NextButton.SetEnabled(enableNavigationButtons);
         }
 
         VisualElement GetVisualForLabel(string labelName, Sprite labelSprite)

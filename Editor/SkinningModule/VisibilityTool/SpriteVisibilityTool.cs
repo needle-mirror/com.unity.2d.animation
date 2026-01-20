@@ -5,8 +5,8 @@ using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
 #if UNITY_6000_2_OR_NEWER
-using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
-using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<UnityEngine.EntityId>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<UnityEngine.EntityId>;
 #else
 using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem;
 using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState;
@@ -30,7 +30,7 @@ namespace UnityEditor.U2D.Animation
     {
         void Setup();
         void SetSelection(SpriteCache sprite);
-        void SetSelectionIds(IList<int> selectedIds);
+        void SetSelectionIds(IList<EntityId> selectedIds);
     }
 
     internal class SpriteVisibilityToolData : CacheObject
@@ -303,7 +303,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public void SetSelectedSprite(IList<TreeViewItem> rows, IList<int> selectedIds)
+        public void SetSelectedSprite(IList<TreeViewItem> rows, IList<EntityId> selectedIds)
         {
             SpriteCache newSelected = null;
             if (selectedIds.Count > 0)
@@ -328,11 +328,11 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public int GetTreeViewSelectionID(SpriteCache sprite)
+        public EntityId GetTreeViewSelectionID(SpriteCache sprite)
         {
             if (sprite != null)
                 return sprite.GetEntityId();
-            return 0;
+            return EntityId.None;
         }
     }
 
@@ -503,7 +503,7 @@ namespace UnityEditor.U2D.Animation
             ((SpriteTreeView)m_TreeView).SetSelection(sprite);
         }
 
-        public void SetSelectionIds(IList<int> selectedIds)
+        public void SetSelectionIds(IList<EntityId> selectedIds)
         {
             ((SpriteTreeView)m_TreeView).SetSelectionIds(selectedIds);
         }
@@ -623,25 +623,25 @@ namespace UnityEditor.U2D.Animation
 
         protected override TreeViewItem BuildRoot()
         {
-            TreeViewItem root = new TreeViewItem { id = 0, depth = -1, displayName = "Root" };
+            TreeViewItem root = new TreeViewItem { id = EntityId.None, depth = -1, displayName = "Root" };
             List<TreeViewItem> rows = GetController() != null ? GetController().BuildTreeView() : new List<TreeViewItem>();
             SetupParentsAndChildrenFromDepths(root, rows);
             return root;
         }
 
-        protected override void SelectionChanged(IList<int> selectedIds)
+        protected override void SelectionChanged(IList<EntityId> selectedIds)
         {
             GetController().SetSelectedSprite(GetRows(), selectedIds);
         }
 
-        public void SetSelectionIds(IList<int> selectedIds)
+        public void SetSelectionIds(IList<EntityId> selectedIds)
         {
             SetSelection(selectedIds, TreeViewSelectionOptions.RevealAndFrame);
         }
 
         public void SetSelection(SpriteCache sprite)
         {
-            int id = GetController().GetTreeViewSelectionID(sprite);
+            EntityId id = GetController().GetTreeViewSelectionID(sprite);
             SetSelection(new[] { id }, TreeViewSelectionOptions.RevealAndFrame);
         }
     }

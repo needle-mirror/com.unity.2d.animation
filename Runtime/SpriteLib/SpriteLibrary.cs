@@ -31,7 +31,7 @@ namespace UnityEngine.U2D.Animation
         // Cache for combining data in sprite library asset and main library
         Dictionary<int, CategoryEntrySprite> m_CategoryEntryHashCache = null;
         Dictionary<string, HashSet<string>> m_CategoryEntryCache = null;
-        int m_PreviousSpriteLibraryAsset;
+        EntityId m_PreviousSpriteLibraryAsset;
         long m_PreviousModificationHash;
 
         /// <summary>Get or Set the current SpriteLibraryAsset to use.</summary>
@@ -286,7 +286,7 @@ namespace UnityEngine.U2D.Animation
 
         internal void CacheOverrides()
         {
-            m_PreviousSpriteLibraryAsset = 0;
+            m_PreviousSpriteLibraryAsset = EntityId.None;
             m_PreviousModificationHash = 0;
             m_CategoryEntryHashCache = new Dictionary<int, CategoryEntrySprite>();
             m_CategoryEntryCache = new Dictionary<string, HashSet<string>>();

@@ -12,7 +12,8 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [DefaultExecutionOrder(UpdateOrder.ikUpdateOrder)]
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
-    [IconAttribute(IconUtility.IconPath + "Animation.IKManager.png")]
+    [Icon(IconUtility.IconPath + "Animation.IKManager.png")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/2DIK.html")]
     [ExecuteInEditMode]
     public partial class IKManager2D : MonoBehaviour, IPreviewable
     {
@@ -52,7 +53,7 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         public List<Solver2D> solvers => m_Solvers;
 
-        int[] m_TransformIdCache;
+        EntityId[] m_TransformIdCache;
 
         /// <summary>
         /// Solvers are always updated even if the underlying Sprite Skins are not visible.
@@ -203,7 +204,7 @@ namespace UnityEngine.U2D.IK
 
         void CacheSolversTransformIds()
         {
-            HashSet<int> transformCache = new HashSet<int>();
+            HashSet<EntityId> transformCache = new HashSet<EntityId>();
             for (int s = 0; s < solvers.Count; s++)
             {
                 Solver2D solver = solvers[s];
