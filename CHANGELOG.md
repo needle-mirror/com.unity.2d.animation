@@ -1,5 +1,9 @@
 # Changelog
 
+## [13.0.4] - 2026-01-22
+### Fixed
+- Fix unused separation line is used in the Context Menu of the Sprite Library Editor Window (DANB-1226)
+
 ## [13.0.3] - 2026-01-15
 ### Fixed
 - Disable "Delete Selected Labels" menu when nothing is selected in SpriteLibraryEditor (DANB-1201)

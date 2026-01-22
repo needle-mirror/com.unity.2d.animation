@@ -505,6 +505,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void ContextualManipulatorAddActions(ContextualMenuPopulateEvent evt)
         {
+            Sprite sprite = m_SelectedLabels.Any() ? m_SelectedLabels.Select(label => m_LabelData.FirstOrDefault(l => l.name == label)).FirstOrDefault(l => l?.sprite != null)?.sprite : null;
+            bool hasSprite = sprite != null;
+
             if (CanModifyLabels())
             {
                 evt.menu.AppendAction(TextContent.spriteLibraryCreateLabel, _ => CreateNewLabel());
@@ -522,11 +525,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 DropdownMenuAction.Status canRevertAnyStatus = m_LabelData.Any(CanRevertLabel) ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled;
                 evt.menu.AppendAction(TextContent.spriteLibraryRevertLabels, _ => RevertLabelOverride(false), _ => canRevertSelectedStatus);
                 evt.menu.AppendAction(TextContent.spriteLibraryRevertAllLabels, _ => RevertLabelOverride(true), _ => canRevertAnyStatus);
-                evt.menu.AppendSeparator();
+                if (hasSprite)
+                    evt.menu.AppendSeparator();
             }
 
-            Sprite sprite = m_SelectedLabels.Any() ? m_SelectedLabels.Select(label => m_LabelData.FirstOrDefault(l => l.name == label)).FirstOrDefault(l => l?.sprite != null)?.sprite : null;
-            evt.menu.AppendAction(TextContent.spriteLibraryShowLabel, _ => Selection.objects = new UnityEngine.Object[] { sprite }, _ => sprite != null ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Hidden);
+            evt.menu.AppendAction(TextContent.spriteLibraryShowLabel, _ => Selection.objects = new UnityEngine.Object[] { sprite }, _ => hasSprite ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Hidden);
         }
 
         static float GetAdjustedViewSize(ViewType viewType, float size)
