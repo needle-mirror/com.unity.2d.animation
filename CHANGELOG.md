@@ -1,5 +1,11 @@
 # Changelog
 
+## [15.0.1] - 2026-01-28
+
+
+### Fixed
+- Removed obsolete meta files from biharmonics bundle.
+
 ## [15.0.0] - 2026-01-20
 
 
