@@ -45,6 +45,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         bool m_LibrarySelected;
         bool m_IsFiltered;
+        bool m_SuppressSelectionChanged;
 
         bool CanDragStart() => m_LibrarySelected;
 
@@ -310,6 +311,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnModifiedCategories(List<CategoryData> categories, bool filtered)
         {
+            m_SuppressSelectionChanged = true;
             m_LocalListView.EndRename();
 
             m_Categories = categories;
@@ -335,6 +337,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             SetSelection(m_SelectedCategories);
 
             PostRefreshUI();
+
+            m_SuppressSelectionChanged = false;
         }
 
         void CreateNewCategory()
@@ -376,6 +380,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         void OnSelectionChanged(IEnumerable<object> selection)
         {
+            if (m_SuppressSelectionChanged)
+                return;
+
             List<string> newSelection = selection.Cast<CategoryData>().Select(d => d.name).ToList();
             m_ViewEvents.onSelectCategories?.Invoke(newSelection);
         }

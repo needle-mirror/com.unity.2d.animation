@@ -19,6 +19,7 @@ namespace UnityEngine.U2D.Animation
             public static readonly ProfilerMarker scheduleJobs = new ProfilerMarker("BaseDeformationSystem.ScheduleJobs");
             public static readonly ProfilerMarker setBatchDeformableBufferAndLocalAABB = new ProfilerMarker("BaseDeformationSystem.SetBatchDeformableBufferAndLocalAABB");
             public static readonly ProfilerMarker setBatchBoneTransformIndexAndLocalAABB = new ProfilerMarker("BaseDeformationSystem.SetBatchBoneTransformIndexAndLocalAABB");
+            public static readonly ProfilerMarker validateSpriteSkinData = new ProfilerMarker("BaseDeformationSystem.ValidateSpriteSkinData");
         }
 
         public abstract DeformationMethods deformationMethod { get; }
@@ -335,7 +336,10 @@ namespace UnityEngine.U2D.Animation
 
         protected void PrepareDataForDeformation(out JobHandle localToWorldJobHandle, out JobHandle worldToLocalJobHandle)
         {
-            ValidateSpriteSkinData();
+            using (Profiling.validateSpriteSkinData.Auto())
+            {
+                ValidateSpriteSkinData();
+            }
 
             using (Profiling.transformAccessJob.Auto())
             {

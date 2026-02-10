@@ -396,8 +396,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             newSelection ??= new List<string>();
 
-            if (Equals(m_Model.GetSelectedCategories(), newSelection))
+            if (AreSequencesEqual(m_Model.GetSelectedCategories(), newSelection))
+            {
                 return;
+            }
 
             m_Model.BeginUndo(ActionType.SelectCategory, TextContent.spriteLibrarySelectCategories);
             m_Model.SelectCategories(newSelection);

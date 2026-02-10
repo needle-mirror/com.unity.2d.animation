@@ -1,4 +1,4 @@
-# Tool Preferences
+# Skinning Editor preferences
 
 Adjust the appearance of the 2D Animation tools for the Skinning Editor in the Preferences menu: __Edit__ > __Preferences__ > __2D__ > __Animation__.
 

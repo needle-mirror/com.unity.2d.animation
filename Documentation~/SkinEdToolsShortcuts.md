@@ -1,4 +1,4 @@
-# Editor tools and shortcuts
+# Skinning Editor window reference
 
 ![The Skinning Editor window. The Editor toolbar is at the top, and the tools in a column on the left.](images/LabelledEditorTools.png)<br/>Labelled 2D Animation Skinning Editor tools
 

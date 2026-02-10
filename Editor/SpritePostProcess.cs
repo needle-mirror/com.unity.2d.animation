@@ -12,6 +12,13 @@ namespace UnityEditor.U2D.Animation
 {
     internal class SpritePostProcess : AssetPostprocessor
     {
+        static readonly uint k_Version = 1;
+
+        public override uint GetVersion()
+        {
+            return k_Version;
+        }
+
         void OnPreprocessAsset()
         {
             ISpriteEditorDataProvider dataProvider = GetSpriteEditorDataProvider(assetPath);
@@ -233,16 +240,6 @@ namespace UnityEditor.U2D.Animation
                     vertexArray.Dispose();
                     boneWeightArray.Dispose();
                     indicesArray.Dispose();
-
-                    // Deformed Sprites require proper Tangent Channels if Lit. Enable Tangent channels.
-                    if (hasBones)
-                    {
-                        NativeArray<Vector4> tangentArray = new NativeArray<Vector4>(vertices.Length, Allocator.Temp);
-                        for (int i = 0; i < vertices.Length; ++i)
-                            tangentArray[i] = new Vector4(1.0f, 0.0f, 0, -1.0f);
-                        sprite.SetVertexAttribute<Vector4>(VertexAttribute.Tangent, tangentArray);
-                        tangentArray.Dispose();
-                    }
 
                     dataChanged = true;
 

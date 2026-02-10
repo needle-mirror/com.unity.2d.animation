@@ -457,16 +457,18 @@ namespace UnityEngine.U2D.Animation
 #endif
             currentDeformationMethod = SpriteSkinUtility.CanSpriteSkinUseGpuDeformation(this) ? DeformationMethods.Gpu : DeformationMethods.Cpu;
 
-            CacheCurrentSprite(m_AutoRebind);
-            UpdateSpriteDeformationData();
-
             if (hierarchyCache.Count == 0)
                 CacheHierarchy();
 
             RefreshBoneTransforms();
 
-            DeformationManager.instance.AddSpriteSkin(this);
+            // Cancel updating deformation because CacheCurrentSprite will be called below.
+            DeformationManager.instance.AddSpriteSkin(this, false);
             SpriteSkinContainer.instance.AddSpriteSkin(this);
+
+            // Need to reset current sprite to force rebind and cache on enable
+            ResetSprite();
+            CacheCurrentSprite(m_AutoRebind);
 
             m_SpriteRenderer.RegisterSpriteChangeCallback(OnSpriteChanged);
         }
@@ -578,12 +580,15 @@ namespace UnityEngine.U2D.Animation
             return m_State;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool BatchValidate()
         {
             if (!m_BoneCacheUpdateToDate)
                 RefreshBoneTransforms();
 
-            CacheCurrentSprite(m_AutoRebind);
+            if (m_CurrentDeformSprite != m_SpriteId)
+                CacheCurrentSprite(m_AutoRebind);
+
             bool hasSprite = m_CurrentDeformSprite != EntityId.None;
             return m_IsValid && hasSprite && m_SpriteRenderer.enabled && (alwaysUpdate || m_SpriteRenderer.isVisible);
         }
@@ -788,7 +793,9 @@ namespace UnityEngine.U2D.Animation
             if (m_SpriteRenderer.sprite != m_Sprite)
                 OnSpriteChanged(m_SpriteRenderer);
 
-            CacheCurrentSprite(m_AutoRebind);
+            if (m_CurrentDeformSprite != m_SpriteId)
+                CacheCurrentSprite(m_AutoRebind);
+
             if (isValid && enabled && (alwaysUpdate || m_SpriteRenderer.isVisible))
             {
                 int transformHash = SpriteSkinUtility.CalculateTransformHash(this);
@@ -829,11 +836,6 @@ namespace UnityEngine.U2D.Animation
         /// Called from OnEnable, BatchValidate, Deform, CopyToSpriteSkinData
         void CacheCurrentSprite(bool rebind)
         {
-
-            // If the sprite has not changed, early exit.
-            if (m_CurrentDeformSprite == m_SpriteId)
-                return;
-
             using (Profiling.cacheCurrentSprite.Auto())
             {
                 DeactivateSkinning();
@@ -860,7 +862,7 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
-        void UpdateSpriteDeformationData()
+        internal void UpdateSpriteDeformationData()
         {
 #if ENABLE_URP
             CacheSpriteOutline();
@@ -980,7 +982,8 @@ namespace UnityEngine.U2D.Animation
             if (!m_BoneCacheUpdateToDate)
                 RefreshBoneTransforms();
 
-            CacheCurrentSprite(m_AutoRebind);
+            if (m_CurrentDeformSprite != m_SpriteId)
+                CacheCurrentSprite(m_AutoRebind);
 
             data.vertices = m_SpriteVertices;
             data.boneWeights = m_SpriteBoneWeights;
@@ -1003,9 +1006,13 @@ namespace UnityEngine.U2D.Animation
             data.deformVerticesStartPos = -1;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool NeedToUpdateDeformationCache()
         {
-            EntityId newTextureId = sprite.texture != null ? sprite.texture.GetEntityId() : EntityId.None;
+            // Cache sprite.texture since this property access cannot be inlined.
+            Texture2D texture = sprite.texture;
+
+            EntityId newTextureId = texture != null ? texture.GetEntityId() : EntityId.None;
             bool needUpdate = newTextureId != m_TextureId;
             if (needUpdate)
             {
@@ -1104,7 +1111,6 @@ namespace UnityEngine.U2D.Animation
         {
             m_DeformationSystem = newDeformationSystem;
             currentDeformationMethod = m_DeformationSystem.deformationMethod;
-            UpdateSpriteDeformationData();
         }
 
         static int CountChildren(Transform transform)

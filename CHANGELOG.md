@@ -1,5 +1,16 @@
 # Changelog
 
+## [15.0.2] - 2026-02-10
+### Changed
+- Handle the new behaviour of MultiColumnListView in the UIToolkit. (D2D-7818)
+- Optimize SpriteSkin validation. (D2D-7779)
+- Remove automatically added tangents from vertex attributes of sprites with bones.
+- Reduce memory usage and the workload during SpriteSkin initialization. (UUM-131270)
+
+### Fixed
+- Do not show Sprite Library Editor's save confirmation when applying from the Inspector; Editor is reset from disk like when selection changes. (DANB-1090)
+- Uses readable "Sprite Renderer" in the help box of Sprite Skin. (UUM-131888)
+
 ## [15.0.1] - 2026-01-28
 
 
