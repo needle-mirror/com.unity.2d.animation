@@ -19,7 +19,7 @@ namespace UnityEngine.U2D.IK
             {
                 if (s_Instance == null)
                 {
-                    CullingManager[] managers = FindObjectsByType<CullingManager>(FindObjectsSortMode.None);
+                    CullingManager[] managers = FindObjectsByType<CullingManager>();
                     s_Instance = managers.Length > 0 ? managers[0] : CreateNewManager();
                     s_Instance.Initialize();
                 }

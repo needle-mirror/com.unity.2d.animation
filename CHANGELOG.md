@@ -1,9 +1,13 @@
 # Changelog
 
+
+## [15.0.3] - 2026-02-17
 ## [15.0.2] - 2026-02-10
+
 ### Changed
 - Handle the new behaviour of MultiColumnListView in the UIToolkit. (D2D-7818)
 - Optimize SpriteSkin validation. (D2D-7779)
+- Put the "Sprite Swap" item in the overlay menu under "2D Animation" (UUM-130994)
 - Remove automatically added tangents from vertex attributes of sprites with bones.
 - Reduce memory usage and the workload during SpriteSkin initialization. (UUM-131270)
 

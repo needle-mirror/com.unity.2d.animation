@@ -37,7 +37,8 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         defaultDockPosition = DockPosition.Bottom,
         defaultLayout = Overlays.Layout.Panel,
         defaultWidth = k_DefaultWidth + k_WidthPadding,
-        defaultHeight = k_DefaultHeight + k_HeightPadding)]
+        defaultHeight = k_DefaultHeight + k_HeightPadding,
+        group = U2DAnimationConstants.PackageDisplayName)]
     [Icon("Packages/com.unity.2d.animation/Editor/Assets/ComponentIcons/Animation.SpriteResolver.asset")]
     internal class SpriteSwapOverlay : Overlay
     {

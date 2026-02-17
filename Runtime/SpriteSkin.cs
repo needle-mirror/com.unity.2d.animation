@@ -481,7 +481,7 @@ namespace UnityEngine.U2D.Animation
             m_BoneBounds = default;
 
             DeactivateSkinning();
-            BufferManager.instance.ReturnBuffer(GetEntityId().GetRawData());
+            BufferManager.instance.ReturnBuffer(EntityId.ToULong(GetEntityId()));
             m_DeformationSystem?.RemoveSpriteSkin(this);
             m_DeformationSystem = null;
             SpriteSkinContainer.instance.RemoveSpriteSkin(this);
@@ -633,7 +633,7 @@ namespace UnityEngine.U2D.Animation
                 m_CurrentDeformVerticesLength = 0;
             }
 
-            m_DeformedVertices = BufferManager.instance.GetBuffer(GetEntityId().GetRawData(), m_CurrentDeformVerticesLength);
+            m_DeformedVertices = BufferManager.instance.GetBuffer(EntityId.ToULong(GetEntityId()), m_CurrentDeformVerticesLength);
             return m_DeformedVertices;
         }
 #endif
