@@ -44,24 +44,24 @@ namespace UnityEditor.U2D.Animation
         Sprite[] m_SpriteList = Array.Empty<Sprite>();
         Texture2D[] m_SpritePreviews = Array.Empty<Texture2D>();
 
-        int m_ClientId = 0;
+        EntityId m_ClientId;
         int m_PreviewCacheSize = 0;
 
         Vector2 m_ScrollPos;
         Styles m_Style;
 
 
-        public void Initialize(int clientId)
+        public void Initialize(EntityId clientId)
         {
             m_ClientId = clientId;
         }
 
         public void Dispose()
         {
-            if (m_ClientId != 0)
+            if (m_ClientId != EntityId.None)
             {
                 InternalEditorBridge.ClearAssetPreviews(m_ClientId);
-                m_ClientId = 0;
+                m_ClientId = EntityId.None;
             }
         }
 
@@ -143,7 +143,7 @@ namespace UnityEditor.U2D.Animation
                 }
                 else
                 {
-                    int spriteId = m_SpriteList[index].GetEntityId();
+                    EntityId spriteId = m_SpriteList[index].GetEntityId();
                     Texture2D spritePreview = InternalEditorBridge.GetAssetPreview(spriteId, m_ClientId);
                     if (spritePreview != null)
                     {

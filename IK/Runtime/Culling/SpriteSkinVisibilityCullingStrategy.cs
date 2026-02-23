@@ -11,10 +11,10 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         internal class SpriteSkinRegistry
         {
-            public int[] boneIds;
+            public EntityId[] boneIds;
             public bool isVisible;
 
-            public SpriteSkinRegistry(int[] boneIds, bool isSkinVisible)
+            public SpriteSkinRegistry(EntityId[] boneIds, bool isSkinVisible)
             {
                 this.boneIds = boneIds;
                 isVisible = isSkinVisible;
@@ -32,16 +32,16 @@ namespace UnityEngine.U2D.IK
         /// <summary>
         /// Counts (value) how many visible Sprite Skins use a given bone (key).
         /// </summary>
-        private Dictionary<int, int> m_BoneVisibilityCount;
+        private Dictionary<EntityId, int> m_BoneVisibilityCount;
 #if UNITY_INCLUDE_TESTS
-        internal Dictionary<int, int> BoneVisibilityCount => m_BoneVisibilityCount;
+        internal Dictionary<EntityId, int> BoneVisibilityCount => m_BoneVisibilityCount;
 #endif
 
-        public override bool AreBonesVisible(IList<int> boneTransformIds)
+        public override bool AreBonesVisible(IList<EntityId> boneTransformIds)
         {
             for (int i = 0; i < boneTransformIds.Count; i++)
             {
-                int boneId = boneTransformIds[i];
+                EntityId boneId = boneTransformIds[i];
                 if (m_BoneVisibilityCount.ContainsKey(boneId))
                     return m_BoneVisibilityCount[boneId] > 0;
             }
@@ -52,7 +52,7 @@ namespace UnityEngine.U2D.IK
         protected override void OnInitialize()
         {
             m_SpriteSkinRegistries = new Dictionary<SpriteSkin, SpriteSkinRegistry>();
-            m_BoneVisibilityCount = new Dictionary<int, int>();
+            m_BoneVisibilityCount = new Dictionary<EntityId, int>();
 
             IReadOnlyList<SpriteSkin> spriteSkins = SpriteSkinContainer.instance.spriteSkins;
             for (int i = 0; i < spriteSkins.Count; i++)
@@ -129,14 +129,14 @@ namespace UnityEngine.U2D.IK
                 return m_SpriteSkinRegistries[spriteSkin];
 
             Transform[] bones = spriteSkin.boneTransforms ?? Array.Empty<Transform>();
-            int[] records = new int[bones.Length];
+            EntityId[] records = new EntityId[bones.Length];
             SpriteSkinRegistry newRegistry = new SpriteSkinRegistry(records, false);
             for (int i = 0; i < bones.Length; i++)
             {
                 Transform bone = bones[i];
                 if (bone == null)
                     continue;
-                int id = bone.GetEntityId();
+                EntityId id = bone.GetEntityId();
                 records[i] = id;
             }
 
@@ -159,14 +159,14 @@ namespace UnityEngine.U2D.IK
 
         void RecalculateVisibility(SpriteSkinRegistry registry)
         {
-            int[] bones = registry.boneIds;
+            EntityId[] bones = registry.boneIds;
 
             bool visible = registry.isVisible;
             int countOperation = visible ? 1 : -1;
 
             for (int i = 0; i < bones.Length; i++)
             {
-                int bone = bones[i];
+                EntityId bone = bones[i];
                 if (m_BoneVisibilityCount.ContainsKey(bone))
                 {
                     int count = m_BoneVisibilityCount[bone] + countOperation;

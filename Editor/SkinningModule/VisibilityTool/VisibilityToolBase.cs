@@ -3,9 +3,9 @@ using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
 #if UNITY_6000_2_OR_NEWER
-using TreeView = UnityEditor.IMGUI.Controls.TreeView<int>;
-using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
-using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+using TreeView = UnityEditor.IMGUI.Controls.TreeView<UnityEngine.EntityId>;
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<UnityEngine.EntityId>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<UnityEngine.EntityId>;
 #else
 using TreeView = UnityEditor.IMGUI.Controls.TreeView;
 using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem;
@@ -93,7 +93,7 @@ namespace UnityEditor.U2D.Animation
     {
         public T customData;
 
-        public TreeViewItemBase(int id, int depth, string name, T data) : base(id, depth, name)
+        public TreeViewItemBase(EntityId id, int depth, string name, T data) : base(id, depth, name)
         {
             customData = data;
         }
@@ -128,7 +128,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override TreeViewItem BuildRoot()
         {
-            return new TreeViewItem { id = 0, depth = -1 };
+            return new TreeViewItem { id = EntityId.None, depth = -1 };
         }
     }
 }

@@ -12,9 +12,9 @@ namespace UnityEditor.U2D.Animation
     internal class SpriteLibraryAssetInspector : Editor
     {
         [OnOpenAssetAttribute(OnOpenAssetAttributeMode.Execute)]
-        public static bool ExecuteOpenSpriteLibraryAsset(int instanceID)
+        public static bool ExecuteOpenSpriteLibraryAsset(EntityId entityId)
         {
-            SpriteLibraryAsset spriteLibraryAsset = EditorUtility.EntityIdToObject(instanceID) as SpriteLibraryAsset;
+            SpriteLibraryAsset spriteLibraryAsset = EditorUtility.EntityIdToObject(entityId) as SpriteLibraryAsset;
             if (spriteLibraryAsset != null)
             {
                 SpriteLibraryEditor.SpriteLibraryEditorWindow.OpenWindow();

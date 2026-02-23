@@ -65,9 +65,9 @@ namespace UnityEditor.U2D.Animation
         public BoneCache hoveredJoint => GetBone(view.hoveredJointID);
         public BoneCache hotBone => GetBone(view.hotBoneID);
 
-        BoneCache GetBone(int instanceID)
+        BoneCache GetBone(EntityId id)
         {
-            return BaseObject.EntityIdToObject(instanceID) as BoneCache;
+            return BaseObject.EntityIdToObject(id) as BoneCache;
         }
 
         void SetSkeleton(SkeletonCache newSkeleton)
@@ -128,9 +128,9 @@ namespace UnityEditor.U2D.Animation
 
         void HandleSelectBone()
         {
-            if (view.DoSelectBone(out int instanceID, out bool additive))
+            if (view.DoSelectBone(out EntityId id, out bool additive))
             {
-                BoneCache bone = GetBone(instanceID).ToCharacterIfNeeded();
+                BoneCache bone = GetBone(id).ToCharacterIfNeeded();
 
                 using (skinningCache.UndoScope(TextContent.boneSelection, true))
                 {
@@ -336,11 +336,11 @@ namespace UnityEditor.U2D.Animation
 
         void HandleSplitBone()
         {
-            if (view.DoSplitBone(out int instanceID, out Vector3 position))
+            if (view.DoSplitBone(out EntityId id, out Vector3 position))
             {
                 using (skinningCache.UndoScope(TextContent.splitBone))
                 {
-                    BoneCache boneToSplit = GetBone(instanceID);
+                    BoneCache boneToSplit = GetBone(id);
 
                     Debug.Assert(boneToSplit != null);
 

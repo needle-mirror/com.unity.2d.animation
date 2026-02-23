@@ -5,8 +5,8 @@ using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
 #if UNITY_6000_2_OR_NEWER
-using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
-using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<UnityEngine.EntityId>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<UnityEngine.EntityId>;
 #else
 using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem;
 using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState;
@@ -288,7 +288,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        protected override void SelectionChanged(IList<int> selectedIds)
+        protected override void SelectionChanged(IList<EntityId> selectedIds)
         {
             SpriteCache newSelected = null;
             if (selectedIds.Count > 0)
@@ -314,7 +314,7 @@ namespace UnityEditor.U2D.Animation
                 TreeViewItemBase<SpriteCache> r = (TreeViewItemBase<SpriteCache>)rows[i];
                 if (r.customData == sprite)
                 {
-                    SetSelection(new int[] { r.customData.GetEntityId() }, TreeViewSelectionOptions.RevealAndFrame);
+                    SetSelection(new EntityId[] { r.customData.GetEntityId() }, TreeViewSelectionOptions.RevealAndFrame);
                     break;
                 }
             }

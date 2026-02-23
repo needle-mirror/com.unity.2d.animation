@@ -1,4 +1,4 @@
-# Skinning Editor
+# Rig and weight an actor in the Skinning Editor
 
 The __Skinning Editor__ module is added to the [Sprite Editor](https://docs.unity3d.com/Manual/SpriteEditor.html) when you install the 2D Animation package. Use the editor's [tools ](SkinEdToolsShortcuts.md) to create the [bones](SkinEdToolsShortcuts.html#bone-tools) of your actor's skeleton, generate and edit its mesh [geometry](SkinEdToolsShortcuts.html#geometry-tools), and adjust the [weights](SkinEdToolsShortcuts.html#weight-tools) that bind the bones to the meshes as you [rig your actor](CharacterRig.md).
 

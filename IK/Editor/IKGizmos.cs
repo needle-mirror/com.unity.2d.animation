@@ -25,7 +25,7 @@ namespace UnityEditor.U2D.IK
             List<Solver2D> solvers = manager.solvers;
             IList<IKManager2D.SolverEditorData> solverEditorData = manager.FindSolverEditorDataList();
             int numSolvers = solvers.Count;
-            Debug.Assert(numSolvers == solverEditorData.Count, "IKGizmos: Mismatching number of solvers");
+            Debug.Assert(numSolvers == solverEditorData.Count, "[2D Animation] IKGizmos: Mismatching number of solvers");
             for (int s = 0; s < numSolvers; s++)
             {
                 Solver2D solver = solvers[s];

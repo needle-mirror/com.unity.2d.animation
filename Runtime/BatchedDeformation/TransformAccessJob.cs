@@ -31,7 +31,7 @@ namespace UnityEngine.U2D.Animation
         // It must be an array because the TransformAccessArray requires an array of transforms.
         Transform[] m_Transform;
         TransformAccessArray m_TransformAccessArray;
-        NativeHashMap<int, TransformData> m_TransformData;
+        NativeHashMap<EntityId, TransformData> m_TransformData;
         NativeArray<float4x4> m_TransformMatrix;
         NativeArray<bool> m_TransformChanged;
         bool m_Dirty;
@@ -53,7 +53,7 @@ namespace UnityEngine.U2D.Animation
         void InitializeDataStructures()
         {
             m_TransformMatrix = new NativeArray<float4x4>(1, Allocator.Persistent);
-            m_TransformData = new NativeHashMap<int, TransformData>(1, Allocator.Persistent);
+            m_TransformData = new NativeHashMap<EntityId, TransformData>(1, Allocator.Persistent);
             m_Transform = Array.Empty<Transform>();
         }
 
@@ -76,7 +76,7 @@ namespace UnityEngine.U2D.Animation
             InitializeDataStructures();
         }
 
-        public NativeHashMap<int, TransformData> transformData => m_TransformData;
+        public NativeHashMap<EntityId, TransformData> transformData => m_TransformData;
 
         // This array can hold localToWorld or worldToLocal matrices depending on the job that was scheduled.
         public NativeArray<float4x4> transformMatrix => m_TransformMatrix;
@@ -91,16 +91,16 @@ namespace UnityEngine.U2D.Animation
             if (t == null || !m_TransformData.IsCreated)
                 return;
             m_JobHandle.Complete();
-            int instanceId = t.GetEntityId();
-            if (m_TransformData.ContainsKey(instanceId))
+            EntityId entityId = t.GetEntityId();
+            if (m_TransformData.ContainsKey(entityId))
             {
-                TransformData transformData = m_TransformData[instanceId];
+                TransformData transformData = m_TransformData[entityId];
                 transformData.refCount += 1;
-                m_TransformData[instanceId] = transformData;
+                m_TransformData[entityId] = transformData;
             }
             else
             {
-                m_TransformData.TryAdd(instanceId, new TransformData(-1));
+                m_TransformData.TryAdd(entityId, new TransformData(-1));
                 ArrayAdd(ref m_Transform, t);
                 m_Dirty = true;
             }
@@ -130,7 +130,8 @@ namespace UnityEngine.U2D.Animation
         }
 
         // This method is used to remove real nulls from the array and resize it.
-        static void CompactArray<T>(ref T[] array)
+        // Returns true if the array size was reduced.
+        static bool CompactArray<T>(ref T[] array)
         {
             // iterate over array and remove nulls
             int writeIndex = 0;
@@ -146,10 +147,11 @@ namespace UnityEngine.U2D.Animation
             }
 
             // Resize the array to the new length
-            if (writeIndex < array.Length)
-            {
+            bool resized = writeIndex < array.Length;
+            if (resized)
                 Array.Resize(ref array, writeIndex);
-            }
+
+            return resized;
         }
 
         void UpdateTransformIndex()
@@ -179,10 +181,10 @@ namespace UnityEngine.U2D.Animation
             {
                 if (m_Transform[i] != null)
                 {
-                    int instanceId = m_Transform[i].GetEntityId();
-                    TransformData transformData = m_TransformData[instanceId];
+                    EntityId entityId = m_Transform[i].GetEntityId();
+                    TransformData transformData = m_TransformData[entityId];
                     transformData.transformIndex = i;
-                    m_TransformData[instanceId] = transformData;
+                    m_TransformData[entityId] = transformData;
                 }
             }
 
@@ -271,14 +273,16 @@ namespace UnityEngine.U2D.Animation
                 }
             }
 
-            CompactArray(ref m_Transform);
+            if (CompactArray(ref m_Transform))
+                m_Dirty = true;
+
             return count;
         }
 
         // Deformation manager calls this with a list of ids to remove
         // Note: the list passed in is also modified by this method.
         // Note: this method assumes the list is sorted.
-        internal void RemoveTransformsByIds(List<int> idsToRemove)
+        internal void RemoveTransformsByIds(List<EntityId> idsToRemove)
         {
             if (!m_TransformData.IsCreated)
                 return;
@@ -291,7 +295,7 @@ namespace UnityEngine.U2D.Animation
             // Reduce refcount on ids that we do know about.
             for (int i = idsToRemove.Count - 1; i >= 0; --i)
             {
-                int id = idsToRemove[i];
+                EntityId id = idsToRemove[i];
                 // if we don't know about this id, remove it from the list then ignore
                 if (!m_TransformData.ContainsKey(id))
                 {
@@ -332,12 +336,13 @@ namespace UnityEngine.U2D.Animation
                         m_Transform[index] = null;
                 }
 
-                CompactArray(ref m_Transform);
+                if (CompactArray(ref m_Transform))
+                    m_Dirty = true;
             }
             ListPool<int>.Release(indexesToRemove);
         }
 
-        internal void RemoveTransformById(int transformId)
+        internal void RemoveTransformById(EntityId transformId)
         {
             if (!m_TransformData.IsCreated)
                 return;

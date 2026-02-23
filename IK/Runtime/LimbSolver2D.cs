@@ -7,8 +7,9 @@ namespace UnityEngine.U2D.IK
     /// Component responsible for 2D Limb IK.
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
-    [Solver2DMenuAttribute("Limb")]
-    [IconAttribute(IconUtility.IconPath + "Animation.IKLimb.png")]
+    [Solver2DMenu("Limb")]
+    [Icon(IconUtility.IconPath + "Animation.IKLimb.png")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/2DIK.html")]
     public sealed class LimbSolver2D : Solver2D
     {
         [SerializeField]

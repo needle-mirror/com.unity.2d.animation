@@ -46,7 +46,7 @@ namespace UnityEditor.U2D.Animation
         {
             m_SkeletonController = new SkeletonController();
             m_SkeletonController.view = new SkeletonView(new GUIWrapper());
-            m_SkeletonController.view.InvalidID = 0;
+            m_SkeletonController.view.InvalidID = EntityId.None;
             m_SkeletonController.selection = skinningCache.skeletonSelection;
             m_SkeletonToolView = new SkeletonToolView();
             m_SkeletonToolView.onBoneNameChanged += BoneNameChanged;

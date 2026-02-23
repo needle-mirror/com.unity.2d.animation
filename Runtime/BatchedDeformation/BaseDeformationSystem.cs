@@ -23,7 +23,7 @@ namespace UnityEngine.U2D.Animation
 
         public abstract DeformationMethods deformationMethod { get; }
 
-        protected int m_ObjectId;
+        protected ulong m_ObjectId;
 
         protected readonly HashSet<SpriteSkin> m_SpriteSkins = new HashSet<SpriteSkin>();
 
@@ -41,7 +41,7 @@ namespace UnityEngine.U2D.Animation
         // at the correct time in batch processing BatchRemoveSpriteSkins
         readonly HashSet<SpriteSkin> m_SpriteSkinsToRemove = new HashSet<SpriteSkin>();
 
-        readonly List<int> m_TransformIdsToRemove = new List<int>();
+        readonly List<EntityId> m_TransformIdsToRemove = new List<EntityId>();
 
         protected NativeByteArray m_DeformedVerticesBuffer;
         protected NativeByteArray m_PreviousDeformedVerticesBuffer;
@@ -78,7 +78,7 @@ namespace UnityEngine.U2D.Animation
                 return;
 
             m_LocalToWorldTransformAccessJob.RemoveTransformById(spriteSkin.rootBoneTransformId);
-            NativeArray<int> boneTransforms = spriteSkin.boneTransformId;
+            NativeArray<EntityId> boneTransforms = spriteSkin.boneTransformId;
             if (boneTransforms == default || !boneTransforms.IsCreated)
                 return;
 
@@ -161,7 +161,7 @@ namespace UnityEngine.U2D.Animation
             return m_SpriteSkins;
         }
 
-        internal void Initialize(int objectId)
+        internal void Initialize(ulong objectId)
         {
             m_ObjectId = objectId;
 
@@ -377,8 +377,14 @@ namespace UnityEngine.U2D.Animation
                 int index = spriteSkin.dataIndex;
                 m_IsSpriteSkinActiveForDeform[index] = spriteSkin.BatchValidate();
                 m_IsOutlineDataRequired[index] = spriteSkin.isOutlineDataRequired;
-                if (m_IsSpriteSkinActiveForDeform[index] && spriteSkin.NeedToUpdateDeformationCache())
-                    CopyToSpriteSkinData(spriteSkin);
+                if (m_IsSpriteSkinActiveForDeform[index])
+                {
+                    bool needUpdate = spriteSkin.NeedToUpdateDeformationCache();
+                    needUpdate = spriteSkin.NeedToUpdateBoneBounds() || needUpdate;
+
+                    if (needUpdate)
+                        CopyToSpriteSkinData(spriteSkin);
+                }
             }
         }
 

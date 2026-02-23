@@ -1,5 +1,24 @@
 # Changelog
 
+## [14.0.3] - 2026-02-23
+### Fixed
+- Disable "Delete Selected Labels" menu when nothing is selected in SpriteLibraryEditor (DANB-1201)
+- Fix SpriteSkin BoundsMode assertion failures. (DANB-1181)
+- Refresh sprite library editor when deleting asset. (DANB-1232)
+- Fix exception occurs when changing SpriteSkin's bounds mode after deleting bones in play mode. (DANB-1224)
+- Fix SpriteSkin bone bounds update timing. (DANB-1180)
+- Fix sprite disappearing on undo by resetting bone transform index in DeactivateSkinning. (DANB-1238)
+- Fix "IKGizmos: Mismatching number of solvers" errors when loading invalid prefabs (UUM-131322, DANB-1254)
+- Fix unused separation line is used in the Context Menu of the Sprite Library Editor Window (DANB-1226)
+- Fix transform index corruption caused by missing dirty flag update after array compaction. (UUM-131697)
+- Reduce memory usage and the workload during SpriteSkin initialization. (UUM-131270)
+- Fix the ? button in the IKManager2D inspector points to an Invalid link. (UUM-131299)
+- Fix the issue that the internal class CullingManager is available in AddComponent. (UUM-131877)
+- Fix the missing documentation link of CCD Solver 2D Component. (UUM-131875)
+- Fix the missing documentation link of Fabrik Solver 2D Component. (UUM-131879)
+- Fix the missing documentation link of Limb Solver 2D Component. (UUM-131891)
+- Do not show Sprite Library Editor's save confirmation when applying from the Inspector; Editor is reset from disk like when selection changes. (DANB-1090)
+
 ## [14.0.2] - 2025-11-14
 ### Fixed
 - Fix warnings of "a shader without GPU deformation support" occurs when switching from CPU to GPU Skinning with a PSB skinned sprite (DANB-1079)

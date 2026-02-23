@@ -68,8 +68,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override void Apply()
         {
-            // Make sure that all changes are Saved / Reverted by the user if there is an instance of SpriteLibraryEditorWindow open.
-            SpriteLibraryEditor.SpriteLibraryEditorWindow.HandleUnsavedChangesOnApply();
+            // Do not show Sprite Library Editor's save dialog on Apply; Editor is reset from disk like when selection changes (DANB-1090).
             base.Apply();
 
             for (int i = 0; i < targets.Length; i++)
@@ -162,7 +161,7 @@ namespace UnityEditor.U2D.Animation
         {
             CreateSpriteLibrarySourceAsset action = CreateInstance<CreateSpriteLibrarySourceAsset>();
             Texture2D icon = EditorIconUtility.LoadIconResourceWithMipLevels("Animation.SpriteLibrary", "ComponentIcons", "ComponentIcons");
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, action, SpriteLibrarySourceAsset.defaultName + SpriteLibrarySourceAsset.extension, icon, null);
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(EntityId.None, action, SpriteLibrarySourceAsset.defaultName + SpriteLibrarySourceAsset.extension, icon, null);
         }
 
         [MenuItem("Assets/Create/2D/Sprite Library Asset Variant", priority = k_SpriteLibraryAssetMenuPriority + 1)]
@@ -173,7 +172,7 @@ namespace UnityEditor.U2D.Animation
             if (asset != null)
                 action.m_MainLibrary = AssetDatabase.GUIDFromAssetPath(AssetDatabase.GetAssetPath(asset)).ToString();
             Texture2D icon = EditorIconUtility.LoadIconResourceWithMipLevels("Animation.SpriteLibrary", "ComponentIcons", "ComponentIcons");
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, action, SpriteLibrarySourceAsset.defaultName + SpriteLibrarySourceAsset.extension, icon, null);
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(EntityId.None, action, SpriteLibrarySourceAsset.defaultName + SpriteLibrarySourceAsset.extension, icon, null);
         }
 
         [MenuItem("Assets/Create/2D/Sprite Library Asset Variant", true, priority = k_SpriteLibraryAssetMenuPriority + 1)]

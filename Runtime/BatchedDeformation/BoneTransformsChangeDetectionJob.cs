@@ -13,7 +13,7 @@ namespace UnityEngine.U2D.Animation
         [ReadOnly]
         public NativeArray<SpriteSkinData> spriteSkinData;
         [ReadOnly]
-        public NativeHashMap<int, TransformAccessJob.TransformData> boneTransformIndex;
+        public NativeHashMap<EntityId, TransformAccessJob.TransformData> boneTransformIndex;
         [WriteOnly]
         public NativeArray<bool> hasBoneTransformsChanged;
 
@@ -24,9 +24,15 @@ namespace UnityEngine.U2D.Animation
 
             for (int boneIndex = 0; boneIndex < skinData.boneTransformId.Length; boneIndex++)
             {
-                int boneId = skinData.boneTransformId[boneIndex];
+                EntityId boneId = skinData.boneTransformId[boneIndex];
 
-                int transformIndex = boneTransformIndex[boneId].transformIndex;
+                if (!boneTransformIndex.TryGetValue(boneId, out TransformAccessJob.TransformData transformData))
+                {
+                    hasChanged = true;
+                    break;
+                }
+
+                int transformIndex = transformData.transformIndex;
                 if (transformIndex < 0)
                     continue;
 

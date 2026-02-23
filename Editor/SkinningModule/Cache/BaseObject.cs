@@ -1,5 +1,9 @@
-using System;
 using UnityEngine;
+
+#if CODE_COVERAGE
+using System;
+using System.Collections.Generic;
+#endif
 
 namespace UnityEditor.U2D.Animation
 {
@@ -94,9 +98,9 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public static BaseObject EntityIdToObject(int instanceID)
+        public static BaseObject EntityIdToObject(EntityId id)
         {
-            return EditorUtility.EntityIdToObject(instanceID) as BaseObject;
+            return EditorUtility.EntityIdToObject(id) as BaseObject;
         }
 
         internal virtual void OnEnable() { }

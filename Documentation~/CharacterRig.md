@@ -1,4 +1,5 @@
-# Actor skinning and weighting workflow
+# Actor rigging and weighting workflow
+
 The following steps are the general workflow for preparing your actor for animation with the Skinning Editor, after you have [imported](PreparingArtwork.md) it into Unity. Follow the steps below to create the bones, generate the meshes, and adjust the weights for your actor. For more specific samples and examples, refer to the samples distributed with the 2D Animation package and the sample documentation included [here](Examples.md).
 
 1. Use the [Create Bone](SkinEdToolsShortcuts.md#bone-tools) tool to build the bones of the actor skeleton. With the tool selected, click to define the start-point of the bone. Then move the cursor to where the bone should end, and click again to set the bone’s end-point.

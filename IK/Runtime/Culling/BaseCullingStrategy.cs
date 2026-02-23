@@ -18,7 +18,7 @@ namespace UnityEngine.U2D.IK
         /// </summary>
         /// <param name="transformIds">A collection of bones' transform ids.</param>
         /// <returns>True if any bone is visible.</returns>
-        public abstract bool AreBonesVisible(IList<int> transformIds);
+        public abstract bool AreBonesVisible(IList<EntityId> transformIds);
 
         public void AddRequestingObject(object requestingObject)
         {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 #if UNITY_6000_2_OR_NEWER
-using TreeView = UnityEditor.IMGUI.Controls.TreeView<int>;
-using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
-using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+using TreeView = UnityEditor.IMGUI.Controls.TreeView<UnityEngine.EntityId>;
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<UnityEngine.EntityId>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<UnityEngine.EntityId>;
 #else
 using TreeView = UnityEditor.IMGUI.Controls.TreeView;
 using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem;
@@ -121,9 +121,9 @@ namespace UnityEditor.U2D.Animation
                 AddTreeViewItem(rows, childBone, bones, depth + 1);
         }
 
-        public List<int> GetIDsToExpand(BoneCache[] bones)
+        public List<EntityId> GetIDsToExpand(BoneCache[] bones)
         {
-            List<int> result = new List<int>();
+            List<EntityId> result = new List<EntityId>();
             if (bones != null)
             {
                 foreach (BoneCache bone in bones)
@@ -133,7 +133,7 @@ namespace UnityEditor.U2D.Animation
                         BoneCache parent = bone.parentBone;
                         while (parent != null)
                         {
-                            int parentId = parent.GetEntityId();
+                            EntityId parentId = parent.GetEntityId();
                             result.Add(parentId);
                             parent = parent.parentBone;
                         }
@@ -143,12 +143,12 @@ namespace UnityEditor.U2D.Animation
             return result;
         }
 
-        public int[] GetIDsToSelect(BoneCache[] bones)
+        public EntityId[] GetIDsToSelect(BoneCache[] bones)
         {
-            return bones == null ? new int[0] : Array.ConvertAll(bones, x => x != null ? (int)x.GetEntityId() : 0);
+            return bones == null ? new EntityId[0] : Array.ConvertAll(bones, x => x != null ? x.GetEntityId() : EntityId.None);
         }
 
-        public void SelectBones(IList<int> selectedIds, IList<TreeViewItem> items)
+        public void SelectBones(IList<EntityId> selectedIds, IList<TreeViewItem> items)
         {
             BoneCache[] selectedBones = items.Where(x => selectedIds.Contains(x.id)).Select(y => ((TreeViewItemBase<BoneCache>)y).customData).ToArray();
             using (m_Model.UndoScope(TextContent.boneSelection))
@@ -158,7 +158,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        public void ExpandBones(IList<int> expandedIds, IList<TreeViewItem> items)
+        public void ExpandBones(IList<EntityId> expandedIds, IList<TreeViewItem> items)
         {
             BoneCache[] expandedBones = items.Where(x => expandedIds.Contains(x.id)).Select(y => ((TreeViewItemBase<BoneCache>)y).customData).ToArray();
             using (m_Model.UndoScope(TextContent.expandBones))
@@ -242,7 +242,7 @@ namespace UnityEditor.U2D.Animation
                 treeBone.displayName = bone.name;
         }
 
-        public void TreeViewItemRename(IList<TreeViewItem> rows, int itemID, string newName)
+        public void TreeViewItemRename(IList<TreeViewItem> rows, EntityId itemID, string newName)
         {
             TreeViewItemBase<BoneCache> item = rows.FirstOrDefault(x => x.id == itemID) as TreeViewItemBase<BoneCache>;
 

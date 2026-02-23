@@ -14,7 +14,7 @@ namespace UnityEngine.U2D.Animation
         const string k_GpuSkinningShaderKeyword = "SKINNED_SPRITE";
         const string k_GlobalSpriteBoneBufferId = "_SpriteBoneTransforms";
 
-        readonly Dictionary<int, Material> m_KeywordEnabledMaterials = new Dictionary<int, Material>();
+        readonly Dictionary<EntityId, Material> m_KeywordEnabledMaterials = new Dictionary<EntityId, Material>();
 
         NativeArray<int> m_BoneTransformIndices;
         ComputeBuffer m_BoneTransformsComputeBuffer;

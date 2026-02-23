@@ -113,7 +113,7 @@ namespace UnityEngine.U2D.Animation
                 m_DeformationSystems[(int)DeformationMethods.Gpu] = new GpuDeformationSystem();
 
             for (int i = 0; i < m_DeformationSystems.Length; ++i)
-                m_DeformationSystems[i].Initialize(m_DeformationSystems[i].GetHashCode());
+                m_DeformationSystems[i].Initialize((ulong)m_DeformationSystems[i].GetHashCode());
         }
 
         // Create a helper GameObject, which has a DeformationManagerUpdater component which will update the deformation systems.
@@ -210,7 +210,7 @@ namespace UnityEngine.U2D.Animation
 #endif
         }
 
-        internal void AddSpriteSkin(SpriteSkin spriteSkin)
+        internal void AddSpriteSkin(SpriteSkin spriteSkin, bool isUpdateSpriteDeformationData = true)
         {
             if (spriteSkin == null)
                 return;
@@ -239,7 +239,11 @@ namespace UnityEngine.U2D.Animation
             // Second, add the sprite skin to the system.
             BaseDeformationSystem deformationSystem = m_DeformationSystems[(int)deformationMethod];
             if (deformationSystem.AddSpriteSkin(spriteSkin))
+            {
                 spriteSkin.SetDeformationSystem(deformationSystem);
+                if (isUpdateSpriteDeformationData)
+                    spriteSkin.UpdateSpriteDeformationData();
+            }
         }
 
         internal void RemoveBoneTransforms(SpriteSkin spriteSkin)

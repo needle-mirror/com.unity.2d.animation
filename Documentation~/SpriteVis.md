@@ -1,4 +1,5 @@
-# Sprite Visibility panel
+# Toggle the visibility of bones and sprites
+
 Use the Sprite Visibility panel to increase or decrease the visibility of bones and sprite meshes.
 
 Toggle the __Sprite Visibility__ panel by selecting the __Visibility tool__ button along the upper right of the editor window:

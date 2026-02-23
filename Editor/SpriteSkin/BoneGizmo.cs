@@ -84,16 +84,16 @@ namespace UnityEditor.U2D.Animation
 
         public Transform hotBone => GetBone(m_View.hotBoneID);
 
-        static Transform GetBone(int instanceID)
+        static Transform GetBone(EntityId id)
         {
-            return EditorUtility.EntityIdToObject(instanceID) as Transform;
+            return EditorUtility.EntityIdToObject(id) as Transform;
         }
 
         public BoneGizmoController(ISkeletonView view, IUndo undo, IBoneGizmoToggle toggle)
         {
             m_View = view;
             m_View.mode = SkeletonMode.EditPose;
-            m_View.InvalidID = 0;
+            m_View.InvalidID = EntityId.None;
             m_Undo = undo;
             boneGizmoToggle = toggle;
         }
@@ -265,9 +265,9 @@ namespace UnityEditor.U2D.Animation
 
         void HandleSelectBone()
         {
-            if (m_View.DoSelectBone(out int instanceID, out bool additive))
+            if (m_View.DoSelectBone(out EntityId id, out bool additive))
             {
-                Transform bone = GetBone(instanceID);
+                Transform bone = GetBone(id);
 
                 if (!additive)
                 {
