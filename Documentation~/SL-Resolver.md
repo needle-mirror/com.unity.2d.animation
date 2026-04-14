@@ -1,6 +1,6 @@
 # Sprite Resolver component in Unity
 
-The Sprite Resolver component pulls information from the [Sprite Library Asset](SL-Asset.md) assigned to the [Sprite Library component](SL-component.md) at the root of the actor Prefab, and displays the Sprites available for selection. This component is part of the [Sprite Swap setup and workflow](SpriteSwapSetup.md), where attaching the Sprite Resolver component to a GameObject that's part of an actor Prefab allows you to change the Sprite rendered by that GameObject's [Sprite Renderer component](https://docs.unity3d.com/Manual/class-SpriteRenderer.html).
+The Sprite Resolver component pulls information from the [Sprite Library Asset](SL-Asset.md) assigned to the [Sprite Library component](SL-component.md) at the root of the actor Prefab, and displays the Sprites available for selection. This component is part of the [Sprite Swap setup and workflow](SpriteSwapSetup.md), where attaching the Sprite Resolver component to a GameObject that's part of an actor Prefab allows you to change the Sprite rendered by that GameObject's [Sprite Renderer component](https://docs.unity3d.com/6000.4/Documentation/Manual/class-SpriteRenderer.html).
 
 ## Property settings
 

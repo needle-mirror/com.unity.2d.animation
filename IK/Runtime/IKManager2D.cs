@@ -13,7 +13,7 @@ namespace UnityEngine.U2D.IK
     [DefaultExecutionOrder(UpdateOrder.ikUpdateOrder)]
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Icon(IconUtility.IconPath + "Animation.IKManager.png")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/2DIK.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@14.0/manual/2DIK.html")]
     [ExecuteInEditMode]
     public partial class IKManager2D : MonoBehaviour, IPreviewable
     {

@@ -120,7 +120,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteSkin.asset")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SpriteSkin.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@14.0/manual/SpriteSkin.html")]
     public sealed class SpriteSkin : MonoBehaviour, IPreviewable, ISerializationCallbackReceiver
     {
         internal static class Profiling
@@ -1072,22 +1072,8 @@ namespace UnityEngine.U2D.Animation
         {
             if (m_SpriteRenderer != null)
             {
-                Sprite currentSprite = sprite;
-                Bounds localBounds = currentSprite != null ? currentSprite.bounds : default;
-
-                // There is no other interface to reset the boneTransformIndex to -1 for the target SpriteRenderer,
-                // so we use SetBatchBoneTransformIndexAndLocalAABBArray to explicitly reset it.
-                NativeArray<int> boneTransformIndices = new NativeArray<int>(1, Allocator.Temp);
-                boneTransformIndices[0] = -1;
-
-                NativeArray<Bounds> bounds = new NativeArray<Bounds>(1, Allocator.Temp);
-                bounds[0] = localBounds;
-
-                InternalEngineBridge.SetBatchBoneTransformIndexAndLocalAABBArray(new[] { m_SpriteRenderer }, boneTransformIndices, bounds);
-
-                boneTransformIndices.Dispose();
-                bounds.Dispose();
-
+                // Engine resets SpriteRenderer to non-skinned state: bone transform index -1, AABB to sprite bounds,
+                // deformable buffer clear, UpdateSpriteSkinning.
                 m_SpriteRenderer.DeactivateDeformableBuffer();
             }
 

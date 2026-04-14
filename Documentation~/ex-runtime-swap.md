@@ -1,5 +1,5 @@
 # Runtime Swap
-This sample demonstrates how you can use the Sprite Library API to override a specific Entry. Note that the sample requires the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) installed. Open the `6 Runtime Swap` Scene to see the sample in action.
+This sample demonstrates how you can use the Sprite Library API to override a specific Entry. Note that the sample requires the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@13.0) installed. Open the `6 Runtime Swap` Scene to see the sample in action.
 
 ![A knight character, and a selection of alternate sprites for his head, arms, and legs that convert him into a skeleton.](images/2D-animation-samples-runtimeswap.png)
 The graphic Assets are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`:
@@ -7,7 +7,7 @@ The graphic Assets are located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5
 - `Knight.psb`
 - `Skeleton.psb`
 
-The `Skeleton.psb` uses the [.skeleton Asset](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest/index.html?subfolder=/manual/PSD-importer-properties.html%23main-skeleton) from the `Knight.psb` for its rigging. It also references the `Knight.spriteLib` Sprite Library Asset located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`.
+The `Skeleton.psb` uses the [.skeleton Asset](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@13.0/manual/PSD-importer-properties.html#main-skeleton) from the `Knight.psb` for its rigging. It also references the `Knight.spriteLib` Sprite Library Asset located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Sprites`.
 
 ## Runtime Swap script
 A custom MonoBehaviour script called the `RuntimeSwap` is attached to the `KnigtboyRig` GameObject. The script is located in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/5 SpriteSwap/Scripts/Runtime/RuntimeSwap.cs`

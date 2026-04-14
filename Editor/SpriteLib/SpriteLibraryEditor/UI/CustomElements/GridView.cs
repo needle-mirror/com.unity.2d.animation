@@ -1529,6 +1529,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (!HasValidDataAndBindings())
                 return;
 
+            // UUM-134472: Pool may be empty when ResizeHeight triggers OnScroll during Refresh().
+            if (m_RowPool.Count == 0)
+                return;
+
             m_ScrollOffset = offset;
             float pixelAlignedItemHeight = resolvedItemHeight;
             int firstVisibleIndex = Mathf.FloorToInt(offset / pixelAlignedItemHeight) * columnCount;

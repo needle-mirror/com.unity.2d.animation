@@ -217,6 +217,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
             }
 
             m_MainVisualElement.style.width = evt.newRect.width;
+            m_MainVisualElement.style.height = evt.newRect.height;
         }
 
         void OnFilterToggled(bool filter)

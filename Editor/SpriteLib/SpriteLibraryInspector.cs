@@ -29,7 +29,7 @@ namespace UnityEditor.U2D.Animation
         List<SpriteResolver> m_CachedResolvers;
 
         const string k_RootFolderName = "Assets";
-        const string k_OverrideEntriesDocsLink = "\"https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SL-component.html%23overriding-entries\"";
+        const string k_OverrideEntriesDocsLink = "\"https://docs.unity3d.com/Packages/com.unity.2d.animation@14.0/manual/SL-component.html#overriding-entries\"";
 
         public void OnEnable()
         {

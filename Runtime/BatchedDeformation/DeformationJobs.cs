@@ -429,6 +429,10 @@ namespace UnityEngine.U2D.Animation
                     boneTransformIndices[i] = boneTransformIndex;
                     boneTransformIndex += spriteSkinData[i].boneTransformId.Length;
                 }
+                else
+                {
+                    boneTransformIndices[i] = -1;
+                }
             }
         }
     }

@@ -1,5 +1,23 @@
 # Changelog
 
+## [14.0.4] - 2026-04-14
+### Fixed
+- Fix label selection reset when clearing filter in Sprite Library Editor. (UUM-133437)
+- Uses readable "Sprite Renderer" in the help box of Sprite Skin. (UUM-131888)
+- Fix "Save Changes Failed - Index was out of range" when closing a tab with Discard in Sprite Library Editor while labels were selected in Grid view. (UUM-134472)
+- Fix UI layout in 2D Animation Asset Upgrader when the window is docked. (UUM-134464)
+- Fixed an issue where SpriteSkin without assigned bones would cause the sprite to disappear or become unselectable in the editor. (UUM-132963)
+- Fix sprite bones deformed when enabling/disabling GameObjects in the Player by running RemoveTransformsIfNull after RemoveTransformsByIds so cached transform indices stay valid. (UUM-134629)
+- Fix draw call fluctuation and sprite flicker by avoiding AABB reset for culled Sprite Skins; deformable buffer release is now handled by the batch API. (UUM-132924)
+- Align foldout name and triangle in the Category tab in the Sprite Library Editor. (UUM-134471)
+- Fix "To start creating categories.." text overlapping Categories title and + button when Sprite Library Editor is docked and resized. (UUM-134468)
+- Fix Sprite Swap overlay text overlapping buttons when docked in dynamic panel and resized. (UUM-130909)
+- Fix Sprite Resolver component shows built-in Sprite Asset icon instead of the actual Sprite (UUM-132705)
+- Fix sprite display glitch when enabling/disabling SpriteSkin by clearing dataIndex on disable so CopyToSpriteSkinData does not overwrite another slot with a stale index. (UUM-137003)
+
+### Changed
+- Align online documentation URLs: package docs to @14.0; Unity Manual/Script Reference links to Unity 6000.4.
+
 ## [14.0.3] - 2026-02-23
 ### Fixed
 - Disable "Delete Selected Labels" menu when nothing is selected in SpriteLibraryEditor (DANB-1201)

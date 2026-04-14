@@ -207,8 +207,6 @@ namespace UnityEngine.U2D.Animation
 
         protected void BatchRemoveSpriteSkins()
         {
-            m_WorldToLocalTransformAccessJob.RemoveTransformsIfNull();
-
             int spritesToRemoveCount = m_SpriteSkinsToRemove.Count;
             if (spritesToRemoveCount == 0)
                 return;
@@ -216,14 +214,36 @@ namespace UnityEngine.U2D.Animation
             m_WorldToLocalTransformAccessJob.RemoveTransformsByIds(m_TransformIdsToRemove);
 
             int updatedCount = Math.Max(m_SpriteSkins.Count - spritesToRemoveCount, 0);
+
+            // UUM-137003: Only SetDataIndex(-1) when the skin still belongs to this deformation system (or was fully
+            // detached: DeformationSystem == null). After MoveSpriteSkinsToActiveSystem, Cpu Update runs before Gpu Update;
+            // the new system may have already SetDeformationSystem + BatchAdd/reindexed dataIndex, while this system's
+            // queued removal still removes from its HashSet — clearing dataIndex then would corrupt the active index.
             if (updatedCount == 0)
             {
                 m_SpriteSkins.Clear();
+
+                foreach (SpriteSkin spriteSkin in m_SpriteSkinsToRemove)
+                {
+                    BaseDeformationSystem owner = spriteSkin.DeformationSystem;
+                    if (owner != null && owner != this)
+                        continue;
+
+                    spriteSkin.SetDataIndex(-1);
+                }
             }
             else
             {
                 foreach (SpriteSkin spriteSkin in m_SpriteSkinsToRemove)
+                {
                     m_SpriteSkins.Remove(spriteSkin);
+
+                    BaseDeformationSystem owner = spriteSkin.DeformationSystem;
+                    if (owner != null && owner != this)
+                        continue;
+
+                    spriteSkin.SetDataIndex(-1);
+                }
             }
 
             int count = 0;
@@ -336,6 +356,8 @@ namespace UnityEngine.U2D.Animation
         protected void PrepareDataForDeformation(out JobHandle localToWorldJobHandle, out JobHandle worldToLocalJobHandle)
         {
             ValidateSpriteSkinData();
+
+            m_WorldToLocalTransformAccessJob.RemoveTransformsIfNull();
 
             using (Profiling.transformAccessJob.Auto())
             {
@@ -473,16 +495,6 @@ namespace UnityEngine.U2D.Animation
             return copySpriteRendererBuffersJob.Schedule(batchCount, 16, jobHandle);
         }
 
-        protected void DeactivateDeformableBuffers()
-        {
-            for (int i = 0; i < m_IsSpriteSkinActiveForDeform.Length; ++i)
-            {
-                if (m_IsSpriteSkinActiveForDeform[i] || InternalEngineBridge.IsUsingDeformableBuffer(m_SpriteRenderers[i], IntPtr.Zero))
-                    continue;
-                m_SpriteRenderers[i].DeactivateDeformableBuffer();
-            }
-        }
-
         internal bool IsSpriteSkinActiveForDeformation(SpriteSkin spriteSkin)
         {
             return m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
@@ -518,6 +530,11 @@ namespace UnityEngine.U2D.Animation
 #if UNITY_INCLUDE_TESTS
         internal TransformAccessJob GetWorldToLocalTransformAccessJob() => m_WorldToLocalTransformAccessJob;
         internal TransformAccessJob GetLocalToWorldTransformAccessJob() => m_LocalToWorldTransformAccessJob;
+        internal SpriteRenderer GetSpriteRendererAt(int index)
+        {
+            if (index < 0 || index >= m_SpriteRenderers.Length) return null;
+            return m_SpriteRenderers[index];
+        }
 #endif
     }
 }

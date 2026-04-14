@@ -15,7 +15,7 @@ namespace UnityEngine.U2D.IK
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenu("Chain (FABRIK)")]
     [Icon(IconUtility.IconPath + "Animation.IKFabrik.png")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/2DIK.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@14.0/manual/2DIK.html")]
     [BurstCompile]
     public sealed class FabrikSolver2D : Solver2D
     {

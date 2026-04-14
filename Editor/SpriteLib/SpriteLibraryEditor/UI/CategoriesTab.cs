@@ -40,7 +40,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         const string k_ListTextClassName = SpriteLibraryEditorWindow.editorWindowClassName + "__category-list-text";
         const string k_ListItemClassName = SpriteLibraryEditorWindow.editorWindowClassName + "__category-list-item";
 
-        const int k_FoldoutHeight = 25;
         const int k_ListItemHeight = 20;
 
         bool m_LibrarySelected;
@@ -283,7 +282,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             };
             m_InfoLabel.AddToClassList(SpriteLibraryEditorWindow.infoLabelClassName);
             Add(m_InfoLabel);
-            m_InfoLabel.StretchToParentSize();
 
             RegisterCallback<ValidateCommandEvent>(evt =>
             {
@@ -387,15 +385,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             bool displayInherited = m_Categories.Any(cat => cat.fromMain);
             m_InheritedFoldout.style.display = displayInherited ? DisplayStyle.Flex : DisplayStyle.None;
-
-            int inheritedHeight = m_InheritedFoldout.value && displayInherited ? inheritedCount * k_ListItemHeight + k_FoldoutHeight : k_FoldoutHeight;
-            m_InheritedFoldout.style.minHeight = m_InheritedFoldout.style.height = inheritedHeight;
-
-            int localHeight = m_LocalFoldout.value ? localCount * k_ListItemHeight + k_FoldoutHeight : k_FoldoutHeight;
-            m_LocalFoldout.style.minHeight = m_LocalFoldout.style.height = localHeight;
-
-            int offset = displayInherited ? k_FoldoutHeight : 0;
-            m_CategoryListsContainer.style.minHeight = m_CategoryListsContainer.style.height = localHeight + inheritedHeight + offset;
         }
 
         void SetSelection(List<string> categories)
@@ -430,6 +419,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             bool show = m_Categories.Count == 0 && !m_IsFiltered;
             m_InfoLabel.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+            // Hide list when showing empty-state label so the label gets full vertical space (flex layout).
             m_CategoryListsScrollContainer.style.display = show ? DisplayStyle.None : DisplayStyle.Flex;
 
             m_AddButton.SetEnabled(CanModifyCategories());
