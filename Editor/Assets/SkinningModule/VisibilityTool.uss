@@ -26,7 +26,6 @@ MeshVisibilityToolView {
 }
 
 #VisibilityToolSelection {
-    max-height : 20px;
     flex-direction : row;
     flex: 1 0 auto;
 }
@@ -83,7 +82,6 @@ MeshVisibilityToolView {
     margin-bottom : 5px;
     flex-direction:row;
     flex : 1 0 auto;
-    max-height : 16px;
 }
 
 #BoneOpacitySliderGroup {

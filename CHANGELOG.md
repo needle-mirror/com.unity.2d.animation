@@ -1,5 +1,28 @@
 # Changelog
 
+## [13.0.5] - 2026-04-29
+### Fixed
+- Fix label selection reset when clearing filter in Sprite Library Editor. (UUM-133437)
+- Fix the ? button in the IKManager2D inspector points to an Invalid link. (UUM-131299)
+- Fix the issue that the internal class CullingManager is available in AddComponent. (UUM-131877)
+- Fix the missing documentation link of CCD Solver 2D Component. (UUM-131875)
+- Fix the missing documentation link of Fabrik Solver 2D Component. (UUM-131879)
+- Fix the missing documentation link of Limb Solver 2D Component. (UUM-131891)
+- Uses readable "Sprite Renderer" in the help box of Sprite Skin. (UUM-131888)
+- Do not show Sprite Library Editor's save confirmation when applying from the Inspector; Editor is reset from disk like when selection changes. (DANB-1090)
+- Fix "Save Changes Failed - Index was out of range" when closing a tab with Discard in Sprite Library Editor while labels were selected in Grid view. (UUM-134472)
+- Fix UI layout in 2D Animation Asset Upgrader when the window is docked. (UUM-134464)
+- Fix sprite bones deformed when enabling/disabling GameObjects in the Player by running RemoveTransformsIfNull after RemoveTransformsByIds so cached transform indices stay valid. (UUM-134629)
+- Fix draw call fluctuation and sprite flicker by avoiding AABB reset for culled Sprite Skins; deformable buffer release is now handled by the batch API. (UUM-132924)
+- Align foldout name and triangle in the Category tab in the Sprite Library Editor. (UUM-134471)
+- Fix "To start creating categories.." text overlapping Categories title and + button when Sprite Library Editor is docked and resized. (UUM-134468)
+- Fix Sprite Swap overlay text overlapping buttons when docked in dynamic panel and resized. (UUM-130909)
+- Fix Sprite Resolver component shows built-in Sprite Asset icon instead of the actual Sprite. (UUM-132705)
+- Fix Skinning Editor right-overlay layout after Editor BaseField / label metric changes: content-sized `PopupWindow` form rows and panel heights instead of fixed `max-height` / pixel heights. (UUM-138628)
+
+### Changed
+- Align online documentation URLs: package docs to @13.0; Unity Manual/Script Reference links to Unity 6000.3.
+
 ## [13.0.4] - 2026-01-22
 ### Fixed
 - Fix unused separation line is used in the Context Menu of the Sprite Library Editor Window (DANB-1226)

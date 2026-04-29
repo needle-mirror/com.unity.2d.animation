@@ -2,10 +2,6 @@
 /* BoneInspectorPanel                                                                                                         */
 /**********************************************************************************************************************/
 
-#BoneInspectorPanel {
-  height : 140px;
-}
-
 #BoneInspectorPanel Vector2Field FloatField > Label {
   max-width : 10px;
 }

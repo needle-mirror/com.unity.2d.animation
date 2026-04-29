@@ -109,10 +109,16 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         {
             m_ItemsCollection.EndRename();
 
+            // Save selection before list change; SetSourceItems can trigger selectionChanged and overwrite m_SelectedLabels
+            List<string> selectionToRestore = new List<string>(m_SelectedLabels);
+
             m_LabelData = labels;
             m_IsFiltered = filter;
 
             m_ItemsCollection.SetSourceItems(m_LabelData);
+
+            // Restore selection after list source change so that filter changes keep the same label selected when it remains in the list
+            SetSelection(selectionToRestore);
 
             PostRefreshUI();
         }
@@ -298,7 +304,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         void SetSelection(List<string> labels)
         {
             m_SelectedLabels = labels;
-            IEnumerable<int> selectedIndices = m_SelectedLabels.Select(label => m_LabelData.FindIndex(l => l.name == label));
+            IEnumerable<int> selectedIndices = m_SelectedLabels
+                .Select(label => m_LabelData.FindIndex(l => l.name == label))
+                .Where(i => i >= 0);
             m_ItemsCollection.SetSelectionWithoutNotify(selectedIndices);
         }
 

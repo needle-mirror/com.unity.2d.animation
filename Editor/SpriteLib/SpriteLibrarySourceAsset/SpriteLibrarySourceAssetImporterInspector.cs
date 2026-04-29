@@ -68,8 +68,7 @@ namespace UnityEditor.U2D.Animation
 
         protected override void Apply()
         {
-            // Make sure that all changes are Saved / Reverted by the user if there is an instance of SpriteLibraryEditorWindow open.
-            SpriteLibraryEditor.SpriteLibraryEditorWindow.HandleUnsavedChangesOnApply();
+            // Do not show Sprite Library Editor's save dialog on Apply; Editor is reset from disk like when selection changes (DANB-1090).
             base.Apply();
 
             for (int i = 0; i < targets.Length; i++)

@@ -206,8 +206,6 @@ namespace UnityEngine.U2D.Animation
 
         protected void BatchRemoveSpriteSkins()
         {
-            m_WorldToLocalTransformAccessJob.RemoveTransformsIfNull();
-
             int spritesToRemoveCount = m_SpriteSkinsToRemove.Count;
             if (spritesToRemoveCount == 0)
                 return;
@@ -334,6 +332,8 @@ namespace UnityEngine.U2D.Animation
         {
             ValidateSpriteSkinData();
 
+            m_WorldToLocalTransformAccessJob.RemoveTransformsIfNull();
+
             using (Profiling.transformAccessJob.Auto())
             {
                 localToWorldJobHandle = m_LocalToWorldTransformAccessJob.StartLocalToWorldAndChangeDetectionJob();
@@ -440,16 +440,6 @@ namespace UnityEngine.U2D.Animation
                 bufferSizes = m_BufferSizes,
             };
             return copySpriteRendererBuffersJob.Schedule(batchCount, 16, jobHandle);
-        }
-
-        protected void DeactivateDeformableBuffers()
-        {
-            for (int i = 0; i < m_IsSpriteSkinActiveForDeform.Length; ++i)
-            {
-                if (m_IsSpriteSkinActiveForDeform[i] || InternalEngineBridge.IsUsingDeformableBuffer(m_SpriteRenderers[i], IntPtr.Zero))
-                    continue;
-                m_SpriteRenderers[i].DeactivateDeformableBuffer();
-            }
         }
 
         internal bool IsSpriteSkinActiveForDeformation(SpriteSkin spriteSkin)

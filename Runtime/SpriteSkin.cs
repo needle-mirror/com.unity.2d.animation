@@ -103,7 +103,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteSkin.asset")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SpriteSkin.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@13.0/manual/SpriteSkin.html")]
     public sealed class SpriteSkin : MonoBehaviour, IPreviewable, ISerializationCallbackReceiver
     {
         internal static class Profiling
@@ -1002,10 +1002,8 @@ namespace UnityEngine.U2D.Animation
         {
             if (m_SpriteRenderer != null)
             {
-                Sprite currentSprite = sprite;
-                if (currentSprite != null)
-                    InternalEngineBridge.SetLocalAABB(m_SpriteRenderer, currentSprite.bounds);
-
+                // Engine resets SpriteRenderer to non-skinned state: bone transform index -1, AABB to sprite bounds,
+                // deformable buffer clear.
                 m_SpriteRenderer.DeactivateDeformableBuffer();
             }
 

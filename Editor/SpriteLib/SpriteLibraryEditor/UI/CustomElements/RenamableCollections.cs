@@ -59,7 +59,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             RegisterCallback<KeyDownEvent>(OnCollectionKeyDown);
 
-            this.StretchToParentSize();
             fixedItemHeight = 20;
         }
 

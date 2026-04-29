@@ -1,5 +1,5 @@
 # Sprite Skin component
-When the Sprite Skin component is added to a GameObject that also contains the [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) component with a Sprite assigned, the Sprite Skin deforms that Sprite by using the bones that were [rigged](CharacterRig.md) and weighted to the Sprite in the [Skinning Editor](SkinningEditor.md).
+When the Sprite Skin component is added to a GameObject that also contains the [Sprite Renderer](https://docs.unity3d.com/6000.3/Documentation/Manual/class-SpriteRenderer.html) component with a Sprite assigned, the Sprite Skin deforms that Sprite by using the bones that were [rigged](CharacterRig.md) and weighted to the Sprite in the [Skinning Editor](SkinningEditor.md).
 
 After [preparing and importing](PreparingArtwork.md) your artwork into Unity, bring the generated Prefab into the Scene view and Unity automatically adds the Sprite Skin component to the Prefab. This component is required for the bones to deform the Sprite meshes in the Scene view.
 
@@ -35,9 +35,9 @@ Starting from 2D Animation 10 (Unity 2023.1), Sprite Skins can be deformed using
 ### Usage guidelines
 The option to choose between CPU and GPU deformation allows projects to pick where the deformation should happen, on the CPU or the GPU. Projects which are heavily using the CPU for their different systems are therefore advised to use GPU deformation, and vice versa.
 
-Do also note that selecting GPU deformation will cause the Sprite to be rendered using the [SRP Batcher](https://docs.unity3d.com/Manual/SRPBatcher.html). This means that there is a small draw call cost per object. When selecting CPU deformation, the Sprites are dynamically batched, reducing the overall draw calls. We therefore advice choosing CPU deformation when a scene contains many low-polygon objects, and GPU deformation when a scene contains fewer high-polygon objects.
+Do also note that selecting GPU deformation will cause the Sprite to be rendered using the [SRP Batcher](https://docs.unity3d.com/6000.3/Documentation/Manual/SRPBatcher.html). This means that there is a small draw call cost per object. When selecting CPU deformation, the Sprites are dynamically batched, reducing the overall draw calls. We therefore advice choosing CPU deformation when a scene contains many low-polygon objects, and GPU deformation when a scene contains fewer high-polygon objects.
 
-As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
+As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/6000.3/Documentation/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
 
 ### Selecting CPU/GPU deformation
 1. Ensure your project is setup with the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest) package.

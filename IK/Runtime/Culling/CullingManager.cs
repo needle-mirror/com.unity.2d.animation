@@ -7,6 +7,7 @@ namespace UnityEngine.U2D.IK
     /// <summary>
     /// Class used for checking visibility of SpriteSkins' bones.
     /// </summary>
+    [AddComponentMenu("")]
     [ExecuteInEditMode]
     internal class CullingManager : MonoBehaviour
     {

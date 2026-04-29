@@ -4,12 +4,14 @@
 
 .sprite-swap-overlay {
     flex-grow: 1;
+    min-height: 0;
     flex-direction: column;
     justify-content: space-between;
 }
 
 .sprite-swap-overlay__selector-list {
     flex-grow: 1;
+    min-height: 0;
     background-color: var(--unity-colors-default-background);
 }
 
@@ -83,6 +85,8 @@
     justify-content: center;
     align-items: center;
     flex-grow: 1;
+    min-height: 0;
+    overflow: hidden;
     flex-direction: row;
 }
 
@@ -94,6 +98,7 @@
     white-space: normal;
     padding: 10px;
     -unity-text-align: middle-center;
+    min-height: 0;
 }
 
 .sprite-swap-overlay__label-visual {
@@ -112,6 +117,7 @@
 .sprite-swap-overlay__toolbar {
     padding-top: 1px;
     flex-direction: row;
+    flex: 0 0 20px;
     bottom: 0;
     min-height: 20px;
     height: 20px;

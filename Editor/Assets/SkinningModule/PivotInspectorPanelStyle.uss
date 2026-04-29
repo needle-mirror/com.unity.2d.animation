@@ -2,10 +2,6 @@
 /* BoneInspectorPanel                                                                                                 */
 /**********************************************************************************************************************/
 
-#PivotInspectorPanel {
-  height : 80px;
-}
-
 #PivotInspectorPanel EnumField > Label {
   max-width: 0px;
 }
