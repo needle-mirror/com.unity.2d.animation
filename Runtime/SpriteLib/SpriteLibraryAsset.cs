@@ -106,7 +106,7 @@ namespace UnityEngine.U2D.Animation
     /// Sprites are grouped under a given category as categories. Each category and label needs to have
     /// a name specified so that it can be queried.
     /// </remarks>
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/AssetUpgrader.html%23upgrading-sprite-libraries")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@15.1/manual/AssetUpgrader.html#upgrading-sprite-libraries")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     [Icon(IconUtility.IconPath + "Animation.SpriteLibrary.png")]
     public class SpriteLibraryAsset : ScriptableObject

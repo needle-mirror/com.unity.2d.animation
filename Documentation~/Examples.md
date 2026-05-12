@@ -5,7 +5,7 @@ Each Sample project contains specific examples with ready-made Assets, demonstra
 
 When the import is complete, Unity installs the Sample projects to `Assets/Samples/2D Animation/[X.Y.Z]/Samples`; where `[X.Y.Z]` is the version of the installed 2D Animation package.
 
-The following is the list of Sample projects and their respective documentation. Note that some of these Samples require and refer to the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest/) package:
+The following is the list of Sample projects and their respective documentation. Note that some of these Samples require and refer to the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@14.0/) package:
 
 - [Simple](ex-simple.md)  - a single Sprite rig with simple bone hierarchy and rigging.
 - [Single Skinned Sprite](ex-single-skinned-sprite.md) - a more advance single Sprite actor.

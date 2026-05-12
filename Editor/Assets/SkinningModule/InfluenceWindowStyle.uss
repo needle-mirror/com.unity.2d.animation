@@ -1,10 +1,3 @@
-
-InfluenceWindow
-{
-    height: 200px;
-}
-
-
 #HeaderImage
 {
     background-image: resource("Builtin Skins/LightSkin/images/rol-header.png");
@@ -37,7 +30,6 @@ InfluenceWindow
 #ListView
 {
     background-image: resource("Builtin Skins/LightSkin/images/rol-body.png");
-    flex: 1 auto;
     -unity-slice-left: 6;
     -unity-slice-right: 3;
     -unity-slice-bottom: 6;

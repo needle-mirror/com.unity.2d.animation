@@ -101,6 +101,9 @@ namespace UnityEngine.U2D.Animation
             if (sprite == null)
                 return SpriteSkinState.SpriteNotFound;
 
+            if (spriteSkin.spriteRenderer.drawMode != SpriteDrawMode.Simple)
+                return SpriteSkinState.SpriteDrawModeIsNotSimple;
+
             NativeArray<Matrix4x4> bindPoses = sprite.GetBindPoses();
             int bindPoseCount = bindPoses.Length;
 

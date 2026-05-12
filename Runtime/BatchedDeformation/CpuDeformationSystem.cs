@@ -52,7 +52,6 @@ namespace UnityEngine.U2D.Animation
             {
                 localToWorldJobHandle.Complete();
                 worldToLocalJobHandle.Complete();
-                DeactivateDeformableBuffers();
                 return;
             }
 
@@ -85,8 +84,6 @@ namespace UnityEngine.U2D.Animation
                 // Check if the sprite skin was deformed this frame
                 if (m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex] && m_LastDeformedFrame[spriteSkin.dataIndex] == frameCount)
                     spriteSkin.PostDeform();
-
-            DeactivateDeformableBuffers();
         }
     }
 }

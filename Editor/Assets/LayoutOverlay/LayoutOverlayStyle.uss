@@ -80,13 +80,11 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow > #unity-content-c
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-row {
-    max-height : 20px;
     flex-direction: row;
     margin-left : 0;
     margin-right : 0;
     margin-top : 0;
     margin-bottom : 0;
-    flex : 1 0 auto;
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow .form-row-space {

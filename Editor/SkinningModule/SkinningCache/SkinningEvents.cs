@@ -1,7 +1,9 @@
+using System;
 using UnityEngine.Events;
 
 namespace UnityEditor.U2D.Animation
 {
+    [Serializable]
     internal class SkinningEvents
     {
         // The re-implemented virtual methods in these classes are there so that

@@ -24,9 +24,6 @@ namespace UnityEditor.U2D.Animation
 
         public WeightInspectorIMGUIPanel()
         {
-            name = "WeightInspectorIMGUIPanel";
-            styleSheets.Add(ResourceLoader.Load<StyleSheet>("SkinningModule/WeightInspectorIMGUIPanelStyle.uss"));
-
             this.Add(new IMGUIContainer(OnGUI));
             this.pickingMode = PickingMode.Ignore;
             this.RegisterCallback<MouseDownEvent>((e) => { e.StopPropagation(); });

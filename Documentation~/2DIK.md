@@ -2,7 +2,7 @@
 
 ## Overview
 
-The 2D [Inverse Kinematics](https://docs.unity3d.com/Manual/InverseKinematics.html) (IK) feature set allows you to apply __2D IK__ to the bones and Transforms of your characters’ animation skeletons. __2D IK__ automatically calculates for the positions and rotations of a chain of bones moving towards a target position. This makes it easier to pose and animate character limbs for animation, or to manipulate a skeleton in real-time.
+The 2D [Inverse Kinematics](https://docs.unity3d.com/6000.5/Documentation/Manual/InverseKinematics.html) (IK) feature set allows you to apply __2D IK__ to the bones and Transforms of your characters’ animation skeletons. __2D IK__ automatically calculates for the positions and rotations of a chain of bones moving towards a target position. This makes it easier to pose and animate character limbs for animation, or to manipulate a skeleton in real-time.
 
 ## Applying 2D IK to character skeletons
 The following workflow continues from the __2D Animation__ package [animation workflow](CharacterRig.md), and demonstrates how to apply __2D IK__ to your character skeletons.
@@ -109,7 +109,7 @@ Toggle or customize the display settings of the IK Gizmos to adjust their visibi
 
 ### Global IK Gizmos Toggle
 
-You can toggle the IK Gizmos by going to the [Gizmos drop-down menu](https://docs.unity3d.com/Manual/GizmosMenu.html) at the upper right of the Scene view window, then select or clear __IKManager2D__ (menu: __Gizmos > Scripts > IKManager2D__) to enable or disable the Gizmos respectively.
+You can toggle the IK Gizmos by going to the [Gizmos drop-down menu](https://docs.unity3d.com/6000.5/Documentation/Manual/GizmosMenu.html) at the upper right of the Scene view window, then select or clear __IKManager2D__ (menu: __Gizmos > Scripts > IKManager2D__) to enable or disable the Gizmos respectively.
 
 ### Solver Gizmos
 

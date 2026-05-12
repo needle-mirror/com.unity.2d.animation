@@ -8,7 +8,6 @@ namespace UnityEditor.U2D.Animation
 
     internal abstract class BaseTool : SkinningObject, ITool
     {
-        [SerializeField]
         private LayoutOverlay m_LayoutOverlay;
 
         internal LayoutOverlay layoutOverlay

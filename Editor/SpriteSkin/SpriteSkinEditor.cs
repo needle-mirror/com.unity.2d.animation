@@ -15,6 +15,7 @@ namespace UnityEditor.U2D.Animation
             public static readonly GUIContent listHeaderLabel = new GUIContent("Bones", "GameObject Transform to represent the Bones defined by the Sprite that is currently used for deformation.");
             public static readonly GUIContent rootBoneLabel = new GUIContent("Root Bone", "GameObject Transform to represent the Root Bone.");
             public static readonly string spriteNotFound = L10n.Tr($"Sprite not found in {ObjectNames.NicifyVariableName(nameof(SpriteRenderer))}");
+            public static readonly string spriteDrawModeIsNotSimple = L10n.Tr("Skinning with Sliced or Tiled draw modes is not supported.");
             public static readonly string spriteHasNoSkinningInformation = L10n.Tr("Sprite has no Bind Poses");
             public static readonly string spriteHasNoWeights = L10n.Tr("Sprite has no weights");
             public static readonly string rootTransformNotFound = L10n.Tr("Root Bone not set");
@@ -360,6 +361,9 @@ namespace UnityEditor.U2D.Animation
                 {
                     case SpriteSkinState.SpriteNotFound:
                         text = Contents.spriteNotFound;
+                        break;
+                    case SpriteSkinState.SpriteDrawModeIsNotSimple:
+                        text = Contents.spriteDrawModeIsNotSimple;
                         break;
                     case SpriteSkinState.SpriteHasNoSkinningInformation:
                         text = Contents.spriteHasNoSkinningInformation;

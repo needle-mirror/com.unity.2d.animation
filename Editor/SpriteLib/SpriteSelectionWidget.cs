@@ -71,6 +71,12 @@ namespace UnityEditor.U2D.Animation
 
         public void UpdateContents(Sprite[] sprites)
         {
+            // Skip full reset if the sprite list is identical (same references in same order).
+            // This prevents unnecessary preview cache clears when only the label changes
+            // within the same category, which causes visible flickering.
+            if (IsSameSpriteList(sprites))
+                return;
+
             m_SpritePreviewNeedFetching.Clear();
 
             InternalEditorBridge.ClearAssetPreviews(m_ClientId);
@@ -85,6 +91,22 @@ namespace UnityEditor.U2D.Animation
             m_SpritePreviewNeedFetching.Capacity = spriteCount;
             for (int i = 0; i < spriteCount; ++i)
                 m_SpritePreviewNeedFetching.Add(i);
+        }
+
+        bool IsSameSpriteList(Sprite[] sprites)
+        {
+            if (sprites == null || m_SpriteList == null)
+                return sprites == m_SpriteList;
+
+            if (sprites.Length != m_SpriteList.Length)
+                return false;
+
+            for (int i = 0; i < sprites.Length; ++i)
+            {
+                if (sprites[i] != m_SpriteList[i])
+                    return false;
+            }
+            return true;
         }
 
         public int ShowGUI(int selectedIndex, Editor editor)
@@ -186,7 +208,6 @@ namespace UnityEditor.U2D.Animation
             int remainingPreviewCount = m_SpritePreviewNeedFetching.Count;
             if (remainingPreviewCount == 0)
                 return false;
-
             for (int i = remainingPreviewCount - 1; i >= 0; --i)
             {
                 int index = m_SpritePreviewNeedFetching[i];
@@ -212,8 +233,9 @@ namespace UnityEditor.U2D.Animation
                     }
                 }
             }
-
-            return remainingPreviewCount != m_SpritePreviewNeedFetching.Count;
+            // Returns true if there are previews still pending acquisition, ensuring the redraw continues.
+            return m_SpritePreviewNeedFetching.Count > 0
+                || remainingPreviewCount != m_SpritePreviewNeedFetching.Count;
         }
     }
 }

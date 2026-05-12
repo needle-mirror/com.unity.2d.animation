@@ -1,5 +1,22 @@
 # Changelog
 
+## [15.1.0] - 2026-05-12
+### Fixed
+- Fix "Save Changes Failed - Index was out of range" when closing a tab with Discard in Sprite Library Editor while labels were selected in Grid view. (UUM-134472)
+- Fix UI layout in 2D Animation Asset Upgrader when the window is docked. (UUM-134464)
+- Fixed an issue where SpriteSkin without assigned bones would cause the sprite to disappear or become unselectable in the editor. (UUM-132963)
+- Fix sprite bones deformed when enabling/disabling GameObjects in the Player by running RemoveTransformsIfNull after RemoveTransformsByIds so cached transform indices stay valid. (UUM-134629)
+- Fix draw call fluctuation and sprite flicker by avoiding AABB reset for culled Sprite Skins; deformable buffer release is now handled by the batch API. (UUM-132924)
+- Fix label selection reset when clearing filter in Sprite Library Editor. (UUM-133437)
+- Align foldout name and triangle in the Category tab in the Sprite Library Editor. (UUM-134471)
+- Fix "To start creating categories.." text overlapping Categories title and + button when Sprite Library Editor is docked and resized. (UUM-134468)
+- Fix Sprite Swap overlay text overlapping buttons when docked in dynamic panel and resized. (UUM-130909)
+- Fix Sprite Resolver component shows built-in Sprite Asset icon instead of the actual Sprite (UUM-132705)
+- Fix sprite display glitch when enabling/disabling SpriteSkin by clearing dataIndex on disable so CopyToSpriteSkinData does not overwrite another slot with a stale index. (UUM-137003)
+- Fix Skinning Editor right-overlay layout after Editor BaseField / label metric changes: content-sized `PopupWindow` form rows and panel heights instead of fixed `max-height` / pixel heights. (UUM-138628)
+
+### Changed
+- Align online documentation URLs to package docs @15.1.
 
 ## [15.0.3] - 2026-02-17
 ## [15.0.2] - 2026-02-10

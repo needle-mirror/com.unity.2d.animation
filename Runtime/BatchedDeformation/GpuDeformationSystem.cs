@@ -152,7 +152,6 @@ namespace UnityEngine.U2D.Animation
             {
                 localToWorldJobHandle.Complete();
                 worldToLocalJobHandle.Complete();
-                DeactivateDeformableBuffers();
                 return;
             }
 
@@ -181,8 +180,6 @@ namespace UnityEngine.U2D.Animation
             SetComputeBuffer();
 
             // NOTE: In GPU deformation system, SpriteSkin.PostDeform() does nothing (no cache or state update needed).
-
-            DeactivateDeformableBuffers();
         }
 
         protected override void ResizeBuffers(int vertexBufferSize, in PerSkinJobData skinBatch)

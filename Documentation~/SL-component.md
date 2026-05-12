@@ -1,6 +1,6 @@
 # Sprite Library component in Unity
 
-The **Sprite Library** component defines which [Sprite Library Asset](SL-Asset.md) a GameObject refers to at runtime. When you attach this component to a GameObject, the [Sprite Resolver component](SL-Resolver.md) attached to the same GameObject or child GameObject will refer to the Sprite Library Asset set by the Sprite Library component. This allows you to change the Sprite referenced by a [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer) with the Sprite Resolver component.
+The **Sprite Library** component defines which [Sprite Library Asset](SL-Asset.md) a GameObject refers to at runtime. When you attach this component to a GameObject, the [Sprite Resolver component](SL-Resolver.md) attached to the same GameObject or child GameObject will refer to the Sprite Library Asset set by the Sprite Library component. This allows you to change the Sprite referenced by a [Sprite Renderer](https://docs.unity3d.com/6000.5/Documentation/Manual/class-SpriteRenderer.html) with the Sprite Resolver component.
 
 ## Sprite Library Inspector window
 
