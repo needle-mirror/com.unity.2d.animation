@@ -163,12 +163,12 @@ namespace UnityEngine.U2D.Animation
 
         public NativeByteArray GetBuffer(ulong id, int bufferSize)
         {
-            Profiler.BeginSample("BufferManager.GetBuffer");
+            UnityEngine.Profiling.Profiler.BeginSample("BufferManager.GetBuffer");
             bool foundBuffer = m_Buffers.TryGetValue(id, out VertexBuffer buffer);
             if (!foundBuffer)
                 buffer = CreateBuffer(id, bufferSize);
 
-            Profiler.EndSample();
+            UnityEngine.Profiling.Profiler.EndSample();
             return buffer?.GetBuffer(bufferSize);
         }
 
@@ -188,7 +188,7 @@ namespace UnityEngine.U2D.Animation
 
         public void ReturnBuffer(ulong id)
         {
-            Profiler.BeginSample("BufferManager.ReturnBuffer");
+            UnityEngine.Profiling.Profiler.BeginSample("BufferManager.ReturnBuffer");
             if (m_Buffers.TryGetValue(id, out VertexBuffer buffer))
             {
                 buffer.Deactivate();
@@ -196,12 +196,12 @@ namespace UnityEngine.U2D.Animation
                 m_Buffers.Remove(id);
             }
 
-            Profiler.EndSample();
+            UnityEngine.Profiling.Profiler.EndSample();
         }
 
         private void Update()
         {
-            Profiler.BeginSample("BufferManager.Update");
+            UnityEngine.Profiling.Profiler.BeginSample("BufferManager.Update");
 
             while (m_BuffersToDispose.Count > 0 && m_BuffersToDispose.Peek().IsSafeToDispose())
             {
@@ -209,7 +209,7 @@ namespace UnityEngine.U2D.Animation
                 buffer.Dispose();
             }
 
-            Profiler.EndSample();
+            UnityEngine.Profiling.Profiler.EndSample();
         }
     }
 }

@@ -124,7 +124,7 @@ Use Sprite Library Editor **breadcrumbs** to navigate between between different 
 
 ## Sprite Library component
 
-The [Sprite Library component](SL-component.md) defines which Sprite Library Asset a GameObject refers to at runtime. Attach this component to a GameObject or any parent GameObject of a Sprite Resolver component to allow the [Sprite Resolver](#sprite-resolver-component) to change the Sprite that is being used by a [Sprite Renderer](https://docs.unity3d.com/6000.5/Documentation/Manual/class-SpriteRenderer.html).
+The [Sprite Library component](SL-component.md) defines which Sprite Library Asset a GameObject refers to at runtime. Attach this component to a GameObject or any parent GameObject of a Sprite Resolver component to allow the [Sprite Resolver](#sprite-resolver-component) to change the Sprite that is being used by a [Sprite Renderer](https://docs.unity3d.com/6000.6/Documentation/Manual/class-SpriteRenderer.html).
 
 In the Sprite Library component’s Inspector window, assign the desired Sprite Library Asset to the **Sprite Library Asset** property. Alternatively, select the **New** button to create and save a new Sprite Library Asset which is automatically assigned to the Sprite Library Asset field.
 

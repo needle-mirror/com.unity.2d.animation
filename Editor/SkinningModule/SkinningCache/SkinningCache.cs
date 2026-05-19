@@ -71,6 +71,7 @@ namespace UnityEditor.U2D.Animation
         ISkinningCachePersistentState m_State;
 
         StringBuilder m_StringBuilder = new StringBuilder();
+        SpriteCache m_HoveredSprite;
 
         public BaseTool selectedTool
         {
@@ -106,6 +107,15 @@ namespace UnityEditor.U2D.Animation
             {
                 m_SelectedSprite = value;
                 m_State.lastSpriteId = m_SelectedSprite ? m_SelectedSprite.id : String.Empty;
+            }
+        }
+
+        public SpriteCache hoveredSprite
+        {
+            get => m_HoveredSprite;
+            set
+            {
+                m_HoveredSprite = value;
             }
         }
 
@@ -946,6 +956,7 @@ namespace UnityEditor.U2D.Animation
                 WeightPainterToolWrapper tool = CreateTool<WeightPainterToolWrapper>();
 
                 tool.weightPainterTool = weightPainterTool;
+                tool.skeletonTool = skeletonTool;
                 tool.paintMode = WeightPainterMode.Slider;
                 tool.title = TextContent.weightSlider;
                 tool.Initialize(layoutOverlay);
@@ -956,6 +967,7 @@ namespace UnityEditor.U2D.Animation
                 WeightPainterToolWrapper tool = CreateTool<WeightPainterToolWrapper>();
 
                 tool.weightPainterTool = weightPainterTool;
+                tool.skeletonTool = skeletonTool;
                 tool.paintMode = WeightPainterMode.Brush;
                 tool.title = TextContent.weightBrush;
                 tool.Initialize(layoutOverlay);

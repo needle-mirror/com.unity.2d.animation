@@ -3,43 +3,43 @@
 /**********************************************************************************************************************/
 
 #SelectGeometryImage {
-    background-image: url("../EditorIcons/Light/Edit_Geometry.png");
+    background-image: url("../EditorIcons/Edit_Geometry.png");
 }
 
 #CreateVertexImage {
-    background-image: url("../EditorIcons/Light/Create_Vertex.png");
+    background-image: url("../EditorIcons/Create_Vertex.png");
 }
 
 #CreateEdgeImage {
-    background-image: url("../EditorIcons/Light/Create_Edge.png");
+    background-image: url("../EditorIcons/Create_Edge.png");
 }
 
 #SplitEdgeImage {
-    background-image: url("../EditorIcons/Light/Split_Edge.png");
+    background-image: url("../EditorIcons/Split_Edge.png");
 }
 
 #GenerateGeometryImage {
-    background-image: url("../EditorIcons/Light/Generate_Geometry.png");
+    background-image: url("../EditorIcons/Generate_Geometry.png");
 }
 
 .Dark #SelectGeometryImage {
-    background-image: url("../EditorIcons/Dark/d_Edit_Geometry.png");
+    background-image: url("../EditorIcons/d_Edit_Geometry.png");
 }
 
 .Dark #CreateVertexImage {
-    background-image: url("../EditorIcons/Dark/d_Create_Vertex.png");
+    background-image: url("../EditorIcons/d_Create_Vertex.png");
 }
 
 .Dark #CreateEdgeImage {
-    background-image: url("../EditorIcons/Dark/d_Create_Edge.png");
+    background-image: url("../EditorIcons/d_Create_Edge.png");
 }
 
 .Dark #SplitEdgeImage {
-    background-image: url("../EditorIcons/Dark/d_Split_Edge.png");
+    background-image: url("../EditorIcons/d_Split_Edge.png");
 }
 
 .Dark #GenerateGeometryImage {
-    background-image: url("../EditorIcons/Dark/d_Generate_Geometry.png");
+    background-image: url("../EditorIcons/d_Generate_Geometry.png");
 }
 
 .Checked #SelectGeometryImage {

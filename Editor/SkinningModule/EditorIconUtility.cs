@@ -8,8 +8,8 @@ namespace UnityEditor.U2D.Animation
 {
     internal static class EditorIconUtility
     {
-        public const string LightIconPath = "EditorIcons/Light";
-        public const string DarkIconPath = "EditorIcons/Dark";
+        public const string LightIconPath = "EditorIcons";
+        public const string DarkIconPath = "EditorIcons";
 
         public static Texture2D LoadIconResource(string name, string lightPath, string darkPath)
         {

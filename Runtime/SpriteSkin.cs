@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Profiling;
 using UnityEngine.Rendering;
 using UnityEngine.Scripting;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.U2D.Animation.Profiler;
 using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.Animation
@@ -122,20 +122,12 @@ namespace UnityEngine.U2D.Animation
     [DefaultExecutionOrder(UpdateOrder.spriteSkinUpdateOrder)]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
-    [AddComponentMenu("2D Animation/Sprite Skin")]
+    [AddComponentMenu(U2DAnimationConstants.PackageDisplayName + "/Sprite Skin")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteSkin.asset")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@15.1/manual/SpriteSkin.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@16.0/manual/SpriteSkin.html")]
     public sealed class SpriteSkin : MonoBehaviour, IPreviewable, ISerializationCallbackReceiver
     {
-        internal static class Profiling
-        {
-            public static readonly ProfilerMarker cacheCurrentSprite = new ProfilerMarker("SpriteSkin.CacheCurrentSprite");
-            public static readonly ProfilerMarker cacheHierarchy = new ProfilerMarker("SpriteSkin.CacheHierarchy");
-            public static readonly ProfilerMarker getSpriteBonesTransformFromGuid = new ProfilerMarker("SpriteSkin.GetSpriteBoneTransformsFromGuid");
-            public static readonly ProfilerMarker getSpriteBonesTransformFromPath = new ProfilerMarker("SpriteSkin.GetSpriteBoneTransformsFromPath");
-        }
-
         // This struct is used for caching.
         // fullName: A string representing the full hierarchical path of the transform (e.g., "Parent/Child/Grandchild").
         // transform: A reference to the Transform object itself.
@@ -841,7 +833,12 @@ namespace UnityEngine.U2D.Animation
         /// Called from OnEnable, BatchValidate, Deform, CopyToSpriteSkinData
         void CacheCurrentSprite(bool rebind)
         {
-            using (Profiling.cacheCurrentSprite.Auto())
+
+            // If the sprite has not changed, early exit.
+            if (m_CurrentDeformSprite == m_SpriteId)
+                return;
+
+            using (Animation2DProfilerMarkers.cacheCurrentSpriteProfilerMarker.Auto())
             {
                 DeactivateSkinning();
                 m_CurrentDeformSprite = m_SpriteId;
@@ -1053,7 +1050,7 @@ namespace UnityEngine.U2D.Animation
         // transformData entries contains the full path to the transform. This allows for disambiguation of transforms with the same name.
         internal void CacheHierarchy(bool forceCreateCache = false)
         {
-            using (Profiling.cacheHierarchy.Auto())
+            using (Animation2DProfilerMarkers.cacheHierarchyProfilerMarker.Auto())
             {
                 hierarchyCache.Clear();
                 if (rootBone == null || (!m_AutoRebind && !forceCreateCache))

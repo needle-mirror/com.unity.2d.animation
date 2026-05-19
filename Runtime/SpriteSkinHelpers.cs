@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.U2D.Animation.Profiler;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -63,7 +64,7 @@ namespace UnityEngine.U2D.Animation
             Bone[] boneObjects = rootBone.GetComponentsInChildren<Bone>();
             if (boneObjects != null && boneObjects.Length >= spriteBones.Length)
             {
-                using (SpriteSkin.Profiling.getSpriteBonesTransformFromGuid.Auto())
+                using (Animation2DProfilerMarkers.getSpriteBonesTransformFromGuidProfilerMarker.Auto())
                 {
                     int i = 0;
                     for (; i < spriteBones.Length; ++i)
@@ -91,7 +92,7 @@ namespace UnityEngine.U2D.Animation
 
         static bool GetSpriteBonesTransformFromPath(SpriteBone[] spriteBones, Dictionary<int, List<SpriteSkin.TransformData>> hierarchyCache, Transform[] outNewBoneTransform)
         {
-            using (SpriteSkin.Profiling.getSpriteBonesTransformFromPath.Auto())
+            using (Animation2DProfilerMarkers.getSpriteBonesTransformFromPathProfilerMarker.Auto())
             {
                 string[] bonePath = null;
                 bool foundBones = true;

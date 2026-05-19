@@ -126,7 +126,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
         void RefreshButtonsState()
         {
             for (int i = 0; i < m_Buttons.Count; ++i)
-                m_Buttons[i].SetChecked(i == value);
+                m_Buttons[i].SetCheckedPseudoState(i == value);
         }
     }
 }

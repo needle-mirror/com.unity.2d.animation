@@ -1,4 +1,5 @@
 using Unity.Profiling;
+using UnityEngine.U2D.Animation.Profiler;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -9,8 +10,6 @@ namespace UnityEngine.U2D.Animation
     {
         public System.Action<GameObject> onDestroyingComponent { get; set; }
 
-        ProfilerMarker m_ProfilerMarker = new ProfilerMarker("DeformationManager.LateUpdate");
-
         void OnDestroy() => onDestroyingComponent?.Invoke(gameObject);
 
         void LateUpdate()
@@ -20,10 +19,9 @@ namespace UnityEngine.U2D.Animation
                 GameObject.DestroyImmediate(gameObject);
                 return;
             }
-
-            m_ProfilerMarker.Begin();
+            Animation2DProfilerMarkers.deformationManagerLateUpdateProfilerMarker.Begin();
             DeformationManager.instance.Update();
-            m_ProfilerMarker.End();
+            Animation2DProfilerMarkers.deformationManagerLateUpdateProfilerMarker.End();
         }
     }
 }

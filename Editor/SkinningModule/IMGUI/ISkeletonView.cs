@@ -56,6 +56,7 @@ namespace UnityEditor.U2D.Animation
         bool DoSplitBone(out EntityId id, out Vector3 position);
         bool DoRemoveBone();
         bool DoCancelMultistepAction(bool force);
+        void ClearHoverState();
         bool IsActionActive(SkeletonAction action);
         bool IsActionHot(SkeletonAction action);
         bool IsActionTriggering(SkeletonAction action);

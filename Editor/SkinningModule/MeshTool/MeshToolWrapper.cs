@@ -42,6 +42,14 @@ namespace UnityEditor.U2D.Animation
             set { m_SkeletonMode = value; }
         }
 
+        public override bool allowsSpriteSelection
+        {
+            get
+            {
+                return skeletonTool != null && skeletonTool.hoveredBone == null;
+            }
+        }
+
         public override int defaultControlID
         {
             get

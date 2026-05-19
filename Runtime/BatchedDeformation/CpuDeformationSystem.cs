@@ -1,5 +1,8 @@
+using System.Diagnostics;
+using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine.Assertions;
+using UnityEngine.U2D.Animation.Profiler;
 using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.Animation
@@ -27,14 +30,19 @@ namespace UnityEngine.U2D.Animation
 
         internal override void Update()
         {
+            int previousCount = m_SpriteSkins.Count;
+
             BatchRemoveSpriteSkins();
             BatchAddSpriteSkins();
 
             int count = m_SpriteSkins.Count;
             if (count == 0)
             {
-                m_LocalToWorldTransformAccessJob.ResetCache();
-                m_WorldToLocalTransformAccessJob.ResetCache();
+                if (previousCount > 0)
+                {
+                    m_LocalToWorldTransformAccessJob.ResetCache();
+                    m_WorldToLocalTransformAccessJob.ResetCache();
+                }
                 return;
             }
 
@@ -52,6 +60,9 @@ namespace UnityEngine.U2D.Animation
             {
                 localToWorldJobHandle.Complete();
                 worldToLocalJobHandle.Complete();
+#if ENABLE_PROFILER && PROFILING_INSTALLED
+                Animation2DProfilerMarkers.s_SpriteSkinCPUVertexProcessed.Value = 0;
+#endif
                 return;
             }
 
@@ -74,6 +85,19 @@ namespace UnityEngine.U2D.Animation
             JobHandle.ScheduleBatchedJobs();
             jobHandle = JobHandle.CombineDependencies(m_DeformJobHandle, m_CopyJobHandle);
             jobHandle.Complete();
+#if ENABLE_PROFILER && PROFILING_INSTALLED
+            if (UnityEngine.Profiling.Profiler.enabled)
+            {
+                for (int i = 0; i < m_SpriteSkinData.Length; ++i)
+                {
+                    if (m_HasBoneTransformsChanged[i])
+                    {
+                        Animation2DProfilerMarkers.s_SpriteSkinCPUProcessed.Value++;
+                        Animation2DProfilerMarkers.s_SpriteSkinCPUVertexProcessed.Value += m_SpriteSkinData[i].spriteVertexCount;
+                    }
+                }
+            }
+#endif
 
             using (Profiling.setBatchDeformableBufferAndLocalAABB.Auto())
             {

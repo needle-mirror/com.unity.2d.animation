@@ -6,7 +6,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine.Jobs;
 using UnityEngine.Pool;
-using UnityEngine.Profiling;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -72,9 +71,17 @@ namespace UnityEngine.U2D.Animation
 
         public void ResetCache()
         {
+#if UNITY_INCLUDE_TESTS
+            ResetCacheCallCount++;
+#endif
             ClearDataStructures();
             InitializeDataStructures();
         }
+
+#if UNITY_INCLUDE_TESTS
+        internal static int ResetCacheCallCount { get; private set; }
+        internal static void ResetResetCacheCallCount() => ResetCacheCallCount = 0;
+#endif
 
         public NativeHashMap<EntityId, TransformData> transformData => m_TransformData;
 
@@ -159,7 +166,7 @@ namespace UnityEngine.U2D.Animation
             if (!m_Dirty)
                 return;
             m_Dirty = false;
-            Profiler.BeginSample("UpdateTransformIndex");
+            UnityEngine.Profiling.Profiler.BeginSample("UpdateTransformIndex");
 
             // Always recreate matrix array when transform array changes to ensure clean state
             if (m_TransformMatrix.IsCreated)
@@ -188,7 +195,7 @@ namespace UnityEngine.U2D.Animation
                 }
             }
 
-            Profiler.EndSample();
+            UnityEngine.Profiling.Profiler.EndSample();
         }
 
         public JobHandle StartLocalToWorldAndChangeDetectionJob()
@@ -201,14 +208,14 @@ namespace UnityEngine.U2D.Animation
                 m_JobHandle.Complete();
                 UpdateTransformIndex();
 
-                Profiler.BeginSample("StartLocalToWorldAndChangeDetectionJob");
+                UnityEngine.Profiling.Profiler.BeginSample("StartLocalToWorldAndChangeDetectionJob");
                 LocalToWorldAndChangeDetectionTransformAccessJob job = new LocalToWorldAndChangeDetectionTransformAccessJob()
                 {
                     outMatrix = transformMatrix,
                     hasChanged = transformChanged,
                 };
                 m_JobHandle = job.ScheduleReadOnly(m_TransformAccessArray, 16);
-                Profiler.EndSample();
+                UnityEngine.Profiling.Profiler.EndSample();
                 return m_JobHandle;
             }
 
@@ -221,13 +228,13 @@ namespace UnityEngine.U2D.Animation
             {
                 m_JobHandle.Complete();
                 UpdateTransformIndex();
-                Profiler.BeginSample("StartWorldToLocalJob");
+                UnityEngine.Profiling.Profiler.BeginSample("StartWorldToLocalJob");
                 WorldToLocalTransformAccessJob job = new WorldToLocalTransformAccessJob()
                 {
                     outMatrix = transformMatrix,
                 };
                 m_JobHandle = job.ScheduleReadOnly(m_TransformAccessArray, 16);
-                Profiler.EndSample();
+                UnityEngine.Profiling.Profiler.EndSample();
                 return m_JobHandle;
             }
 

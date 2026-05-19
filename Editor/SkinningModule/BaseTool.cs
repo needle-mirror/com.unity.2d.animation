@@ -6,6 +6,11 @@ namespace UnityEditor.U2D.Animation
 {
     internal interface ITool { }
 
+    internal interface IWeightMapVisualization
+    {
+        bool displaysWeights { get; }
+    }
+
     internal abstract class BaseTool : SkinningObject, ITool
     {
         private LayoutOverlay m_LayoutOverlay;
@@ -28,6 +33,11 @@ namespace UnityEditor.U2D.Animation
         public virtual IMeshPreviewBehaviour previewBehaviour
         {
             get { return null; }
+        }
+
+        public virtual bool allowsSpriteSelection
+        {
+            get { return false; }
         }
 
         internal override void OnDestroy()

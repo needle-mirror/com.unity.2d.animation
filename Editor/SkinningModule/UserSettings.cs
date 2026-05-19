@@ -96,8 +96,13 @@ namespace UnityEditor.U2D.Animation
         public const string kSelectedOutlineBlueKey = UserSettings.kSettingsUniqueKey + "OutlineColorBlue";
         public const string kSelectedOutlineAlphaKey = UserSettings.kSettingsUniqueKey + "OutlineColorAlpha";
         public const string kSelectedSpriteOutlineSize = UserSettings.kSettingsUniqueKey + "OutlineSize";
+        public const string kHoveredOutlineRedKey = UserSettings.kSettingsUniqueKey + "HoveredOutlineColorRed";
+        public const string kHoveredOutlineGreenKey = UserSettings.kSettingsUniqueKey + "HoveredOutlineColorGreen";
+        public const string kHoveredOutlineBlueKey = UserSettings.kSettingsUniqueKey + "HoveredOutlineColorBlue";
+        public const string kHoveredOutlineAlphaKey = UserSettings.kSettingsUniqueKey + "HoveredOutlineColorAlpha";
         public const string kSelectedBoneOutlineSize = UserSettings.kSettingsUniqueKey + "BoneOutlineSize";
         public static readonly GUIContent kSelectedOutlineColorLabel = new GUIContent(TextContent.selectedOutlineColor);
+        public static readonly GUIContent kHoveredOutlineColorLabel = new GUIContent(TextContent.hoveredOutlineColor);
         public static readonly GUIContent kSelectedOutlineSizeLabel = new GUIContent(TextContent.spriteOutlineSize);
         public static readonly GUIContent kSelectedBoneOutlineSizeLabel = new GUIContent(TextContent.boneOutlineSize);
 
@@ -127,6 +132,25 @@ namespace UnityEditor.U2D.Animation
             set => EditorPrefs.SetInt(kSelectedSpriteOutlineSize, value);
         }
 
+        public static Color hoveredOutlineColor
+        {
+            get =>
+                new()
+                {
+                    r = EditorPrefs.GetFloat(kHoveredOutlineRedKey, Handles.preselectionColor.r),
+                    g = EditorPrefs.GetFloat(kHoveredOutlineGreenKey, Handles.preselectionColor.g),
+                    b = EditorPrefs.GetFloat(kHoveredOutlineBlueKey, Handles.preselectionColor.b),
+                    a = EditorPrefs.GetFloat(kHoveredOutlineAlphaKey, Handles.preselectionColor.a)
+                };
+            set
+            {
+                EditorPrefs.SetFloat(kHoveredOutlineRedKey, value.r);
+                EditorPrefs.SetFloat(kHoveredOutlineGreenKey, value.g);
+                EditorPrefs.SetFloat(kHoveredOutlineBlueKey, value.b);
+                EditorPrefs.SetFloat(kHoveredOutlineAlphaKey, value.a);
+            }
+        }
+
         public static float selectedBoneOutlineSize
         {
             get => EditorPrefs.GetFloat(kSelectedBoneOutlineSize, 1);
@@ -136,9 +160,14 @@ namespace UnityEditor.U2D.Animation
         public void OnGUI()
         {
             EditorGUI.BeginChangeCheck();
-            Color c = EditorGUILayout.ColorField(kSelectedOutlineColorLabel, outlineColor);
+            Color newOutlineColor = EditorGUILayout.ColorField(kSelectedOutlineColorLabel, outlineColor);
             if (EditorGUI.EndChangeCheck())
-                outlineColor = c;
+                outlineColor = newOutlineColor;
+
+            EditorGUI.BeginChangeCheck();
+            Color newHoveredColor = EditorGUILayout.ColorField(kHoveredOutlineColorLabel, hoveredOutlineColor);
+            if (EditorGUI.EndChangeCheck())
+                hoveredOutlineColor = newHoveredColor;
 
             EditorGUI.BeginChangeCheck();
             int s = EditorGUILayout.IntSlider(kSelectedOutlineSizeLabel, selectedSpriteOutlineSize, 0, 10);

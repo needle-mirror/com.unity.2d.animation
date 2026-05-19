@@ -107,25 +107,25 @@ MeshVisibilityToolView {
 }
 
 #BoneOpacitySliderIcon {
-    background-image: url("../EditorIcons/Light/Bone.png");
+    background-image: url("../EditorIcons/Bone.png");
     width : 16px;
     height : 16px;
 }
 
 #MeshOpacitySliderIcon {
-    background-image: url("../EditorIcons/Light/Mesh.png");
+    background-image: url("../EditorIcons/Mesh.png");
     width : 16px;
     height : 16px;
 }
 
 .Dark #BoneOpacitySliderIcon {
-    background-image: url("../EditorIcons/Dark/d_Bone.png");
+    background-image: url("../EditorIcons/d_Bone.png");
     width : 16px;
     height : 16px;
 }
 
 .Dark  #MeshOpacitySliderIcon {
-    background-image: url("../EditorIcons/Dark/d_Mesh.png");
+    background-image: url("../EditorIcons/d_Mesh.png");
     width : 16px;
     height : 16px;
 }

@@ -2,11 +2,11 @@
 
 This page shows the different ways you can create or edit Categories and Labels in a Sprite Library Asset by dragging sprites directly into the Sprite Library Editor window.
 
-You can automatically create new Categories and Labels by dragging sprites or [PSD Importer supported file types](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@14.0) directly into the [Sprite Library Editor](SL-Editor.md) window.
+You can automatically create new Categories and Labels by dragging sprites or [PSD Importer supported file types](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@15.0) directly into the [Sprite Library Editor](SL-Editor.md) window.
 
 ## Prerequisites
 
-- [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@14.0) is required for the Sprite Library Editor to recognize imported .psb files.
+- [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@15.0) is required for the Sprite Library Editor to recognize imported .psb files.
 
 ## Create a new Category
 
@@ -57,5 +57,5 @@ This method is useful when you have multiple characters with the same Layers and
 2. Drag the replacement .psb onto an empty space in the Categories column and release. All sprite references of the same name and in the same Categories are automatically replaced with their respective counterparts from the replacement .psb.
 
 ## Additional resources
-- [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@14.0)
+- [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@15.0)
 - [Preparing and importing artwork](PreparingArtwork.md)

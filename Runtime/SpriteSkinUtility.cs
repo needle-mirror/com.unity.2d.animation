@@ -86,9 +86,9 @@ namespace UnityEngine.U2D.Animation
         {
 #if ENABLE_URP
             // Optimize/Refactor all redundant calls.
-            var srpBatching = InternalEngineBridge.IsSRPBatchingEnabled(spriteSkin.spriteRenderer);
-            var usingGPUDeform = IsUsingGpuDeformation();
-            var shaderSupport = GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
+            bool srpBatching = InternalEngineBridge.IsSRPBatchingEnabled(spriteSkin.spriteRenderer);
+            bool usingGPUDeform = IsUsingGpuDeformation();
+            bool shaderSupport = GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
             return srpBatching && usingGPUDeform && shaderSupport;
 #else
             return false;

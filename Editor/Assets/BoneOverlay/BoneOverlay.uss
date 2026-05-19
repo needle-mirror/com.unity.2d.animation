@@ -1,0 +1,36 @@
+.bone-overlay {
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.bone-overlay__container {
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.bone-overlay__color-field-container {
+    flex-direction: row;
+    flex-shrink: 0;
+    align-items: center;
+    padding: 2px;
+    background-color: var(--unity-colors-toolbar-background);
+}
+
+.bone-overlay__color-label {
+    flex-shrink: 0;
+    margin-right: 2px;
+    color: var(--unity-colors-label-text);
+    -unity-text-align: middle-left;
+}
+
+.bone-overlay__color-field {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 120px;
+    margin: 0px;
+}
+
+.bone-overlay__color-field > * {
+    border-radius: 0px;
+}

@@ -15,4 +15,4 @@ For various examples of how you can use this feature in a Project, [import sampl
 [Setting up Sprite Swap](SpriteSwapSetup.md)  |  Understand how to set up the different components and assets needed to use Sprite Swap.|
 
 ## Additional resources
-* [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@14.0)
+* [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@15.0)

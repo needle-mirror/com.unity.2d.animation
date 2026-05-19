@@ -66,7 +66,14 @@ namespace UnityEngine.U2D.IK
         /// <summary>
         /// Returns true if the Solver2D is in a valid state.
         /// </summary>
+        // In the Editor we always call Validate() so destroyed transforms (e.g. when a prefab
+        // instance is replaced) are detected immediately. In Players the cached m_IsValid is
+        // used to avoid the per-frame cost.
+#if UNITY_EDITOR
+        public bool isValid => Validate();
+#else
         public bool isValid => m_IsValid;
+#endif
 
         /// <summary>
         /// Returns true if all chains in the Solver have a target.
@@ -218,7 +225,7 @@ namespace UnityEngine.U2D.IK
             if (finalWeight == 0f && !weightValueChanged)
                 return;
 
-            if (!isValid && !Validate())
+            if (!m_IsValid && !Validate())
                 return;
 
             if (finalWeight < 1f)

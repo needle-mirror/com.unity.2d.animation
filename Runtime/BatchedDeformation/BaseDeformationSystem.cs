@@ -5,6 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Profiling;
+using UnityEngine.U2D.Animation.Profiler;
 using UnityEngine.U2D.Common;
 
 namespace UnityEngine.U2D.Animation
@@ -117,6 +118,7 @@ namespace UnityEngine.U2D.Animation
             // if the skin is scheduled to be removed, cancel that.
             if (!m_SpriteSkinsToRemove.Contains(spriteSkin)) return false;
             m_SpriteSkinsToAdd.Add(spriteSkin);
+
             return true;
 
         }
@@ -152,7 +154,6 @@ namespace UnityEngine.U2D.Animation
             }
             // if is scheduled for removal, also remove it from the m_SpriteSkinsToAdd list
             m_SpriteSkinsToAdd.Remove(spriteSkin);
-
             // remove bone transforms from the transform access job
             RemoveBoneTransforms(spriteSkin);
         }
@@ -380,6 +381,16 @@ namespace UnityEngine.U2D.Animation
                 };
                 // Use 64 as the batch size to avoid false sharing
                 boneTransformChangeDetectionJob.Schedule(m_SpriteSkinData.Length, 64, localToWorldJobHandle).Complete();
+#if ENABLE_PROFILER && PROFILING_INSTALLED
+                if (UnityEngine.Profiling.Profiler.enabled)
+                {
+                    for (int i = 0; i < m_LocalToWorldTransformAccessJob.transformChanged.Length; ++i)
+                    {
+                        if (m_LocalToWorldTransformAccessJob.transformChanged[i])
+                            ++Animation2DProfilerMarkers.s_SpriteSkinBoneTransformed.Value;
+                    }
+                }
+#endif
             }
 
             using (Profiling.getSpriteSkinBatchData.Auto())

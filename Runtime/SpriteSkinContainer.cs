@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-
+using Unity.Profiling;
 namespace UnityEngine.U2D.Animation
 {
     internal class SpriteSkinContainer : ScriptableObject
@@ -36,12 +36,14 @@ namespace UnityEngine.U2D.Animation
         {
             m_SpriteSkin.Add(spriteSkin);
 
+
             onAddedSpriteSkin?.Invoke(spriteSkin);
         }
 
         public void RemoveSpriteSkin(SpriteSkin spriteSkin)
         {
             m_SpriteSkin.Remove(spriteSkin);
+
 
             onRemovedSpriteSkin?.Invoke(spriteSkin);
         }

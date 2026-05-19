@@ -125,6 +125,16 @@ namespace UnityEditor.U2D.Animation
                 m_GUIWrapper.Repaint();
         }
 
+        public void ClearHoverState()
+        {
+            m_HoveredBoneID = InvalidID;
+            m_PrevHoveredBoneID = InvalidID;
+            m_HoveredBodyID = InvalidID;
+            m_HoveredJointID = InvalidID;
+            m_HoveredTailID = InvalidID;
+            m_HoveredSliderData = SliderData.zero;
+        }
+
         public bool CanLayout()
         {
             return m_GUIWrapper.eventType == EventType.Layout;

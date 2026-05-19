@@ -6,7 +6,7 @@ By adding new sprites to your existing [character rigs](CharacterRig.md), you ca
 ## Adding new sprites to an existing rig for Sprite Swap
 Follow the steps below to add new sprites to your existing character rigs.
 
-1. Add the new artwork you want to use onto new layers in the .psb files you [imported](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@14.0) for your character rig. Unity automatically updates the generated prefab from the imported .psb file by adding the new art assets as new sprite GameObjects in the **Hierarchy** window. 
+1. Add the new artwork you want to use onto new layers in the .psb files you [imported](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@15.0) for your character rig. Unity automatically updates the generated prefab from the imported .psb file by adding the new art assets as new sprite GameObjects in the **Hierarchy** window. 
 2. Hide the newly added sprites in the **Hierarchy** window as they are visible by default and may cause visible clutter.
 3. Open the [Sprite Library Asset](SL-Asset.md) used by your character rig in the [Sprite Library Editor](SL-Editor.md) (menu: **Window &gt; 2D &gt; Sprite Library Editor**) and add the newly imported sprites to the appropriate [Categories](SL-Editor.md#categories) and [Labels](SL-Editor.md#labels).
 4. Open the **Sprite Editor** window (menu: **Window &gt; 2D &gt; Sprite Editor**) and select the [Skinning Editor](SkinEdToolsShortcuts.md) from the dropdown in the upper left of the editor. Then select the character prefab that you are editing to open the character rig in the **Skinning Editor**.
@@ -22,6 +22,6 @@ To copy the skeleton and mesh data from an existing sprite onto the new sprite y
 By following these steps, the newly added sprites will have the same weights and bone rigging as the previous sprites and can be easily used for sprite swapping.
 
 ## Additional resources
-* [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@14.0)
+* [PSD Importer package](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@15.0)
 * [Setting up for Sprite Swap](SpriteSwapSetup.md)
 * [Sprite Library Editor fundamentals](SL-Editor.md)

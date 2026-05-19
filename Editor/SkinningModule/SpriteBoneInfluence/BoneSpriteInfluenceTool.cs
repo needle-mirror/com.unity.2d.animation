@@ -266,15 +266,24 @@ namespace UnityEditor.U2D.Animation
         CharacterPartCache GetSpriteCharacterPart(SpriteCache sprite);
     }
 
-    class BoneSpriteInfluenceTool : BaseTool, IBoneSpriteInfluenceToolModel
+    class BoneSpriteInfluenceTool : BaseTool, IBoneSpriteInfluenceToolModel, IWeightMapVisualization
     {
         BoneSpriteInfluenceToolController m_Controller;
         MeshPreviewBehaviour m_MeshPreviewBehaviour = new MeshPreviewBehaviour();
         InfluenceWindow m_View;
 
         public SkeletonTool skeletonTool { get; set; }
+        public bool displaysWeights => true;
 
         public override IMeshPreviewBehaviour previewBehaviour => m_MeshPreviewBehaviour;
+
+        public override bool allowsSpriteSelection
+        {
+            get
+            {
+                return skeletonTool != null && skeletonTool.hoveredBone == null;
+            }
+        }
 
         internal override void OnCreate()
         {
@@ -311,6 +320,8 @@ namespace UnityEditor.U2D.Animation
             m_Controller.Activate();
             if (skeletonTool != null)
                 skeletonTool.Activate();
+
+            skinningCache.selectionTool.selectedSprite = null;
         }
 
         protected override void OnDeactivate()

@@ -14,7 +14,7 @@ namespace UnityEngine.U2D.IK
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenu("Chain (CCD)")]
     [Icon(IconUtility.IconPath + "Animation.IKCCD.png")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@15.1/manual/2DIK.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@16.0/manual/2DIK.html")]
     [BurstCompile]
     public sealed class CCDSolver2D : Solver2D
     {

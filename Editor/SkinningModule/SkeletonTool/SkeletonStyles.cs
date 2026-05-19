@@ -47,7 +47,7 @@ namespace UnityEditor.U2D.Animation
                 return SelectionOutlineSettings.outlineColor;
 
             if (isHovered)
-                return Handles.preselectionColor;
+                return SelectionOutlineSettings.hoveredOutlineColor;
 
             return SetAlpha(CalculateOutlineColor(GetBoneColorRaw(bone), VisibilityToolSettings.boneOpacity), GetAlpha(bone), VisibilityToolSettings.boneOpacity);
         }

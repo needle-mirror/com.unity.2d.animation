@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class WeightPainterToolWrapper : BaseTool
+    internal class WeightPainterToolWrapper : BaseTool, IWeightMapVisualization
     {
         [SerializeField]
         private WeightPainterMode m_PaintMode;
@@ -10,7 +10,10 @@ namespace UnityEditor.U2D.Animation
         [SerializeField]
         private WeightPainterTool m_WeightPainterTool;
 
+        private SkeletonTool m_SkeletonTool;
         private string m_Title;
+
+        public bool displaysWeights => true;
 
         public override IMeshPreviewBehaviour previewBehaviour
         {
@@ -23,6 +26,12 @@ namespace UnityEditor.U2D.Animation
             set { m_WeightPainterTool = value; }
         }
 
+        public SkeletonTool skeletonTool
+        {
+            get { return m_SkeletonTool; }
+            set { m_SkeletonTool = value; }
+        }
+
         public WeightPainterMode paintMode
         {
             get { return m_PaintMode; }
@@ -32,6 +41,14 @@ namespace UnityEditor.U2D.Animation
         public string title
         {
             set { m_Title = value; }
+        }
+
+        public override bool allowsSpriteSelection
+        {
+            get
+            {
+                return skeletonTool != null && skeletonTool.hoveredBone == null;
+            }
         }
 
         public override int defaultControlID

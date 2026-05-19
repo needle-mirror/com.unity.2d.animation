@@ -7,9 +7,11 @@ Starting from 2D Animation 10 (Unity 2023.1), Sprite Skins can be deformed using
 
 The option to choose between CPU and GPU deformation allows projects to pick where the deformation should happen, on the CPU or the GPU. Projects which are heavily using the CPU for their different systems are therefore advised to use GPU deformation, and vice versa.
 
-Do also note that selecting GPU deformation will cause the Sprite to be rendered using the [SRP Batcher](https://docs.unity3d.com/6000.5/Documentation/Manual/SRPBatcher.html). This means that there is a small draw call cost per object. When selecting CPU deformation, the Sprites are dynamically batched, reducing the overall draw calls. We therefore advice choosing CPU deformation when a scene contains many low-polygon objects, and GPU deformation when a scene contains fewer high-polygon objects.
+Do also note that selecting GPU deformation will cause the Sprite to be rendered using the [SRP Batcher](https://docs.unity3d.com/6000.6/Documentation/Manual/SRPBatcher.html). This means that there is a small draw call cost per object. When selecting CPU deformation, the Sprites are dynamically batched, reducing the overall draw calls. We therefore advice choosing CPU deformation when a scene contains many low-polygon objects, and GPU deformation when a scene contains fewer high-polygon objects.
 
-As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/6000.5/Documentation/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
+**Note:** The 2D renderer uses its own dynamic batching system, which isn't affected by the **Dynamic Batching** setting in the Player settings window.
+
+As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/6000.6/Documentation/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
 
 ## Requirements for GPU Deformation
 
@@ -19,7 +21,7 @@ As always, do verify the performance impact with [profiling tools](https://docs.
 - Avoid Sprite masks, which are not compatible with the SRP Batcher.  
 
 > [!NOTE]
-> If you don't meet any of these requirements, the rendering falls back to CPU Skinning which uses dynamic batching.
+> If you don't meet any of these requirements, the rendering falls back to CPU Skinning which uses dynamic batching. The 2D renderer uses its own dynamic batching system, which isn't affected by the **Dynamic Batching** setting in the Player settings window.
 
 ## Selecting CPU/GPU deformation
 

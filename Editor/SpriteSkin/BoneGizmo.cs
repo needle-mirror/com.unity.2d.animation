@@ -18,6 +18,8 @@ namespace UnityEditor.U2D.Animation
 
     internal class BoneGizmo : ScriptableSingleton<BoneGizmo>
     {
+        internal static Color DefaultBoneColor = Color.white;
+
         BoneGizmoController m_BoneGizmoController;
 
         internal BoneGizmoController boneGizmoController => m_BoneGizmoController;
@@ -39,6 +41,8 @@ namespace UnityEditor.U2D.Animation
             SceneView.duringSceneGui += OnSceneGUI;
             AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
             EditorApplication.playModeStateChanged += PlayModeStateChanged;
+            BoneHierarchyEvent.HierarchyStructureChanged += OnHierarchyStructureChanged;
+            BoneHierarchyEvent.BoneColorsPersisted += OnBoneColorsPersisted;
         }
 
         void OnSceneGUI(SceneView sceneView)
@@ -56,6 +60,16 @@ namespace UnityEditor.U2D.Animation
             boneGizmoController.OnSelectionChanged();
         }
 
+        void OnHierarchyStructureChanged()
+        {
+            boneGizmoController.OnSelectionChanged();
+        }
+
+        void OnBoneColorsPersisted()
+        {
+            boneGizmoController.OnBoneColorsPersisted();
+        }
+
         void PlayModeStateChanged(PlayModeStateChange stateChange)
         {
             if (stateChange == PlayModeStateChange.EnteredPlayMode ||
@@ -70,7 +84,6 @@ namespace UnityEditor.U2D.Animation
         Dictionary<Transform, Vector2> m_BoneData = new Dictionary<Transform, Vector2>();
         HashSet<SpriteSkin> m_SkinComponents = new HashSet<SpriteSkin>();
         HashSet<Transform> m_CachedBones = new HashSet<Transform>();
-        HashSet<Transform> m_SelectionRoots = new HashSet<Transform>();
         ISkeletonView m_View;
         IUndo m_Undo;
         Tool m_PreviousTool = Tool.None;
@@ -100,20 +113,8 @@ namespace UnityEditor.U2D.Animation
 
         internal void OnSelectionChanged()
         {
-            m_SelectionRoots.Clear();
-
-            foreach (Transform selectedTransform in Selection.transforms)
-            {
-                GameObject prefabRoot = PrefabUtility.GetOutermostPrefabInstanceRoot(selectedTransform.gameObject);
-                Animator animator;
-
-                if (prefabRoot != null)
-                    m_SelectionRoots.Add(prefabRoot.transform);
-                else if ((animator = selectedTransform.GetComponentInParent<Animator>()) != null)
-                    m_SelectionRoots.Add(animator.transform);
-                else
-                    m_SelectionRoots.Add(selectedTransform.root);
-            }
+            BoneHierarchyContext ctx = BoneHierarchyContext.Current;
+            ctx.BuildFromSelections(Selection.gameObjects);
 
             if (m_PreviousTool == Tool.None && Selection.activeTransform != null && m_BoneData.ContainsKey(Selection.activeTransform))
             {
@@ -130,6 +131,18 @@ namespace UnityEditor.U2D.Animation
             }
 
             FindSkinComponents();
+
+            SceneView.RepaintAll();
+        }
+
+        /// <summary>
+        /// Refreshes <see cref="BoneHierarchyContext.ResolvedBoneColors"/> from the current selection after hierarchy color data may have changed.
+        /// Does not rebuild bone hosts or layout (unlike <see cref="OnSelectionChanged"/>, which calls <see cref="BoneHierarchyContext.BuildFromSelections"/>).
+        /// </summary>
+        internal void OnBoneColorsPersisted()
+        {
+            BoneHierarchyContext.Current.RefreshResolvedBoneColors();
+            SceneView.RepaintAll();
         }
 
         internal void OnGUI()
@@ -147,15 +160,11 @@ namespace UnityEditor.U2D.Animation
         {
             m_SkinComponents.Clear();
 
-            foreach (Transform root in m_SelectionRoots)
+            foreach (SpriteSkin spriteSkin in BoneHierarchyContext.Current.SpriteSkins)
             {
-                SpriteSkin[] components = root.GetComponentsInChildren<SpriteSkin>(false);
-
-                foreach (SpriteSkin component in components)
-                    m_SkinComponents.Add(component);
+                if (spriteSkin != null)
+                    m_SkinComponents.Add(spriteSkin);
             }
-
-            SceneView.RepaintAll();
         }
 
         internal void ClearSpriteBoneCache()
@@ -409,6 +418,9 @@ namespace UnityEditor.U2D.Animation
 
         void DrawBones()
         {
+            // Fill color from BoneHierarchyContext (shared with Bone overlay); missing entries use default.
+            IReadOnlyDictionary<Transform, Color32> resolvedBoneColors = BoneHierarchyContext.Current.ResolvedBoneColors;
+
             foreach (KeyValuePair<Transform, Vector2> boneData in m_BoneData)
             {
                 Transform bone = boneData.Key;
@@ -422,7 +434,11 @@ namespace UnityEditor.U2D.Animation
                 if (alpha == 0f || !bone.gameObject.activeInHierarchy)
                     continue;
 
-                DrawBone(bone, length, Color.white);
+                Color color = BoneGizmo.DefaultBoneColor;
+                if (resolvedBoneColors != null && resolvedBoneColors.TryGetValue(bone, out Color32 resolvedColor))
+                    color = resolvedColor;
+
+                DrawBone(bone, length, color);
             }
 
             BatchedDrawing.Draw();

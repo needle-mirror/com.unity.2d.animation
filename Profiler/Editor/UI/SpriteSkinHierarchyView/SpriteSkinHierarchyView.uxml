@@ -1,0 +1,19 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:ui="UnityEngine.UIElements"
+         xmlns:uie="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd">
+    <Style src="./SpriteSkinHierarchyView.uss"/>
+    <ui:VisualElement class="container">
+        <ui:Label name = "noDataLabel" text = "No data to show. Select another frame." />
+        <ui:MultiColumnTreeView name="Table" show-alternating-row-backgrounds="ContentOnly" horizontal-scrolling="true"
+                                sorting-mode="Default" class="table">
+            <ui:Columns primary-column-name="Name" resize-preview="false">
+                <ui:Column name="Name" title="Name" binding-path="name" width="80px"/>
+                <ui:Column name="BoneCount" title="Bone Count" binding-path="boneCount"
+                           width="100px"/>
+                <ui:Column name="Deformation" title="Deformation" binding-path="deformationType"
+                           width="100px"/>
+            </ui:Columns>
+        </ui:MultiColumnTreeView>
+    </ui:VisualElement>
+</ui:UXML>

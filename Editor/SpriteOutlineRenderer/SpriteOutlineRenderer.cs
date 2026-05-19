@@ -49,10 +49,24 @@ namespace UnityEditor.U2D.Animation
 
         internal void RenderSpriteOutline(ISpriteEditor spriteEditor, SpriteCache sprite)
         {
+            int outlineSize = SelectionOutlineSettings.selectedSpriteOutlineSize;
+            Color outlineColor = SelectionOutlineSettings.outlineColor;
+            RenderSpriteOutline(spriteEditor, sprite, outlineSize, outlineColor);
+        }
+
+        internal void RenderHoveredSpriteOutline(ISpriteEditor spriteEditor, SpriteCache sprite)
+        {
+            int outlineSize = SelectionOutlineSettings.selectedSpriteOutlineSize;
+            Color outlineColor = SelectionOutlineSettings.hoveredOutlineColor;
+            RenderSpriteOutline(spriteEditor, sprite, outlineSize, outlineColor);
+        }
+
+        internal void RenderSpriteOutline(ISpriteEditor spriteEditor, SpriteCache sprite, int outlineSize, Color outlineColor)
+        {
             if (spriteEditor == null || sprite == null)
                 return;
 
-            if (SelectionOutlineSettings.selectedSpriteOutlineSize < 0.01f || SelectionOutlineSettings.outlineColor.a < 0.01f)
+            if (outlineSize < 0.01f || outlineColor.a < 0.01f)
                 return;
 
             Mesh mesh = GetMesh(sprite);
@@ -66,8 +80,6 @@ namespace UnityEditor.U2D.Animation
             Matrix4x4 multMatrix = Handles.matrix * sprite.GetLocalToWorldMatrixFromMode();
 
             Texture2D texture = spriteEditor.GetDataProvider<ITextureDataProvider>().texture;
-            int outlineSize = SelectionOutlineSettings.selectedSpriteOutlineSize;
-            Color outlineColor = SelectionOutlineSettings.outlineColor;
             float adjustForGamma = PlayerSettings.colorSpace == ColorSpace.Linear ? 1.0f : 0.0f;
 
             if (edges != null && edges.Length > 0 && vertices.Length > 0)
@@ -287,9 +299,10 @@ namespace UnityEditor.U2D.Animation
         void TryRegenerateMaskTexture(SpriteCache sprite)
         {
             SpriteCache selectedSprite = sprite.skinningCache.selectedSprite;
+            SpriteCache hoveredSprite = sprite.skinningCache.hoveredSprite;
 
             OutlineRenderTexture outlineTextureCache = m_OutlineTextureCache[sprite.id];
-            if (sprite == selectedSprite)
+            if (sprite == selectedSprite || sprite == hoveredSprite)
             {
                 if (outlineTextureCache.dirty || outlineTextureCache.outlineTexture == null)
                 {

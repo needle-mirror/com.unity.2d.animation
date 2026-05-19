@@ -1,10 +1,15 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Unity.Collections;
 using UnityEditor;
 using UnityEngine.Rendering;
 
 #if ENABLE_URP
 using UnityEngine.Rendering.Universal;
 #endif
+using Unity.Profiling;
+using UnityEngine.U2D.Animation.Profiler;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -64,7 +69,7 @@ namespace UnityEngine.U2D.Animation
                 return null;
             }
         }
-#endif        
+#endif
 
         BaseDeformationSystem[] m_DeformationSystems;
 
@@ -87,7 +92,7 @@ namespace UnityEngine.U2D.Animation
 
 #if ENABLE_URP
             m_WasUsingSRPBatcherLastFrame = urpPipelineAsset ? urpPipelineAsset.useSRPBatcher : false;
-#endif                      
+#endif
 
             Init();
         }
@@ -166,6 +171,48 @@ namespace UnityEngine.U2D.Animation
 
             for (int i = 0; i < m_DeformationSystems.Length; ++i)
                 m_DeformationSystems[i].Update();
+            EmitProfilerData();
+        }
+
+        [Conditional("ENABLE_PROFILER")]
+        void EmitProfilerData()
+        {
+            if (!UnityEngine.Profiling.Profiler.enabled)
+                return;
+
+            int totalSpriteSkinCount = 0;
+            for (int i = 0; i < m_DeformationSystems.Length; ++i)
+            {
+                totalSpriteSkinCount += m_DeformationSystems[i].GetSpriteSkins().Count;
+            }
+            SpriteSkinProfilerFrameData[] frameData = new UnityEngine.U2D.Animation.Profiler.SpriteSkinProfilerFrameData[totalSpriteSkinCount];
+
+            int spriteSkinIndex = 0;
+            for (int i = 0; i < m_DeformationSystems.Length; ++i)
+            {
+                SpriteSkinProfilerFrameData.SpriteSkinType deformationType = GetDeformationType(m_DeformationSystems[i].GetType());
+                foreach (SpriteSkin spriteSkin in m_DeformationSystems[i].GetSpriteSkins())
+                {
+                    SpriteSkinProfilerFrameData spriteSkinData = new SpriteSkinProfilerFrameData();
+                    spriteSkinData.gameObjectEntityId = spriteSkin.gameObject.GetEntityId();
+                    spriteSkinData.rootBoneGameObjectEntityId = spriteSkin.rootBone?.gameObject?.GetEntityId() ?? EntityId.None;
+                    spriteSkinData.boneCount = spriteSkin.boneTransforms.Length;
+                    spriteSkinData.type = (int)deformationType;
+                    frameData[spriteSkinIndex++] = spriteSkinData;
+                }
+
+            }
+
+            UnityEngine.Profiling.Profiler.EmitFrameMetaData(Animation2DProfilerMarkers.k_Animation2DProfilerProjectId, Animation2DProfilerMarkers.k_SpriteSkinProfilerFrameMetaDataTag, frameData);
+        }
+
+        SpriteSkinProfilerFrameData.SpriteSkinType GetDeformationType(Type deformationType)
+        {
+            if (deformationType == typeof(CpuDeformationSystem))
+                return SpriteSkinProfilerFrameData.SpriteSkinType.CPU;
+            if (deformationType == typeof(GpuDeformationSystem))
+                return SpriteSkinProfilerFrameData.SpriteSkinType.GPU;
+            return SpriteSkinProfilerFrameData.SpriteSkinType.Unknown;
         }
 
         bool UpdateGpuDeformationConfig()
@@ -185,7 +232,7 @@ namespace UnityEngine.U2D.Animation
             bool isUsingSRPBatcher = false;
 #if ENABLE_URP
             isUsingSRPBatcher = urpPipelineAsset ? urpPipelineAsset.useSRPBatcher : false;
-#endif            
+#endif
             if (isUsingSRPBatcher != m_WasUsingSRPBatcherLastFrame)
             {
                 m_WasUsingSRPBatcherLastFrame = isUsingSRPBatcher;

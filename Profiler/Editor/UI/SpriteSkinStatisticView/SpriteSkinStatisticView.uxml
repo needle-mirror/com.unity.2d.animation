@@ -1,0 +1,43 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:ui="UnityEngine.UIElements"
+         xmlns:uie="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd">
+    <Style src="./SpriteSkinStatisticView.uss"/>
+    <ui:VisualElement class="root-container">
+        <ui:Label text="Sprite Skin Statistics" class="title"/>
+        <ui:Toggle label="Live Update" name="EnableStatisticsToggle" class="live-toggle">
+        </ui:Toggle>
+
+        <ui:ScrollView>
+            <ui:VisualElement class="counter-row">
+                <ui:Label text="SpriteSkin Processed (CPU):" class="counter-label" tooltip="Number of SpriteSkin that uses CPU deformation processed on the CPU this frame."/>
+                <ui:Label text="0" name="SpriteSkinCPULabel" class="counter-value"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="counter-row">
+                <ui:Label text="Vertices Processed (CPU):" class="counter-label" tooltip="Total vertices that uses CPU deformation processed on the CPU this frame."/>
+                <ui:Label text="0" name="SpriteSkinCPUVerticesLabel" class="counter-value"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="counter-row">
+                <ui:Label text="SpriteSkin Processed (GPU):" class="counter-label" tooltip="Number of SpriteSkin that uses GPU deformation processed on the CPU this frame."/>
+                <ui:Label text="0" name="SpriteSkinGPULabel" class="counter-value"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="counter-row">
+                <ui:Label text="Vertices Processed (GPU):" class="counter-label" tooltip="Total vertices that uses GPU deformation processed on the CPU this frame."/>
+                <ui:Label text="0" name="SpriteSkinGPUVerticesLabel" class="counter-value"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="counter-row">
+                <ui:Label text="Bone Transformed:" class="counter-label" tooltip="Total bones that are transformed on this frame."/>
+                <ui:Label text="0" name="SpriteSkinBoneLabel" class="counter-value"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="counter-row">
+                <ui:Label text="Deformation Time:" class="counter-label" tooltip="Time spent deforming all SpriteSkins this frame"/>
+                <ui:Label text="0.0ms" name="DeformationTimeLabel" class="counter-value"/>
+            </ui:VisualElement>
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>

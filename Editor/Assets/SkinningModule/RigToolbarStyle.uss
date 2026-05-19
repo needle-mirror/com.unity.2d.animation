@@ -3,19 +3,19 @@
 /**********************************************************************************************************************/
 
 #CopyRigImage {
-    background-image: url("../EditorIcons/Light/Copy.png");
+    background-image: url("../EditorIcons/Copy.png");
 }
 
 #PasteRigImage {
-    background-image: url("../EditorIcons/Light/Paste.png");
+    background-image: url("../EditorIcons/Paste.png");
 }
 
 .Dark #CopyRigImage {
-    background-image: url("../EditorIcons/Dark/d_Copy.png");
+    background-image: url("../EditorIcons/d_Copy.png");
 }
 
 .Dark #PasteRigImage {
-    background-image: url("../EditorIcons/Dark/d_Paste.png");
+    background-image: url("../EditorIcons/d_Paste.png");
 }
 
 .Checked #CopyRigImage{

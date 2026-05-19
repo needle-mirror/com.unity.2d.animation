@@ -279,14 +279,23 @@ namespace UnityEditor.U2D.Animation
         CharacterPartCache GetSpriteCharacterPart(SpriteCache sprite);
     }
 
-    internal class SpriteBoneInfluenceTool : BaseTool, ISpriteBoneInfluenceToolModel
+    internal class SpriteBoneInfluenceTool : BaseTool, ISpriteBoneInfluenceToolModel, IWeightMapVisualization
     {
         private SpriteBoneInfluenceToolController m_Controller;
         private MeshPreviewBehaviour m_MeshPreviewBehaviour = new MeshPreviewBehaviour();
         private InfluenceWindow m_View;
 
-        public SkeletonTool skeletonTool { set; private get; }
+        public SkeletonTool skeletonTool { set; get; }
+        public bool displaysWeights => true;
         public override IMeshPreviewBehaviour previewBehaviour => m_MeshPreviewBehaviour;
+
+        public override bool allowsSpriteSelection
+        {
+            get
+            {
+                return skeletonTool != null && skeletonTool.hoveredBone == null;
+            }
+        }
 
         internal override void OnCreate()
         {

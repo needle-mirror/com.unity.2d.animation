@@ -1,0 +1,38 @@
+.root-container {
+    padding: 10px;
+    background-color: var(--unity-colors-window-background);
+    flex: 1 1 0;
+}
+
+.title {
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-bottom: 10px;
+}
+
+.counter-row {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 5px 10px;
+    margin: 2px 0;
+    background-color: var(--unity-colors-alternated_rows-background);
+}
+
+.live-toggle {
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+.counter-label {
+    font-size: 12px;
+    flex: 1 1 0;
+    -unity-text-align: middle-left;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.counter-value {
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+}

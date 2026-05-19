@@ -3,27 +3,27 @@
 /**********************************************************************************************************************/
 
 #EditPoseImage {
-    background-image: url("../EditorIcons/Light/Edit_Pose.png");
+    background-image: url("../EditorIcons/Edit_Pose.png");
 }
 
 #ResetPoseImage {
-    background-image: url("../EditorIcons/Light/character_Mode.png");
+    background-image: url("../EditorIcons/character_Mode.png");
 }
 
 #SetPivotImage {
-    background-image: url("../EditorIcons/Light/SetPivot16.png");
+    background-image: url("../EditorIcons/SetPivot.png");
 }
 
 .Dark #EditPoseImage {
-    background-image: url("../EditorIcons/Dark/d_Edit_Pose.png");
+    background-image: url("../EditorIcons/d_Edit_Pose.png");
 }
 
 .Dark #ResetPoseImage {
-    background-image: url("../EditorIcons/Dark/d_character_Mode.png");
+    background-image: url("../EditorIcons/d_character_Mode.png");
 }
 
 .Dark #SetPivotImage {
-    background-image: url("../EditorIcons/Dark/d_SetPivot16.png");
+    background-image: url("../EditorIcons/d_SetPivot.png");
 }
 
 
@@ -36,5 +36,5 @@
 }
 
 .Checked #SetPivotImage {
-    background-image: url("../EditorIcons/Selected/SetPivot16.png");
+    background-image: url("../EditorIcons/Selected/SetPivot.png");
 }

@@ -10,7 +10,7 @@ In the following example, there are two Sprites that are variations of the actor
 2. Give each of the Sprites a unique __Label__ name (in this case `green scarf` and `blue scarf` respectively).
    This and the previous step can be automated by dragging and dropping sprites into the Categories tab empty space.
 
-3. In the Scene, select the [Instantiated Prefab](https://docs.unity3d.com/6000.5/Documentation/Manual/instantiating-prefabs.html) and then select the `Scarf` GameObject in the Hierarchy window.
+3. In the Scene, select the [Instantiated Prefab](https://docs.unity3d.com/6000.6/Documentation/Manual/instantiating-prefabs.html) and then select the `Scarf` GameObject in the Hierarchy window.
 
 4. Go to the [Sprite Resolver component](SL-Resolver.md) of the `Scarf` GameObject. The Sprite Resolver‘s visual selector displays the two Sprites available in the `Scarf` Category.
 

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEditor.U2D.Common;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.U2D.Animation;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
@@ -41,7 +42,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         static class Contents
         {
-            public static readonly string WindowTitle = L10n.Tr("2D Animation Asset Upgrader");
+            public static readonly string WindowTitle = L10n.Tr($"{U2DAnimationConstants.PackageDisplayName} Asset Upgrader");
             public static readonly string UnsupportedSerializeMode = L10n.Tr("The project's serialization mode is set to {0}. This upgrading tool only supports ForceText. Update the project's serialization mode under `Edit > Project Settings > Editor > Asset Serialization` to use the upgrading tool.");
             public static readonly string SpriteLibDesc = L10n.Tr("Use this tool to replace runtime Sprite Library Assets (.asset) with Sprite Library Source Assets (.spriteLib) for increased tooling support. Once replaced, this tool also makes sure all Sprite Library references in Scenes and Prefabs are maintained.");
             public static readonly string AnimClipDesc = L10n.Tr("Use this tool to upgrade animation clips with older Sprite Resolver data format to the latest Sprite Resolver data format.");
@@ -88,7 +89,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
         HashSet<int> m_SelectedObjs = new HashSet<int>();
         string m_UpgradeLogPath;
 
-        [MenuItem("Window/2D/2D Animation Asset Upgrader")]
+        [MenuItem("Window/2D/" + U2DAnimationConstants.PackageDisplayName + " Asset Upgrader")]
         internal static void OpenWindow()
         {
             AssetUpgraderWindow window = GetWindowWithRect<AssetUpgraderWindow>(new Rect(0, 0, 532, 512));

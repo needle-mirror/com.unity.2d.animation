@@ -28,6 +28,7 @@ namespace UnityEditor.U2D.Animation
 
         public event Action<float, byte, float> onAutoGenerateGeometry;
         public event Action<float, byte, float> onAutoGenerateGeometryAll;
+        public event Action<bool> onGenerateWeightsChanged;
         public bool generateWeights
         {
             get { return m_Toggle.value; }
@@ -86,6 +87,7 @@ namespace UnityEditor.U2D.Animation
             m_Toggle.RegisterValueChangedCallback((evt) =>
             {
                 GenerateGeomertySettings.generateWeights = evt.newValue;
+                onGenerateWeightsChanged?.Invoke(evt.newValue);
             });
         }
 

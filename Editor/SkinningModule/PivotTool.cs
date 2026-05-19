@@ -63,7 +63,6 @@ namespace UnityEditor.U2D.Animation
         Vector2 m_CurrentMousePosition;
         Vector2 m_DragScreenOffset;
         Vector2 m_DragStartScreenPosition;
-        SpriteCache m_LastSelectedSprite;
         PivotInspectorPanel m_InspectorPanel;
         int m_SlideHashCode = "PivotTool_Slider1D".GetHashCode();
         readonly Rect k_PivotNormalizedRect = Rect.MinMaxRect(0, 0, 1, 1);
@@ -123,13 +122,12 @@ namespace UnityEditor.U2D.Animation
             {
                 base.OnActivate();
                 m_PivotRect = new Rect(0, 0, skinningCache.character.dimension.x, skinningCache.character.dimension.y);
-                m_LastSelectedSprite = skinningCache.selectedSprite;
                 m_InspectorPanel.SetHiddenFromLayout(false);
                 m_Pivot = skinningCache.character.pivot;
                 UpdateViewFields();
 
                 skinningCache.selectionTool.CanSelect += CanSelectWhileInPivotTool;
-                skinningCache.selectedSprite = null;
+                skinningCache.selectionTool.selectedSprite = null;
             }
             else
             {
@@ -153,8 +151,6 @@ namespace UnityEditor.U2D.Animation
                 m_InspectorPanel.SetHiddenFromLayout(true);
 
                 skinningCache.selectionTool.CanSelect -= CanSelectWhileInPivotTool;
-                if (isActive)
-                    skinningCache.selectedSprite = m_LastSelectedSprite;
             }
         }
 

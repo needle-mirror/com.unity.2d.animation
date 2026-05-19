@@ -1,0 +1,59 @@
+:root {
+    flex: 1 1 0;
+}
+
+.container {
+    flex: 1 1 0;
+    height: 100%;
+}
+
+.table {
+    flex: 1 1 0;
+    height: 100%;
+}
+
+.unity-multi-column-header__column--sortable {
+    flex-direction: row-reverse;
+}
+
+#unity-multi-column-header-column-title{
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cell{
+    flex-direction: row;
+    align-items: center;
+    align-content: center;
+    height: 25px;
+}
+
+.cell-icon {
+    max-width: 16px;
+    max-height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    flex: 0 0 0;
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.cell-label {
+    align-self: center;
+}
+
+.gameObject-icon {
+    background-image: resource('GameObject Icon');
+}
+
+.dark .gameObject-icon {
+    background-image: resource('d_GameObject Icon');
+}
+
+.spriteSkin-icon {
+    background-image: url('../../../../Editor/Assets/ComponentIcons/Animation.SpriteSkin.png');
+}
+
+.dark .spriteSkin-icon {
+    background-image: url('../../../../Editor/Assets/ComponentIcons/d_Animation.SpriteSkin.png');
+}

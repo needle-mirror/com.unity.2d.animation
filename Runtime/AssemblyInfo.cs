@@ -9,3 +9,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Unity.2D.PsdImporter.Editor")]
 [assembly: InternalsVisibleTo("Unity.2D.Psdimporter.Tests.EditorTests")]
 [assembly: InternalsVisibleTo("Unity.RenderPipelines.Universal.2D.Runtime")]
+[assembly: InternalsVisibleTo("Unity.2D.Animation.Profiler")]

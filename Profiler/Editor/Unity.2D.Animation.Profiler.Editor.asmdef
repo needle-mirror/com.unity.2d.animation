@@ -1,0 +1,26 @@
+{
+    "name": "Unity.2D.Animation.Profiler.Editor",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Profiling.Core",
+        "UnityEngine.UI",
+        "Unity.2D.Animation.Profiler"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+      {
+        "name": "com.unity.profiling.core",
+        "expression": "1.0.3",
+        "define": "PROFILING_INSTALLED"
+      }
+    ],
+    "noEngineReferences": false
+}

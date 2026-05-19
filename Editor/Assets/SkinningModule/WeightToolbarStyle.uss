@@ -1,22 +1,22 @@
 #AutoGenerateWeightImage {
-    background-image: url("../EditorIcons/Light/Generate_Weights.png");
+    background-image: url("../EditorIcons/Generate_Weights.png");
 }
 
 
 #WeightPainterSliderImage {
-    background-image: url("../EditorIcons/Light/Weight_Slider.png");
+    background-image: url("../EditorIcons/Weight_Slider.png");
 }
 
 #WeightPainterBrushImage {
-    background-image: url("../EditorIcons/Light/Weight_Brush.png");
+    background-image: url("../EditorIcons/Weight_Brush.png");
 }
 
 #BoneInfluenceWidgetImage {
-    background-image: url("../EditorIcons/Light/Bone_Influence.png");
+    background-image: url("../EditorIcons/Bone_Influence.png");
 }
 
 #SpriteInfluenceWidgetImage {
-    background-image: url("../EditorIcons/Light/Sprite_Influence.png");
+    background-image: url("../EditorIcons/Sprite_Influence.png");
 }
 
 .Checked #AutoGenerateWeightImage {
@@ -41,22 +41,22 @@
 }
 
 .Dark #AutoGenerateWeightImage {
-    background-image: url("../EditorIcons/Dark/d_Generate_Weights.png");
+    background-image: url("../EditorIcons/d_Generate_Weights.png");
 }
 
 
 .Dark #WeightPainterSliderImage {
-    background-image: url("../EditorIcons/Dark/d_Weight_Slider.png");
+    background-image: url("../EditorIcons/d_Weight_Slider.png");
 }
 
 .Dark #WeightPainterBrushImage {
-    background-image: url("../EditorIcons/Dark/d_Weight_Brush.png");
+    background-image: url("../EditorIcons/d_Weight_Brush.png");
 }
 
 .Dark #BoneInfluenceWidgetImage {
-    background-image: url("../EditorIcons/Dark/d_Bone_Influence.png");
+    background-image: url("../EditorIcons/d_Bone_Influence.png");
 }
 
 .Dark #SpriteInfluenceWidgetImage {
-    background-image: url("../EditorIcons/Dark/d_Sprite_Influence.png");
+    background-image: url("../EditorIcons/d_Sprite_Influence.png");
 }

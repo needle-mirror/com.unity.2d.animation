@@ -84,6 +84,8 @@ namespace UnityEditor.U2D.Animation
                 skinningCache.events.meshPreviewBehaviourChange.AddListener(OnMeshPreviewBehaviourChange);
                 skinningCache.events.pivotChange.AddListener(OnPivotChanged);
 
+                skinningCache.selectionTool.CanSelect += CanSelectSprite;
+
                 skinningCache.RestoreFromPersistentState();
                 ActivateTool(skinningCache.selectedTool);
                 skinningCache.RestoreToolStateFromPersistentState();
@@ -135,6 +137,8 @@ namespace UnityEditor.U2D.Animation
             skinningCache.events.boneColorChanged.RemoveListener(OnBoneColorChanged);
             skinningCache.events.meshPreviewBehaviourChange.RemoveListener(OnMeshPreviewBehaviourChange);
             skinningCache.events.pivotChange.RemoveListener(OnPivotChanged);
+
+            skinningCache.selectionTool.CanSelect -= CanSelectSprite;
 
             RemoveMainUI(spriteEditor.GetMainVisualContainer());
             RestoreSpriteEditor();
@@ -301,7 +305,11 @@ namespace UnityEditor.U2D.Animation
             m_MeshPreviewTool.DrawOverlay();
 
             if (Event.current.type == EventType.Repaint)
+            {
                 m_SpriteOutlineRenderer.RenderSpriteOutline(spriteEditor, skinningCache.selectedSprite);
+                if (skinningCache.hoveredSprite != null && skinningCache.hoveredSprite != skinningCache.selectedSprite)
+                    m_SpriteOutlineRenderer.RenderHoveredSpriteOutline(spriteEditor, skinningCache.hoveredSprite);
+            }
 
             m_MeshPreviewTool.OverlayWireframe();
 
@@ -580,6 +588,11 @@ namespace UnityEditor.U2D.Animation
                 else
                     ActivateTool(skinningCache.GetTool(Tools.EditPose));
             });
+        }
+
+        bool CanSelectSprite()
+        {
+            return currentTool?.allowsSpriteSelection ?? false;
         }
     }
 }

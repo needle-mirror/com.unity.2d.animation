@@ -22,6 +22,33 @@ namespace UnityEditor.U2D.Animation
 
         public bool editBindPose { get; set; }
 
+        bool isSpriteSheetModeWithoutCharacter
+        {
+            get => skinningCache.mode == SkinningMode.SpriteSheet && !skinningCache.hasCharacter;
+        }
+
+        public override bool allowsSpriteSelection
+        {
+            get
+            {
+                if (skeletonTool == null || skeletonTool.hoveredBone != null)
+                    return false;
+
+                // Allow sprite selection in all modes for PNG sprites (Sprite Sheet Mode without Character)
+                if (isSpriteSheetModeWithoutCharacter)
+                {
+                    // In Create Bone mode, sprites are only selectable but not hoverable when there is a selected sprite.
+                    if (mode == SkeletonMode.CreateBone && Event.current.type == EventType.MouseMove)
+                        return skinningCache.selectedSprite == null;
+
+                    return true;
+                }
+
+                // For Character Mode, only allow in EditPose mode
+                return mode == SkeletonMode.EditPose;
+            }
+        }
+
         public override int defaultControlID
         {
             get
@@ -37,6 +64,9 @@ namespace UnityEditor.U2D.Animation
             Debug.Assert(skeletonTool != null);
             skeletonTool.enableBoneInspector = true;
             skeletonTool.Activate();
+
+            if (!isSpriteSheetModeWithoutCharacter && m_Mode != SkeletonMode.EditPose)
+                skinningCache.selectionTool.selectedSprite = null;
         }
 
         protected override void OnDeactivate()
