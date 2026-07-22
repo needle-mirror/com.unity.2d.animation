@@ -390,16 +390,6 @@ namespace UnityEngine.U2D.Animation
             return updateBoundJob.Schedule(batchCount, 4, jobHandle);
         }
 
-        protected void DeactivateDeformableBuffers()
-        {
-            for (int i = 0; i < m_IsSpriteSkinActiveForDeform.Length; ++i)
-            {
-                if (m_IsSpriteSkinActiveForDeform[i] || InternalEngineBridge.IsUsingDeformableBuffer(m_SpriteRenderers[i], IntPtr.Zero))
-                    continue;
-                m_SpriteRenderers[i].DeactivateDeformableBuffer();
-            }
-        }
-
         internal bool IsSpriteSkinActiveForDeformation(SpriteSkin spriteSkin)
         {
             return m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
@@ -430,6 +420,7 @@ namespace UnityEngine.U2D.Animation
 #if UNITY_INCLUDE_TESTS
         internal TransformAccessJob GetWorldToLocalTransformAccessJob() => m_WorldToLocalTransformAccessJob;
         internal TransformAccessJob GetLocalToWorldTransformAccessJob() => m_LocalToWorldTransformAccessJob;
+        internal SpriteSkinData GetSpriteSkinDataAt(int index) => m_SpriteSkinData[index];
 #endif
     }
 }

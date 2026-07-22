@@ -179,29 +179,6 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        private void DrawDefaultSpriteMeshes()
-        {
-            Debug.Assert(Event.current.type == EventType.Repaint);
-
-            if (skinningCache.mode == SkinningMode.SpriteSheet)
-            {
-                foreach (SpriteCache sprite in m_Sprites)
-                    DrawDefaultSpriteMesh(sprite);
-            }
-            else
-            {
-                CharacterCache character = skinningCache.character;
-                Debug.Assert(character != null);
-
-                CharacterPartCache[] parts = character.parts;
-                foreach (CharacterPartCache part in parts)
-                {
-                    if (part.isVisible)
-                        DrawDefaultSpriteMesh(part.sprite);
-                }
-            }
-        }
-
         private void DrawDefaultSpriteMesh(SpriteCache sprite)
         {
             Debug.Assert(m_Material != null);
@@ -293,38 +270,6 @@ namespace UnityEditor.U2D.Animation
 
                 DrawingUtility.DrawMesh(meshPreview.mesh, m_Material, sprite.GetLocalToWorldMatrixFromMode());
             }
-        }
-
-        private void DrawSelectedSpriteWeightMap()
-        {
-            SpriteCache selectedSprite = skinningCache.selectedSprite;
-
-            if (selectedSprite != null)
-            {
-                float opacity = GetWeightOpacityFromCurrentTool();
-
-                if (opacity > 0f)
-                    DrawSpriteMesh(selectedSprite, opacity);
-            }
-        }
-
-        private float GetWeightOpacityFromCurrentTool()
-        {
-            return IsWeightTool() ? VisibilityToolSettings.meshOpacity : 0f;
-        }
-
-        private bool IsWeightTool()
-        {
-            BaseTool currentTool = skinningCache.selectedTool;
-
-            if (currentTool == skinningCache.GetTool(Tools.WeightSlider) ||
-                currentTool == skinningCache.GetTool(Tools.WeightBrush) ||
-                currentTool == skinningCache.GetTool(Tools.BoneInfluence) ||
-                currentTool == skinningCache.GetTool(Tools.SpriteInfluence) ||
-                currentTool == skinningCache.GetTool(Tools.GenerateWeights))
-                return true;
-
-            return false;
         }
 
         private void DrawWireframe(SpriteCache sprite)

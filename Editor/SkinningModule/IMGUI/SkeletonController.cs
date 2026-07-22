@@ -314,9 +314,15 @@ namespace UnityEditor.U2D.Animation
 
             if (view.DoCreateBone(out position))
             {
+                bool isChained = m_PrevCreatedBone != null;
+                Vector3 boneStartPosition = isChained ? m_PrevCreatedBone.endPosition : m_CreateBoneStartPosition;
+
+                // Skip zero-length bones to avoid invalid mesh bounds (NaN) downstream.
+                if ((position - boneStartPosition).sqrMagnitude < 0.001f)
+                    return;
+
                 using (skinningCache.UndoScope(TextContent.createBone))
                 {
-                    bool isChained = m_PrevCreatedBone != null;
                     BoneCache parentBone = isChained ? m_PrevCreatedBone : rootBone;
 
                     if (isChained)

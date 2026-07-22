@@ -1,5 +1,5 @@
 # Sprite Skin component
-When the Sprite Skin component is added to a GameObject that also contains the [Sprite Renderer](https://docs.unity3d.com/Manual/class-SpriteRenderer.html) component with a Sprite assigned, the Sprite Skin deforms that Sprite by using the bones that were [rigged](CharacterRig.md) and weighted to the Sprite in the [Skinning Editor](SkinningEditor.md).
+When the Sprite Skin component is added to a GameObject that also contains the [Sprite Renderer](https://docs.unity3d.com/6000.0/Documentation/Manual/class-SpriteRenderer.html) component with a Sprite assigned, the Sprite Skin deforms that Sprite by using the bones that were [rigged](CharacterRig.md) and weighted to the Sprite in the [Skinning Editor](SkinningEditor.md).
 
 After [preparing and importing](PreparingArtwork.md) your artwork into Unity, bring the generated Prefab into the Scene view and Unity automatically adds the Sprite Skin component to the Prefab. This component is required for the bones to deform the Sprite meshes in the Scene view.
 
@@ -30,14 +30,16 @@ For the Sprite Skin component to automatically locate the bones successfully, Ga
 By setting the Sprite Skin’s **Root Bone** property to the correct GameObject Transform, Sprite Skin will then map the GameObject Transform to the Sprite’s rigged bone of the same name. For the **Auto Rebind** to be successful, the name and the hierarchy of the rigged bones and the GameObject Transforms must match. This means that changing the name of the bones in the Skinning Editor will require you to update the names of the GameObject Transforms to match as well.
 
 ## Deformation methods
-Starting from 2D Animation 10 (Unity 2023.1), Sprite Skins can be deformed using two different methods, CPU and GPU deformation. However, do note that GPU deforomation is only available with the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest).
+Starting from 2D Animation 10 (Unity 2023.1), Sprite Skins can be deformed using two different methods, CPU and GPU deformation. However, do note that GPU deformation is only available with the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest).
 
 ### Usage guidelines
 The option to choose between CPU and GPU deformation allows projects to pick where the deformation should happen, on the CPU or the GPU. Projects which are heavily using the CPU for their different systems are therefore advised to use GPU deformation, and vice versa.
 
-Do also note that selecting GPU deformation will cause the Sprite to be rendered using the [SRP Batcher](https://docs.unity3d.com/Manual/SRPBatcher.html). This means that there is a small draw call cost per object. When selecting CPU deformation, the Sprites are dynamically batched, reducing the overall draw calls. We therefore advice choosing CPU deformation when a scene contains many low-polygon objects, and GPU deformation when a scene contains fewer high-polygon objects.
+Do also note that selecting GPU deformation will cause the Sprite to be rendered using the [SRP Batcher](https://docs.unity3d.com/6000.0/Documentation/Manual/SRPBatcher.html). This means that there is a small draw call cost per object. When selecting CPU deformation, the Sprites are dynamically batched, reducing the overall draw calls. We therefore advice choosing CPU deformation when a scene contains many low-polygon objects, and GPU deformation when a scene contains fewer high-polygon objects.
 
-As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
+**Note:** The 2D renderer uses its own dynamic batching system, which isn't affected by the **Dynamic Batching** setting in the Player settings window.
+
+As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/6000.0/Documentation/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
 
 ### Selecting CPU/GPU deformation
 1. Ensure your project is setup with the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest) package.
@@ -46,12 +48,23 @@ As always, do verify the performance impact with [profiling tools](https://docs.
     * If the **SRP Batcher** option is not visible, open the **More** (⋮) menu in the Rendering section and enable **Show Additional Properties**.
 3. Go to **Edit** &gt; **Project Settings** &gt; **Player** &gt; **Other Settings**. In the Rendering section, set **GPU Skinning** to **GPU (Batched)**. When **GPU Skinning** is set to **GPU (Batched)** or **GPU**, Unity performs Sprite Skin deformation on the GPU instead of the CPU.
 
+### Supported platforms
+
+GPU deformation isn't supported on the following platform and graphics API combinations:
+
+- Android platforms with the OpenGL ES 3 graphics API. To use GPU deformation on Android platforms, target the Vulkan graphics API instead.
+- Web applications with the WebGL graphics API.
+
+> [!NOTE]
+> Don't use GPU skinning in your shader if you target Android or Web, because rendering doesn't automatically fall back to CPU skinning. Use CPU skinning instead.
+
 ### Requirements for GPU Deformation
 
 - Use a shader that supports GPU Skinning. 
 - Avoid Shader Graph shaders.
 - Avoid [Material Property Blocks](xref:UnityEngine.MaterialPropertyBlock), which are not compatible with the SRP Batcher.
 - Avoid Sprite masks, which are not compatible with the SRP Batcher.  
+- Avoid using the Sprite Skin as the **Casting Source** of a [ShadowCaster2D](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/ShadowCaster2D.html). Shadows are not rendered correctly with GPU deformation; use CPU deformation in this case.
 
 > [!NOTE]
-> If you don't meet any of these requirements, the rendering falls back to CPU Skinning which uses dynamic batching.
+> If you don't meet any of these requirements, the rendering falls back to CPU Skinning which uses dynamic batching. The 2D renderer uses its own dynamic batching system, which isn't affected by the **Dynamic Batching** setting in the Player settings window.

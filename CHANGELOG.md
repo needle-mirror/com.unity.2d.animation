@@ -1,5 +1,39 @@
 # Changelog
 
+## [10.2.3] - 2026-07-22
+### Fixed
+- Fix the Skinning Editor's Toggle Tool Text shortcut conflicting with another shortcut by changing its default from Shift + \` to Alt + \`. (UUM-145680)
+- Fix label selection reset when clearing filter in Sprite Library Editor. (UUM-133437)
+- Disable Weight Opacity slider in Skinning Editor when the active tool does not display weights. (UUM-138658)
+- Fix Auto Rebind losing bone assignments for sprites with disconnected bone chains by setting the Sprite Skin's own GameObject as the Root Bone when using Create Bones, instead of the first bone. (UUM-141613)
+- Disable "Delete Selected Labels" menu when nothing is selected in SpriteLibraryEditor (DANB-1201)
+- Refresh sprite library editor when deleting asset. (DANB-1232)
+- Fix unused separation line is used in the Context Menu of the Sprite Library Editor Window (DANB-1226)
+- Fix the ? button in the IKManager2D inspector points to an Invalid link. (UUM-131299)
+- Fix the issue that the internal class CullingManager is available in AddComponent. (UUM-131877)
+- Fix the missing documentation link of CCD Solver 2D Component. (UUM-131875)
+- Fix the missing documentation link of Fabrik Solver 2D Component. (UUM-131879)
+- Fix the missing documentation link of Limb Solver 2D Component. (UUM-131891)
+- Fix "Save Changes Failed - Index was out of range" when closing a tab with Discard in Sprite Library Editor while labels were selected in Grid view. (UUM-134472)
+- Do not show Sprite Library Editor's save confirmation when applying from the Inspector; Editor is reset from disk like when selection changes. (DANB-1090)
+- Uses readable "Sprite Renderer" in the help box of Sprite Skin. (UUM-131888)
+- Fix UI layout in 2D Animation Asset Upgrader when the window is docked. (UUM-134464)
+- Fix draw call fluctuation and sprite flicker by avoiding AABB reset for culled Sprite Skins; deformable buffer release is now handled by the batch API. (UUM-132924)
+- Align foldout name and triangle in the Category tab in the Sprite Library Editor. (UUM-134471)
+- Fix "To start creating categories.." text overlapping Categories title and + button when Sprite Library Editor is docked and resized. (UUM-134468)
+- Fix Sprite Resolver component shows built-in Sprite Asset icon instead of the actual Sprite. (UUM-132705)
+- Fix Skinning Editor right-overlay layout after Editor BaseField / label metric changes: content-sized `PopupWindow` form rows and panel heights instead of fixed `max-height` / pixel heights. (UUM-138628)
+- Prevent zero-length Create Bone in Skinning Editor. (UUM-141108)
+- Fix "Assertion failed" error when pressing "Generate For All Visible" in Skinning Editor while in Sprite Sheet mode on a character-enabled asset. (UUM-141080)
+- Fix Generate Weights producing all-default weights when a bone lies on a mesh edge, by not emitting the zero-area triangle that made the weight solver fail. (UUM-144911)
+- Fix SpriteSkin bone reassignment in the Inspector leaving SpriteSkinData.boneTransformId pointing at freed memory by refreshing the slice after CacheBoneTransformIds reallocates m_BoneTransformId. (UUM-143004)
+- Fix editing a bone's Name or Depth in the Skinning Editor's Bone Inspector not being reverted by Undo/Redo. (UUM-144625)
+- Fix Create Bones assigning a Root Bone to a Sprite Skin whose Sprite has no bones, which disabled the Create Bones button and reported a Bind Poses / Transforms count mismatch after the Sprite was later rigged. (UUM-146968)
+
+### Changed
+- Align online documentation URLs: package docs to @10.2; Unity Manual/Script Reference links to Unity 6000.0.
+- Moving a bone with the Skinning Editor's Preview Pose tool no longer rotates and stretches the parent bone to keep the chain connected, matching how bone Transforms behave in the Scene view. (UUM-146866)
+
 ## [10.2.2] - 2025-11-04
 ### Fixed
 - Prevent overlap between label and object field, and ellipsize long names (DANB-1154)

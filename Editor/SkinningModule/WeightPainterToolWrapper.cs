@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class WeightPainterToolWrapper : BaseTool
+    internal class WeightPainterToolWrapper : BaseTool, IWeightMapVisualization
     {
         [SerializeField]
         private WeightPainterMode m_PaintMode;
@@ -11,6 +11,8 @@ namespace UnityEditor.U2D.Animation
         private WeightPainterTool m_WeightPainterTool;
 
         private string m_Title;
+
+        public bool displaysWeights => true;
 
         public override IMeshPreviewBehaviour previewBehaviour
         {

@@ -1,5 +1,5 @@
 # Rigging a character imported with the PSD Importer
-This sample demonstrates how to rig an actor that is made from multiple Sprites, imported with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest/).
+This sample demonstrates how to rig an actor that is made from multiple Sprites, imported with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@9.1/).
 
 The project and assets are in the `Assets/Samples/2D Animation/[X.Y.Z]/Samples/3 Character/` in the **Project** window.
 
@@ -19,4 +19,4 @@ Follow the steps below to reconstruct the `_Character` sample Scene:
 
 3. Drag the generated Prefab from the Project window into the Scene. This becomes a GameObject named 'Fei'.
 
-4. Add the [Animator component](https://docs.unity3d.com/Manual/class-Animator.html) to the 'Fei' GameObject. Locate the Fei [Animator Controller Asset](https://docs.unity3d.com/Manual/Animator.html) in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/4 Character/Animation/Animators/Fei.controller` and assign this Asset to the Animator’s **Controller** property.
+4. Add the [Animator component](https://docs.unity3d.com/6000.0/Documentation/Manual/class-Animator.html) to the 'Fei' GameObject. Locate the Fei [Animator Controller Asset](https://docs.unity3d.com/6000.0/Documentation/Manual/Animator.html) in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/4 Character/Animation/Animators/Fei.controller` and assign this Asset to the Animator’s **Controller** property.

@@ -9,7 +9,7 @@ namespace UnityEngine.U2D.Animation
     {
         public System.Action<GameObject> onDestroyingComponent { get; set; }
 
-        ProfilerMarker m_ProfilerMarker = new ProfilerMarker("DeformationManager.LateUpdate");
+        ProfilerMarker m_ProfilerMarker = new ProfilerMarker("DeformationManagerUpdater.LateUpdate");
 
         void OnDestroy() => onDestroyingComponent?.Invoke(gameObject);
 

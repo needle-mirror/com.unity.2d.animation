@@ -5,9 +5,10 @@ using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class GenerateWeightsTool : MeshToolWrapper
+    internal class GenerateWeightsTool : MeshToolWrapper, IWeightMapVisualization
     {
         private const float kWeightTolerance = 0.01f;
+        public bool displaysWeights => true;
         private SpriteMeshDataController m_SpriteMeshDataController = new SpriteMeshDataController();
         private IWeightsGenerator m_WeightGenerator;
         private GenerateWeightsPanel m_GenerateWeightsPanel;

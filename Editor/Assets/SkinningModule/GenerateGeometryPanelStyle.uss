@@ -2,10 +2,6 @@
 /* GenerateGeometryPanel                                                                                          */
 /**********************************************************************************************************************/
 
-#GenerateGeometryPanel {
-  height: 150px;
-}
-
 #GenerateGeometryPanel.Single #GenerateMultipleSprite {
   visibility: hidden;
   height : 0;

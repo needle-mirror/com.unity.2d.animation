@@ -101,7 +101,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu("2D Animation/Sprite Skin")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteSkin.asset")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SpriteSkin.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@10.2/manual/SpriteSkin.html")]
     public sealed class SpriteSkin : MonoBehaviour, IPreviewable, ISerializationCallbackReceiver
     {
         internal static class Profiling
@@ -403,6 +403,11 @@ namespace UnityEngine.U2D.Animation
             DeformationManager.instance.AddSpriteSkinBoneTransform(this);
 
             CacheValidFlag();
+
+            // CacheBoneTransformIds may Dispose+reallocate m_BoneTransformId, which leaves
+            // SpriteSkinData.boneTransformId pointing at freed memory until CopyToSpriteSkinData
+            // re-captures the new allocation. (UUM-143004)
+            m_DeformationSystem?.CopyToSpriteSkinData(this);
         }
 
         void OnSpriteChanged(SpriteRenderer updatedSpriteRenderer)
@@ -442,7 +447,6 @@ namespace UnityEngine.U2D.Animation
         void OnBoneTransformChanged()
         {
             RefreshBoneTransforms();
-            m_DeformationSystem?.CopyToSpriteSkinData(this);
             SpriteSkinContainer.instance.BoneTransformsChanged(this);
         }
 
@@ -505,8 +509,8 @@ namespace UnityEngine.U2D.Animation
 
                 if (!m_BoneCacheUpdateToDate)
                     RefreshBoneTransforms();
-
-                m_DeformationSystem?.CopyToSpriteSkinData(this);
+                else
+                    m_DeformationSystem?.CopyToSpriteSkinData(this);
             }
         }
 
@@ -935,10 +939,8 @@ namespace UnityEngine.U2D.Animation
         {
             if (m_SpriteRenderer != null)
             {
-                Sprite currentSprite = sprite;
-                if (currentSprite != null)
-                    InternalEngineBridge.SetLocalAABB(m_SpriteRenderer, currentSprite.bounds);
-
+                // Engine resets SpriteRenderer to non-skinned state: bone transform index -1, AABB to sprite bounds,
+                // deformable buffer clear.
                 m_SpriteRenderer.DeactivateDeformableBuffer();
             }
 

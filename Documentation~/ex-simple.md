@@ -1,6 +1,6 @@
 # Simple single Sprite actor and rig
 
-This sample shows a simple single Sprite rigged actor, which was imported with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@latest) package.
+This sample shows a simple single Sprite rigged actor, which was imported with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@9.1) package.
 
 The project and assets are in the `Assets/Samples/2D Animation/[X.Y.Z]/Samples/1 Simple/` in the **Project** window.
 
@@ -20,8 +20,8 @@ Follow the steps below to reconstruct this `_Simple` sample Scene:
 
 2. Drag the 'Boris' psd file into the scene and attach it to the Root GameObject as its child.
 
-3. Add an [Animator component](https://docs.unity3d.com/Manual/class-Animator.html) to the 'Root' GameObject.
+3. Add an [Animator component](https://docs.unity3d.com/6000.0/Documentation/Manual/class-Animator.html) to the 'Root' GameObject.
 
-4. Locate the Root [Animator Controller Asset](https://docs.unity3d.com/Manual/Animator.html) in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/1 Simple/Animation/Animator/Root.controller`. Assign this Asset to the Animator component's **Controller** property.
+4. Locate the Root [Animator Controller Asset](https://docs.unity3d.com/6000.0/Documentation/Manual/Animator.html) in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/1 Simple/Animation/Animator/Root.controller`. Assign this Asset to the Animator component's **Controller** property.
 
-5. Add an Animator component to the 'Boris' GameObject. Locate the Boris [Animator Controller Asset](https://docs.unity3d.com/Manual/Animator.html) in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/1 Simple/Animation/Animator/Boris.controller` and assign this Asset to the Animator’s **Controller** property.
+5. Add an Animator component to the 'Boris' GameObject. Locate the Boris [Animator Controller Asset](https://docs.unity3d.com/6000.0/Documentation/Manual/Animator.html) in `Assets/Samples/2D Animation/[X.Y.Z]/Samples/1 Simple/Animation/Animator/Boris.controller` and assign this Asset to the Animator’s **Controller** property.

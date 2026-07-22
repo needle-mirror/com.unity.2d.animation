@@ -8,8 +8,9 @@ namespace UnityEngine.U2D.IK
     /// Component responsible for 2D Cyclic Coordinate Descent (CCD) IK.
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
-    [Solver2DMenuAttribute("Chain (CCD)")]
-    [IconAttribute(IconUtility.IconPath + "Animation.IKCCD.png")]
+    [Solver2DMenu("Chain (CCD)")]
+    [Icon(IconUtility.IconPath + "Animation.IKCCD.png")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@10.2/manual/2DIK.html")]
     public sealed class CCDSolver2D : Solver2D
     {
         const int k_MinIterations = 1;

@@ -3,6 +3,19 @@
 #CategoriesTab {
     background-color: var(--unity-colors-default-background);
     flex-grow: 1;
+    min-height: 0;
+    overflow: hidden;
+    flex-direction: column;
+}
+
+#CategoriesTab > .sprite-library-editor-window__description-text {
+    flex: 1 1 0%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#CategoriesTab EditorTabHeader {
+    flex-shrink: 0;
 }
 
 .unity-foldout__content {
@@ -52,6 +65,24 @@
     flex-shrink: 1;
 }
 
+/*
+    Override .unity-foldout__toggle
+        padding-top: 3px -> 2px
+        padding-bottom: 2px -> 3px
+*/
+#LocalFoldout > Toggle, #InheritedFoldout > Toggle {
+    padding-top: 2px;
+    padding-bottom: 3px;
+}
+
+/*
+    Override .unity-toggle__text
+        height: 20px -> auto
+*/
+#LocalFoldout > Toggle Label, #InheritedFoldout > Toggle Label {
+    height: auto;
+}
+
 #LocalLabel {
     padding: 5px;
     background-color: var(--unity-colors-default-background);
@@ -64,6 +95,7 @@
 
 #CategoryListsScrollView {
     flex-grow: 1;
+    min-height: 0;
 }
 
 #CategoryListsContainer {

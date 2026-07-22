@@ -42,7 +42,7 @@ namespace UnityEditor.U2D.Animation
         public string boneName
         {
             get { return m_BoneNameField.value; }
-            set { m_BoneNameField.value = value; }
+            set { m_BoneNameField.SetValueWithoutNotify(value); }
         }
 
         public BoneCache target { get; set; }
@@ -50,7 +50,7 @@ namespace UnityEditor.U2D.Animation
         public int boneDepth
         {
             get { return m_BoneDepthField.value; }
-            set { m_BoneDepthField.value = value; }
+            set { m_BoneDepthField.SetValueWithoutNotify(value); }
         }
 
         public Vector2 bonePosition
@@ -86,28 +86,21 @@ namespace UnityEditor.U2D.Animation
             m_BoneRotationField = this.Q<FloatField>("BoneRotationField");
             m_BonePositionField = this.Q<Vector2Field>("BonePositionField");
             m_BoneColorField = this.Q<ColorField>("BoneColorField");
-            m_BoneNameField.RegisterCallback<FocusOutEvent>(BoneNameFocusChanged);
-            m_BoneDepthField.RegisterCallback<FocusOutEvent>(BoneDepthFocusChanged);
+            // Name and Depth are delayed fields: they commit only on Enter / focus-out, not on every keystroke. Like the
+            // other fields they commit through a value-changed callback and are refreshed via SetValueWithoutNotify, so a
+            // model -> UI refresh (e.g. during an Undo/Redo restore) never writes the stale field value back. (UUM-144625)
+            m_BoneNameField.isDelayed = true;
+            m_BoneDepthField.isDelayed = true;
+            m_BoneNameField.RegisterValueChangedCallback(evt => onBoneNameChanged(target, evt.newValue));
+            m_BoneDepthField.RegisterValueChangedCallback(evt => onBoneDepthChanged(target, evt.newValue));
             m_BoneRotationField.RegisterValueChangedCallback(evt => onBoneRotationChanged(target, evt.newValue));
             m_BonePositionField.RegisterValueChangedCallback(evt => onBonePositionChanged(target, evt.newValue));
             m_BoneColorField.RegisterValueChangedCallback(evt => onBoneColorChanged(target, evt.newValue));
         }
 
-        private void BoneNameFocusChanged(FocusOutEvent evt)
-        {
-            onBoneNameChanged(target, boneName);
-        }
-
-        private void BoneDepthFocusChanged(FocusOutEvent evt)
-        {
-            onBoneDepthChanged(target, boneDepth);
-        }
         public void HidePanel()
         {
-            // We are hidding the panel, sent any unchanged value
             this.SetHiddenFromLayout(true);
-            onBoneNameChanged(target, boneName);
-            onBoneDepthChanged(target, boneDepth);
         }
         public static BoneInspectorPanel GenerateFromUXML()
         {

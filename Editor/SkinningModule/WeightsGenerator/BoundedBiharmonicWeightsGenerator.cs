@@ -128,7 +128,6 @@ namespace UnityEditor.U2D.Animation
         {
             foreach (float2 v in samplers)
             {
-                int vtxCount_ = vtxCount;
                 int triCount_ = idxCount / 3;
 
                 for (int i = 0; i < triCount_; ++i)
@@ -143,9 +142,16 @@ namespace UnityEditor.U2D.Animation
                     if (inside)
                     {
                         triVertices[vtxCount] = v;
-                        triIndices[idxCount++] = i1; triIndices[idxCount++] = i2; triIndices[idxCount++] = vtxCount;
-                        triIndices[idxCount++] = i2; triIndices[idxCount++] = i3; triIndices[idxCount++] = vtxCount;
-                        triIndices[idxCount++] = i3; triIndices[idxCount++] = i1; triIndices[idxCount++] = vtxCount;
+                        // Split the containing triangle by connecting v to its corners. When v lies exactly
+                        // on an edge, the sub-triangle spanning that edge is collinear (zero area), which makes
+                        // the native BBW solver singular (error code 3, UJN-594). Emit only the non-degenerate
+                        // sub-triangles; a strictly-interior point keeps all three, matching prior behaviour.
+                        if (ModuleHandle.OrientFast(v1, v2, v) != 0f)
+                        { triIndices[idxCount++] = i1; triIndices[idxCount++] = i2; triIndices[idxCount++] = vtxCount; }
+                        if (ModuleHandle.OrientFast(v2, v3, v) != 0f)
+                        { triIndices[idxCount++] = i2; triIndices[idxCount++] = i3; triIndices[idxCount++] = vtxCount; }
+                        if (ModuleHandle.OrientFast(v3, v1, v) != 0f)
+                        { triIndices[idxCount++] = i3; triIndices[idxCount++] = i1; triIndices[idxCount++] = vtxCount; }
                         vtxCount++;
                         break;
                     }

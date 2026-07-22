@@ -155,7 +155,6 @@ namespace UnityEngine.U2D.Animation
             {
                 localToWorldJobHandle.Complete();
                 worldToLocalJobHandle.Complete();
-                DeactivateDeformableBuffers();
                 return;
             }
 
@@ -189,8 +188,6 @@ namespace UnityEngine.U2D.Animation
                 bool didDeform = m_IsSpriteSkinActiveForDeform[spriteSkin.dataIndex];
                 spriteSkin.PostDeform(didDeform);
             }
-
-            DeactivateDeformableBuffers();
         }
 
         void ResizeBuffers(int vertexBufferSize, in PerSkinJobData skinBatch)

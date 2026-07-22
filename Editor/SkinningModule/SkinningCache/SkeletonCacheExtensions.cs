@@ -27,9 +27,6 @@ namespace UnityEditor.U2D.Animation
                 Debug.Assert(skeleton.Contains(bone));
 
                 bone.position += deltaPosition;
-
-                if (bone.parentBone != null && bone.parentBone.chainedChild == bone)
-                    bone.parentBone.OrientToChainedChild(false);
             }
         }
 

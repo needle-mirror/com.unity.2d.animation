@@ -5,7 +5,7 @@ The 2D Animation Asset Upgrader tool eases the transition and upgrade of older a
 
 - Upgrades [Sprite Library Asset](SL-Asset.md) files ending in `.asset` to Sprite Library Source Asset files ending in `.spriteLib`.
 - Moves Sprite Library Assets baked into `.psb` files created in Unity 2019 and Unity 2020 out into their own separate Sprite Library Source Asset files ending in `.spriteLib`.
-- Upgrades [Animation Clips](https://docs.unity3d.com/Manual/AnimationClips.html) that animate Sprites based on the [Sprite Resolver component](https://docs.unity3d.com/Packages/com.unity.2d.animation@latest/index.html?subfolder=/manual/SL-Resolver.html)'s [Category and Label](SL-Editor.md) hash in Unity 2019 and Unity 2020, to Sprite Resolver's new **Sprite Hash** property from Unity 2022 onwards.
+- Upgrades [Animation Clips](https://docs.unity3d.com/6000.0/Documentation/Manual/AnimationClips.html) that animate Sprites based on the [Sprite Resolver component](https://docs.unity3d.com/Packages/com.unity.2d.animation@10.2/manual/SL-Resolver.html)'s [Category and Label](SL-Editor.md) hash in Unity 2019 and Unity 2020, to Sprite Resolver's new **Sprite Hash** property from Unity 2022 onwards.
 - Upgrades Animation Clips animating the Sprite Resolver component's **Sprite Key** property in Unity 2021, to Sprite Resolver's new Sprite Hash property from Unity 2022 onwards.
 
 ## Getting Started
@@ -25,7 +25,7 @@ Follow these steps to upgrade the Sprite Libraries in the project.
 
 5. Select the __Upgrade selected__ button to begin the upgrading process.
 
-6. The editor then displays a pop-up window to inform you that the upgrade cannot be reverted, and any [Asset Bundles](https://docs.unity3d.com/Manual/AssetBundlesIntro.html) connected to the Sprite Libraries will need to be rebuilt. Select __Yes__ to proceed with the upgrade, or __No__ to cancel the upgrading process.
+6. The editor then displays a pop-up window to inform you that the upgrade cannot be reverted, and any [Asset Bundles](https://docs.unity3d.com/6000.0/Documentation/Manual/AssetBundlesIntro.html) connected to the Sprite Libraries will need to be rebuilt. Select __Yes__ to proceed with the upgrade, or __No__ to cancel the upgrading process.
 
 7. Once the upgrading process is complete, the 2D Animation Asset Upgrader will display the status of the upgrading process for each of the selected assets.
 

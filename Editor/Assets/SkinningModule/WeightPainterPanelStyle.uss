@@ -2,14 +2,6 @@
 /* WeightPainterPanel                                                                                                 */
 /**********************************************************************************************************************/
 
-#WeightPainterPanel.BrushMode {
-  height: 165px;
-}
-
-#WeightPainterPanel.SliderMode {
-  height: 230px;
-}
-
 #WeightPainterPanel.BrushMode #Amount.form-row {
   display: none;
 }

@@ -2,6 +2,10 @@
 /* AssetUpgrader                                                                                                      */
 /**********************************************************************************************************************/
 
+#Container {
+    min-width: 360px;
+}
+
 .unity-button-strip-field__button:checked {
     background-color: var(--unity-colors-highlight-background);
 }
@@ -11,6 +15,11 @@
     height: 28px;
     margin-top: 12px;
     margin-bottom: 12px;
+}
+
+#ModeSelector > Button {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #ToolDescription {
@@ -80,6 +89,12 @@
     margin: 5px 10px 5px 10px;
     min-height: 21px;
     flex-direction: row-reverse;
+    flex-wrap: wrap;
+}
+
+#BottomContainer > Button {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #InfoContainer {

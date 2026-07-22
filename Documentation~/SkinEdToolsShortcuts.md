@@ -24,7 +24,7 @@ This toolbar lets you toggle between __Character__ and __Sprite Sheet__ modes. I
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
 | ![Toggle View Mode](images/icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the __Character__ and __Sprite Sheet__ view modes. |
 | ![Visibility icon](images/icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite meshes and bones in the editor window. |
-| __Toggle Tool Text__                                         | Shift + `            | Show or hide text on tool buttons.                           |
+| __Toggle Tool Text__                                         | Alt + `              | Show or hide text on tool buttons.                           |
 
 ## Pose tools
 

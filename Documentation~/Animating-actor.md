@@ -1,5 +1,5 @@
 # Animating an actor
-After [importing](PreparingArtwork.md) and [rigging](CharacterRig.md) an actor, you can begin animating by simply dragging the rigged actor into the Scene view. By repositioning the different bones of the actor on the Animation timeline with [Unity's animation workflow and tools](https://docs.unity3d.com/Manual/AnimationSection.html). The mesh of the actor [deforms](SpriteSkin.md) with the positioning of the rigged bones, creating smooth animation transitions.
+After [importing](PreparingArtwork.md) and [rigging](CharacterRig.md) an actor, you can begin animating by simply dragging the rigged actor into the Scene view. By repositioning the different bones of the actor on the Animation timeline with [Unity's animation workflow and tools](https://docs.unity3d.com/6000.0/Documentation/Manual/AnimationSection.html). The mesh of the actor [deforms](SpriteSkin.md) with the positioning of the rigged bones, creating smooth animation transitions.
 
 Aside from this method, there are other ways that you can animate with the 2D Animation package. The following are a few examples based on the Sample scenes available for you to import to use with the package.
 

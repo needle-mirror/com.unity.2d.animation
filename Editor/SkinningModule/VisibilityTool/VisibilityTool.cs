@@ -19,6 +19,7 @@ namespace UnityEditor.U2D.Animation
         VisualElement m_SelectorContainer;
         VisualElement m_Container;
         Slider m_BoneOpacitySlider;
+        VisualElement m_MeshOpacitySliderGroup;
         Slider m_MeshOpacitySlider;
         private LayoutOverlay m_Layout;
 
@@ -52,6 +53,7 @@ namespace UnityEditor.U2D.Animation
             m_Container = this.Q("VisibilityToolContainer");
             m_BoneOpacitySlider = this.Q<Slider>("BoneOpacitySlider");
             m_BoneOpacitySlider.RegisterValueChangedCallback(OnBoneOpacitySliderValueChangd);
+            m_MeshOpacitySliderGroup = this.Q("MeshOpacitySliderGroup");
             m_MeshOpacitySlider = this.Q<Slider>("MeshOpacitySlider");
             m_MeshOpacitySlider.RegisterValueChangedCallback(OnMeshOpacitySliderValueChangd);
             RegisterCallback<MouseDownEvent>(OpacityChangeBegin, TrickleDown.TrickleDown);
@@ -101,7 +103,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (IsOpacityTarget(evt.target, m_BoneOpacitySlider))
                 onBoneOpacitySliderChangeBegin();
-            else if (IsOpacityTarget(evt.target, m_MeshOpacitySlider))
+            else if (m_MeshOpacitySliderGroup.enabledInHierarchy && IsOpacityTarget(evt.target, m_MeshOpacitySlider))
                 onMeshOpacitySliderChangeBegin();
         }
 
@@ -109,7 +111,7 @@ namespace UnityEditor.U2D.Animation
         {
             if (IsOpacityTarget(evt.target, m_BoneOpacitySlider))
                 onBoneOpacitySliderChangeEnd();
-            else if (IsOpacityTarget(evt.target, m_MeshOpacitySlider))
+            else if (m_MeshOpacitySliderGroup.enabledInHierarchy && IsOpacityTarget(evt.target, m_MeshOpacitySlider))
                 onMeshOpacitySliderChangeEnd();
         }
 
@@ -133,6 +135,11 @@ namespace UnityEditor.U2D.Animation
         {
             m_MeshOpacitySlider.value = value;
             m_MeshOpacitySlider.MarkDirtyRepaint();
+        }
+
+        public void SetMeshOpacitySliderEnabled(bool enabled)
+        {
+            m_MeshOpacitySliderGroup.SetEnabled(enabled);
         }
 
         public void AddToolTab(string name, string tooltip, Action onClick)
@@ -283,6 +290,7 @@ namespace UnityEditor.U2D.Animation
         void SetToolAvailable(int i, bool available);
         void SetBoneOpacitySliderValue(float value);
         void SetMeshOpacitySliderValue(float value);
+        void SetMeshOpacitySliderEnabled(bool enabled);
         event Action<float> onBoneOpacitySliderChange;
         event Action<float> onMeshOpacitySliderChange;
         event Action onBoneOpacitySliderChangeBegin;
@@ -342,6 +350,7 @@ namespace UnityEditor.U2D.Animation
 
             m_Model.view.SetBoneOpacitySliderValue(m_Model.boneOpacityValue);
             m_Model.view.SetMeshOpacitySliderValue(m_Model.meshOpacityValue);
+            UpdateMeshOpacitySliderState(m_Model.skinningCache.selectedTool);
             m_Model.view.onBoneOpacitySliderChange -= OnBoneOpacityChange;
             m_Model.view.onMeshOpacitySliderChange -= OnMeshOpacityChange;
             m_Model.view.onBoneOpacitySliderChange += OnBoneOpacityChange;
@@ -354,6 +363,7 @@ namespace UnityEditor.U2D.Animation
             m_Model.view.onMeshOpacitySliderChangeBegin += OnMeshOpacityChangeBegin;
             m_Model.view.onMeshOpacitySliderChangeEnd -= OnMeshOpacityChangeEnd;
             m_Model.view.onMeshOpacitySliderChangeEnd += OnMeshOpacityChangeEnd;
+            m_Model.skinningCache.events.toolChanged.AddListener(OnToolChanged);
         }
 
         public void Deactivate()
@@ -369,6 +379,7 @@ namespace UnityEditor.U2D.Animation
             m_Model.view.onBoneOpacitySliderChangeEnd -= OnBoneOpacityChangeEnd;
             m_Model.view.onMeshOpacitySliderChangeBegin -= OnMeshOpacityChangeBegin;
             m_Model.view.onMeshOpacitySliderChangeEnd -= OnMeshOpacityChangeEnd;
+            m_Model.skinningCache.events.toolChanged.RemoveListener(OnToolChanged);
         }
 
         void OnBoneOpacityChangeBegin()
@@ -405,6 +416,21 @@ namespace UnityEditor.U2D.Animation
         private void OnMeshOpacityChange(float value)
         {
             m_Model.meshOpacityValue = value;
+        }
+
+        void OnToolChanged(ITool tool)
+        {
+            UpdateMeshOpacitySliderState(m_Model.skinningCache.selectedTool);
+        }
+
+        void UpdateMeshOpacitySliderState(ITool tool)
+        {
+            m_Model.view.SetMeshOpacitySliderEnabled(IsWeightTool(tool));
+        }
+
+        static bool IsWeightTool(ITool tool)
+        {
+            return tool is IWeightMapVisualization wt && wt.displaysWeights;
         }
 
         private void OnToolAvailabilityChange(int toolIndex)

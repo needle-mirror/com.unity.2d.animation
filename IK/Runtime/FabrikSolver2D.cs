@@ -9,7 +9,8 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenu("Chain (FABRIK)")]
-    [IconAttribute(IconUtility.IconPath + "Animation.IKFabrik.png")]
+    [Icon(IconUtility.IconPath + "Animation.IKFabrik.png")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@10.2/manual/2DIK.html")]
     public sealed class FabrikSolver2D : Solver2D
     {
         const float k_MinTolerance = 0.001f;
