@@ -6,6 +6,11 @@ namespace UnityEditor.U2D.Animation
 {
     internal interface ITool { }
 
+    internal interface IWeightMapVisualization
+    {
+        bool displaysWeights { get; }
+    }
+
     internal abstract class BaseTool : SkinningObject, ITool
     {
         [SerializeField]

@@ -59,7 +59,6 @@ namespace UnityEditor.U2D.Animation
 
         void DoSearchField()
         {
-            m_SearchField.downOrUpArrowKeyPressed += m_TreeView.SetFocusAndEnsureSelectedItem;
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
             m_TreeView.searchString = m_SearchField.OnToolbarGUI(m_TreeView.searchString);
             GUILayout.EndHorizontal();

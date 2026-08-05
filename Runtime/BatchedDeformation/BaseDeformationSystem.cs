@@ -477,6 +477,7 @@ namespace UnityEngine.U2D.Animation
 #if UNITY_INCLUDE_TESTS
         internal TransformAccessJob GetWorldToLocalTransformAccessJob() => m_WorldToLocalTransformAccessJob;
         internal TransformAccessJob GetLocalToWorldTransformAccessJob() => m_LocalToWorldTransformAccessJob;
+        internal SpriteSkinData GetSpriteSkinDataAt(int index) => m_SpriteSkinData[index];
 #endif
     }
 }

@@ -9,9 +9,10 @@ using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
-    internal class GenerateGeometryTool : MeshToolWrapper
+    internal class GenerateGeometryTool : MeshToolWrapper, IWeightMapVisualization
     {
         private const float kWeightTolerance = 0.1f;
+        public bool displaysWeights => GenerateGeomertySettings.generateWeights;
         private SpriteMeshDataController m_SpriteMeshDataController = new SpriteMeshDataController();
         private ITriangulator m_Triangulator;
         private IOutlineGenerator m_OutlineGenerator;
@@ -239,7 +240,7 @@ namespace UnityEditor.U2D.Animation
 
                             mesh.vertexWeights[j] = editableBoneWeight;
                         }
-                        if (null != sprite.GetCharacterPart())
+                        if (skinningCache.mode == SkinningMode.Character && sprite.GetCharacterPart() != null)
                             sprite.DeassociateUnusedBones();
                         m_SpriteMeshDataController.SortTrianglesByDepth();
                     }
@@ -275,6 +276,7 @@ namespace UnityEditor.U2D.Animation
             UpdateButton();
             Show();
             skinningCache.events.selectedSpriteChanged.AddListener(OnSelectedSpriteChanged);
+            m_GenerateGeometryPanel.onGenerateWeightsChanged += OnGenerateWeightsChanged;
         }
 
         protected override void OnDeactivate()
@@ -282,6 +284,12 @@ namespace UnityEditor.U2D.Animation
             base.OnDeactivate();
             Hide();
             skinningCache.events.selectedSpriteChanged.RemoveListener(OnSelectedSpriteChanged);
+            m_GenerateGeometryPanel.onGenerateWeightsChanged -= OnGenerateWeightsChanged;
+        }
+
+        void OnGenerateWeightsChanged(bool value)
+        {
+            skinningCache.events.toolChanged.Invoke(this);
         }
 
         private void Show()

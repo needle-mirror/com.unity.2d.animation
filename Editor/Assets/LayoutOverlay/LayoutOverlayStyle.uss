@@ -24,6 +24,7 @@ LayoutOverlay > #HorizontalHolder {
 
 LayoutOverlay > #HorizontalHolder > #VerticalToolbar {
     width: 140px;
+    flex-shrink: 0;
     margin-left : 10px;
 }
 
@@ -44,8 +45,11 @@ LayoutOverlay > #HorizontalHolder > #LeftOverlay {
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay {
-
-    flex-grow: 1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
     flex-direction: column-reverse;
     flex-wrap: wrap-reverse;
     align-items: flex-start;
@@ -60,8 +64,8 @@ LayoutOverlay > #HorizontalHolder > #RightOverlay {
 }
 
 LayoutOverlay > #HorizontalHolder > #RightOverlay PopupWindow {
-    flex:1 0 auto;
-    width : 300px;
+    flex: 0 0 auto;
+    min-width : 300px;
     padding-left : 12px;
     padding-right : 12px;
 }

@@ -37,6 +37,8 @@ The option to choose between CPU and GPU deformation allows projects to pick whe
 
 Do also note that selecting GPU deformation will cause the Sprite to be rendered using the [SRP Batcher](https://docs.unity3d.com/6000.3/Documentation/Manual/SRPBatcher.html). This means that there is a small draw call cost per object. When selecting CPU deformation, the Sprites are dynamically batched, reducing the overall draw calls. We therefore advice choosing CPU deformation when a scene contains many low-polygon objects, and GPU deformation when a scene contains fewer high-polygon objects.
 
+**Note:** The 2D renderer uses its own dynamic batching system, which isn't affected by the **Dynamic Batching** setting in the Player settings window.
+
 As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/6000.3/Documentation/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
 
 ### Selecting CPU/GPU deformation
@@ -46,12 +48,23 @@ As always, do verify the performance impact with [profiling tools](https://docs.
     * If the **SRP Batcher** option is not visible, open the **More** (⋮) menu in the Rendering section and enable **Show Additional Properties**.
 3. Go to **Edit** &gt; **Project Settings** &gt; **Player** &gt; **Other Settings**. In the Rendering section, set **GPU Skinning** to **GPU (Batched)**. When **GPU Skinning** is set to **GPU (Batched)** or **GPU**, Unity performs Sprite Skin deformation on the GPU instead of the CPU.
 
+## Supported platforms
+
+GPU deformation isn't supported on the following platform and graphics API combinations:
+
+- Android platforms with the OpenGL ES 3 graphics API. To use GPU deformation on Android platforms, target the Vulkan graphics API instead.
+- Web applications with the WebGL graphics API. To use GPU deformation in web applications, target the WebGPU graphics API instead.
+
+> [!NOTE]
+> Don't use GPU skinning in your shader if you target Android or Web, because rendering doesn't automatically fall back to CPU skinning. Use CPU skinning instead.
+
 ### Requirements for GPU Deformation
 
 - Use a shader that supports GPU Skinning. If you use shaders created with Shader Graph, ensure you include the [Sprite Skinning Node](https://docs.unity3d.com/Packages/com.unity.shadergraph@latest?subfolder=/manual/Sprite-Skinning-Node.html) in your shader graph.
   ![A Sprite Skinning Node in Shader Graph is connecting Vertex Node.](images/2d-anim-spriteskinningnode.png)
 - Avoid [Material Property Blocks](xref:UnityEngine.MaterialPropertyBlock), which are not compatible with the SRP Batcher.
 - Avoid Sprite masks, which are not compatible with the SRP Batcher.  
+- Avoid using the Sprite Skin as the **Casting Source** of a [ShadowCaster2D](https://docs.unity3d.com/6000.3/Documentation/Manual/urp/ShadowCaster2D.html). Shadows are not rendered correctly with GPU deformation; use CPU deformation in this case.
 
 > [!NOTE]
-> If you don't meet any of these requirements, the rendering falls back to CPU Skinning which uses dynamic batching.
+> If you don't meet any of these requirements, the rendering falls back to CPU Skinning which uses dynamic batching. The 2D renderer uses its own dynamic batching system, which isn't affected by the **Dynamic Batching** setting in the Player settings window.

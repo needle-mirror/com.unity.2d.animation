@@ -1,8 +1,28 @@
 # Changelog
 
+## [13.0.6] - 2026-08-05
+### Fixed
+- Prevent zero-length Create Bone in Skinning Editor. (UUM-141108)
+- Fix "Assertion failed" error when pressing "Generate For All Visible" in Skinning Editor while in Sprite Sheet mode on a character-enabled asset. (UUM-141080)
+- Fix exceptions thrown by IKManager2D when an IK chain's transforms become invalid in the Editor. (UUM-141452)
+- Fix SpriteSkin bone reassignment in the Inspector leaving SpriteSkinData.boneTransformId pointing at freed memory by refreshing the slice after CacheBoneTransformIds reallocates m_BoneTransformId. (UUM-143004)
+- Fix Auto Rebind losing bone assignments for sprites with disconnected bone chains by setting the Sprite Skin's own GameObject as the Root Bone when using Create Bones, instead of the first bone. (UUM-141613)
+- Fix Generate Weights producing all-default weights when a bone lies on a mesh edge, by not emitting the zero-area triangle that made the weight solver fail. (UUM-144911)
+- Fix editing a bone's Name or Depth in the Skinning Editor's Bone Inspector not being reverted by Undo/Redo. (UUM-144625)
+- Fix the Skinning Editor's Toggle Tool Text shortcut conflicting with another shortcut by changing its default from Shift + \` to Alt + \`. (UUM-145680)
+- Fix Skinning Editor toolbar tool text overflowing the buttons when the window is narrowed, by stopping the tool palette from shrinking below its width and floating the right-side panels instead of letting them squeeze the toolbar. (UUM-145864)
+- Fix Create Bones assigning a Root Bone to a Sprite Skin whose Sprite has no bones, which disabled the Create Bones button and reported a Bind Poses / Transforms count mismatch after the Sprite was later rigged. (UUM-146968)
+- Fix Sprite Resolver Inspector resetting the Category to "No Category" when selecting a Category that contains no Labels. (UUM-145993)
+- Fix the Skinning Editor allocating increasing amounts of garbage every repaint while the Visibility panel is open. (UUM-147565)
+- Fix a "No script asset for SpriteVisibilityToolData" warning logged when undoing in Play Mode with a character open in the Skinning Editor, by giving each editor-only Skinning Cache object its own matching-named file so Unity can resolve its script. (UUM-147151)
+
+### Changed
+- Moving a bone with the Skinning Editor's Preview Pose tool no longer rotates and stretches the parent bone to keep the chain connected, matching how bone Transforms behave in the Scene view. (UUM-146866)
+
 ## [13.0.5] - 2026-04-29
 ### Fixed
 - Fix label selection reset when clearing filter in Sprite Library Editor. (UUM-133437)
+- Disable Weight Opacity slider in Skinning Editor when the active tool does not display weights. (UUM-138658)
 - Fix the ? button in the IKManager2D inspector points to an Invalid link. (UUM-131299)
 - Fix the issue that the internal class CullingManager is available in AddComponent. (UUM-131877)
 - Fix the missing documentation link of CCD Solver 2D Component. (UUM-131875)

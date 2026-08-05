@@ -266,13 +266,14 @@ namespace UnityEditor.U2D.Animation
         CharacterPartCache GetSpriteCharacterPart(SpriteCache sprite);
     }
 
-    class BoneSpriteInfluenceTool : BaseTool, IBoneSpriteInfluenceToolModel
+    class BoneSpriteInfluenceTool : BaseTool, IBoneSpriteInfluenceToolModel, IWeightMapVisualization
     {
         BoneSpriteInfluenceToolController m_Controller;
         MeshPreviewBehaviour m_MeshPreviewBehaviour = new MeshPreviewBehaviour();
         InfluenceWindow m_View;
 
         public SkeletonTool skeletonTool { get; set; }
+        public bool displaysWeights => true;
 
         public override IMeshPreviewBehaviour previewBehaviour => m_MeshPreviewBehaviour;
 

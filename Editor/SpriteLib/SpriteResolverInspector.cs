@@ -111,6 +111,14 @@ namespace UnityEditor.U2D.Animation
                     entryHash = m_SpriteHash.intValue;
                     spriteLib.GetCategoryAndEntryNameFromHash(entryHash, out categoryName, out labelName);
                 }
+
+                // An empty Category cannot be encoded in the Sprite hash, so recover it from the serialized Category hash.
+                if (string.IsNullOrEmpty(categoryName))
+                {
+                    int categoryHash = InternalEngineBridge.ConvertFloatToInt(m_CategoryHash.floatValue);
+                    if (categoryHash != 0)
+                        categoryName = spriteLib.categoryNames.FirstOrDefault(c => SpriteLibraryUtility.GetStringHash(c) == categoryHash);
+                }
             }
         }
 
@@ -237,8 +245,11 @@ namespace UnityEditor.U2D.Animation
             if (EditorGUI.EndChangeCheck())
             {
                 currentCategoryValue = m_CategorySelection[m_CategorySelectionIndex];
+                int selectedCategoryHash = 0;
+                int selectedLabelHash = 0;
                 if (m_SpriteLibSelection.ContainsKey(currentCategoryValue))
                 {
+                    selectedCategoryHash = SpriteLibraryUtility.GetStringHash(currentCategoryValue);
                     string[] hash = m_SpriteLibSelection[currentCategoryValue].entryNames;
                     if (hash.Length > 0)
                     {
@@ -246,9 +257,18 @@ namespace UnityEditor.U2D.Animation
                             m_LabelSelectionIndex = 0;
                         currentLabelValue = m_SpriteLibSelection[currentCategoryValue].entryNames[m_LabelSelectionIndex];
                     }
+                    else
+                    {
+                        // Empty Category: there is no label to store.
+                        currentLabelValue = string.Empty;
+                    }
+
+                    selectedLabelHash = SpriteLibraryUtility.GetStringHash(currentLabelValue);
                 }
 
                 m_SpriteHash.intValue = SpriteLibrary.GetHashForCategoryAndEntry(currentCategoryValue, currentLabelValue);
+                m_CategoryHash.floatValue = InternalEngineBridge.ConvertIntToFloat(selectedCategoryHash);
+                m_LabelHash.floatValue = InternalEngineBridge.ConvertIntToFloat(selectedLabelHash);
                 ApplyModifiedProperty();
 
                 SpriteResolver sf = target as SpriteResolver;
