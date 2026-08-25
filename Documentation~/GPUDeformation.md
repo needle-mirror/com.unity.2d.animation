@@ -13,6 +13,16 @@ Do also note that selecting GPU deformation will cause the Sprite to be rendered
 
 As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/6000.6/Documentation/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
 
+## Supported platforms
+
+GPU deformation isn't supported on the following platform and graphics API combinations:
+
+- Android platforms with the OpenGL ES 3 graphics API. To use GPU deformation on Android platforms, target the Vulkan graphics API instead.
+- Web applications with the WebGL graphics API. To use GPU deformation in web applications, target the WebGPU graphics API instead.
+
+> [!NOTE]
+> Don't use GPU skinning in your shader if you target Android or Web, because rendering doesn't automatically fall back to CPU skinning. Use CPU skinning instead.
+
 ## Requirements for GPU Deformation
 
 - Use a shader that supports GPU Skinning. If you use shaders created with Shader Graph, ensure you include the [Sprite Skinning Node](https://docs.unity3d.com/Packages/com.unity.shadergraph@latest?subfolder=/manual/Sprite-Skinning-Node.html) in your shader graph.

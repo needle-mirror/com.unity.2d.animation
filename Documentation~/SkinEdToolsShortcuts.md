@@ -24,7 +24,7 @@ This toolbar lets you toggle between __Character__ and __Sprite Sheet__ modes. I
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
 | ![Toggle View Mode](images/icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the __Character__ and __Sprite Sheet__ view modes. |
 | ![Visibility icon](images/icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite meshes and bones in the editor window. |
-| __Toggle Tool Text__                                         | Shift + `            | Show or hide text on tool buttons.                           |
+| __Toggle Tool Text__                                         | Alt + `              | Show or hide text on tool buttons.                           |
 
 ## Pose tools
 
@@ -64,7 +64,7 @@ The __Bone panel__ appears at the lower right of the editor window when you sele
 | __Name__       | Displays the name of the selected bone. Enter a new name here to rename the selected bone. |
 | **Position**   | The world position of the bone.                              |
 | **Rotation**   | The world rotation value of the bone.                        |
-| **Bone Color** | The color of the bone.                                       |
+| **Bone Color** | The color of the bone in the Skinning Editor. This color doesn't affect bone gizmos in the Scene view. For more information, refer to [Customize bone colors in the Scene view](BoneOverlay.md). |
 | __Depth__      | Displays the Z-value of the selected bone that determines the render order of the vertices under its influence (refer to the examples below). Enter a new value (which can be negative) to change the render order of the affected vertices. Refer to the [bone tab and hierarchy tree](SpriteVis.html#bone-tab-and-hierarchy-tree) documentation for more information on how the **Depth** value affects the way the Sprite mesh is rendered and deformed. |
 
 ### Setting the Depth value

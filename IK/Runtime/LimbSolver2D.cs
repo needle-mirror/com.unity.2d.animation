@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.U2D.Animation;
 
 namespace UnityEngine.U2D.IK
 {
@@ -8,6 +9,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenu("Limb")]
+    [AddComponentMenu(U2DAnimationConstants.PackageDisplayName + "/Limb Solver 2D")]
     [Icon(IconUtility.IconPath + "Animation.IKLimb.png")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@16.0/manual/2DIK.html")]
     public sealed class LimbSolver2D : Solver2D

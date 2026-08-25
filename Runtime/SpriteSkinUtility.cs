@@ -139,16 +139,18 @@ namespace UnityEngine.U2D.Animation
 
             SpriteBone[] spriteBones = spriteSkin.spriteRenderer.sprite.GetBones();
             Transform[] transforms = new Transform[spriteBones.Length];
-            Transform root = null;
 
             for (int i = 0; i < spriteBones.Length; ++i)
-            {
                 CreateGameObject(i, spriteBones, transforms, spriteSkin.transform);
-                if (spriteBones[i].parentId < 0 && root == null)
-                    root = transforms[i];
-            }
 
-            spriteSkin.SetRootBone(root);
+            // When the Sprite has bones, use the Sprite Skin's own GameObject as the root, matching the PSD
+            // Importer Character mode where the root is the prefab root rather than an actual bone. This keeps
+            // every bone chain (including disconnected ones) under the root so Auto Rebind can resolve them,
+            // without inserting an extra GameObject that would shift transform paths and break existing clips.
+            // When the Sprite has no bones there is nothing to root, so leave the Root Bone unset;
+            // otherwise assigning a root would disable the Create Bones button and leave the component in an
+            // invalid state once the Sprite is later rigged.
+            spriteSkin.SetRootBone(spriteBones.Length > 0 ? spriteSkin.transform : null);
             spriteSkin.SetBoneTransforms(transforms);
         }
 

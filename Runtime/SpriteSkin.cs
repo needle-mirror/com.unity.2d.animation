@@ -493,6 +493,11 @@ namespace UnityEngine.U2D.Animation
             DeformationManager.instance.AddSpriteSkinBoneTransform(this);
 
             CacheValidFlag();
+
+            // CacheBoneTransformIds may Dispose+reallocate m_BoneTransformId, which leaves
+            // SpriteSkinData.boneTransformId pointing at freed memory until CopyToSpriteSkinData
+            // re-captures the new allocation. (UUM-143004)
+            m_DeformationSystem?.CopyToSpriteSkinData(this);
         }
 
         void OnSpriteChanged(SpriteRenderer updatedSpriteRenderer)
@@ -531,7 +536,6 @@ namespace UnityEngine.U2D.Animation
         void OnBoneTransformChanged()
         {
             RefreshBoneTransforms();
-            m_DeformationSystem?.CopyToSpriteSkinData(this);
             SpriteSkinContainer.instance.BoneTransformsChanged(this);
         }
 
@@ -599,8 +603,8 @@ namespace UnityEngine.U2D.Animation
 
                 if (!m_BoneCacheUpdateToDate)
                     RefreshBoneTransforms();
-
-                m_DeformationSystem?.CopyToSpriteSkinData(this);
+                else
+                    m_DeformationSystem?.CopyToSpriteSkinData(this);
             }
         }
 

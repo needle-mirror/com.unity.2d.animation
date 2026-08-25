@@ -1,5 +1,23 @@
 # Changelog
 
+## [16.0.1] - 2026-08-25
+### Fixed
+- Fix SpriteSkin bone reassignment in the Inspector leaving SpriteSkinData.boneTransformId pointing at freed memory by refreshing the slice after CacheBoneTransformIds reallocates m_BoneTransformId. (UUM-143004)
+- Fix Auto Rebind losing bone assignments for sprites with disconnected bone chains by setting the Sprite Skin's own GameObject as the Root Bone when using Create Bones, instead of the first bone. (UUM-141613)
+- Fix Generate Weights producing all-default weights when a bone lies on a mesh edge, by not emitting the zero-area triangle that made the weight solver fail. (UUM-144911)
+- Fix editing a bone's Name or Depth in the Skinning Editor's Bone Inspector not being reverted by Undo/Redo. (UUM-144625)
+- Fix the Skinning Editor's Toggle Tool Text shortcut conflicting with another shortcut by changing its default from Shift + \` to Alt + \`. (UUM-145680)
+- Fix Skinning Editor toolbar tool text overflowing the buttons when the window is narrowed, by stopping the tool palette from shrinking below its width and floating the right-side panels instead of letting them squeeze the toolbar. (UUM-145864)
+- Fix UnassignedReferenceException in BoneHierarchyUtilities when spriteRenderer is unassigned. (UUM-146385)
+- Fix Create Bones assigning a Root Bone to a Sprite Skin whose Sprite has no bones, which disabled the Create Bones button and reported a Bind Poses / Transforms count mismatch after the Sprite was later rigged. (UUM-146968)
+- Fix Sprite Resolver Inspector resetting the Category to "No Category" when selecting a Category that contains no Labels. (UUM-145993)
+- Fix the Skinning Editor allocating increasing amounts of garbage every repaint while the Visibility panel is open. (UUM-147565)
+- Fix a "No script asset for SpriteVisibilityToolData" warning logged when undoing in Play Mode with a character open in the Skinning Editor, by giving each editor-only Skinning Cache object its own matching-named file so Unity can resolve its script. (UUM-147151)
+- Fix IK Manager 2D and the Limb, CCD and Fabrik Solver 2D components appearing under Scripts > UnityEngine.U2D.IK in the Add Component menu instead of 2D Animation. (UUM-150280)
+
+### Changed
+- Moving a bone with the Skinning Editor's Preview Pose tool no longer rotates and stretches the parent bone to keep the chain connected, matching how bone Transforms behave in the Scene view. (UUM-146866)
+
 ## [16.0.0] - 2026-05-19
 
 ### Added

@@ -27,7 +27,7 @@ namespace UnityEditor.U2D.Animation
             return sc.context as SkinningModule;
         }
 
-        [Shortcut(ShortcutIds.toggleToolText, typeof(InternalEditorBridge.ShortcutContext), KeyCode.BackQuote, ShortcutModifiers.Shift)]
+        [Shortcut(ShortcutIds.toggleToolText, typeof(InternalEditorBridge.ShortcutContext), KeyCode.BackQuote, ShortcutModifiers.Alt)]
         private static void CollapseToolbar(ShortcutArguments args)
         {
             SkinningModule sm = GetModuleFromContext(args);

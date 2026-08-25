@@ -7,6 +7,7 @@
   * [Map bones to transforms automatically](Rebind)
   * [Calculate sprite deformation on the GPU](GPUDeformation)
   * [Toggle the visibility of bones and sprites](SpriteVis)
+  * [Customize bone colors in the Scene view](BoneOverlay)
   * [Skinning Editor window reference](SkinEdToolsShortcuts)
   * [Skinning Editor preferences](ToolPref)
   * [Sprite Skin component reference](SpriteSkin)

@@ -9,6 +9,7 @@ Prepare your actor for animation with the Skinning Editor after you have [import
 | [Map bones to transforms automatically](Rebind.md) | Automatically locate the GameObject Transform a sprite needs. | 
 | [Calculate sprite deformation on the GPU](GPUDeformation.md) | Choose between Unity calculating sprite deformations on the CPU or GPU. | 
 | [Toggle the visibility of bones and sprites](SpriteVis.md) | Increase or decrease the visibility of bones and sprite meshes in the Scene view. |
+| [Customize bone colors in the Scene view](BoneOverlay.md) | Change the color of an actor's bone gizmos in the Scene view. |
 | [Skinning Editor window reference](SkinEdToolsShortcuts.md) | Explore the tools and properties you can use to skin and weight an actor. |
 | [Skinning Editor preferences](ToolPref.md) | Explore the settings that configure the Skinning Editor. |
 | [Sprite Skin component reference](SpriteSkin.md) | Explore the properties of the Sprite Skin component. |

@@ -291,14 +291,14 @@ namespace UnityEditor.U2D.Animation
 
             foreach (SpriteSkin spriteSkin in spriteSkins)
             {
-                if (spriteSkin == null)
+                if (spriteSkin == null || spriteSkin.spriteRenderer == null || spriteSkin.spriteRenderer.sprite == null)
                     continue;
 
                 Transform[] boneTransforms = spriteSkin.boneTransforms;
                 if (boneTransforms == null || boneTransforms.Length == 0)
                     continue;
 
-                SpriteBone[] spriteBones = spriteSkin.spriteRenderer?.sprite?.GetBones();
+                SpriteBone[] spriteBones = spriteSkin.spriteRenderer.sprite.GetBones();
                 if (spriteBones == null || spriteBones.Length != boneTransforms.Length)
                     continue;
 

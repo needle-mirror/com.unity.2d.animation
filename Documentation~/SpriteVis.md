@@ -22,7 +22,7 @@ Select the __Bone__ tab to view the list of bones in the character Prefab. The l
 | ![Visibility](images/visibility_icon.png) +Alt (macOS: +Option) | Toggle the visibility of a bone and its children by selecting this icon while holding Alt (macOS: holding Option). |
 | __Bone__                        | The name of the Bone.                                        |
 | __Depth__                       | Displays the Z-value of bones that are influencing the same Sprite Mesh. The parts of the Mesh that is influenced by a bone with higher **Depth** value will render in front of the Mesh influenced by bones with lower **Depth** value. <br/>A bone’s **Depth** value is 0 by default. |
-| __Color__                        | The color of the Bone.                                        |
+| __Color__                        | The color of the Bone in the Skinning Editor. This color does not affect bone gizmos in the Scene view. Refer to [Customize bone colors in the Scene view](BoneOverlay.md) for more information. |
 
 ## Sprite tab
 

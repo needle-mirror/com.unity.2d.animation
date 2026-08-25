@@ -550,6 +550,7 @@ namespace UnityEngine.U2D.Animation
             if (index < 0 || index >= m_SpriteRenderers.Length) return null;
             return m_SpriteRenderers[index];
         }
+        internal SpriteSkinData GetSpriteSkinDataAt(int index) => m_SpriteSkinData[index];
 #endif
     }
 }
