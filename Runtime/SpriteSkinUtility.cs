@@ -36,11 +36,31 @@ namespace UnityEngine.U2D.Animation
         {
             s_IsUsingGpuDeformationForTest = flag;
         }
+
+        private static GpuDeformEligibility? s_GpuDeformEligibilityForTest;
+        public static void SetGpuDeformEligibilityForTest(GpuDeformEligibility? eligibility)
+        {
+            s_GpuDeformEligibilityForTest = eligibility;
+        }
 #endif
+
+        // GPU deformation eligibility for a Sprite Skin. Undetermined means the renderer's SRP-batcher
+        // compatibility has not been computed yet (e.g. before the first render); callers should defer
+        // rather than fall back permanently to CPU.
+        internal enum GpuDeformEligibility
+        {
+            Undetermined,
+            Eligible,
+            Ineligible,
+            // Ineligible specifically because the shader lacks GPU-deformation support (the one
+            // user-actionable cause we warn about). Other Ineligible reasons (e.g. SRP-batcher
+            // incompatibility) stay silent.
+            IneligibleUnsupportedShader
+        }
 
         internal static bool CanUseGpuDeformation()
         {
-            return SystemInfo.supportsComputeShaders;
+            return SystemInfo.supportsComputeShaders && SystemInfo.maxComputeBufferInputsVertex > 0;
         }
 
         internal static bool IsUsingGpuDeformation()
@@ -82,16 +102,29 @@ namespace UnityEngine.U2D.Animation
 #endif
         }
 
-        internal static bool CanSpriteSkinUseGpuDeformation(SpriteSkin spriteSkin)
+        internal static GpuDeformEligibility GetGpuDeformEligibility(SpriteSkin spriteSkin)
         {
+#if UNITY_INCLUDE_TESTS
+            if (s_GpuDeformEligibilityForTest.HasValue)
+                return s_GpuDeformEligibilityForTest.Value;
+#endif
 #if ENABLE_URP
-            // Optimize/Refactor all redundant calls.
-            bool srpBatching = InternalEngineBridge.IsSRPBatchingEnabled(spriteSkin.spriteRenderer);
-            bool usingGPUDeform = IsUsingGpuDeformation();
-            bool shaderSupport = GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial);
-            return srpBatching && usingGPUDeform && shaderSupport;
+            if (!IsUsingGpuDeformation())
+                return GpuDeformEligibility.Ineligible;
+            if (!GpuDeformationSystem.DoesShaderSupportGpuDeformation(spriteSkin.spriteRenderer.sharedMaterial))
+                return GpuDeformEligibility.IneligibleUnsupportedShader;
+
+            switch (InternalEngineBridge.GetSRPBatchingState(spriteSkin.spriteRenderer))
+            {
+                case SpriteSRPBatchingState.Compatible:
+                    return GpuDeformEligibility.Eligible;
+                case SpriteSRPBatchingState.Incompatible:
+                    return GpuDeformEligibility.Ineligible;
+                default:
+                    return GpuDeformEligibility.Undetermined;
+            }
 #else
-            return false;
+            return GpuDeformEligibility.Ineligible;
 #endif
         }
 
@@ -110,7 +143,7 @@ namespace UnityEngine.U2D.Animation
             if (bindPoseCount == 0)
                 return SpriteSkinState.SpriteHasNoSkinningInformation;
 
-            if (spriteSkin.rootBone == null)
+            if (spriteSkin.rootTransform == null)
                 return SpriteSkinState.RootTransformNotFound;
 
             if (spriteSkin.boneTransforms == null)
@@ -147,10 +180,10 @@ namespace UnityEngine.U2D.Animation
             // Importer Character mode where the root is the prefab root rather than an actual bone. This keeps
             // every bone chain (including disconnected ones) under the root so Auto Rebind can resolve them,
             // without inserting an extra GameObject that would shift transform paths and break existing clips.
-            // When the Sprite has no bones there is nothing to root, so leave the Root Bone unset;
+            // When the Sprite has no bones there is nothing to root, so leave the Root Transform unset;
             // otherwise assigning a root would disable the Create Bones button and leave the component in an
             // invalid state once the Sprite is later rigged.
-            spriteSkin.SetRootBone(spriteBones.Length > 0 ? spriteSkin.transform : null);
+            spriteSkin.SetRootTransform(spriteBones.Length > 0 ? spriteSkin.transform : null);
             spriteSkin.SetBoneTransforms(transforms);
         }
 

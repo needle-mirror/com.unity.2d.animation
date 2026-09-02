@@ -82,6 +82,12 @@ namespace UnityEngine.U2D.Animation
         bool m_WasUsingGpuDeformationLastFrame;
         bool m_HandleDeformationChange;
 
+        // Sprite Skins added to the CPU system only because their SRP-batcher compatibility was
+        // Undetermined at add time (e.g. before the first render). They are promoted to GPU once it
+        // resolves to Compatible. (UUM-143532)
+        readonly HashSet<SpriteSkin> m_PendingGpuPromotion = new HashSet<SpriteSkin>();
+        static readonly List<SpriteSkin> s_PendingPromotionScratch = new List<SpriteSkin>();
+
         void OnEnable()
         {
             s_Instance = this;
@@ -168,6 +174,7 @@ namespace UnityEngine.U2D.Animation
                 m_HandleDeformationChange = false;
             }
             UpdateGpuDeformationConfig();
+            DrainPendingGpuPromotion();
 
             for (int i = 0; i < m_DeformationSystems.Length; ++i)
                 m_DeformationSystems[i].Update();
@@ -195,7 +202,7 @@ namespace UnityEngine.U2D.Animation
                 {
                     SpriteSkinProfilerFrameData spriteSkinData = new SpriteSkinProfilerFrameData();
                     spriteSkinData.gameObjectEntityId = spriteSkin.gameObject.GetEntityId();
-                    spriteSkinData.rootBoneGameObjectEntityId = spriteSkin.rootBone?.gameObject?.GetEntityId() ?? EntityId.None;
+                    spriteSkinData.rootBoneGameObjectEntityId = spriteSkin.rootTransform != null ? spriteSkin.rootTransform.gameObject.GetEntityId() : EntityId.None;
                     spriteSkinData.boneCount = spriteSkin.boneTransforms.Length;
                     spriteSkinData.type = (int)deformationType;
                     frameData[spriteSkinIndex++] = spriteSkinData;
@@ -257,6 +264,75 @@ namespace UnityEngine.U2D.Animation
 #endif
         }
 
+        // Promote Sprite Skins whose SRP-batcher compatibility was Undetermined at add time to GPU once it
+        // resolves to Compatible. Empty pending set => O(1). Promote-only, so a transient state never bounces
+        // a GPU skin back to CPU. (UUM-143532)
+        void DrainPendingGpuPromotion()
+        {
+            if (m_PendingGpuPromotion.Count == 0)
+                return;
+
+            // GPU deformation globally unavailable/off: these belong on CPU. A global toggle change re-adds
+            // everyone via MoveSpriteSkinsToActiveSystem, so just stop tracking them here.
+            if (!canUseGpuDeformation || !SpriteSkinUtility.IsUsingGpuDeformation())
+            {
+                m_PendingGpuPromotion.Clear();
+                return;
+            }
+
+            s_PendingPromotionScratch.Clear();
+            s_PendingPromotionScratch.AddRange(m_PendingGpuPromotion);
+            foreach (SpriteSkin spriteSkin in s_PendingPromotionScratch)
+            {
+                // Disabled/destroyed skins detach from their deformation system; drop them.
+                if (spriteSkin == null || spriteSkin.DeformationSystem == null)
+                {
+                    m_PendingGpuPromotion.Remove(spriteSkin);
+                    continue;
+                }
+
+                switch (SpriteSkinUtility.GetGpuDeformEligibility(spriteSkin))
+                {
+                    case SpriteSkinUtility.GpuDeformEligibility.Eligible:
+                        MoveSpriteSkinToGpu(spriteSkin);
+                        m_PendingGpuPromotion.Remove(spriteSkin);
+                        break;
+                    case SpriteSkinUtility.GpuDeformEligibility.Undetermined:
+                        // Not computed yet; keep and re-check next Update.
+                        break;
+                    case SpriteSkinUtility.GpuDeformEligibility.IneligibleUnsupportedShader:
+                        // A pending skin's shader was supported when queued but now resolves to unsupported
+                        // (e.g. its material was swapped while waiting). Emit the same actionable warning
+                        // AddSpriteSkin would, then stop tracking. (UUM-143532)
+                        WarnUnsupportedShader(spriteSkin);
+                        m_PendingGpuPromotion.Remove(spriteSkin);
+                        break;
+                    default:
+                        // Determined ineligible (SRP-batcher incompatible); stays on CPU silently, stop tracking.
+                        m_PendingGpuPromotion.Remove(spriteSkin);
+                        break;
+                }
+            }
+        }
+
+        void MoveSpriteSkinToGpu(SpriteSkin spriteSkin)
+        {
+            BaseDeformationSystem gpuSystem = m_DeformationSystems[(int)DeformationMethods.Gpu];
+            if (spriteSkin.DeformationSystem == gpuSystem)
+                return;
+
+            // Deferred remove from the current (CPU) system + add to GPU. SetDeformationSystem updates the
+            // owner immediately so the CPU system's queued BatchRemoveSpriteSkins does not clear the dataIndex
+            // the GPU system reassigns (UUM-137003). Re-cache for the GPU (outline) deformation path.
+            spriteSkin.spriteRenderer.DeactivateDeformableBuffer();
+            spriteSkin.DeformationSystem?.RemoveSpriteSkin(spriteSkin);
+            if (gpuSystem.AddSpriteSkin(spriteSkin))
+            {
+                spriteSkin.SetDeformationSystem(gpuSystem);
+                spriteSkin.UpdateSpriteDeformationData();
+            }
+        }
+
         internal void AddSpriteSkin(SpriteSkin spriteSkin, bool isUpdateSpriteDeformationData = true)
         {
             if (spriteSkin == null)
@@ -274,13 +350,30 @@ namespace UnityEngine.U2D.Animation
                     deformationMethod = DeformationMethods.Cpu;
                     Debug.LogWarning($"{spriteSkin.name} is trying to use GPU deformation, but the platform does not support it. Switching the renderer over to CPU deformation.", spriteSkin);
                 }
-                else if (!SpriteSkinUtility.CanSpriteSkinUseGpuDeformation(spriteSkin))
+                else
                 {
-                    deformationMethod = DeformationMethods.Cpu;
+                    // Re-evaluate from scratch; only stays pending below if still Undetermined.
+                    m_PendingGpuPromotion.Remove(spriteSkin);
 
-                    Material material = spriteSkin.GetComponent<SpriteRenderer>()?.sharedMaterial;
-                    string shaderName = material?.shader?.name ?? "Unknown";
-                    Debug.LogWarning($"{spriteSkin.name} is using a shader '{shaderName}' without GPU deformation support. Switching the renderer over to CPU deformation.", spriteSkin);
+                    SpriteSkinUtility.GpuDeformEligibility eligibility = SpriteSkinUtility.GetGpuDeformEligibility(spriteSkin);
+                    if (eligibility != SpriteSkinUtility.GpuDeformEligibility.Eligible)
+                    {
+                        deformationMethod = DeformationMethods.Cpu;
+
+                        if (eligibility == SpriteSkinUtility.GpuDeformEligibility.Undetermined)
+                        {
+                            // The renderer's SRP-batcher compatibility has not been computed yet (e.g. before
+                            // the first render / during asset preview generation). Use CPU for now and promote
+                            // to GPU once it resolves to Compatible, instead of warning and staying on CPU. (UUM-143532)
+                            m_PendingGpuPromotion.Add(spriteSkin);
+                        }
+                        else if (eligibility == SpriteSkinUtility.GpuDeformEligibility.IneligibleUnsupportedShader)
+                        {
+                            // The shader genuinely lacks GPU deformation support (the user-actionable cause).
+                            // Other Ineligible reasons (e.g. SRP-batcher incompatibility) fall back to CPU silently.
+                            WarnUnsupportedShader(spriteSkin);
+                        }
+                    }
                 }
             }
             // Second, add the sprite skin to the system.
@@ -291,6 +384,13 @@ namespace UnityEngine.U2D.Animation
                 if (isUpdateSpriteDeformationData)
                     spriteSkin.UpdateSpriteDeformationData();
             }
+        }
+
+        static void WarnUnsupportedShader(SpriteSkin spriteSkin)
+        {
+            Material material = spriteSkin.spriteRenderer.sharedMaterial;
+            string shaderName = material?.shader?.name ?? "Unknown";
+            Debug.LogWarning($"{spriteSkin.name} is using a shader '{shaderName}' without GPU deformation support. Switching the renderer over to CPU deformation.", spriteSkin);
         }
 
         internal void RemoveBoneTransforms(SpriteSkin spriteSkin)

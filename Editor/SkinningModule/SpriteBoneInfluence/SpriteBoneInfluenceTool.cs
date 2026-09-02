@@ -312,7 +312,7 @@ namespace UnityEditor.U2D.Animation
 
         List<TransformCache> ISpriteBoneInfluenceToolModel.selectionInfluencedBones { get; set; }
 
-        SpriteCache ISpriteBoneInfluenceToolModel.selectedSprite => skinningCache.selectedSprite;
+        SpriteCache ISpriteBoneInfluenceToolModel.selectedSprite => skinningCache.GetEffectiveSprite();
         bool ISpriteBoneInfluenceToolModel.hasCharacter => skinningCache.hasCharacter;
         SkinningMode ISpriteBoneInfluenceToolModel.skinningMode => skinningCache.mode;
         SkeletonCache ISpriteBoneInfluenceToolModel.characterSkeleton => skinningCache.character != null ? skinningCache.character.skeleton : null;

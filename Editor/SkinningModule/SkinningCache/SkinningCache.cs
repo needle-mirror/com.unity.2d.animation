@@ -641,10 +641,33 @@ namespace UnityEditor.U2D.Animation
             return part;
         }
 
+        // Returns the sprite to operate on: the selected one, or the only sprite when nothing is selected, so
+        // single-sprite assets can be edited without selecting first. Null if nothing is selected and there
+        // is more than one sprite.
+        public SpriteCache GetEffectiveSprite()
+        {
+            if (m_SelectedSprite != null)
+                return m_SelectedSprite;
+
+            if (m_SpriteMap.Count != 1)
+                return null;
+
+            foreach (SpriteCache sprite in m_SpriteMap.Values)
+                return sprite;
+
+            return null;
+        }
+
         public SkeletonCache GetEffectiveSkeleton(SpriteCache sprite)
         {
             if (mode == SkinningMode.SpriteSheet)
+            {
+                // Fall back to the effective sprite so a single-sprite asset works without selecting first.
+                if (sprite == null)
+                    sprite = GetEffectiveSprite();
+
                 return GetSkeleton(sprite);
+            }
 
             if (hasCharacter)
                 return character.skeleton;
@@ -1065,8 +1088,7 @@ namespace UnityEditor.U2D.Animation
                 return false;
 
             LayoutOverlay overlay = selectedTool.layoutOverlay;
-            Vector2 point = InternalEngineBridge.GUIUnclip(Event.current.mousePosition);
-            point = overlay.parent.parent.LocalToWorld(point);
+            Vector2 point = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
 
             VisualElement selectedElement = selectedTool.layoutOverlay.panel.Pick(point);
             return selectedElement != null

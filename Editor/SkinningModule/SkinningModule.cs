@@ -115,10 +115,17 @@ namespace UnityEditor.U2D.Animation
                 };
                 UpdateCollapseToolbar();
             }
+
+            SkinningEditorCanvasManager.Attach(spriteEditor, m_LayoutOverlay);
+            SkinningEditorOverlayManager.Attach(spriteEditor);
         }
 
         public override void OnModuleDeactivate()
         {
+            // Detach the extension surfaces in reverse of activation.
+            SkinningEditorOverlayManager.Detach();
+            SkinningEditorCanvasManager.Detach();
+
             if (m_SpriteOutlineRenderer != null)
                 m_SpriteOutlineRenderer.Dispose();
 
@@ -320,6 +327,12 @@ namespace UnityEditor.U2D.Animation
             }
 
             DrawRectGizmos();
+
+            if (Event.current.type == EventType.Repaint)
+            {
+                SkinningEditorCanvasManager.CaptureTransform();
+                SkinningEditorCanvasManager.Reposition();
+            }
 
             if (SkinningModuleSettings.compactToolBar != m_CollapseToolbar)
                 UpdateCollapseToolbar();

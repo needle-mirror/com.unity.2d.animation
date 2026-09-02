@@ -85,17 +85,15 @@ namespace UnityEditor.U2D.Animation
             }
             else
             {
-                SpriteCache selectedSprite = skinningCache.selectedSprite;
+                // Validate against the effective skeleton rather than requiring an explicitly selected sprite,
+                // so a single-sprite asset can be edited without selecting it first (matches GetEffectiveSkeleton).
+                SkeletonCache skeleton = skinningCache.GetEffectiveSkeleton(skinningCache.selectedSprite);
 
-                if (selectedSprite == null)
+                if (skeleton == null)
                     throw new Exception("Selection Exception: skeleton not selected");
-                else
-                {
-                    SkeletonCache skeleton = selectedSprite.GetSkeleton();
 
-                    if (bone.skeleton != skeleton)
-                        throw new Exception("Selection Exception: bone's skeleton does not match selected skeleton");
-                }
+                if (bone.skeleton != skeleton)
+                    throw new Exception("Selection Exception: bone's skeleton does not match selected skeleton");
             }
         }
     }

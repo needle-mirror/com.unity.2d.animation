@@ -81,7 +81,11 @@ namespace UnityEditor.U2D.Animation
 
         internal void SetupSprite(SpriteCache sprite)
         {
-            MeshCache mesh = sprite.GetMesh();
+            // Fall back to the effective sprite so a single-sprite asset can be edited without selecting first.
+            if (sprite == null)
+                sprite = skinningCache.GetEffectiveSprite();
+
+            MeshCache mesh = sprite != null ? sprite.GetMesh() : null;
 
             if (m_Mesh != null
                 && m_Mesh != mesh

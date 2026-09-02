@@ -79,7 +79,6 @@ namespace UnityEngine.U2D.Animation
             if (!m_SpriteSkins.Contains(spriteSkin))
                 return;
 
-            m_LocalToWorldTransformAccessJob.RemoveTransformById(spriteSkin.rootBoneTransformId);
             NativeArray<EntityId> boneTransforms = spriteSkin.boneTransformId;
             if (boneTransforms == default || !boneTransforms.IsCreated)
                 return;
@@ -94,7 +93,6 @@ namespace UnityEngine.U2D.Animation
             if (!m_SpriteSkins.Contains(spriteSkin))
                 return;
 
-            m_LocalToWorldTransformAccessJob.AddTransform(spriteSkin.rootBone);
             if (spriteSkin.boneTransforms != null)
             {
                 foreach (Transform t in spriteSkin.boneTransforms)
@@ -260,7 +258,12 @@ namespace UnityEngine.U2D.Animation
 
             m_TransformIdsToRemove.Clear();
             m_SpriteSkinsToRemove.Clear();
+
+            OnMembershipChanged();
         }
+
+        // Called after a batch add or remove changed the set of Sprite Skins in this system.
+        protected virtual void OnMembershipChanged() { }
 
         protected void BatchAddSpriteSkins()
         {
@@ -295,6 +298,8 @@ namespace UnityEngine.U2D.Animation
             }
 
             m_SpriteSkinsToAdd.Clear();
+
+            OnMembershipChanged();
         }
 
         protected virtual void ResizeAndCopyArrays(int updatedCount)
@@ -362,6 +367,9 @@ namespace UnityEngine.U2D.Animation
                 ValidateSpriteSkinData();
             }
 
+            // The bone job needs this sweep too: destroyed bones cannot be removed by id
+            // because GetEntityId() returns 0 in the Player.
+            m_LocalToWorldTransformAccessJob.RemoveTransformsIfNull();
             m_WorldToLocalTransformAccessJob.RemoveTransformsIfNull();
 
             using (Profiling.transformAccessJob.Auto())

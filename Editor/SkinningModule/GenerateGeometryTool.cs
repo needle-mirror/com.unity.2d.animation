@@ -45,7 +45,7 @@ namespace UnityEditor.U2D.Animation
 
             m_GenerateGeometryPanel.onAutoGenerateGeometry += (float detail, byte alpha, float subdivide) =>
             {
-                SpriteCache selectedSprite = skinningCache.selectedSprite;
+                SpriteCache selectedSprite = skinningCache.GetEffectiveSprite();
                 if (selectedSprite != null)
                     GenerateGeometryForSprites(new[] { selectedSprite }, detail, alpha, subdivide);
             };
@@ -304,7 +304,7 @@ namespace UnityEditor.U2D.Animation
 
         private void UpdateButton()
         {
-            SpriteCache selectedSprite = skinningCache.selectedSprite;
+            SpriteCache selectedSprite = skinningCache.GetEffectiveSprite();
 
             if (selectedSprite == null)
                 m_GenerateGeometryPanel.SetMode(GenerateGeometryPanel.GenerateMode.Multiple);

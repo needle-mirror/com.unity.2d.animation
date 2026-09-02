@@ -296,7 +296,7 @@ namespace UnityEditor.U2D.Animation
 
         SpriteCache IBoneSpriteInfluenceToolModel.selectedSprite
         {
-            get => skinningCache.selectedSprite;
+            get => skinningCache.GetEffectiveSprite();
             set => skinningCache.selectedSprite = value;
         }
 

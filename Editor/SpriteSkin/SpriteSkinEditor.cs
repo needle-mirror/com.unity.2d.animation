@@ -13,22 +13,22 @@ namespace UnityEditor.U2D.Animation
         static class Contents
         {
             public static readonly GUIContent listHeaderLabel = new GUIContent("Bones", "GameObject Transform to represent the Bones defined by the Sprite that is currently used for deformation.");
-            public static readonly GUIContent rootBoneLabel = new GUIContent("Root Bone", "GameObject Transform to represent the Root Bone.");
+            public static readonly GUIContent rootTransformLabel = new GUIContent("Root Transform", "GameObject Transform used as the root when searching for bone Transforms during Auto Rebind.");
             public static readonly string spriteNotFound = L10n.Tr($"Sprite not found in {ObjectNames.NicifyVariableName(nameof(SpriteRenderer))}");
             public static readonly string spriteDrawModeIsNotSimple = L10n.Tr("Skinning with Sliced or Tiled draw modes is not supported.");
             public static readonly string spriteHasNoSkinningInformation = L10n.Tr("Sprite has no Bind Poses");
             public static readonly string spriteHasNoWeights = L10n.Tr("Sprite has no weights");
-            public static readonly string rootTransformNotFound = L10n.Tr("Root Bone not set");
+            public static readonly string rootTransformNotFound = L10n.Tr("Root Transform not set");
             public static readonly string invalidTransformArray = L10n.Tr("Bone list is invalid");
             public static readonly string transformArrayContainsNull = L10n.Tr("Bone list contains unassigned references");
             public static readonly string invalidTransformArrayLength = L10n.Tr("The number of Sprite's Bind Poses and the number of Transforms should match");
             public static readonly string invalidBoneWeights = L10n.Tr("Bone weights are invalid");
             public static readonly GUIContent alwaysUpdate = new GUIContent("Always Update", "Executes deformation of SpriteSkin even when the associated SpriteRenderer has been culled and is not visible.");
-            public static readonly GUIContent autoRebind = new GUIContent("Auto Rebind", "When the Sprite in SpriteRenderer is changed, SpriteSkin will try to look for the Transforms that is needed for the Sprite using the Root Bone Tranform as parent.");
+            public static readonly GUIContent autoRebind = new GUIContent("Auto Rebind", "When the Sprite in SpriteRenderer is changed, SpriteSkin will try to look for the Transforms that is needed for the Sprite using the Root Transform as parent.");
             public static readonly GUIContent boundsMode = new GUIContent("Bounds Mode", "Mode used for calculating bounds for culling. Vertex-based provides accurate culling for both CPU and GPU skinning. Bone-based provides aggressive culling and is most beneficial with GPU skinning.");
         }
 
-        SerializedProperty m_RootBoneProperty;
+        SerializedProperty m_RootTransformProperty;
         SerializedProperty m_BoneTransformsProperty;
         SerializedProperty m_AlwaysUpdateProperty;
         SerializedProperty m_AutoRebindProperty;
@@ -55,7 +55,7 @@ namespace UnityEditor.U2D.Animation
 
             m_SpriteSkins = listOfSkins.ToArray();
 
-            m_RootBoneProperty = serializedObject.FindProperty("m_RootBone");
+            m_RootTransformProperty = serializedObject.FindProperty("m_RootTransform");
 
             m_BoneTransformsProperty = serializedObject.FindProperty("m_BoneTransforms");
             m_AlwaysUpdateProperty = serializedObject.FindProperty("m_AlwaysUpdate");
@@ -104,7 +104,7 @@ namespace UnityEditor.U2D.Animation
             DoBoundsModeField();
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(m_RootBoneProperty, Contents.rootBoneLabel);
+            EditorGUILayout.PropertyField(m_RootTransformProperty, Contents.rootTransformLabel);
             if (EditorGUI.EndChangeCheck())
             {
                 m_NeedsRebind = true;
@@ -167,7 +167,7 @@ namespace UnityEditor.U2D.Animation
             m_BoneFold = EditorGUILayout.Foldout(m_BoneFold, Contents.listHeaderLabel, true);
             if (m_BoneFold)
             {
-                EditorGUI.BeginDisabledGroup(m_SpriteSkins[0].rootBone == null || m_BoneTransformsProperty.hasMultipleDifferentValues);
+                EditorGUI.BeginDisabledGroup(m_SpriteSkins[0].rootTransform == null || m_BoneTransformsProperty.hasMultipleDifferentValues);
                 m_ReorderableList.DoLayoutList();
                 EditorGUI.EndDisabledGroup();
             }
@@ -237,7 +237,7 @@ namespace UnityEditor.U2D.Animation
         {
             foreach (SpriteSkin skin in m_SpriteSkins)
             {
-                if (skin.sprite == null || skin.rootBone == null)
+                if (skin.sprite == null || skin.rootTransform == null)
                     continue;
                 if (!SpriteSkinHelpers.GetSpriteBonesTransforms(skin, out Transform[] transforms, forceCreateCache: true))
                     Debug.LogWarning($"Rebind failed for {skin.name}. Could not find all bones required by the Sprite: {skin.sprite.name}.");
@@ -279,7 +279,7 @@ namespace UnityEditor.U2D.Animation
             foreach (SpriteSkin skin in m_SpriteSkins)
             {
                 Sprite sprite = skin.sprite;
-                if (sprite != null && skin.rootBone == null)
+                if (sprite != null && skin.rootTransform == null)
                     return true;
             }
 
@@ -309,7 +309,7 @@ namespace UnityEditor.U2D.Animation
                 foreach (SpriteSkin skin in m_SpriteSkins)
                 {
                     Sprite sprite = skin.sprite;
-                    if (sprite == null || skin.rootBone != null)
+                    if (sprite == null || skin.rootTransform != null)
                         continue;
 
                     Undo.RegisterCompleteObjectUndo(skin, "Create Bones");

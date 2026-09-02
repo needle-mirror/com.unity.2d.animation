@@ -1,21 +1,34 @@
 # Changelog
 
-## [16.0.1] - 2026-08-25
+## [17.0.0] - 2026-09-02
+
+
+### Added
+- Automatically add a Sprite Skin component when dragging a Sprite that has deformation data into the Scene view or Hierarchy. (D2D-8023)
+
+### Changed
+- Align the Skinning Editor UX for non-Character mode assets with Character mode: always show the mode toggle, and allow bone setup on a single-sprite asset without selecting the sprite first. (D2D-8108)
+
 ### Fixed
+- Fix IK Manager 2D and the Limb, CCD and Fabrik Solver 2D components appearing under Scripts > UnityEngine.U2D.IK in the Add Component menu instead of 2D Animation. (UUM-150280)
+- Fix a "No script asset for SpriteVisibilityToolData" warning logged when undoing in Play Mode with a character open in the Skinning Editor, by giving each editor-only Skinning Cache object its own matching-named file so Unity can resolve its script. (UUM-147151)
+- Fix the Skinning Editor allocating increasing amounts of garbage every repaint while the Visibility panel is open. (UUM-147565)
+- Fix Create Bones assigning a Root Transform to a Sprite Skin whose Sprite has no bones, which disabled the Create Bones button and reported a Bind Poses / Transforms count mismatch after the Sprite was later rigged. (UUM-146968)
+- Fix editing a bone's Name or Depth in the Skinning Editor's Bone Inspector not being reverted by Undo/Redo. (UUM-144625)
 - Fix SpriteSkin bone reassignment in the Inspector leaving SpriteSkinData.boneTransformId pointing at freed memory by refreshing the slice after CacheBoneTransformIds reallocates m_BoneTransformId. (UUM-143004)
 - Fix Auto Rebind losing bone assignments for sprites with disconnected bone chains by setting the Sprite Skin's own GameObject as the Root Bone when using Create Bones, instead of the first bone. (UUM-141613)
 - Fix Generate Weights producing all-default weights when a bone lies on a mesh edge, by not emitting the zero-area triangle that made the weight solver fail. (UUM-144911)
-- Fix editing a bone's Name or Depth in the Skinning Editor's Bone Inspector not being reverted by Undo/Redo. (UUM-144625)
+- Fix spurious "shader without GPU deformation support" warning and incorrect CPU deformation fallback for skinned sprites whose renderer SRP-batcher compatibility has not been computed yet (e.g. before the first render / during asset preview generation); such sprites are now promoted to GPU deformation once it resolves. (UUM-143532)
 - Fix the Skinning Editor's Toggle Tool Text shortcut conflicting with another shortcut by changing its default from Shift + \` to Alt + \`. (UUM-145680)
 - Fix Skinning Editor toolbar tool text overflowing the buttons when the window is narrowed, by stopping the tool palette from shrinking below its width and floating the right-side panels instead of letting them squeeze the toolbar. (UUM-145864)
-- Fix UnassignedReferenceException in BoneHierarchyUtilities when spriteRenderer is unassigned. (UUM-146385)
-- Fix Create Bones assigning a Root Bone to a Sprite Skin whose Sprite has no bones, which disabled the Create Bones button and reported a Bind Poses / Transforms count mismatch after the Sprite was later rigged. (UUM-146968)
 - Fix Sprite Resolver Inspector resetting the Category to "No Category" when selecting a Category that contains no Labels. (UUM-145993)
-- Fix the Skinning Editor allocating increasing amounts of garbage every repaint while the Visibility panel is open. (UUM-147565)
-- Fix a "No script asset for SpriteVisibilityToolData" warning logged when undoing in Play Mode with a character open in the Skinning Editor, by giving each editor-only Skinning Cache object its own matching-named file so Unity can resolve its script. (UUM-147151)
-- Fix IK Manager 2D and the Limb, CCD and Fabrik Solver 2D components appearing under Scripts > UnityEngine.U2D.IK in the Add Component menu instead of 2D Animation. (UUM-150280)
+- Fix UnassignedReferenceException in BoneHierarchyUtilities when spriteRenderer is unassigned. (UUM-146385)
+- Fix the SKINNED_SPRITE shader keyword being disabled on a shared material still in use by GPU-deformed Sprite Skins, when another Sprite Skin using the same material falls back to CPU deformation; keyword ownership is now reference-counted across deformation systems. (UUM-149658)
+- Fix skinned sprites deforming with another transform's matrix in the Player after bone GameObjects are destroyed, by sweeping destroyed transforms from the deformation bone job and guarding its index lookups. (UUM-149000)
+- Fix Add additional check for Buffer support on Vertex Shader to properly validate GPU Skinning support. (UUM-149624)
 
 ### Changed
+- Renamed the Sprite Skin "Root Bone" property to "Root Transform" to reflect that it is the root used when searching for bone Transforms during Auto Rebind, not a deformation bone. The `SpriteSkin.rootBone` property and `SpriteSkin.SetRootBone` method are now obsolete; use `rootTransform` and `SetRootTransform` instead. Existing scenes and prefabs keep their assigned value.
 - Moving a bone with the Skinning Editor's Preview Pose tool no longer rotates and stretches the parent bone to keep the chain connected, matching how bone Transforms behave in the Scene view. (UUM-146866)
 
 ## [16.0.0] - 2026-05-19

@@ -158,7 +158,7 @@ namespace UnityEditor.U2D.Animation
 
         private void UpdatePanel()
         {
-            m_WeightPainterPanel.SetActive(skinningCache.selectedSprite != null);
+            m_WeightPainterPanel.SetActive(skinningCache.GetEffectiveSprite() != null);
             m_WeightPainterPanel.UpdateWeightInspector(meshTool.mesh, GetMeshBoneNames(), skinningCache.vertexSelection, skinningCache);
             m_WeightPainterPanel.UpdatePanel(GetSkeletonBonesNames());
             UpdateSelectedBone();
@@ -364,7 +364,7 @@ namespace UnityEditor.U2D.Animation
             if (useBrush && !isBoneHovered)
             {
                 Matrix4x4 handlesMatrix = Handles.matrix;
-                SpriteCache selectedSprite = skinningCache.selectedSprite;
+                SpriteCache selectedSprite = skinningCache.GetEffectiveSprite();
                 Matrix4x4 matrix = Matrix4x4.identity;
 
                 if (selectedSprite != null)

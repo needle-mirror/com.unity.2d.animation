@@ -271,8 +271,8 @@ namespace UnityEngine.U2D.Animation
                 // Is this transform destroyed?
                 if (!m_Transform[i])
                 {
-                    // remove from index, still safe to call GetEntityId here.
-                    // todo:TransformData can't be removed because transform.GetEntityId() will return zero after the transform is destroyed.
+                    // in the Player this Remove is a no-op (GetEntityId() returns None after
+                    // destruction); such leaked entries are purged below.
                     m_TransformData.Remove(m_Transform[i].GetEntityId());
                     // remove from transform array by assigning a real null.
                     m_Transform[i] = null;
@@ -283,7 +283,29 @@ namespace UnityEngine.U2D.Animation
             if (CompactArray(ref m_Transform))
                 m_Dirty = true;
 
+            if (m_TransformData.Count > m_Transform.Length)
+                RemoveLeakedTransformData();
+
             return count;
+        }
+
+        // Entries whose id could not be resolved on removal would keep serving a stale index for
+        // a dead transform; drop everything that no longer matches a live transform.
+        void RemoveLeakedTransformData()
+        {
+            HashSet<EntityId> alive = HashSetPool<EntityId>.Get();
+            foreach (Transform transform in m_Transform)
+                alive.Add(transform.GetEntityId());
+
+            NativeArray<EntityId> keys = m_TransformData.GetKeyArray(Allocator.Temp);
+            foreach (EntityId key in keys)
+            {
+                if (!alive.Contains(key))
+                    m_TransformData.Remove(key);
+            }
+
+            keys.Dispose();
+            HashSetPool<EntityId>.Release(alive);
         }
 
         // Deformation manager calls this with a list of ids to remove

@@ -84,13 +84,24 @@ namespace UnityEngine.U2D.Animation
             int y = boneLookupData[i].y;
             SpriteSkinData ssd = spriteSkinData[x];
             EntityId v = ssd.boneTransformId[y];
-            int index = boneTransformIndex[v].transformIndex;
-            if (index < 0)
+
+            // Destroyed bones can still be listed by a Sprite Skin; without collections checks the
+            // map indexer silently returns index 0, deforming with another transform's matrix.
+            if (!boneTransformIndex.TryGetValue(v, out TransformAccessJob.TransformData boneData) || boneData.transformIndex < 0)
+            {
+                finalBoneTransforms[i] = float4x4.identity;
                 return;
-            float4x4 aa = boneTransform[index];
+            }
+
+            if (!rootTransformIndex.TryGetValue(ssd.transformId, out TransformAccessJob.TransformData rootData) || rootData.transformIndex < 0)
+            {
+                finalBoneTransforms[i] = float4x4.identity;
+                return;
+            }
+
+            float4x4 aa = boneTransform[boneData.transformIndex];
             Matrix4x4 bb = ssd.bindPoses[y];
-            int cc = rootTransformIndex[ssd.transformId].transformIndex;
-            finalBoneTransforms[i] = math.mul(rootTransform[cc], math.mul(aa, bb));
+            finalBoneTransforms[i] = math.mul(rootTransform[rootData.transformIndex], math.mul(aa, bb));
         }
     }
 

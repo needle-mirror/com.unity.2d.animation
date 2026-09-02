@@ -72,6 +72,13 @@ namespace UnityEditor.U2D.Animation
                     }
                 }
             }
+            else
+            {
+                // Without a character there is only Sprite Sheet mode. Still show the toggle, active and
+                // disabled, so it is clear which mode is in use and that it cannot be switched.
+                using (new EditorGUI.DisabledScope(true))
+                    GUILayout.Toggle(true, spriteSheetIcon, EditorStyles.toolbarButton);
+            }
         }
 
         void DoVisibilityToggle(BaseTool currentTool)

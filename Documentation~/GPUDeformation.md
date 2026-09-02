@@ -13,6 +13,8 @@ Do also note that selecting GPU deformation will cause the Sprite to be rendered
 
 As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/6000.6/Documentation/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
 
+To compare CPU and GPU deformation in your project, use the [2D Animation Profiler module](Animation2DProfilerModule.md).
+
 ## Supported platforms
 
 GPU deformation isn't supported on the following platform and graphics API combinations:

@@ -51,17 +51,17 @@ namespace UnityEngine.U2D.Animation
         // and use the hierarchyCache.
         public static bool GetSpriteBonesTransforms(SpriteSkin spriteSkin, out Transform[] outTransform, bool forceCreateCache = false)
         {
-            Transform rootBone = spriteSkin.rootBone;
+            Transform rootTransform = spriteSkin.rootTransform;
             SpriteBone[] spriteBones = spriteSkin.sprite.GetBones();
 
-            if (rootBone == null)
-                throw new ArgumentException("rootBone parameter cannot be null");
+            if (rootTransform == null)
+                throw new ArgumentException("rootTransform parameter cannot be null");
             if (spriteBones == null)
                 throw new ArgumentException("spriteBones parameter cannot be null");
 
             outTransform = new Transform[spriteBones.Length];
 
-            Bone[] boneObjects = rootBone.GetComponentsInChildren<Bone>();
+            Bone[] boneObjects = rootTransform.GetComponentsInChildren<Bone>();
             if (boneObjects != null && boneObjects.Length >= spriteBones.Length)
             {
                 using (Animation2DProfilerMarkers.getSpriteBonesTransformFromGuidProfilerMarker.Auto())

@@ -8,6 +8,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.Rendering;
 using UnityEngine.Scripting;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.Serialization;
 using UnityEngine.U2D.Animation.Profiler;
 using UnityEngine.U2D.Common;
 
@@ -137,7 +138,7 @@ namespace UnityEngine.U2D.Animation
             public Transform transform;
         }
 
-        [SerializeField] Transform m_RootBone;
+        [SerializeField, FormerlySerializedAs("m_RootBone")] Transform m_RootTransform;
         [SerializeField] Transform[] m_BoneTransforms = Array.Empty<Transform>();
         [SerializeField] Bounds m_Bounds;
         [SerializeField] bool m_AlwaysUpdate = true;
@@ -163,7 +164,6 @@ namespace UnityEngine.U2D.Animation
         EntityId m_TextureId;
         EntityId m_TransformId;
         NativeArray<EntityId> m_BoneTransformId;
-        EntityId m_RootBoneTransformId;
         NativeCustomSlice<Vector3> m_SpriteVertices;
         NativeCustomSlice<Vector4> m_SpriteTangents;
         NativeCustomSlice<BoneWeight> m_SpriteBoneWeights;
@@ -186,7 +186,6 @@ namespace UnityEngine.U2D.Animation
         internal NativeArray<Bounds> boneBounds => m_BoneBounds;
 
         internal NativeArray<EntityId> boneTransformId => m_BoneTransformId;
-        internal EntityId rootBoneTransformId => m_RootBoneTransformId;
         internal DeformationMethods currentDeformationMethod { get; private set; }
         private BaseDeformationSystem m_DeformationSystem;
 
@@ -338,18 +337,24 @@ namespace UnityEngine.U2D.Animation
         }
 
         /// <summary>
-        /// Returns the Transform Component that represents the root bone for deformation.
+        /// Returns the Transform Component used as the root when searching for bone Transforms during Auto Rebind.
         /// </summary>
-        public Transform rootBone => m_RootBone;
+        public Transform rootTransform => m_RootTransform;
 
         /// <summary>
-        /// Sets the Transform Component that represents the root bone for deformation.
+        /// (Obsolete) Returns the Transform Component used as the root when searching for bone Transforms during Auto Rebind. Use <see cref="rootTransform"/> instead.
         /// </summary>
-        /// <param name="rootBoneTransform">Root bone Transform Component.</param>
+        [Obsolete("rootBone has been renamed to rootTransform. (UnityUpgradable) -> rootTransform")]
+        public Transform rootBone => rootTransform;
+
+        /// <summary>
+        /// Sets the Transform Component used as the root when searching for bone Transforms during Auto Rebind.
+        /// </summary>
+        /// <param name="rootTransform">Root Transform Component.</param>
         /// <returns>The state of the Sprite Skin.</returns>
-        public SpriteSkinState SetRootBone(Transform rootBoneTransform)
+        public SpriteSkinState SetRootTransform(Transform rootTransform)
         {
-            m_RootBone = rootBoneTransform;
+            m_RootTransform = rootTransform;
 
             if (isActiveAndEnabled)
             {
@@ -364,6 +369,14 @@ namespace UnityEngine.U2D.Animation
 
             return m_State;
         }
+
+        /// <summary>
+        /// (Obsolete) Sets the Transform Component used as the root when searching for bone Transforms during Auto Rebind. Use <see cref="SetRootTransform"/> instead.
+        /// </summary>
+        /// <param name="rootBoneTransform">Root Transform Component.</param>
+        /// <returns>The state of the Sprite Skin.</returns>
+        [Obsolete("SetRootBone has been renamed to SetRootTransform. (UnityUpgradable) -> SetRootTransform(*)")]
+        public SpriteSkinState SetRootBone(Transform rootBoneTransform) => SetRootTransform(rootBoneTransform);
 
         internal Bounds bounds
         {
@@ -452,7 +465,8 @@ namespace UnityEngine.U2D.Animation
 #if UNITY_EDITOR
             m_TransformsHash = 0;
 #endif
-            currentDeformationMethod = SpriteSkinUtility.CanSpriteSkinUseGpuDeformation(this) ? DeformationMethods.Gpu : DeformationMethods.Cpu;
+            // currentDeformationMethod is set authoritatively by DeformationManager.AddSpriteSkin below
+            // (via SetDeformationSystem); no need to classify here too (which double-called GetSRPBatchingState).
 
             if (hierarchyCache.Count == 0)
                 CacheHierarchy();
@@ -522,7 +536,6 @@ namespace UnityEngine.U2D.Animation
             else
                 m_BoneTransformId = new NativeArray<EntityId>(boneCount, Allocator.Persistent);
 
-            m_RootBoneTransformId = rootBone != null ? rootBone.GetEntityId() : EntityId.None;
             for (int i = 0, j = 0; i < boneTransforms?.Length; ++i)
             {
                 if (boneTransforms[i] != null)
@@ -614,7 +627,6 @@ namespace UnityEngine.U2D.Animation
             m_BoneTransformId.DisposeIfCreated();
             m_BoneTransformId = default;
 
-            m_RootBoneTransformId = EntityId.None;
             m_BoneCacheUpdateToDate = false;
         }
 
@@ -846,7 +858,7 @@ namespace UnityEngine.U2D.Animation
             {
                 DeactivateSkinning();
                 m_CurrentDeformSprite = m_SpriteId;
-                if (rebind && m_CurrentDeformSprite != EntityId.None && rootBone != null)
+                if (rebind && m_CurrentDeformSprite != EntityId.None && rootTransform != null)
                 {
                     if (!SpriteSkinHelpers.GetSpriteBonesTransforms(this, out Transform[] transforms))
                         Debug.LogWarning($"Rebind failed for {name}. Could not find all bones required by the Sprite: {sprite.name}.");
@@ -1057,12 +1069,12 @@ namespace UnityEngine.U2D.Animation
             using (Animation2DProfilerMarkers.cacheHierarchyProfilerMarker.Auto())
             {
                 hierarchyCache.Clear();
-                if (rootBone == null || (!m_AutoRebind && !forceCreateCache))
+                if (rootTransform == null || (!m_AutoRebind && !forceCreateCache))
                     return;
 
-                int boneCount = CountChildren(rootBone);
+                int boneCount = CountChildren(rootTransform);
                 hierarchyCache.EnsureCapacity(boneCount + 1);
-                SpriteSkinHelpers.CacheChildren(rootBone, hierarchyCache);
+                SpriteSkinHelpers.CacheChildren(rootTransform, hierarchyCache);
 
                 foreach (KeyValuePair<int, List<TransformData>> entry in hierarchyCache)
                 {
@@ -1072,7 +1084,7 @@ namespace UnityEngine.U2D.Animation
                     for (int i = 0; i < count; ++i)
                     {
                         TransformData transformEntry = entry.Value[i];
-                        transformEntry.fullName = SpriteSkinHelpers.GenerateTransformPath(rootBone, transformEntry.transform);
+                        transformEntry.fullName = SpriteSkinHelpers.GenerateTransformPath(rootTransform, transformEntry.transform);
                         entry.Value[i] = transformEntry;
                     }
                 }

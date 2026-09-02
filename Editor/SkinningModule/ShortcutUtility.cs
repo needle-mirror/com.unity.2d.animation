@@ -31,7 +31,7 @@ namespace UnityEditor.U2D.Animation
     {
         public System.Action OnShortcutChanged;
 
-        private string[] m_ShortcutIds;
+        private readonly string[] m_ShortcutIds;
 
         public ShortcutUtility(params string[] shortcutIds)
         {
@@ -40,11 +40,12 @@ namespace UnityEditor.U2D.Animation
             ShortcutManager.instance.activeProfileChanged += OnProfileChanged;
         }
 
-        ~ShortcutUtility()
-        {
-            ShortcutManager.instance.shortcutBindingChanged -= OnBindingChanged;
-            ShortcutManager.instance.activeProfileChanged -= OnProfileChanged;
-        }
+        // No finalizer: the two subscriptions above keep this object alive for as long as the
+        // ShortcutManager lives, so a finalizer can only ever run once the manager itself has been
+        // torn down by a domain reload - at which point there is nothing left to unsubscribe from.
+        // It ran on the GC finalizer thread and touched ShortcutManager.instance, a main-thread-only
+        // editor API that lazily rebuilds the whole ShortcutController, which is fatal under CoreCLR:
+        // "Internal_GetAllMethodsWithAttribute can only be called from the main thread".
 
         private void OnBindingChanged(ShortcutBindingChangedEventArgs args)
         {
