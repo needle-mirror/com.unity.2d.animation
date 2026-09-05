@@ -251,6 +251,12 @@ namespace UnityEngine.U2D.Animation
 
         void MoveSpriteSkinsToActiveSystem()
         {
+            // No GPU system was allocated (platform can't use GPU deformation), so only the CPU
+            // system exists at index 0. All skins already live there — nothing to migrate, and
+            // indexing DeformationMethods.Gpu (1) would be out of bounds. (DANB-1079)
+            if (!canUseGpuDeformation || m_DeformationSystems.Length <= 1)
+                return;
+
             BaseDeformationSystem prevSystem = SpriteSkinUtility.IsUsingGpuDeformation() ? m_DeformationSystems[(int)DeformationMethods.Cpu] : m_DeformationSystems[(int)DeformationMethods.Gpu];
 
             HashSet<SpriteSkin> skins = prevSystem.GetSpriteSkins();

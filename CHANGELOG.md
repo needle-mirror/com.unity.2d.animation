@@ -1,5 +1,10 @@
 # Changelog
 
+
+## [17.0.1] - 2026-09-05
+### Fixed
+- Fix index out of bounds error.
+
 ## [17.0.0] - 2026-09-02
 
 
