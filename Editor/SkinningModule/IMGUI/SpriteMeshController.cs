@@ -18,6 +18,7 @@ namespace UnityEditor.U2D.Animation
 
         SpriteMeshDataController m_SpriteMeshDataController = new();
         EdgeIntersectionResult m_EdgeIntersectionResult;
+        int m_GrabbedVertex = -1;
 
         public ISpriteMeshView spriteMeshView { get; set; }
         public BaseSpriteMeshData spriteMeshData { get; set; }
@@ -266,9 +267,24 @@ namespace UnityEditor.U2D.Animation
             if (selection.Count == 0)
                 return;
 
+            // Clicking an already selected vertex leaves the selection untouched, so the active element need not be the
+            // vertex under the cursor; remember what was grabbed so the snap below anchors on it, like hotBone does.
+            if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveVertex) && spriteMeshView.hoveredVertex >= 0)
+                m_GrabbedVertex = spriteMeshView.hoveredVertex;
+            else if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveEdge) && spriteMeshView.hoveredEdge >= 0 && spriteMeshView.hoveredEdge < spriteMeshData.edges.Length)
+                m_GrabbedVertex = spriteMeshData.edges[spriteMeshView.hoveredEdge].x;
+            else if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveVertex) || spriteMeshView.IsActionTriggered(MeshEditorAction.MoveEdge))
+                m_GrabbedVertex = -1;
+
             if (spriteMeshView.DoMoveVertex(out Vector2 finalDeltaPos) || spriteMeshView.DoMoveEdge(out finalDeltaPos))
             {
                 int[] selectionArray = selection.elements;
+
+                // The delta is a whole number of grid steps (a difference of two snapped mouse positions), which would
+                // leave a vertex that predates the snapping on its old remainder; re-anchor it on the grabbed vertex.
+                int anchorVertex = selection.Contains(m_GrabbedVertex) ? m_GrabbedVertex : selection.activeElement;
+                if (anchorVertex >= 0 && anchorVertex < spriteMeshData.vertexCount)
+                    finalDeltaPos = ModuleUtility.SnapPositionDelta(spriteMeshData.vertices[anchorVertex], finalDeltaPos);
 
                 finalDeltaPos = MathUtility.MoveRectInsideFrame(CalculateRectFromSelection(), frame, finalDeltaPos);
                 Vector2[] movedVertexSelection = GetMovedVertexSelection(in selectionArray, spriteMeshData.vertices, finalDeltaPos);

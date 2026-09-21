@@ -2785,7 +2785,7 @@ namespace UnityEditor.U2D.Animation.ClipperLib
                                 currMax = currMax.Prev;
                             }
                         }
-                    };
+                    }
 
                     if ((dir == Direction.dLeftToRight && e.Curr.X > horzRight) ||
                       (dir == Direction.dRightToLeft && e.Curr.X < horzLeft)) break;
@@ -3577,7 +3577,7 @@ namespace UnityEditor.U2D.Animation.ClipperLib
                     op2 = op2b;
                     op2.Pt = Pt;
                     op2b = DupOutPt(op2, !DiscardLeft);
-                };
+                }
             }
             else
             {
@@ -3591,8 +3591,8 @@ namespace UnityEditor.U2D.Animation.ClipperLib
                     op2 = op2b;
                     op2.Pt = Pt;
                     op2b = DupOutPt(op2, DiscardLeft);
-                };
-            };
+                }
+            }
 
             if ((Dir1 == Direction.dLeftToRight) == DiscardLeft)
             {
@@ -3730,7 +3730,7 @@ namespace UnityEditor.U2D.Animation.ClipperLib
                     while ((op1b.Pt == op1.Pt) && (op1b != op1)) op1b = op1b.Prev;
                     if ((op1b.Pt.Y > op1.Pt.Y) ||
                       !SlopesEqual(op1.Pt, op1b.Pt, j.OffPt, m_UseFullRange)) return false;
-                };
+                }
                 op2b = op2.Next;
                 while ((op2b.Pt == op2.Pt) && (op2b != op2)) op2b = op2b.Next;
                 bool Reverse2 = ((op2b.Pt.Y > op2.Pt.Y) ||
@@ -4078,8 +4078,7 @@ namespace UnityEditor.U2D.Animation.ClipperLib
                                 outrec2.FirstLeft = outrec;
                                 if (m_UsingPolyTree) FixupFirstLefts2(outrec2, outrec);
                             }
-                            else
-                              if (Poly2ContainsPoly1(outrec.Pts, outrec2.Pts))
+                            else if (Poly2ContainsPoly1(outrec.Pts, outrec2.Pts))
                             {
                                 //OutRec1 is contained by OutRec2 ...
                                 outrec2.IsHole = outrec.IsHole;

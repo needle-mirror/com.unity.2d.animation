@@ -352,6 +352,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         void RenameSelected()
         {
             m_LocalListView.StartRename();
+
+            // The window may not have keyboard focus when renaming from the context menu. (UUM-151677)
+            SpriteLibraryEditorWindow.FocusWindowContaining(this);
         }
 
         void DeleteSelected()

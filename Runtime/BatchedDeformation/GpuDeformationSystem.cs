@@ -11,10 +11,11 @@ namespace UnityEngine.U2D.Animation
 {
     internal class GpuDeformationSystem : BaseDeformationSystem
     {
-        const string k_GpuSkinningShaderKeyword = "SKINNED_SPRITE";
+        const string k_GpuSkinningShaderKeyword = SkinnedSpriteKeyword.keyword;
         const string k_GlobalSpriteBoneBufferId = "_SpriteBoneTransforms";
 
-        readonly Dictionary<int, Material> m_KeywordEnabledMaterials = new Dictionary<int, Material>();
+        readonly HashSet<int> m_AcquiredKeywordMaterials = new HashSet<int>();
+        static readonly HashSet<int> s_MaterialsInUse = new HashSet<int>();
 
         NativeArray<int> m_BoneTransformBufferSizes;
         ComputeBuffer m_BoneTransformsComputeBuffer;
@@ -98,31 +99,24 @@ namespace UnityEngine.U2D.Animation
                 m_BoneTransformsComputeBuffer.Release();
             m_BoneTransformsComputeBuffer = null;
 
-            foreach (Material material in m_KeywordEnabledMaterials.Values)
-                material.DisableKeyword(k_GpuSkinningShaderKeyword);
-            m_KeywordEnabledMaterials.Clear();
+            SkinnedSpriteKeyword.ReleaseAll(m_AcquiredKeywordMaterials);
             Shader.SetGlobalBuffer(k_GlobalSpriteBoneBufferId, s_FallbackBuffer);
         }
 
-        internal override void UpdateMaterial(SpriteSkin spriteSkin)
+        // Own the SKINNED_SPRITE keyword of exactly the materials the current Sprite Skins use:
+        // acquire the ones that appeared and release the ones no longer used, so ownership
+        // converges on every batch change instead of being held until the whole system empties.
+        protected override void OnMembershipChanged()
         {
-            Material sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
-            if (!sharedMaterial.IsKeywordEnabled(k_GpuSkinningShaderKeyword))
-                sharedMaterial.EnableKeyword(k_GpuSkinningShaderKeyword);
-        }
-
-        internal override bool AddSpriteSkin(SpriteSkin spriteSkin)
-        {
-            bool success = base.AddSpriteSkin(spriteSkin);
-
-            Material sharedMaterial = spriteSkin.spriteRenderer.sharedMaterial;
-            if (!sharedMaterial.IsKeywordEnabled(k_GpuSkinningShaderKeyword))
+            s_MaterialsInUse.Clear();
+            foreach (SpriteSkin spriteSkin in m_SpriteSkins)
             {
-                sharedMaterial.EnableKeyword(k_GpuSkinningShaderKeyword);
-                m_KeywordEnabledMaterials.TryAdd(sharedMaterial.GetInstanceID(), sharedMaterial);
+                Material material = spriteSkin.spriteRenderer != null ? spriteSkin.spriteRenderer.sharedMaterial : null;
+                if (material != null && s_MaterialsInUse.Add(material.GetInstanceID()))
+                    SkinnedSpriteKeyword.Acquire(material, m_AcquiredKeywordMaterials);
             }
 
-            return success;
+            SkinnedSpriteKeyword.ReleaseUnused(m_AcquiredKeywordMaterials, s_MaterialsInUse);
         }
 
         internal override void Update()

@@ -1413,6 +1413,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             if (evt.clickCount == 2)
             {
+                // Clicks on the scroll bars bubble up to the scroll view, but they are not clicks on an item.
+                if (!scrollView.contentViewport.worldBound.Contains(evt.position))
+                    return;
+
                 int clickedIndex = GetIndexByWorldPosition(evt.position);
                 if (clickedIndex >= 0 && clickedIndex < m_ItemsSource.Count)
                 {

@@ -192,6 +192,9 @@ namespace UnityEditor.U2D.Animation
                     m_Moved = true;
                 }
 
+                if (hotBone != null)
+                    deltaPosition = ModuleUtility.SnapPositionDelta(hotBone.position, deltaPosition);
+
                 m_Skeleton.MoveBones(rootBones, deltaPosition);
                 InvokePoseChanged();
             }
@@ -209,6 +212,9 @@ namespace UnityEditor.U2D.Animation
                     skinningCache.BeginUndoOperation(TextContent.freeMoveBone);
                     m_Moved = true;
                 }
+
+                if (hotBone != null)
+                    deltaPosition = ModuleUtility.SnapPositionDelta(hotBone.position, deltaPosition);
 
                 m_Skeleton.FreeMoveBones(selectedBones, deltaPosition);
                 InvokePoseChanged();
@@ -237,6 +243,8 @@ namespace UnityEditor.U2D.Animation
                 //Snap to parent endPosition
                 if (hoveredTail != null && hoveredTail.chainedChild == null && hotBone.parent == hoveredTail)
                     deltaPosition = hoveredTail.endPosition - hotBone.position;
+                else if (hotBone != null)
+                    deltaPosition = ModuleUtility.SnapPositionDelta(hotBone.position, deltaPosition);
 
                 m_Skeleton.MoveJoints(selectedBones, deltaPosition);
                 InvokePoseChanged();

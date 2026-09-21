@@ -14,7 +14,7 @@
     overflow: hidden;
 }
 
-#CategoriesTab EditorTabHeader {
+#CategoriesTab #EditorTabHeader {
     flex-shrink: 0;
 }
 

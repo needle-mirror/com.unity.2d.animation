@@ -8,6 +8,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [Solver2DMenu("Limb")]
+    [AddComponentMenu("2D Animation/Limb Solver 2D")]
     [Icon(IconUtility.IconPath + "Animation.IKLimb.png")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@10.2/manual/2DIK.html")]
     public sealed class LimbSolver2D : Solver2D

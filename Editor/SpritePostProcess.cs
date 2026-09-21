@@ -36,9 +36,51 @@ namespace UnityEditor.U2D.Animation
                 PostProcessSpriteMeshData(ai, definitionScale, sprites, assetImporter);
                 BoneGizmo.instance.ClearSpriteBoneCache();
             }
+        }
 
-            // Get all SpriteSkin in scene and inform them to refresh their cache
-            RefreshSpriteSkinCache();
+        // Once per import batch, on the main process, with every imported path: reset only the skins whose
+        // Sprite was reimported, before anything validates or deforms against the reloaded buffers. The
+        // OnPostprocessSprites refresh this replaces validated them against the stale slices instead.
+        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+        {
+            // Narrow to assets that can carry Sprites before touching the Scene: this callback runs for
+            // every import batch, and saving a script or a material must not cost a scene-wide scan.
+            HashSet<string> imported = null;
+            foreach (string importedAsset in importedAssets)
+            {
+                Type mainType = AssetDatabase.GetMainAssetTypeAtPath(importedAsset);
+                if (mainType != typeof(Texture2D) && mainType != typeof(GameObject))
+                    continue;
+
+                imported ??= new HashSet<string>();
+                imported.Add(importedAsset);
+            }
+
+            if (imported == null)
+                return;
+
+            SpriteSkin[] spriteSkins = GameObject.FindObjectsByType<SpriteSkin>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (spriteSkins.Length == 0)
+                return;
+
+            foreach (SpriteSkin spriteSkin in spriteSkins)
+            {
+                // The cached slices point into spriteSkin.sprite, but neither reference alone survives
+                // every lifecycle: on disabled skins the renderer's sprite can move on while the cached
+                // one stays behind (the sprite-change callback is unregistered), and on enabled skins
+                // the cached reference is null mid-import (the callback saw the unload). Match both.
+                // Only skins whose Sprite was reimported are reset: blanket invalidation would trigger
+                // rebinds (and "Rebind failed" warnings) on unrelated imports.
+                Sprite cachedSprite = spriteSkin.sprite;
+                SpriteRenderer spriteRenderer = spriteSkin.spriteRenderer;
+                Sprite rendererSprite = spriteRenderer != null ? spriteRenderer.sprite : null;
+                if ((cachedSprite != null && imported.Contains(AssetDatabase.GetAssetPath(cachedSprite)))
+                    || (rendererSprite != null && imported.Contains(AssetDatabase.GetAssetPath(rendererSprite))))
+                {
+                    spriteSkin.ResetSpriteDeformationDataCache();
+                    spriteSkin.ResetSprite();
+                }
+            }
         }
 
         static void InjectMainSkeletonBones(ISpriteEditorDataProvider dataProvider)
@@ -75,15 +117,6 @@ namespace UnityEditor.U2D.Animation
                     mesh.SetCompatibleBoneSet(characterPart.bones);
 
                 skinningCache.character.parts[i] = characterPart;
-            }
-        }
-
-        static void RefreshSpriteSkinCache()
-        {
-            SpriteSkin[] spriteSkins = GameObject.FindObjectsByType<SpriteSkin>(FindObjectsSortMode.None);
-            foreach (SpriteSkin ss in spriteSkins)
-            {
-                ss.ResetSprite();
             }
         }
 

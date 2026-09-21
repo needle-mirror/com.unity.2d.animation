@@ -1,5 +1,18 @@
 # Changelog
 
+## [10.2.4] - 2026-09-21
+### Fixed
+- Fix the Sprite Library Editor renaming the selected label when double-clicking the scroll bar of the labels grid view. (UUM-151668)
+- Fix Sprite Resolver Inspector resetting the Category to "No Category" when selecting a Category that contains no Labels. (UUM-145993)
+- Fix the Skinning Editor allocating increasing amounts of garbage every repaint while the Visibility panel is open. (UUM-147565)
+- Fix a "No script asset for SpriteVisibilityToolData" warning logged when undoing in Play Mode with a character open in the Skinning Editor, by giving each editor-only Skinning Cache object its own matching-named file so Unity can resolve its script. (UUM-147151)
+- Fix IK Manager 2D and the Limb, CCD and Fabrik Solver 2D components appearing under Scripts > UnityEngine.U2D.IK in the Add Component menu instead of 2D Animation. (UUM-150280)
+- Fix the SKINNED_SPRITE shader keyword being disabled on a shared material still in use by GPU-deformed Sprite Skins, when another Sprite Skin using the same material falls back to CPU deformation; keyword ownership is now reference-counted across deformation systems. (UUM-149658)
+- Fix the Categories title bar overlapping the category list, which could make the add category button unclickable, when the Sprite Library Editor window is resized to a short height. (UUM-151676)
+- Fix renaming a Category or Label ignoring keyboard input when the Sprite Library Editor window is not focused. (UUM-151677)
+- Fix the Skinning Editor writing a window-size dependent sub-pixel remainder from the Sprite Editor canvas' origin, scroll and zoom into authored bone and mesh coordinates, by snapping mouse input to a texture-pixel grid no coarser than one screen pixel. Coordinates are whole texture pixels at or below 100% zoom, and halves, quarters ... when zoomed in. (UUM-151700)
+- Fix SpriteSkin dereferencing freed Sprite buffers after the Sprite was changed in place, such as reimporting it with an instance in a loaded scene, which could crash the Editor. (UUM-150275)
+
 ## [10.2.3] - 2026-07-22
 ### Fixed
 - Fix the Skinning Editor's Toggle Tool Text shortcut conflicting with another shortcut by changing its default from Shift + \` to Alt + \`. (UUM-145680)

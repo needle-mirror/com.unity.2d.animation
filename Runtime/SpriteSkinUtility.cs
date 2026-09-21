@@ -71,6 +71,9 @@ namespace UnityEngine.U2D.Animation
 
         internal static SpriteSkinState Validate(this SpriteSkin spriteSkin)
         {
+#if UNITY_EDITOR
+            spriteSkin.EditorRepairStaleMeshDataIfNeeded();
+#endif
             Sprite sprite = spriteSkin.sprite;
             if (sprite == null)
                 return SpriteSkinState.SpriteNotFound;

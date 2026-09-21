@@ -12,11 +12,40 @@ namespace UnityEditor.U2D.Animation
             return GUIToWorld(guiPosition, Vector3.forward, Vector3.zero);
         }
 
+        // A drag arrives as a delta between two already-snapped mouse positions, so it is a whole number of grid
+        // steps and adding it to a bone that predates the snapping would keep that bone's old remainder forever.
+        // Re-anchoring the delta on the dragged position's snapped target clears the remainder on the first step.
+        public static Vector3 SnapPositionDelta(Vector3 position, Vector3 deltaPosition)
+        {
+            return SnapToPixelGrid(position + deltaPosition) - position;
+        }
+
+        // The GUI position this converts carries the Sprite Editor canvas' sub-pixel origin (the window's laid-out
+        // width, halved) and scroll offset - window state with none of the author's intent in it - so the raw result
+        // is offset by a constant sub-pixel bias that differs per window width. Snapping the converted coordinate to
+        // a texture-anchored grid drops that bias. The grid step is the largest power of two of a texture pixel that
+        // zoom still draws at or under one screen pixel, so the snap is never coarser than what the pointer can
+        // express: coordinates come out whole at 100% zoom and below, and on halves, quarters ... when zoomed in.
+        public static Vector3 SnapToPixelGrid(Vector3 texturePosition)
+        {
+            float zoom = Handles.matrix.GetColumn(0).magnitude;
+            float step = 1f;
+
+            if (zoom > 1f)
+                step = Mathf.Pow(2f, Mathf.Floor(-Mathf.Log(zoom, 2f)));
+
+            texturePosition.x = Mathf.Round(texturePosition.x / step) * step;
+            texturePosition.y = Mathf.Round(texturePosition.y / step) * step;
+            return texturePosition;
+        }
+
         public static Vector3 GUIToWorld(Vector3 guiPosition, Vector3 planeNormal, Vector3 planePos)
         {
+            if (!Camera.current)
+                return SnapToPixelGrid(Handles.inverseMatrix.MultiplyPoint(guiPosition));
+
             Vector3 worldPos = Handles.inverseMatrix.MultiplyPoint(guiPosition);
 
-            if (Camera.current)
             {
                 Ray ray = HandleUtility.GUIPointToWorldRay(guiPosition);
 

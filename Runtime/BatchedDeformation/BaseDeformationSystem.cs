@@ -211,7 +211,12 @@ namespace UnityEngine.U2D.Animation
 
             m_TransformIdsToRemove.Clear();
             m_SpriteSkinsToRemove.Clear();
+
+            OnMembershipChanged();
         }
+
+        // Called after a batch add or remove changed the set of Sprite Skins in this system.
+        protected virtual void OnMembershipChanged() { }
 
         protected void BatchAddSpriteSkins()
         {
@@ -247,6 +252,8 @@ namespace UnityEngine.U2D.Animation
             }
 
             m_SpriteSkinsToAdd.Clear();
+
+            OnMembershipChanged();
         }
 
         protected virtual void ResizeAndCopyArrays(int updatedCount)
@@ -314,7 +321,15 @@ namespace UnityEngine.U2D.Animation
                 int index = spriteSkin.dataIndex;
                 m_IsSpriteSkinActiveForDeform[index] = spriteSkin.BatchValidate();
                 if (m_IsSpriteSkinActiveForDeform[index] && spriteSkin.NeedToUpdateDeformationCache())
+                {
+#if UNITY_EDITOR
+                    // Repairing a Sprite that was rewritten in place can invalidate the skin, and
+                    // the bone job walks one entry per bind pose while indexing boneTransformId with
+                    // it, so a batch whose two lengths disagree must not be scheduled.
+                    m_IsSpriteSkinActiveForDeform[index] = spriteSkin.BatchValidate();
+#endif
                     CopyToSpriteSkinData(spriteSkin);
+                }
             }
         }
 

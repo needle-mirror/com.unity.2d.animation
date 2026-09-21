@@ -12,6 +12,7 @@ namespace UnityEngine.U2D.IK
     /// </summary>
     [DefaultExecutionOrder(UpdateOrder.ikUpdateOrder)]
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
+    [AddComponentMenu("2D Animation/IK Manager 2D")]
     [Icon(IconUtility.IconPath + "Animation.IKManager.png")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@10.2/manual/2DIK.html")]
     [ExecuteInEditMode]

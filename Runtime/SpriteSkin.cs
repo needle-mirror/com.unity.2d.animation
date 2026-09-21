@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
 using UnityEngine.Rendering;
 using UnityEngine.Scripting;
@@ -139,6 +140,10 @@ namespace UnityEngine.U2D.Animation
         bool m_IsValid = false;
         SpriteSkinState m_State;
         int m_TransformsHash = 0;
+#if UNITY_EDITOR
+        bool m_WarnedStaleMeshData;
+        int m_CachedMeshDataSprite = 0;
+#endif
         bool m_ForceCpuDeformation = false;
 
         int m_TextureId;
@@ -755,6 +760,21 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
+        internal void ResetSpriteDeformationDataCache()
+        {
+            m_SpriteVertices = NativeCustomSlice<Vector3>.Default();
+            m_SpriteTangents = NativeCustomSlice<Vector4>.Default();
+            m_SpriteBoneWeights = NativeCustomSlice<BoneWeight>.Default();
+            m_SpriteBindPoses = NativeCustomSlice<Matrix4x4>.Default();
+            m_SpriteHasTangents = false;
+            m_SpriteVertexStreamSize = 0;
+            m_SpriteVertexCount = 0;
+            m_SpriteTangentVertexOffset = 0;
+#if UNITY_EDITOR
+            m_CachedMeshDataSprite = 0;
+#endif
+        }
+
         void UpdateSpriteDeformationData()
         {
 #if ENABLE_URP
@@ -764,14 +784,7 @@ namespace UnityEngine.U2D.Animation
             if (sprite == null)
             {
                 m_TextureId = 0;
-                m_SpriteVertices = NativeCustomSlice<Vector3>.Default();
-                m_SpriteTangents = NativeCustomSlice<Vector4>.Default();
-                m_SpriteBoneWeights = NativeCustomSlice<BoneWeight>.Default();
-                m_SpriteBindPoses = NativeCustomSlice<Matrix4x4>.Default();
-                m_SpriteHasTangents = false;
-                m_SpriteVertexStreamSize = 0;
-                m_SpriteVertexCount = 0;
-                m_SpriteTangentVertexOffset = 0;
+                ResetSpriteDeformationDataCache();
             }
             else
             {
@@ -800,6 +813,9 @@ namespace UnityEngine.U2D.Animation
 
                 m_SpriteBoneWeights = new NativeCustomSlice<BoneWeight>(sprite.GetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight));
                 m_SpriteBindPoses = new NativeCustomSlice<Matrix4x4>(sprite.GetBindPoses());
+#if UNITY_EDITOR
+                m_CachedMeshDataSprite = sprite.GetInstanceID();
+#endif
             }
         }
 
@@ -895,6 +911,21 @@ namespace UnityEngine.U2D.Animation
         {
             int newTextureId = sprite.texture != null ? sprite.texture.GetInstanceID() : 0;
             bool needUpdate = newTextureId != m_TextureId;
+#if UNITY_EDITOR
+            // Editor-only safety net: Sprite mesh data (vertex channels, bind poses) can be rewritten
+            // in place through public API without any notification, which no identity comparison can
+            // see. Players have no such check, so besides repairing we must warn (WarnStaleMeshDataOnce).
+            if (!needUpdate && m_SpriteBoneWeights.length > 0
+                && (SpriteVertexDataMoved() || SpriteBindPosesMoved()))
+            {
+                WarnStaleMeshDataOnce();
+                needUpdate = true;
+
+                // The rewrite can also change what validation concludes - a new bind pose count no
+                // longer matches the bone Transforms - so queue a recapture that re-validates too.
+                m_CurrentDeformSprite = 0;
+            }
+#endif
             if (needUpdate)
             {
                 UpdateSpriteDeformationData();
@@ -903,6 +934,88 @@ namespace UnityEngine.U2D.Animation
 
             return needUpdate;
         }
+
+#if UNITY_EDITOR
+        // The Sprite the cached slices were captured from; 0 means a recapture is queued.
+        internal int currentDeformSprite => m_CurrentDeformSprite;
+
+        // Validation dereferences the cached slices, so make sure they still describe the Sprite's
+        // live buffers first. Empty slices mean an intentional invalidation, not a missed one, and
+        // slices captured from a different Sprite belong to a swap that CacheCurrentSprite is still
+        // completing, not to a rewrite. Called from SpriteSkinUtility.Validate to cover every caller.
+        internal void EditorRepairStaleMeshDataIfNeeded()
+        {
+            if (sprite == null || m_SpriteBoneWeights.length == 0)
+                return;
+
+            // Slices captured from a Sprite this skin no longer uses: a recapture is already pending and
+            // that Sprite may have been freed since, so drop them rather than let Validate() read them.
+            if (m_CachedMeshDataSprite != m_SpriteId)
+            {
+                ResetSpriteDeformationDataCache();
+                return;
+            }
+
+            if (!SpriteVertexDataMoved() && !SpriteBindPosesMoved())
+                return;
+
+            WarnStaleMeshDataOnce();
+            UpdateSpriteDeformationData();
+
+            // Repairing only this component would leave the deformation batch holding the previous
+            // slices with nothing left to notice: the next NeedToUpdateDeformationCache sees fresh
+            // pointers here and reports no change. Hand the rest to the normal update path, which also
+            // re-validates - a rewrite can change what validation concludes, e.g. a new bind pose count.
+            m_DeformationSystem?.CopyToSpriteSkinData(this);
+            m_CurrentDeformSprite = 0;
+        }
+
+        // Position, Tangent and BlendWeight live in one VertexData allocation, so one channel stands
+        // in for all three. Bind poses are a separate allocation that can move on its own.
+        unsafe bool SpriteVertexDataMoved()
+        {
+            NativeSlice<BoneWeight> weights = sprite.GetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight);
+            return (IntPtr)NativeSliceUnsafeUtility.GetUnsafeReadOnlyPtr(weights) != m_SpriteBoneWeights.data
+                   || weights.Length != m_SpriteBoneWeights.length
+                   || weights.Stride != m_SpriteBoneWeights.stride;
+        }
+
+        bool SpriteMeshDataShapeChanged()
+        {
+            NativeSlice<BoneWeight> weights = sprite.GetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight);
+            return weights.Length != m_SpriteBoneWeights.length
+                   || weights.Stride != m_SpriteBoneWeights.stride
+                   || sprite.GetBindPoses().Length != m_SpriteBindPoses.length;
+        }
+
+        unsafe bool SpriteBindPosesMoved()
+        {
+            NativeArray<Matrix4x4> bindPoses = sprite.GetBindPoses();
+            return (IntPtr)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(bindPoses) != m_SpriteBindPoses.data
+                   || bindPoses.Length != m_SpriteBindPoses.length;
+        }
+
+        // A texture change (e.g. atlas binding) is a notified path that NeedToUpdateDeformationCache
+        // already repairs silently; only geometry rewritten behind our back deserves the warning.
+        void WarnStaleMeshDataOnce()
+        {
+            // The engine itself relocates a Sprite's mesh data without changing it, e.g. a runtime clone
+            // unsharing its buffers, so only a change of shape is evidence of a rewrite worth reporting.
+            if (!SpriteMeshDataShapeChanged())
+                return;
+
+            Texture2D texture = sprite.texture;
+            int textureId = texture != null ? texture.GetInstanceID() : 0;
+            if (textureId != m_TextureId || m_WarnedStaleMeshData)
+                return;
+
+            m_WarnedStaleMeshData = true;
+            Debug.LogWarning($"Sprite '{sprite.name}' had its mesh data changed without SpriteSkin being notified. " +
+                "The editor detects and repairs this, but players have no such check and will read freed memory, " +
+                "corrupting deformation or crashing. Do not change a Sprite's mesh data (vertices, bind poses) " +
+                "while a SpriteSkin is using it.", this);
+        }
+#endif
 
         // Creates a cache of the hierarchy of the root bone.
         // Each entry in the cache is list of TransformData objects, where the key is the hashCode of the transform name.
