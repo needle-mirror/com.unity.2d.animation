@@ -1,6 +1,10 @@
 # Changelog
 
 
+## [17.0.2] - 2026-10-08
+### Fixed
+- Added correct .buginfo file.
+
 ## [17.0.1] - 2026-09-05
 ### Fixed
 - Fix index out of bounds error.
