@@ -21,11 +21,12 @@ namespace UnityEditor.U2D.Animation
 
         public static void DrawBone(Vector3 position, Vector3 endPosition, Vector3 forward, Color color, float scale = 1.0f)
         {
-            Vector3 right = Vector3.right;
             Vector3 v = endPosition - position;
+            Vector3 right = v.normalized;
 
-            if (v.sqrMagnitude != 0)
-                right = v.normalized;
+            // normalized returns zero at or below Vector3.kEpsilon, which would leave the disc without an up axis.
+            if (right == Vector3.zero)
+                right = Vector3.right;
 
             Vector3 up = Vector3.Cross(right, forward).normalized;
             float radius = GetBoneRadius(position, scale) * 0.5f;
@@ -44,11 +45,12 @@ namespace UnityEditor.U2D.Animation
         {
             outlineScale = Mathf.Max(1f, outlineScale);
 
-            Vector3 right = Vector3.right;
             Vector3 v = endPosition - position;
+            Vector3 right = v.normalized;
 
-            if (v.sqrMagnitude != 0)
-                right = v.normalized;
+            // normalized returns zero at or below Vector3.kEpsilon, which would leave the disc without an up axis.
+            if (right == Vector3.zero)
+                right = Vector3.right;
 
             Vector3 up = Vector3.Cross(right, forward).normalized;
             float radius = GetBoneRadius(position, scale) * 0.5f;

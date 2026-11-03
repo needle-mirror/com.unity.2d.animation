@@ -11,7 +11,7 @@ namespace UnityEditor.U2D.Animation
     {
         static class Style
         {
-            public static GUIContent boneId = new GUIContent("Bone ID", "The ID of the bone where this GameObject Transform should associate to for SpriteSkin auto rebinding.");
+            public static readonly GUIContent boneId = new GUIContent("Bone ID", "The ID of the bone where this GameObject Transform should associate to for SpriteSkin auto rebinding.");
         }
         private SerializedProperty m_GUID;
 

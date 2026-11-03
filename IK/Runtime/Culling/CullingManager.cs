@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Profiling;
+using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEngine.U2D.IK
 {
@@ -11,6 +12,7 @@ namespace UnityEngine.U2D.IK
     [ExecuteInEditMode]
     internal class CullingManager : MonoBehaviour
     {
+        [NoAutoStaticsCleanup] // HideAndDontSave GameObject outlives Play; a reset would create another one
         static CullingManager s_Instance;
 
         public static CullingManager instance
@@ -19,7 +21,8 @@ namespace UnityEngine.U2D.IK
             {
                 if (s_Instance == null)
                 {
-                    CullingManager[] managers = FindObjectsByType<CullingManager>();
+                    // FindObjectsByType skips HideAndDontSave objects, so it would miss the manager that survives a domain reload.
+                    CullingManager[] managers = Resources.FindObjectsOfTypeAll<CullingManager>();
                     s_Instance = managers.Length > 0 ? managers[0] : CreateNewManager();
                     s_Instance.Initialize();
                 }

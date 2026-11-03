@@ -12,7 +12,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu(U2DAnimationConstants.PackageDisplayName + "/Sprite Library")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteLibrary.asset")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@16.0/manual/SL-component.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@17.0/manual/SL-component.html")]
     public class SpriteLibrary : MonoBehaviour, IPreviewable
     {
         struct CategoryEntrySprite
@@ -301,7 +301,8 @@ namespace UnityEngine.U2D.Animation
                     HashSet<string> cacheEntryName = m_CategoryEntryCache[catName];
                     foreach (SpriteCategoryEntry entry in category.categoryList)
                     {
-                        m_CategoryEntryHashCache.Add(GetHashForCategoryAndEntry(catName, entry.name), new CategoryEntrySprite()
+                        // Names that differ only in where an underscore is share a key; keep the first entry instead of throwing.
+                        m_CategoryEntryHashCache.TryAdd(GetHashForCategoryAndEntry(catName, entry.name), new CategoryEntrySprite()
                         {
                             category = catName,
                             entry = entry.name,
@@ -325,7 +326,7 @@ namespace UnityEngine.U2D.Animation
                         cacheEntryName.Add(ent.name);
 
                     int hash = GetHashForCategoryAndEntry(catName, ent.name);
-                    if (!m_CategoryEntryHashCache.ContainsKey(hash))
+                    if (!m_CategoryEntryHashCache.TryGetValue(hash, out CategoryEntrySprite e))
                     {
                         m_CategoryEntryHashCache.Add(hash, new CategoryEntrySprite()
                         {
@@ -334,9 +335,9 @@ namespace UnityEngine.U2D.Animation
                             sprite = ent.sprite
                         });
                     }
-                    else
+                    else if (e.category == catName && e.entry == ent.name)
                     {
-                        CategoryEntrySprite e = m_CategoryEntryHashCache[hash];
+                        // Don't replace the Sprite of another entry that shares the key.
                         e.sprite = ent.sprite;
                         m_CategoryEntryHashCache[hash] = e;
                     }

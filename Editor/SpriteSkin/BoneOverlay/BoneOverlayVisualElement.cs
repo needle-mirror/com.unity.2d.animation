@@ -14,7 +14,7 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
     /// </summary>
     internal class BoneOverlayVisualElement : VisualElement
     {
-        internal static Color MixedBoneColor = Color.lightGray;
+        internal static readonly Color MixedBoneColor = Color.lightGray;
 
         internal static class Styles
         {

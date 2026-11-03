@@ -55,8 +55,8 @@ namespace UnityEditor.U2D.Animation
     {
         static class Styles
         {
-            public static GUIStyle pivotdotactive = "U2D.pivotDotActive";
-            public static GUIStyle pivotdot = "U2D.pivotDot";
+            public static readonly GUIStyle pivotdotactive = "U2D.pivotDotActive";
+            public static readonly GUIStyle pivotdot = "U2D.pivotDot";
         }
 
         Vector2 m_Pivot = Vector2.zero;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -19,7 +20,9 @@ namespace UnityEngine.U2D.Animation
             public bool keepEnabledOnRelease;
         }
 
+        [NoAutoStaticsCleanup] // Ref counts paired with the deformation systems, which outlive Play
         static readonly Dictionary<EntityId, Entry> s_Entries = new Dictionary<EntityId, Entry>();
+        [NoAutoStaticsCleanup]
         static readonly List<EntityId> s_ReleaseScratch = new List<EntityId>();
 
         // acquiredByCaller is the caller's own set of acquired materials; a caller holds at most

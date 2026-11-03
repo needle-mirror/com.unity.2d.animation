@@ -215,6 +215,48 @@ namespace UnityEditor.U2D.Animation
                 triangulator.Triangulate(ref m_EdgesTemp, ref m_VerticesTemp, out indices);
             }
 
+            SetTriangulation(indices, weightData, hasWeightData);
+        }
+
+        public bool TryTriangulate(ITriangulator triangulator)
+        {
+            Debug.Assert(spriteMeshData != null);
+            Debug.Assert(triangulator != null);
+
+            FillMeshDataContainers(out float2[] vertices, out int2[] edges, out EditableBoneWeight[] weightData, out bool hasWeightData);
+            int vertexCount = vertices.Length;
+            int2[] inputEdges = edges;
+            triangulator.Triangulate(ref edges, ref vertices, out int[] indices);
+
+            if (indices.Length == 0 || vertices.Length != vertexCount || !HaveSameEdges(inputEdges, edges))
+                return false;
+
+            m_VerticesTemp = vertices;
+            m_EdgesTemp = edges;
+            SetTriangulation(indices, weightData, hasWeightData);
+            return true;
+        }
+
+        static bool HaveSameEdges(int2[] edges, int2[] otherEdges)
+        {
+            if (edges.Length != otherEdges.Length)
+                return false;
+
+            HashSet<int2> edgeSet = new HashSet<int2>();
+            foreach (int2 edge in edges)
+                edgeSet.Add(new int2(math.min(edge.x, edge.y), math.max(edge.x, edge.y)));
+
+            foreach (int2 edge in otherEdges)
+            {
+                if (!edgeSet.Contains(new int2(math.min(edge.x, edge.y), math.max(edge.x, edge.y))))
+                    return false;
+            }
+
+            return true;
+        }
+
+        void SetTriangulation(int[] indices, EditableBoneWeight[] weightData, bool hasWeightData)
+        {
             spriteMeshData.Clear();
             spriteMeshData.SetIndices(indices);
             spriteMeshData.SetEdges(m_EdgesTemp);
@@ -336,11 +378,13 @@ namespace UnityEditor.U2D.Animation
                     spriteMeshData.vertexWeights[i].Normalize();
         }
 
-        public JobHandle CalculateWeightsJob(IWeightsGenerator weightsGenerator, ISelection<int> selection, float filterTolerance, SpriteJobData sd)
+        // handleBoneIndices maps the job's weight columns to sprite bones; use it for the writeback rather than
+        // rebuilding it later, when the bones may have moved (pose preview) and classify differently.
+        public JobHandle CalculateWeightsJob(IWeightsGenerator weightsGenerator, ISelection<int> selection, float filterTolerance, SpriteJobData sd, out int[] handleBoneIndices)
         {
             Debug.Assert(spriteMeshData != null);
 
-            GetControlPoints(out float2[] controlPoints, out int2[] bones, out int[] pins);
+            GetControlPoints(out float2[] controlPoints, out int2[] bones, out int[] pins, out handleBoneIndices);
 
             float2[] vertices = EditorUtilities.ToFloat2(spriteMeshData.vertices);
             int[] indices = spriteMeshData.indices;
@@ -353,7 +397,7 @@ namespace UnityEditor.U2D.Animation
         {
             Debug.Assert(spriteMeshData != null);
 
-            GetControlPoints(out float2[] controlPoints, out int2[] bones, out int[] pins);
+            GetControlPoints(out float2[] controlPoints, out int2[] bones, out int[] pins, out int[] handleBoneIndices);
 
             float2[] vertices = EditorUtilities.ToFloat2(spriteMeshData.vertices);
             int[] indices = spriteMeshData.indices;
@@ -367,7 +411,7 @@ namespace UnityEditor.U2D.Animation
             {
                 if (selection == null || (selection.Count == 0 || selection.Contains(i)))
                 {
-                    EditableBoneWeight editableBoneWeight = EditableBoneWeightUtility.CreateFromBoneWeight(boneWeights[i]);
+                    EditableBoneWeight editableBoneWeight = EditableBoneWeightUtility.CreateFromBoneWeight(HandleWeightToBoneWeight(boneWeights[i], handleBoneIndices));
 
                     if (filterTolerance > 0f)
                     {
@@ -515,29 +559,35 @@ namespace UnityEditor.U2D.Animation
             {
                 EditableBoneWeight editableBoneWeight = spriteMeshData.vertexWeights[i];
 
+                // Vertices that never had weights assigned have less than four channels. Report the missing ones as empty.
+                bool hasChannel = channel < editableBoneWeight.Count;
+                bool channelEnabled = hasChannel && editableBoneWeight[channel].enabled;
+                int channelBoneIndex = hasChannel ? editableBoneWeight[channel].boneIndex : 0;
+                float channelWeight = hasChannel ? editableBoneWeight[channel].weight : 0f;
+
                 if (first)
                 {
-                    enabled = editableBoneWeight[channel].enabled;
-                    boneIndex = editableBoneWeight[channel].boneIndex;
-                    weight = editableBoneWeight[channel].weight;
+                    enabled = channelEnabled;
+                    boneIndex = channelBoneIndex;
+                    weight = channelWeight;
 
                     first = false;
                 }
                 else
                 {
-                    if (enabled != editableBoneWeight[channel].enabled)
+                    if (enabled != channelEnabled)
                     {
                         isEnabledMixed = true;
                         enabled = false;
                     }
 
-                    if (boneIndex != editableBoneWeight[channel].boneIndex)
+                    if (boneIndex != channelBoneIndex)
                     {
                         isBoneIndexMixed = true;
                         boneIndex = -1;
                     }
 
-                    if (Mathf.Abs(weight - editableBoneWeight[channel].weight) > Mathf.Epsilon)
+                    if (Mathf.Abs(weight - channelWeight) > Mathf.Epsilon)
                     {
                         isWeightMixed = true;
                         weight = 0f;
@@ -558,11 +608,18 @@ namespace UnityEditor.U2D.Animation
             bool boneIndexChanged = oldBoneIndex != newBoneIndex;
             bool weightChanged = Mathf.Abs(oldWeight - newWeight) > Mathf.Epsilon;
 
+            if (!channelEnabledChanged && !boneIndexChanged && !weightChanged)
+                return;
+
             int[] indices = selection.elements;
 
             foreach (int i in indices)
             {
                 EditableBoneWeight editableBoneWeight = spriteMeshData.vertexWeights[i];
+
+                // Vertices that never had weights assigned have less than four channels. Fill the missing ones in before editing.
+                while (editableBoneWeight.Count <= channel)
+                    editableBoneWeight.AddChannel(0, 0f, false);
 
                 if (channelEnabledChanged)
                     editableBoneWeight[channel].enabled = newEnabled;
@@ -580,6 +637,12 @@ namespace UnityEditor.U2D.Animation
 
         public void GetControlPoints(out float2[] points, out int2[] edges, out int[] pins)
         {
+            GetControlPoints(out points, out edges, out pins, out _);
+        }
+
+        // Weight generators emit one column per handle, pins first and then bone edges, so handleBoneIndices maps each column back to its sprite bone.
+        public void GetControlPoints(out float2[] points, out int2[] edges, out int[] pins, out int[] handleBoneIndices)
+        {
             Debug.Assert(spriteMeshData != null);
 
             points = null;
@@ -588,16 +651,20 @@ namespace UnityEditor.U2D.Animation
             List<Vector2> pointList = new List<Vector2>();
             List<int2> edgeList = new List<int2>();
             List<int> pinList = new List<int>();
+            List<int> edgeBoneList = new List<int>();
+            List<int> pinBoneList = new List<int>();
             List<SpriteBoneData> bones = new List<SpriteBoneData>(spriteMeshData.boneCount);
 
             for (int i = 0; i < spriteMeshData.boneCount; ++i)
                 bones.Add(spriteMeshData.GetBoneData(i));
 
-            foreach (SpriteBoneData bone in bones)
+            for (int boneIndex = 0; boneIndex < bones.Count; ++boneIndex)
             {
+                SpriteBoneData bone = bones[boneIndex];
                 float length = (bone.endPosition - bone.position).magnitude;
 
-                if (length > 0f)
+                // Weight generation cannot tell a bone shorter than a texture pixel from a point, so it becomes a pin; the bone data is left as authored.
+                if (length >= ModuleUtility.kMinBoneEdgeLength)
                 {
                     int index1 = FindPoint(pointList, bone.position, 0.01f);
                     int index2 = FindPoint(pointList, bone.endPosition, 0.01f);
@@ -615,11 +682,13 @@ namespace UnityEditor.U2D.Animation
                     }
 
                     edgeList.Add(new int2(index1, index2));
+                    edgeBoneList.Add(boneIndex);
                 }
-                else if (bone.length == 0f)
+                else
                 {
                     pointList.Add(bone.position);
                     pinList.Add(pointList.Count - 1);
+                    pinBoneList.Add(boneIndex);
                 }
             }
 
@@ -629,6 +698,23 @@ namespace UnityEditor.U2D.Animation
 
             edges = edgeList.ToArray();
             pins = pinList.ToArray();
+
+            pinBoneList.AddRange(edgeBoneList);
+            handleBoneIndices = pinBoneList.ToArray();
+        }
+
+        public static BoneWeight HandleWeightToBoneWeight(BoneWeight weight, int[] handleBoneIndices)
+        {
+            weight.boneIndex0 = HandleToBoneIndex(weight.boneIndex0, handleBoneIndices);
+            weight.boneIndex1 = HandleToBoneIndex(weight.boneIndex1, handleBoneIndices);
+            weight.boneIndex2 = HandleToBoneIndex(weight.boneIndex2, handleBoneIndices);
+            weight.boneIndex3 = HandleToBoneIndex(weight.boneIndex3, handleBoneIndices);
+            return weight;
+        }
+
+        static int HandleToBoneIndex(int handleIndex, int[] handleBoneIndices)
+        {
+            return handleIndex >= 0 && handleIndex < handleBoneIndices.Length ? handleBoneIndices[handleIndex] : handleIndex;
         }
 
         static int FindPoint(IReadOnlyList<Vector2> points, Vector2 point, float distanceTolerance)

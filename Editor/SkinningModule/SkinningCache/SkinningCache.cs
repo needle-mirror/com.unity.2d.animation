@@ -72,6 +72,8 @@ namespace UnityEditor.U2D.Animation
 
         StringBuilder m_StringBuilder = new StringBuilder();
         SpriteCache m_HoveredSprite;
+        // Not serialized: CreateToolCache re-supplies it on every module activation.
+        ISpriteEditor m_HostSpriteEditor;
 
         public BaseTool selectedTool
         {
@@ -199,6 +201,7 @@ namespace UnityEditor.U2D.Animation
 
         public void CreateToolCache(ISpriteEditor spriteEditor, LayoutOverlay layoutOverlay)
         {
+            m_HostSpriteEditor = spriteEditor;
             ISpriteEditorDataProvider spriteEditorDataProvider = spriteEditor.GetDataProvider<ISpriteEditorDataProvider>();
             SkeletonTool skeletonTool = CreateCache<SkeletonTool>();
             MeshTool meshTool = CreateCache<MeshTool>();
@@ -1088,12 +1091,29 @@ namespace UnityEditor.U2D.Animation
                 return false;
 
             LayoutOverlay overlay = selectedTool.layoutOverlay;
-            Vector2 point = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
+            if (!TryGetPanelPosition(overlay, m_HostSpriteEditor, Event.current.mousePosition, out Vector2 point))
+                return false;
 
-            VisualElement selectedElement = selectedTool.layoutOverlay.panel.Pick(point);
+            VisualElement selectedElement = overlay.panel.Pick(point);
             return selectedElement != null
                 && selectedElement.pickingMode != PickingMode.Ignore
                 && selectedElement.FindCommonAncestor(overlay) == overlay;
+        }
+
+        // Canvas mouse position -> the panel coordinates Pick expects; the grandparent is the space the
+        // IMGUIContainer is laid out in, at its origin. Screen coordinates displaced the hit region by
+        // the window's screen position, hiding gizmos and stopping the panels from counting as UI.
+        // False when the host is unknown; the pointer must then not count as being over UI.
+        internal static bool TryGetPanelPosition(LayoutOverlay overlay, ISpriteEditor host, Vector2 guiPosition, out Vector2 panelPosition)
+        {
+            panelPosition = default;
+
+            VisualElement imguiSpace = overlay?.parent?.parent;
+            if (host == null || imguiSpace == null)
+                return false;
+
+            panelPosition = imguiSpace.LocalToWorld(guiPosition + SkinningEditorCanvasManager.GetClipOffset(host));
+            return true;
         }
 
         void ToolChanged(ITool tool)

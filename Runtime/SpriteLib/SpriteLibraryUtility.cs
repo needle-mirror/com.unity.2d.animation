@@ -1,10 +1,12 @@
 using System;
+using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEngine.U2D.Animation
 {
     internal static class SpriteLibraryUtility
     {
         // Allow delegate override for test
+        [NoAutoStaticsCleanup]
         internal static Func<string, int> GetStringHash = Bit30Hash_GetStringHash;
 
         /// <summary>

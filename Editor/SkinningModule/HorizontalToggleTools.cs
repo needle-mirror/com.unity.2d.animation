@@ -7,10 +7,10 @@ namespace UnityEditor.U2D.Animation
     {
         private static class Styles
         {
-            public static GUIContent visibilityCollapseIcon = new GUIContent(EditorIconUtility.LoadIconResource("Visibility_Tool", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), TextContent.visibilityIconTooltip);
-            public static GUIContent visibilityIcon = new GUIContent(TextContent.visibilityIconText, EditorIconUtility.LoadIconResource("Visibility_Tool", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), TextContent.visibilityIconTooltip);
-            public static GUIContent spriteSheetIcon = new GUIContent(TextContent.spriteSheetIconText, EditorIconUtility.LoadIconResource("Sprite_Mode", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), TextContent.spriteSheetIconTooltip);
-            public static GUIContent spriteSheetCollapseIcon = new GUIContent(EditorIconUtility.LoadIconResource("Sprite_Mode", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), TextContent.spriteSheetIconTooltip);
+            public static readonly GUIContent visibilityCollapseIcon = new GUIContent(EditorIconUtility.LoadIconResource("Visibility_Tool", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), TextContent.visibilityIconTooltip);
+            public static readonly GUIContent visibilityIcon = new GUIContent(TextContent.visibilityIconText, EditorIconUtility.LoadIconResource("Visibility_Tool", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), TextContent.visibilityIconTooltip);
+            public static readonly GUIContent spriteSheetIcon = new GUIContent(TextContent.spriteSheetIconText, EditorIconUtility.LoadIconResource("Sprite_Mode", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), TextContent.spriteSheetIconTooltip);
+            public static readonly GUIContent spriteSheetCollapseIcon = new GUIContent(EditorIconUtility.LoadIconResource("Sprite_Mode", EditorIconUtility.LightIconPath, EditorIconUtility.DarkIconPath), TextContent.spriteSheetIconTooltip);
         }
 
         private SkinningCache skinningCache { get; set; }

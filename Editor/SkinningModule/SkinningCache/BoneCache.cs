@@ -208,13 +208,19 @@ namespace UnityEditor.U2D.Animation
         public float localLength
         {
             get => m_LocalLength;
-            set => m_LocalLength = Mathf.Max(0f, value);
+            set => m_LocalLength = SanitizeLength(value);
         }
 
         public float length
         {
             get => localToWorldMatrix.MultiplyVector(localEndPosition).magnitude;
-            set => m_LocalLength = worldToLocalMatrix.MultiplyVector(right * Mathf.Max(0f, value)).magnitude;
+            set => m_LocalLength = worldToLocalMatrix.MultiplyVector(right * SanitizeLength(value)).magnitude;
+        }
+
+        // Lengths that cannot be normalized are matrix round-trip noise of a zero-length bone; store them as exactly zero so the bone stays a pin.
+        static float SanitizeLength(float value)
+        {
+            return value > Vector3.kEpsilon ? value : 0f;
         }
 
         internal Pose[] GetChildrenWoldPose()

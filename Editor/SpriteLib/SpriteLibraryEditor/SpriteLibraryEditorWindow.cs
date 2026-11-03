@@ -76,6 +76,31 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                 spriteLibraryEditorWindow.m_ViewEvents?.onSave?.Invoke();
         }
 
+        /// <summary>
+        /// Gives keyboard focus to the window the element belongs to. (UUM-151677)
+        /// </summary>
+        internal static void FocusWindowContaining(VisualElement element)
+        {
+            SpriteLibraryEditorWindow window = FindWindowContaining(element);
+            if (window != null && window != focusedWindow)
+                window.Focus();
+        }
+
+        internal static SpriteLibraryEditorWindow FindWindowContaining(VisualElement element)
+        {
+            IPanel panel = element?.panel;
+            if (panel == null)
+                return null;
+
+            foreach (SpriteLibraryEditorWindow window in Resources.FindObjectsOfTypeAll<SpriteLibraryEditorWindow>())
+            {
+                if (window.rootVisualElement.panel == panel)
+                    return window;
+            }
+
+            return null;
+        }
+
         void CreateGUI()
         {
             InitializeWindow();

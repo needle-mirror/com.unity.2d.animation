@@ -3,6 +3,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine.Rendering;
 using UnityEngine.U2D.Common;
 
@@ -31,16 +32,27 @@ namespace UnityEngine.U2D.Animation
     internal static class SpriteSkinUtility
     {
 #if UNITY_INCLUDE_TESTS
+        [NoAutoStaticsCleanup]
         private static bool? s_IsUsingGpuDeformationForTest;
         public static void SetUsingGpuDeformationForTest(bool? flag)
         {
             s_IsUsingGpuDeformationForTest = flag;
         }
 
+        [NoAutoStaticsCleanup]
         private static GpuDeformEligibility? s_GpuDeformEligibilityForTest;
         public static void SetGpuDeformEligibilityForTest(GpuDeformEligibility? eligibility)
         {
             s_GpuDeformEligibilityForTest = eligibility;
+        }
+
+        // Simulates a platform without GPU deformation support (e.g. Android GLES3) on hardware that has it.
+        // DeformationManager reads this once in OnEnable, so recreate the manager after changing it.
+        [NoAutoStaticsCleanup]
+        private static bool? s_CanUseGpuDeformationForTest;
+        public static void SetCanUseGpuDeformationForTest(bool? flag)
+        {
+            s_CanUseGpuDeformationForTest = flag;
         }
 #endif
 
@@ -60,6 +72,10 @@ namespace UnityEngine.U2D.Animation
 
         internal static bool CanUseGpuDeformation()
         {
+#if UNITY_INCLUDE_TESTS
+            if (s_CanUseGpuDeformationForTest.HasValue)
+                return s_CanUseGpuDeformationForTest.Value;
+#endif
             return SystemInfo.supportsComputeShaders && SystemInfo.maxComputeBufferInputsVertex > 0;
         }
 
@@ -130,6 +146,9 @@ namespace UnityEngine.U2D.Animation
 
         internal static SpriteSkinState Validate(this SpriteSkin spriteSkin)
         {
+#if UNITY_EDITOR
+            spriteSkin.EditorRepairStaleMeshDataIfNeeded();
+#endif
             Sprite sprite = spriteSkin.sprite;
             if (sprite == null)
                 return SpriteSkinState.SpriteNotFound;

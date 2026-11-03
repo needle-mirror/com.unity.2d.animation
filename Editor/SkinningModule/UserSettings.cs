@@ -1,3 +1,4 @@
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor.U2D.Common;
 using UnityEngine;
 
@@ -184,8 +185,10 @@ namespace UnityEditor.U2D.Animation
     internal class UserSettings : SettingsProvider
     {
         public const string kSettingsUniqueKey = "UnityEditor.U2D.Animation/";
-        private static SelectionOutlineSettings s_SelectionOutlineSettings = new SelectionOutlineSettings();
-        private static SkinningModuleSettings s_SkinningModuleSettings = new SkinningModuleSettings();
+        [NoAutoStaticsCleanup]
+        private static readonly SelectionOutlineSettings s_SelectionOutlineSettings = new SelectionOutlineSettings();
+        [NoAutoStaticsCleanup]
+        private static readonly SkinningModuleSettings s_SkinningModuleSettings = new SkinningModuleSettings();
 
         public UserSettings()
             : base("Preferences/2D/Animation", SettingsScope.User)

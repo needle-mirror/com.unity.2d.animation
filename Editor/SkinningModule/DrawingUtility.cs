@@ -1,3 +1,4 @@
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor.U2D.Common;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ namespace UnityEditor.U2D.Animation
         public static readonly Color spriteBorderColor = new Color(0.25f, 0.5f, 1f, 0.75f);
         static readonly int s_AdjustLinearForGamma = Shader.PropertyToID("_AdjustLinearForGamma");
 
+        [NoAutoStaticsCleanup]
         static Vector3[] s_VertexTmpCache;
 
         public static void BeginLines(Color color)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor.Overlays;
 using UnityEditor.U2D.Sprites;
 using UnityEngine;
@@ -11,9 +12,12 @@ namespace UnityEditor.U2D.Animation
     internal static class SkinningEditorOverlayManager
     {
         // One instance per marked type, created on first use and reused, so panel state persists across activations.
+        [NoAutoStaticsCleanup] // Tied to Skinning Editor activation, not to Play
         static readonly List<Overlay> s_Overlays = new();
         // The canvas the overlays are currently added to; null while the Skinning module is inactive.
+        [NoAutoStaticsCleanup]
         static OverlayCanvas s_Canvas;
+        [NoAutoStaticsCleanup]
         static EditorWindow s_Window;
 
         // Test seam: pre-created overlays skip discovery, so the attach path can run without marking a type in the editor.

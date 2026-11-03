@@ -10,6 +10,7 @@ using UnityEngine.Rendering.Universal;
 #endif
 using Unity.Profiling;
 using UnityEngine.U2D.Animation.Profiler;
+using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -34,6 +35,7 @@ namespace UnityEngine.U2D.Animation
 
     internal class DeformationManager : ScriptableObject
     {
+        [NoAutoStaticsCleanup] // HideAndDontSave instance owns the native buffers and outlives Play
         static DeformationManager s_Instance;
 
         public static DeformationManager instance
@@ -86,6 +88,7 @@ namespace UnityEngine.U2D.Animation
         // Undetermined at add time (e.g. before the first render). They are promoted to GPU once it
         // resolves to Compatible. (UUM-143532)
         readonly HashSet<SpriteSkin> m_PendingGpuPromotion = new HashSet<SpriteSkin>();
+        [NoAutoStaticsCleanup]
         static readonly List<SpriteSkin> s_PendingPromotionScratch = new List<SpriteSkin>();
 
         void OnEnable()
@@ -319,6 +322,9 @@ namespace UnityEngine.U2D.Animation
                         break;
                 }
             }
+
+            // Don't keep Sprite Skins referenced from the static list until the next drain.
+            s_PendingPromotionScratch.Clear();
         }
 
         void MoveSpriteSkinToGpu(SpriteSkin spriteSkin)

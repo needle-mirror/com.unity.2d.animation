@@ -12,9 +12,9 @@ namespace UnityEditor.U2D.Animation.SceneOverlays
         static class Styles
         {
             public const string selectorList = SpriteSwapOverlay.rootStyle + "__selector-list";
-            public static string infoLabelHolder = SpriteSwapOverlay.rootStyle + "__info-label-holder";
-            public static string infoLabelIcon = SpriteSwapOverlay.rootStyle + "__info-label-icon";
-            public static string infoLabel = SpriteSwapOverlay.rootStyle + "__info-label";
+            public const string infoLabelHolder = SpriteSwapOverlay.rootStyle + "__info-label-holder";
+            public const string infoLabelIcon = SpriteSwapOverlay.rootStyle + "__info-label-icon";
+            public const string infoLabel = SpriteSwapOverlay.rootStyle + "__info-label";
         }
 
         VisualElement m_InfoLabelHolder;

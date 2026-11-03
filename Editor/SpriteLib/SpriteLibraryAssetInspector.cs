@@ -27,13 +27,13 @@ namespace UnityEditor.U2D.Animation
 
         static class Style
         {
-            public static GUIContent duplicateWarningText = EditorGUIUtility.TrTextContent("Duplicate name found or name hash clashes. Please use a different name");
-            public static GUIContent duplicateWarning = EditorGUIUtility.TrIconContent("console.warnicon.sml", duplicateWarningText.text);
-            public static GUIContent nameLabel = new GUIContent(TextContent.label);
-            public static string categoryListLabel = TextContent.categoryList;
+            public static readonly GUIContent duplicateWarningText = EditorGUIUtility.TrTextContent("Duplicate name found or name hash clashes. Please use a different name");
+            public static readonly GUIContent duplicateWarning = EditorGUIUtility.TrIconContent("console.warnicon.sml", duplicateWarningText.text);
+            public static readonly GUIContent nameLabel = new GUIContent(TextContent.label);
+            public static readonly string categoryListLabel = TextContent.categoryList;
             public static readonly string UpgradeHelpBox = L10n.Tr("This is the runtime version of the Sprite Library Source Asset. You may choose to convert this asset into a Sprite Library Source Asset for increased tooling support.");
             public static readonly string UpgradeButton = L10n.Tr("Open Sprite Library Asset Upgrader");
-            public static int lineSpacing = 3;
+            public const int lineSpacing = 3;
         }
 
         private SerializedProperty m_Labels;

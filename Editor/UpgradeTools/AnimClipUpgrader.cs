@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
 using UnityEngine.U2D.Common;
@@ -73,7 +74,8 @@ namespace UnityEditor.U2D.Animation.Upgrading
             && !string.IsNullOrEmpty(b.propertyName)
             && b.propertyName == k_LabelHashId;
 
-        static SpriteLibUpgrader s_SpriteLibUpgrader = new SpriteLibUpgrader(false, false);
+        [NoAutoStaticsCleanup]
+        static readonly SpriteLibUpgrader s_SpriteLibUpgrader = new SpriteLibUpgrader(false, false);
 
         internal override List<Object> GetUpgradableAssets()
         {

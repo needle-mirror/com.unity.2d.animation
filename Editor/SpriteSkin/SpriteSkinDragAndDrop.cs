@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.U2D;
@@ -23,8 +24,11 @@ namespace UnityEditor.U2D.Animation
     internal static class SpriteSkinDragAndDrop
     {
         // Selection captured at drop time so delayCall only touches GameObjects the drop newly selected.
+        [NoAutoStaticsCleanup]
         static readonly HashSet<EntityId> s_SelectionBeforeDrop = new HashSet<EntityId>();
+        [NoAutoStaticsCleanup]
         static int s_UndoGroup;
+        [NoAutoStaticsCleanup]
         static bool s_Scheduled;
 
         static SpriteSkinDragAndDrop()

@@ -37,7 +37,12 @@ namespace UnityEditor.U2D.Animation
             if (weightInspector.selection != null)
                 selectionCount = weightInspector.selection.Count;
 
-            using (new EditorGUI.DisabledGroupScope(m_WeightInspector.spriteMeshData == null || selectionCount == 0))
+            int boneCount = 0;
+
+            if (weightInspector.boneNames != null)
+                boneCount = weightInspector.boneNames.Length;
+
+            using (new EditorGUI.DisabledGroupScope(m_WeightInspector.spriteMeshData == null || selectionCount == 0 || boneCount == 0))
             {
                 GUILayout.Label(new GUIContent(TextContent.vertexWeight, TextContent.vertexWeightToolTip));
                 EditorGUI.BeginChangeCheck();

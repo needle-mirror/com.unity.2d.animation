@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
@@ -17,9 +18,13 @@ namespace UnityEditor.U2D.Animation
 
     internal static class EditableBoneWeightUtility
     {
+        [NoAutoStaticsCleanup]
         private static List<BoneWeightData> s_BoneWeightDataList = new List<BoneWeightData>();
+        [NoAutoStaticsCleanup]
         private static EditableBoneWeight s_LerpFirst = new EditableBoneWeight();
+        [NoAutoStaticsCleanup]
         private static EditableBoneWeight s_LerpSecond = new EditableBoneWeight();
+        [NoAutoStaticsCleanup]
         private static EditableBoneWeight s_LerpResult = new EditableBoneWeight();
 
         public static EditableBoneWeight CreateFromBoneWeight(BoneWeight boneWeight)

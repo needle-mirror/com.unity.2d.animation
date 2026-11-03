@@ -369,7 +369,7 @@ namespace UnityEngine.U2D.Animation
 
             // The bone job needs this sweep too: destroyed bones cannot be removed by id
             // because GetEntityId() returns 0 in the Player.
-            m_LocalToWorldTransformAccessJob.RemoveTransformsIfNull();
+            m_LocalToWorldTransformAccessJob.RemoveDestroyedTransformsIfNeeded();
             m_WorldToLocalTransformAccessJob.RemoveTransformsIfNull();
 
             using (Profiling.transformAccessJob.Auto())
@@ -382,7 +382,7 @@ namespace UnityEngine.U2D.Animation
             {
                 BoneTransformsChangeDetectionJob boneTransformChangeDetectionJob = new BoneTransformsChangeDetectionJob
                 {
-                    transformChanged = m_LocalToWorldTransformAccessJob.transformChanged,
+                    transformState = m_LocalToWorldTransformAccessJob.transformState,
                     boneTransformIndex = m_LocalToWorldTransformAccessJob.transformData,
                     spriteSkinData = m_SpriteSkinData,
                     hasBoneTransformsChanged = m_HasBoneTransformsChanged
@@ -392,9 +392,9 @@ namespace UnityEngine.U2D.Animation
 #if ENABLE_PROFILER && PROFILING_INSTALLED
                 if (UnityEngine.Profiling.Profiler.enabled)
                 {
-                    for (int i = 0; i < m_LocalToWorldTransformAccessJob.transformChanged.Length; ++i)
+                    for (int i = 0; i < m_LocalToWorldTransformAccessJob.transformState.Length; ++i)
                     {
-                        if (m_LocalToWorldTransformAccessJob.transformChanged[i])
+                        if (m_LocalToWorldTransformAccessJob.transformState[i] == TransformAccessJob.k_TransformChanged)
                             ++Animation2DProfilerMarkers.s_SpriteSkinBoneTransformed.Value;
                     }
                 }
@@ -428,7 +428,15 @@ namespace UnityEngine.U2D.Animation
                     needUpdate = spriteSkin.NeedToUpdateBoneBounds() || needUpdate;
 
                     if (needUpdate)
+                    {
+#if UNITY_EDITOR
+                        // Repairing a Sprite that was rewritten in place can invalidate the skin, and
+                        // the bone job walks one entry per bind pose while indexing boneTransformId with
+                        // it, so a batch whose two lengths disagree must not be scheduled.
+                        m_IsSpriteSkinActiveForDeform[index] = spriteSkin.BatchValidate();
+#endif
                         CopyToSpriteSkinData(spriteSkin);
+                    }
                 }
             }
         }
@@ -460,7 +468,8 @@ namespace UnityEngine.U2D.Animation
                 boneLookupData = m_BoneLookupData,
                 finalBoneTransforms = m_FinalBoneTransforms,
                 rootTransformIndex = m_WorldToLocalTransformAccessJob.transformData,
-                boneTransformIndex = m_LocalToWorldTransformAccessJob.transformData
+                boneTransformIndex = m_LocalToWorldTransformAccessJob.transformData,
+                boneTransformState = m_LocalToWorldTransformAccessJob.transformState
             };
             jobHandle = boneJobBatched.Schedule(skinBatch.bindPosesIndex.y, 8, jobHandle);
             return jobHandle;

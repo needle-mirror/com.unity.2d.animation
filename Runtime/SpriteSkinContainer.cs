@@ -1,14 +1,19 @@
 using System;
 using System.Collections.Generic;
 using Unity.Profiling;
+using Unity.Scripting.LifecycleManagement;
 namespace UnityEngine.U2D.Animation
 {
     internal class SpriteSkinContainer : ScriptableObject
     {
+        [NoAutoStaticsCleanup] // Culling strategies subscribe once when they initialize
         public static event Action<SpriteSkin> onAddedSpriteSkin;
+        [NoAutoStaticsCleanup]
         public static event Action<SpriteSkin> onRemovedSpriteSkin;
+        [NoAutoStaticsCleanup]
         public static event Action<SpriteSkin> onBoneTransformChanged;
 
+        [NoAutoStaticsCleanup] // HideAndDontSave instance outlives Play
         static SpriteSkinContainer s_Instance;
 
         public static SpriteSkinContainer instance

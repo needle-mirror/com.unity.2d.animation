@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Profiling;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.U2D.Animation;
 using UnityEngine.U2D.Common;
@@ -14,7 +15,7 @@ namespace UnityEngine.U2D.IK
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [AddComponentMenu(U2DAnimationConstants.PackageDisplayName + "/IK Manager 2D")]
     [Icon(IconUtility.IconPath + "Animation.IKManager.png")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@16.0/manual/2DIK.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@17.0/manual/2DIK.html")]
     [ExecuteInEditMode]
     public partial class IKManager2D : MonoBehaviour, IPreviewable
     {
@@ -24,7 +25,9 @@ namespace UnityEngine.U2D.IK
         }
 
 #if UNITY_EDITOR
+        [NoAutoStaticsCleanup] // IKEditorManager subscribes once, in OnEnable
         internal static event System.Action<IKManager2D> onEnabledEditor;
+        [NoAutoStaticsCleanup]
         internal static event System.Action<IKManager2D> onDisabledEditor;
 #endif
 
@@ -52,6 +55,9 @@ namespace UnityEngine.U2D.IK
         /// <summary>
         /// Get the Solvers that are managed by this manager.
         /// </summary>
+        /// <remarks>
+        /// Use <see cref="AddSolver"/> and <see cref="RemoveSolver"/> to change which Solvers the manager updates. Modifying this list directly is not supported.
+        /// </remarks>
         public List<Solver2D> solvers => m_Solvers;
 
         EntityId[] m_TransformIdCache;
@@ -107,6 +113,9 @@ namespace UnityEngine.U2D.IK
         {
             m_Weight = Mathf.Clamp01(m_Weight);
             OnEditorDataValidate();
+
+            // The Inspector and Undo change the solver list without going through AddSolver or RemoveSolver.
+            m_TransformIdCache = null;
         }
 
         void Reset()
@@ -139,6 +148,7 @@ namespace UnityEngine.U2D.IK
             {
                 m_Solvers.Add(solver);
                 AddSolverEditorData();
+                m_TransformIdCache = null;
             }
         }
 
@@ -150,6 +160,7 @@ namespace UnityEngine.U2D.IK
         {
             RemoveSolverEditorData(solver);
             m_Solvers.Remove(solver);
+            m_TransformIdCache = null;
         }
 
         /// <summary>
@@ -209,12 +220,21 @@ namespace UnityEngine.U2D.IK
             for (int s = 0; s < solvers.Count; s++)
             {
                 Solver2D solver = solvers[s];
+                if (solver == null)
+                    continue;
+
                 for (int c = 0; c < solver.chainCount; c++)
                 {
                     IKChain2D chain = solver.GetChain(c);
-                    for (int b = 0; b < chain.transformCount; b++)
+                    Transform[] chainTransforms = chain?.transforms;
+                    if (chainTransforms == null)
+                        continue;
+
+                    // Initialize leaves the previous transforms in place when the chain can no longer be built.
+                    int boneCount = Mathf.Min(chain.transformCount, chainTransforms.Length);
+                    for (int b = 0; b < boneCount; b++)
                     {
-                        Transform boneTransform = chain.transforms[b];
+                        Transform boneTransform = chainTransforms[b];
                         if (boneTransform != null)
                             transformCache.Add(boneTransform.GetEntityId());
                     }
@@ -243,6 +263,7 @@ namespace UnityEngine.U2D.IK
         }
 
 #if UNITY_EDITOR
+        [NoAutoStaticsCleanup]
         internal static Events.UnityEvent onDrawGizmos = new Events.UnityEvent();
         void OnDrawGizmos()
         {

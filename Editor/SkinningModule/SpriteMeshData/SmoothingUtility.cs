@@ -1,14 +1,19 @@
 using System;
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
     internal class SmoothingUtility
     {
+        [NoAutoStaticsCleanup]
         private static float[,] m_DataInTemp;
+        [NoAutoStaticsCleanup]
         private static float[,] m_DataOutTemp;
+        [NoAutoStaticsCleanup]
         private static float[] m_DenominatorTemp;
+        [NoAutoStaticsCleanup]
         private static EditableBoneWeight s_BoneWeight = new EditableBoneWeight();
 
         public static void SmoothWeights(BoneWeight[] boneWeightIn, IList<int> indices, int boneCount, out BoneWeight[] boneWeightOut)

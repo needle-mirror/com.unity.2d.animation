@@ -68,6 +68,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             this.AddManipulator(new ContextualMenuManipulator(ContextualManipulatorAddActions));
 
+            RegisterCallback<WheelEvent>(OnWheel);
+
             this.AddManipulator(new DragAndDropManipulator(container, IsTabActive, (spritesData, alt) =>
             {
                 m_ViewEvents.onAddDataToLabels?.Invoke(spritesData, alt, null);
@@ -187,7 +189,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         void SetViewType(ViewType newView)
         {
             if (m_ItemsCollection != null)
+            {
+                m_ItemsCollection.EndRename();
                 m_LabelsContainer.Remove(m_ItemsCollection as VisualElement);
+            }
 
             m_CurrentViewType = newView;
 
@@ -270,6 +275,27 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             m_ItemsCollection.SetWidth(width);
         }
 
+        void OnWheel(WheelEvent evt)
+        {
+            // The collection ignores picking so empty-space drops reach the tab, so wheel events over gaps between labels never reach its ScrollView.
+            if (evt.target != this)
+                return;
+
+            VisualElement collection = (VisualElement)m_ItemsCollection;
+            ScrollView scrollView = collection.Q<ScrollView>();
+            if (collection.resolvedStyle.display == DisplayStyle.None || !scrollView.worldBound.Contains(evt.mousePosition))
+                return;
+
+            Event wheel = new Event { type = EventType.ScrollWheel, delta = evt.delta, mousePosition = evt.mousePosition, modifiers = evt.modifiers };
+            using (WheelEvent forwarded = WheelEvent.GetPooled(wheel))
+            {
+                forwarded.target = scrollView;
+                scrollView.SendEvent(forwarded);
+            }
+
+            evt.StopPropagation();
+        }
+
         void OnItemsReordered()
         {
             if (!CanModifyLabels())
@@ -325,6 +351,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         void RenameSelected()
         {
             m_ItemsCollection.StartRename();
+
+            // The window may not have keyboard focus when renaming from the context menu. (UUM-151677)
+            SpriteLibraryEditorWindow.FocusWindowContaining(this);
         }
 
         void DeleteSelected()
@@ -397,12 +426,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             if (useText)
             {
-                text = new TextField { name = IRenamableCollection.textFieldElementName, value = labelData.name, label = null, selectAllOnMouseUp = false };
-                text.AddToClassList(k_ListTextClassName);
+                text = CreateRenameField(labelData, k_ListTextClassName);
                 e.Insert(2, text);
-                text.Focus();
-
-                text.RegisterCallback<FocusOutEvent>(OnTextFocusOut);
+                FocusRenameField(text);
             }
 
             ObjectField objRef = e.Q<ObjectField>();
@@ -464,12 +490,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             if (useText)
             {
-                text = new TextField { name = IRenamableCollection.textFieldElementName, label = null, value = labelData.name, selectAllOnMouseUp = false };
-                text.AddToClassList(k_GridTextClassName);
+                text = CreateRenameField(labelData, k_GridTextClassName);
                 e.Add(text);
-                text.Focus();
-
-                text.RegisterCallback<FocusOutEvent>(OnTextFocusOut);
+                FocusRenameField(text);
             }
 
             if (labelData.categoryFromMain && !labelData.fromMain || labelData.spriteOverride)
@@ -486,9 +509,41 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             overlay.userData = labelData.name;
         }
 
+        TextField CreateRenameField(LabelData labelData, string className)
+        {
+            string typedText = m_ItemsCollection.renamingText;
+            TextField text = new TextField { name = IRenamableCollection.textFieldElementName, label = null, value = typedText ?? labelData.name, selectAllOnMouseUp = false };
+            text.AddToClassList(className);
+
+            if (typedText != null)
+            {
+                // Selecting all would make the next keystroke replace the name typed so far.
+                text.selectAllOnFocus = false;
+                text.SelectRange(typedText.Length, typedText.Length);
+            }
+
+            text.RegisterValueChangedCallback(evt => m_ItemsCollection.renamingText = evt.newValue);
+            text.RegisterCallback<FocusOutEvent>(OnTextFocusOut);
+            return text;
+        }
+
+        static void FocusRenameField(TextField text)
+        {
+            // GridView binds new rows before adding them to the panel, where focusing has no effect.
+            if (text.panel != null)
+                text.Focus();
+            else
+                text.schedule.Execute(text.Focus);
+        }
+
         void OnTextFocusOut(FocusOutEvent evt)
         {
             evt.StopPropagation();
+
+            // A rebind replaces the field, so a detached field losing focus does not end the rename.
+            if (evt.target is VisualElement { panel: null })
+                return;
+
             m_ItemsCollection.EndRename();
         }
 

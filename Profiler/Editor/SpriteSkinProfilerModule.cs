@@ -1,6 +1,7 @@
 using System;
 using Unity.Profiling;
 using Unity.Profiling.Editor;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 using UnityEngine.U2D.Animation.Profiler;
 
@@ -10,6 +11,7 @@ namespace UnityEditor.U2D.Animation.Profiler
     [ProfilerModuleMetadata("2D Animation", IconPath = "Packages/com.unity.2d.animation/Editor/Assets/ComponentIcons/Animation.SpriteSkin.png")]
     class SpriteSkinProfilerModule : ProfilerModule
     {
+        [NoAutoStaticsCleanup]
         static readonly ProfilerCounterDescriptor[] k_Counters = new ProfilerCounterDescriptor[]
         {
             new ProfilerCounterDescriptor(Animation2DProfilerMarkers.k_SpriteSkinCPUProcessedProfilerCounterName, ProfilerCategory.U2D),

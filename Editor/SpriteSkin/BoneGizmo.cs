@@ -18,7 +18,7 @@ namespace UnityEditor.U2D.Animation
 
     internal class BoneGizmo : ScriptableSingleton<BoneGizmo>
     {
-        internal static Color DefaultBoneColor = Color.white;
+        internal static readonly Color DefaultBoneColor = Color.white;
 
         BoneGizmoController m_BoneGizmoController;
 

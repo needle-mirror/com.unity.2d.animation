@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
+using Unity.Scripting.LifecycleManagement;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -79,6 +80,7 @@ namespace UnityEngine.U2D.Animation
 
     internal class BufferManager : ScriptableObject
     {
+        [NoAutoStaticsCleanup] // HideAndDontSave instance owns the native buffers and outlives Play
         private static BufferManager s_Instance;
 
         private Dictionary<ulong, VertexBuffer> m_Buffers = new Dictionary<ulong, VertexBuffer>();

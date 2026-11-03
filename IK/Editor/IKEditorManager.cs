@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -12,6 +13,7 @@ namespace UnityEditor.U2D.IK
     [DefaultExecutionOrder(UpdateOrder.ikUpdateOrder - 1)]
     internal class IKEditorManager : ScriptableObject
     {
+        [NoAutoStaticsCleanup] // HideAndDontSave instance outlives Play; a reset would create a second one
         static IKEditorManager s_Instance;
 
         readonly HashSet<IKManager2D> m_DirtyManagers = new HashSet<IKManager2D>();

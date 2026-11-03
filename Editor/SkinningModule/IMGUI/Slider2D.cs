@@ -1,12 +1,17 @@
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
     internal class Slider2D
     {
+        [NoAutoStaticsCleanup]
         private static Vector2 s_CurrentMousePosition;
+        [NoAutoStaticsCleanup]
         private static Vector2 s_DragStartScreenPosition;
+        [NoAutoStaticsCleanup]
         private static Vector2 s_DragScreenOffset;
+        [NoAutoStaticsCleanup]
         private static double s_Time;
 
         public static Vector2 Do(int controlID, Vector2 position, Handles.CapFunction drawCapFunction = null)
@@ -44,7 +49,7 @@ namespace UnityEditor.U2D.Animation
                         float screenDisplacement = (s_CurrentMousePosition - s_DragStartScreenPosition).magnitude;
                         Vector2 center = position;
                         Vector2 screenPosition = s_CurrentMousePosition - s_DragScreenOffset;
-                        position = Handles.inverseMatrix.MultiplyPoint(screenPosition);
+                        position = ModuleUtility.GUIToWorld(screenPosition);
                         float displacement = (center - position).magnitude;
 
                         if (!Mathf.Approximately(displacement, 0f) && (EditorApplication.timeSinceStartup - s_Time > 0.15 || screenDisplacement >= 10f))
@@ -56,7 +61,7 @@ namespace UnityEditor.U2D.Animation
                 case EventType.KeyDown:
                     if (GUIUtility.hotControl == controlID && Event.current.keyCode == KeyCode.Escape)
                     {
-                        position = Handles.inverseMatrix.MultiplyPoint(s_DragStartScreenPosition - s_DragScreenOffset);
+                        position = ModuleUtility.GUIToWorld(s_DragStartScreenPosition - s_DragScreenOffset);
                         GUIUtility.hotControl = 0;
                         GUI.changed = true;
                         Event.current.Use();

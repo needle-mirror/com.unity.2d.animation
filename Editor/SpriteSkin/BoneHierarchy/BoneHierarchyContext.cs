@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.U2D;
@@ -13,6 +14,7 @@ namespace UnityEditor.U2D.Animation
     /// </summary>
     internal sealed class BoneHierarchyContext
     {
+        [NoAutoStaticsCleanup]
         static BoneHierarchyContext s_Current;
 
         /// <summary>

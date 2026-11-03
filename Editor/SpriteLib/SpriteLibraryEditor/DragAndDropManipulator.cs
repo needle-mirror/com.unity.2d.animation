@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
@@ -17,6 +18,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         Func<bool> m_CanStartDrag;
 
         const string k_DragOverAddClassName = SpriteLibraryEditorWindow.editorWindowClassName + "__drag-over-add";
+        [NoAutoStaticsCleanup]
         static readonly List<string> k_SupportedPsdExtensions = new() { ".psd", ".psb" };
         bool m_IsDragging;
         bool m_IsChildDragged;
