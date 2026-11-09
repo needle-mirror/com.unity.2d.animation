@@ -1,7 +1,9 @@
+using Unity.Scripting.LifecycleManagement;
 namespace UnityEditor.U2D.Animation
 {
     internal static class SkinningCopyUtility
     {
+        [NoAutoStaticsCleanup]
         private static ISkinningSerializer s_SkinningSerializer = new SkinningSerializerJSON();
         public static ISkinningSerializer Serializer
         {

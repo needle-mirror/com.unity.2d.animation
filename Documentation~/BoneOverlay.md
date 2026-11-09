@@ -2,7 +2,7 @@
 
 Use the Bone overlay to give an actor's bones different colors in the Scene view.
 
-When you animate an actor, its bone gizmos overlap and its limbs often have similar bone chains, which makes it difficult to identify the bone you want to key. Assign each bone or bone chain its own color to tell them apart at a glance while you work in the **Scene** view and the [Animation window](https://docs.unity3d.com/6000.6/Documentation/Manual/AnimationEditorGuide.html).
+When you animate an actor, its bone gizmos overlap and its limbs often have similar bone chains, which makes it difficult to identify the bone you want to key. Assign each bone or bone chain its own color to tell them apart at a glance while you work in the **Scene** view and the [Animation window](https://docs.unity3d.com/7000.0/Documentation/Manual/AnimationEditorGuide.html).
 
 Unity draws bone gizmos in white until you assign them a color.
 
@@ -16,7 +16,7 @@ To display and color bone gizmos in the **Scene** view, make sure that all the f
 - Your project uses 2D Animation 16.0.0 or later.
 - You created bones for your sprite in the [Skinning Editor](SkinningEditor.md) of the Sprite Editor window, then selected **Apply**. For more information, refer to [Actor rigging and weighting workflow](CharacterRig.md).
 - The scene contains the rigged actor, and its [Sprite Skin component](SpriteSkin.md) has a GameObject Transform assigned to each entry in the **Bones** list. If the entries have no Transforms, refer to [Sprite Skin component reference](SpriteSkin.md) for the **Create Bones** and **Auto Rebind** properties.
-- You enabled Gizmos in the **Scene** view. For more information, refer to [Gizmos menu](https://docs.unity3d.com/6000.6/Documentation/Manual/GizmosMenu.html).
+- You enabled Gizmos in the **Scene** view. For more information, refer to [Gizmos menu](https://docs.unity3d.com/7000.0/Documentation/Manual/GizmosMenu.html).
 
 To display bone gizmos, select an actor or one of its bones in the **Hierarchy** window or the **Scene** view. Unity then displays the gizmos of every bone in that actor, not only the bones you selected.
 
@@ -36,7 +36,7 @@ The overlay docks at the bottom of the **Scene** view's right column. It sizes i
 To change the color of bones:
 
 1. In the **Hierarchy** window or the **Scene** view, select the actor, the sprite, or the bones whose color you want to change. The overlay's **Color** property becomes available and displays the current color of the bones you selected. For information about which bones each type of selection includes, refer to [Which bones a selection includes](#which-bones-a-selection-includes).
-2. Select **Color**, then choose a new color in the [color picker](https://docs.unity3d.com/6000.6/Documentation/Manual/InspectorColorPicker.html).
+2. Select **Color**, then choose a new color in the [color picker](https://docs.unity3d.com/7000.0/Documentation/Manual/InspectorColorPicker.html).
 
 Unity applies the color to every bone you selected and updates the bone gizmos in the **Scene** view. Each change adds a single **Change Bone Color** entry to the Undo History window. To restore a bone's default appearance, set its color back to white.
 
@@ -70,7 +70,7 @@ Where Unity saves that data depends on what you edit:
 
 | What you edit | Where Unity saves the colors |
 |-|-|
-| A prefab instance in a scene | As an override on that instance, in the scene. Other instances of the prefab keep their own colors. To write the colors to the prefab itself, [apply the override](https://docs.unity3d.com/6000.6/Documentation/Manual/PrefabInstanceOverrides.html). |
+| A prefab instance in a scene | As an override on that instance, in the scene. Other instances of the prefab keep their own colors. To write the colors to the prefab itself, [apply the override](https://docs.unity3d.com/7000.0/Documentation/Manual/PrefabInstanceOverrides.html). |
 | The prefab asset in prefab editing mode | In the prefab asset. Every instance of that prefab uses those colors, unless an instance has its own bone colors. |
 | A GameObject that's not part of a prefab | In the scene that contains the actor. |
 

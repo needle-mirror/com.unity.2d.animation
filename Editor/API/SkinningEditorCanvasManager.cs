@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor.U2D.Layout;
 using UnityEditor.U2D.Sprites;
 using UnityEngine;
@@ -23,17 +24,25 @@ namespace UnityEditor.U2D.Animation
         }
 
         // Keyed by the caller's element; z-order lives in the layer's child order.
+        [NoAutoStaticsCleanup] // Tied to Skinning Editor activation, not to Play
         static readonly Dictionary<VisualElement, Entry> s_Entries = new();
         // Stretched, click-through layer holding all registered elements.
+        [NoAutoStaticsCleanup]
         static readonly VisualElement s_Container = CreateContainer();
+        [NoAutoStaticsCleanup]
         static ISpriteEditor s_SpriteEditor;
         // World-pinned entry count; gates the per-tick update driver so it idles when nothing follows.
+        [NoAutoStaticsCleanup]
         static int s_WorldPinnedCount;
 
         // World <-> canvas transform captured during the last DoMainGUI (see SkinningModule).
+        [NoAutoStaticsCleanup]
         static bool s_HasTransform;
+        [NoAutoStaticsCleanup]
         static Matrix4x4 s_WorldToGui;
+        [NoAutoStaticsCleanup]
         static Matrix4x4 s_GuiToWorld;
+        [NoAutoStaticsCleanup]
         static Vector2 s_ClipOffset;
 
         static VisualElement CreateContainer()
@@ -196,11 +205,17 @@ namespace UnityEditor.U2D.Animation
 
             s_WorldToGui = Handles.matrix;
             s_GuiToWorld = Handles.inverseMatrix;
-            // Handles.matrix excludes the viewport offset. GUIClip is internal, so mirror the clip
-            // SpriteUtilityWindow.DoTextureGUI pushes: GUIClip.Push(textureViewRect, -scrollPosition).
-            // Must follow any change to that clip setup.
-            s_ClipOffset = s_SpriteEditor.windowDimension.position - s_SpriteEditor.scrollPosition;
+            // Handles.matrix excludes the viewport offset.
+            s_ClipOffset = GetClipOffset(s_SpriteEditor);
             s_HasTransform = true;
+        }
+
+        // Offset out of the clip DoTextureGUI pushes around the canvas: GUIClip.Push(textureViewRect,
+        // -scrollPosition). GUIClip is internal, so mirror it; windowDimension is that rect, built at the
+        // origin despite the interface documenting a screen rect. Shared so this and Pick cannot drift.
+        internal static Vector2 GetClipOffset(ISpriteEditor spriteEditor)
+        {
+            return spriteEditor.windowDimension.position - spriteEditor.scrollPosition;
         }
 
         // Pure, testable conversions: canvas = Handles-matrix point + GUIClip offset (inverse undoes both).

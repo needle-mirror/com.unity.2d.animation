@@ -1,10 +1,12 @@
 using System;
+using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEngine.U2D.Animation
 {
     internal static class SpriteLibraryUtility
     {
         // Allow delegate override for test
+        [NoAutoStaticsCleanup]
         internal static Func<string, int> GetStringHash = Bit30Hash_GetStringHash;
 
         /// <summary>
@@ -27,6 +29,17 @@ namespace UnityEngine.U2D.Animation
             int hash = Animator.StringToHash(value);
             hash = PreserveFirst30Bits(hash);
             return hash;
+        }
+
+        // The result is serialized and keyframed, so this arithmetic must never change.
+        internal static int CombineHashes(int categoryHash, int labelHash)
+        {
+            const uint offsetBasis = 2166136261;
+            const uint prime = 16777619;
+            uint hash = offsetBasis;
+            hash = (hash ^ (uint)categoryHash) * prime;
+            hash = (hash ^ (uint)labelHash) * prime;
+            return PreserveFirst30Bits((int)hash);
         }
 
         static int PreserveFirst30Bits(int input)

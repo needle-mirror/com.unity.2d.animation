@@ -46,7 +46,7 @@ namespace UnityEngine.U2D.Animation
         }
 
         [BurstCompile]
-        static int GenerateUTessOutline(in NativeArray<ushort> indices, ref NativeArray<int2> outline)
+        internal static int GenerateUTessOutline(in NativeArray<ushort> indices, ref NativeArray<int2> outline)
         {
             // To ensure this function is Burst compiled GenerateOutlineFromTriangleIndices is wrapped within GenerateUTessOutline
             return ModuleHandle.GenerateOutlineFromTriangleIndices(indices, ref outline);
@@ -76,7 +76,7 @@ namespace UnityEngine.U2D.Animation
 
         [BurstCompile]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void AddToEdgeMap(int x, int y, ref UnsafeHashMap<ulong, int2> edgeMap)
+        internal static void AddToEdgeMap(int x, int y, ref UnsafeHashMap<ulong, int2> edgeMap)
         {
             // Use ulong as edge key for hash map (min,max vertex) to avoid struct hash overhead and redundant hash calculations.
             int minV = math.min(x, y);
@@ -87,7 +87,7 @@ namespace UnityEngine.U2D.Animation
         }
 
         [BurstCompile]
-        static void SortEdges(in NativeArray<int2> unsortedEdges, out NativeArray<int2> sortedEdges)
+        internal static void SortEdges(in NativeArray<int2> unsortedEdges, out NativeArray<int2> sortedEdges)
         {
             NativeArray<int2> tmpEdges = new NativeArray<int2>(unsortedEdges.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             NativeList<int> shapeStartingEdge = new NativeList<int>(1, Allocator.Temp);

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine.Rendering;
 using UnityEngine.Scripting;
 using UnityEngine.Scripting.APIUpdating;
@@ -126,7 +127,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu(U2DAnimationConstants.PackageDisplayName + "/Sprite Skin")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteSkin.asset")]
     [MovedFrom("UnityEngine.U2D.Experimental.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@16.0/manual/SpriteSkin.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@18.0/manual/SpriteSkin.html")]
     public sealed class SpriteSkin : MonoBehaviour, IPreviewable, ISerializationCallbackReceiver
     {
         // This struct is used for caching.
@@ -152,6 +153,9 @@ namespace UnityEngine.U2D.Animation
         int m_CurrentDeformVerticesLength = 0;
 #endif
         SpriteRenderer m_SpriteRenderer;
+        // One listener for every skin, so that a skin carries no delegates of its own. Registrations outlive Play.
+        [NoAutoStaticsCleanup]
+        static readonly SpriteRendererChangeListener s_SpriteChangeListener = new SpriteRendererChangeListener(OnAnySpriteChanged);
         EntityId m_CurrentDeformSprite = EntityId.None;
         EntityId m_SpriteId = EntityId.None;
         bool m_IsValid = false;
@@ -161,7 +165,7 @@ namespace UnityEngine.U2D.Animation
 #endif
         bool m_ForceCpuDeformation = false;
 
-        EntityId m_TextureId;
+        bool m_SpriteDataDirty;
         EntityId m_TransformId;
         NativeArray<EntityId> m_BoneTransformId;
         NativeCustomSlice<Vector3> m_SpriteVertices;
@@ -257,6 +261,8 @@ namespace UnityEngine.U2D.Animation
         internal Sprite sprite => m_Sprite;
         internal SpriteRenderer spriteRenderer => m_SpriteRenderer;
         internal NativeCustomSlice<BoneWeight> spriteBoneWeights => m_SpriteBoneWeights;
+        // A swap or rebind left for the next update has dropped the cached slices without recapturing them.
+        internal bool spriteRecapturePending => m_CurrentDeformSprite != m_SpriteId;
 
         /// <summary>
         /// Gets the index of the SpriteSkin in the SpriteSkinComposite.
@@ -444,6 +450,7 @@ namespace UnityEngine.U2D.Animation
         internal bool isValid => this.Validate() == SpriteSkinState.Ready;
 
 #if UNITY_EDITOR
+        [NoAutoStaticsCleanup]
         internal static Events.UnityEvent onDrawGizmos = new Events.UnityEvent();
 
         void OnDrawGizmos() => onDrawGizmos.Invoke();
@@ -451,16 +458,48 @@ namespace UnityEngine.U2D.Animation
         internal bool ignoreNextSpriteChange { get; set; } = true;
 #endif
 
-        internal void Awake()
+        void Awake()
+        {
+            CacheSpriteRenderer();
+        }
+
+        void CacheSpriteRenderer()
         {
             m_SpriteRenderer = GetComponent<SpriteRenderer>();
             m_Sprite = m_SpriteRenderer.sprite;
             m_SpriteId = m_Sprite != null ? m_Sprite.GetEntityId() : EntityId.None;
         }
 
+        // Held until OnDestroy rather than while enabled: a disabled skin still holds the Sprite's buffers. Started
+        // from OnEnable and from a capture, which only skins that were active reach, so OnDestroy follows, and which
+        // a script reload repeats where it does not repeat Awake. Replaced rather than added, so it is registered once.
+        void ListenToSpriteChanges()
+        {
+            s_SpriteChangeListener.Unregister(m_SpriteRenderer);
+            s_SpriteChangeListener.Register(m_SpriteRenderer);
+        }
+
+        static void OnAnySpriteChanged(SpriteRenderer spriteRenderer, SpriteRendererChangeType changeType)
+        {
+            if (spriteRenderer.TryGetComponent(out SpriteSkin spriteSkin))
+                spriteSkin.OnSpriteChanged(spriteRenderer, changeType);
+        }
+
+        void OnDestroy()
+        {
+            if (m_SpriteRenderer != null)
+                s_SpriteChangeListener.Unregister(m_SpriteRenderer);
+
+            // A disabled skin can recapture when validated, and OnDisable does not run again before this.
+            m_BoneBounds.DisposeIfCreated();
+            m_BoneBounds = default;
+            DisposeOutlineCaches();
+        }
+
         void OnEnable()
         {
-            Awake();
+            CacheSpriteRenderer();
+            ListenToSpriteChanges();
             m_TransformId = gameObject.transform.GetEntityId();
 #if UNITY_EDITOR
             m_TransformsHash = 0;
@@ -480,14 +519,10 @@ namespace UnityEngine.U2D.Animation
             // Need to reset current sprite to force rebind and cache on enable
             ResetSprite();
             CacheCurrentSprite(m_AutoRebind);
-
-            m_SpriteRenderer.RegisterSpriteChangeCallback(OnSpriteChanged);
         }
 
         void OnDisable()
         {
-            m_SpriteRenderer.UnregisterSpriteChangeCallback(OnSpriteChanged);
-
             m_BoneBounds.DisposeIfCreated();
             m_BoneBounds = default;
 
@@ -514,10 +549,37 @@ namespace UnityEngine.U2D.Animation
             m_DeformationSystem?.CopyToSpriteSkinData(this);
         }
 
-        void OnSpriteChanged(SpriteRenderer updatedSpriteRenderer)
+        // Any change can leave the cached slices pointing at freed buffers, so drop them now: Validate() can run before
+        // the next update. Recapturing is left to that update rather than reading a half-modified Sprite.
+        void OnSpriteChanged(SpriteRenderer updatedSpriteRenderer, SpriteRendererChangeType changeType)
         {
             m_Sprite = updatedSpriteRenderer.sprite;
             m_SpriteId = m_Sprite != null ? m_Sprite.GetEntityId() : EntityId.None;
+            ResetSpriteDeformationDataCache();
+
+            // A different Sprite already differs from m_CurrentDeformSprite, which recaptures and rebinds. The same
+            // Sprite only rebinds when its bones changed; otherwise the bones are kept and only the data recaptured.
+            if (changeType == SpriteRendererChangeType.SpriteBonesModified && m_AutoRebind)
+                m_CurrentDeformSprite = EntityId.None;
+            else
+                m_SpriteDataDirty = true;
+        }
+
+        internal void RecaptureSpriteDataIfDirty()
+        {
+            if (!m_SpriteDataDirty || m_CurrentDeformSprite != m_SpriteId)
+                return;
+
+            m_SpriteDataDirty = false;
+            UpdateSpriteDeformationData();
+            m_BoneBounds.DisposeIfCreated();
+            m_BoneBounds = default;
+            m_DeformationSystem?.CopyToSpriteSkinData(this);
+            CacheValidFlag();
+#if UNITY_EDITOR
+            // The preview only deforms when the bones move, so make it deform the new data once.
+            m_TransformsHash = 0;
+#endif
         }
 
         void CacheBoneTransformIds()
@@ -580,7 +642,7 @@ namespace UnityEngine.U2D.Animation
 #if UNITY_EDITOR
         internal void OnEditorEnable()
         {
-            Awake();
+            CacheSpriteRenderer();
         }
 #endif
 
@@ -602,6 +664,8 @@ namespace UnityEngine.U2D.Animation
 
             if (m_CurrentDeformSprite != m_SpriteId)
                 CacheCurrentSprite(m_AutoRebind);
+            else
+                RecaptureSpriteDataIfDirty();
 
             bool hasSprite = m_CurrentDeformSprite != EntityId.None;
             return m_IsValid && hasSprite && m_SpriteRenderer.enabled && (alwaysUpdate || m_SpriteRenderer.isVisible);
@@ -609,7 +673,7 @@ namespace UnityEngine.U2D.Animation
 
         void Reset()
         {
-            Awake();
+            CacheSpriteRenderer();
             if (isActiveAndEnabled)
             {
                 CacheValidFlag();
@@ -801,13 +865,15 @@ namespace UnityEngine.U2D.Animation
 #if UNITY_EDITOR
         static bool IsInGUIUpdateLoop() => Event.current != null;
 
-        void DeformForPreviewUpdate()
+        internal void DeformForPreviewUpdate()
         {
             if (m_SpriteRenderer.sprite != m_Sprite)
-                OnSpriteChanged(m_SpriteRenderer);
+                OnSpriteChanged(m_SpriteRenderer, SpriteRendererChangeType.SpriteChanged);
 
             if (m_CurrentDeformSprite != m_SpriteId)
                 CacheCurrentSprite(m_AutoRebind);
+            else
+                RecaptureSpriteDataIfDirty();
 
             if (isValid && enabled && (alwaysUpdate || m_SpriteRenderer.isVisible))
             {
@@ -858,6 +924,7 @@ namespace UnityEngine.U2D.Animation
             {
                 DeactivateSkinning();
                 m_CurrentDeformSprite = m_SpriteId;
+                m_SpriteDataDirty = false;
                 if (rebind && m_CurrentDeformSprite != EntityId.None && rootTransform != null)
                 {
                     if (!SpriteSkinHelpers.GetSpriteBonesTransforms(this, out Transform[] transforms))
@@ -865,6 +932,7 @@ namespace UnityEngine.U2D.Animation
                     SetBoneTransforms(transforms);
                 }
 
+                ListenToSpriteChanges();
                 UpdateSpriteDeformationData();
 
                 // Dispose previous bone bounds
@@ -880,6 +948,18 @@ namespace UnityEngine.U2D.Animation
             }
         }
 
+        internal void ResetSpriteDeformationDataCache()
+        {
+            m_SpriteVertices = NativeCustomSlice<Vector3>.Default();
+            m_SpriteTangents = NativeCustomSlice<Vector4>.Default();
+            m_SpriteBoneWeights = NativeCustomSlice<BoneWeight>.Default();
+            m_SpriteBindPoses = NativeCustomSlice<Matrix4x4>.Default();
+            m_SpriteHasTangents = false;
+            m_SpriteVertexStreamSize = 0;
+            m_SpriteVertexCount = 0;
+            m_SpriteTangentVertexOffset = 0;
+        }
+
         internal void UpdateSpriteDeformationData()
         {
 #if ENABLE_URP
@@ -887,19 +967,10 @@ namespace UnityEngine.U2D.Animation
 #endif
             if (sprite == null)
             {
-                m_TextureId = EntityId.None;
-                m_SpriteVertices = NativeCustomSlice<Vector3>.Default();
-                m_SpriteTangents = NativeCustomSlice<Vector4>.Default();
-                m_SpriteBoneWeights = NativeCustomSlice<BoneWeight>.Default();
-                m_SpriteBindPoses = NativeCustomSlice<Matrix4x4>.Default();
-                m_SpriteHasTangents = false;
-                m_SpriteVertexStreamSize = 0;
-                m_SpriteVertexCount = 0;
-                m_SpriteTangentVertexOffset = 0;
+                ResetSpriteDeformationDataCache();
             }
             else
             {
-                m_TextureId = sprite.texture != null ? sprite.texture.GetEntityId() : EntityId.None;
                 bool cacheFullMesh = currentDeformationMethod == DeformationMethods.Cpu || forceCpuDeformation;
                 if (cacheFullMesh)
                 {
@@ -1002,6 +1073,8 @@ namespace UnityEngine.U2D.Animation
 
             if (m_CurrentDeformSprite != m_SpriteId)
                 CacheCurrentSprite(m_AutoRebind);
+            else
+                RecaptureSpriteDataIfDirty();
 
             data.vertices = m_SpriteVertices;
             data.boneWeights = m_SpriteBoneWeights;
@@ -1024,22 +1097,12 @@ namespace UnityEngine.U2D.Animation
             data.deformVerticesStartPos = -1;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool NeedToUpdateDeformationCache()
-        {
-            // Cache sprite.texture since this property access cannot be inlined.
-            Texture2D texture = sprite.texture;
-
-            EntityId newTextureId = texture != null ? texture.GetEntityId() : EntityId.None;
-            bool needUpdate = newTextureId != m_TextureId;
-            if (needUpdate)
-            {
-                UpdateSpriteDeformationData();
-                m_DeformationSystem?.CopyToSpriteSkinData(this);
-            }
-
-            return needUpdate;
-        }
+#if UNITY_EDITOR
+        // The Sprite the cached slices were captured from; None means a recapture is queued.
+        internal EntityId currentDeformSprite => m_CurrentDeformSprite;
+        // The buffer the last preview deformation wrote; GetDeformedVertices hands out the next one.
+        internal NativeByteArray previewDeformedVertices => m_DeformedVertices;
+#endif
 
         internal bool NeedToUpdateBoneBounds()
         {
@@ -1110,6 +1173,16 @@ namespace UnityEngine.U2D.Animation
             m_CurrentDeformSprite = EntityId.None;
             CacheValidFlag();
         }
+
+#if UNITY_EDITOR
+        // A reimport can change the Sprite's bones, which its reload does not report, so rebind on the next
+        // update as SetBones would. The reload's own notification drops the cached slices.
+        internal void RebindOnNextUpdateIfAutoRebind()
+        {
+            if (m_AutoRebind)
+                m_CurrentDeformSprite = EntityId.None;
+        }
+#endif
 
         internal void SetDeformationSystem(BaseDeformationSystem newDeformationSystem)
         {

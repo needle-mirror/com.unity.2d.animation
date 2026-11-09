@@ -75,6 +75,8 @@ namespace UnityEngine.U2D.Animation
         public NativeHashMap<EntityId, TransformAccessJob.TransformData> rootTransformIndex;
         [ReadOnly]
         public NativeHashMap<EntityId, TransformAccessJob.TransformData> boneTransformIndex;
+        [ReadOnly]
+        public NativeArray<byte> boneTransformState;
         [WriteOnly]
         public NativeArray<float4x4> finalBoneTransforms;
 
@@ -87,7 +89,7 @@ namespace UnityEngine.U2D.Animation
 
             // Destroyed bones can still be listed by a Sprite Skin; without collections checks the
             // map indexer silently returns index 0, deforming with another transform's matrix.
-            if (!boneTransformIndex.TryGetValue(v, out TransformAccessJob.TransformData boneData) || boneData.transformIndex < 0)
+            if (!boneTransformIndex.TryGetValue(v, out TransformAccessJob.TransformData boneData) || boneData.transformIndex < 0 || boneTransformState[boneData.transformIndex] == LocalToWorldTransformAccessJob.k_TransformDestroyed)
             {
                 finalBoneTransforms[i] = float4x4.identity;
                 return;
@@ -326,15 +328,10 @@ namespace UnityEngine.U2D.Animation
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float3 RotateExtents(float3 extents, float4x4 rotation)
         {
-            float3 newExtents = float3.zero;
-            for (int i = 0; i < 3; i++)
-            {
-                newExtents[i] =
-                    math.abs(rotation[i][0]) * extents.x +
-                    math.abs(rotation[i][1]) * extents.y +
-                    math.abs(rotation[i][2]) * extents.z;
-            }
-            return newExtents;
+            // float4x4 indexes columns, so each output axis is the sum over a row: |M(i,j)| * extents[j].
+            return math.abs(rotation.c0.xyz) * extents.x +
+                   math.abs(rotation.c1.xyz) * extents.y +
+                   math.abs(rotation.c2.xyz) * extents.z;
         }
     }
 

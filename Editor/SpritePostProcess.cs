@@ -43,9 +43,36 @@ namespace UnityEditor.U2D.Animation
                 PostProcessSpriteMeshData(ai, definitionScale, sprites, assetImporter);
                 BoneGizmo.instance.ClearSpriteBoneCache();
             }
+        }
 
-            // Get all SpriteSkin in scene and inform them to refresh their cache
-            RefreshSpriteSkinCache();
+        // Once per import batch, on the main process: a reimport, such as applying bone changes in the Skinning
+        // Editor, only reports SpriteModified, so ask the skins of the reimported Sprites to rebind.
+        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+        {
+            // Saving a script or a material must not cost a scene-wide scan.
+            HashSet<string> imported = null;
+            foreach (string importedAsset in importedAssets)
+            {
+                Type mainType = AssetDatabase.GetMainAssetTypeAtPath(importedAsset);
+                if (mainType != typeof(Texture2D) && mainType != typeof(GameObject))
+                    continue;
+
+                imported ??= new HashSet<string>();
+                imported.Add(importedAsset);
+            }
+
+            if (imported == null)
+                return;
+
+            foreach (SpriteSkin spriteSkin in GameObject.FindObjectsByType<SpriteSkin>(FindObjectsInactive.Include))
+            {
+                if (!spriteSkin.autoRebind)
+                    continue;
+
+                Sprite sprite = spriteSkin.spriteRenderer != null ? spriteSkin.spriteRenderer.sprite : null;
+                if (sprite != null && imported.Contains(AssetDatabase.GetAssetPath(sprite)))
+                    spriteSkin.RebindOnNextUpdateIfAutoRebind();
+            }
         }
 
         static void InjectMainSkeletonBones(ISpriteEditorDataProvider dataProvider)
@@ -60,6 +87,8 @@ namespace UnityEditor.U2D.Animation
 
             SpriteBone[] skeletonBones = mainSkeletonBonesDataProvider.GetMainSkeletonData().bones ?? new SpriteBone[0];
             RemapCharacterPartsToNewBones(skinningCache, skeletonBones);
+            // Remaps the mesh weights to the new bone indices, as deleting a bone in the Skinning Editor does.
+            skinningCache.CreateSpriteSheetSkeletons();
 
             SkinningModule.ApplyChanges(skinningCache, dataProvider);
         }
@@ -82,15 +111,6 @@ namespace UnityEditor.U2D.Animation
                     mesh.SetCompatibleBoneSet(characterPart.bones);
 
                 skinningCache.character.parts[i] = characterPart;
-            }
-        }
-
-        static void RefreshSpriteSkinCache()
-        {
-            SpriteSkin[] spriteSkins = GameObject.FindObjectsByType<SpriteSkin>();
-            foreach (SpriteSkin ss in spriteSkins)
-            {
-                ss.ResetSprite();
             }
         }
 

@@ -1,9 +1,46 @@
 # Changelog
 
 
-## [17.0.2] - 2026-10-08
+## [18.0.0] - 2026-11-09
+### Changed
+- Replace the native Bounded Biharmonic Weights module with a Burst-compiled solver. Generated weights are unchanged within floating-point noise, and weight generation now behaves identically on every Editor platform. A bone shorter than 0.01 pixels that is chained to another bone now weights the mesh around the joint, where the native module left it without any weight. (D2D-8319)
+- IK Manager 2D now resolves the visibility of the Sprite Skins driven by its solvers on demand, instead of through a hidden scene manager that polled every Sprite Skin in the scene each frame. The behaviour of Always Update is unchanged. (D2D-8395)
+- Removed the com.unity.collections dependency, as Collections is an engine module in Unity 7000.0.
+- Remove SRP-Batcher hard requirement for GPU-Skinning.
+- Pin hosted package documentation links to com.unity.2d.animation@18.0 and align Unity Manual and Script Reference links to Unity 7000.0.
+- Improved SpriteSkin deformation performance by no longer null-checking every SpriteSkin Transform each frame.
+- `FABRIK2D.Solve` now returns false without iterating when the chain has fewer than two positions (FABRIK Solver 2D with a Chain Length of 1). Previously it ran up to the solver iteration limit every frame and returned true although no position changed.
+- SpriteSkin with Auto Rebind enabled now rebinds when the Sprite's bones are changed with Sprite.SetBones, and no longer rebinds when the Sprite is bound to a Sprite Atlas or its mesh data is changed. (D2D-8433)
+- Improve SpriteSkin's per-frame performance by no longer reading each Sprite's texture every frame to detect Sprite Atlas binding.
+
 ### Fixed
-- Added correct .buginfo file.
+- Fix the Sprite Library Editor labels list not scrolling with the mouse wheel when the cursor is over the empty space between labels. (UUM-155099)
+- Fix empty space appearing in the Sprite Library Editor labels grid view, below the last label or at the top of the view, after resizing the items with the size slider, adding a label, or dragging the scroll bar to the bottom, until the view was scrolled up and back. (UUM-155113)
+- Fix the Sprite Library Editor renaming the selected label when double-clicking the scroll bar of the labels grid view. (UUM-151668)
+- Fix the Categories title bar overlapping the category list, which could make the add category button unclickable, when the Sprite Library Editor window is resized to a short height. (UUM-151676)
+- Fix the Skinning Editor writing a window-size dependent sub-pixel remainder from the Sprite Editor canvas' origin, scroll and zoom into authored bone and mesh coordinates, by snapping mouse input to a texture-pixel grid no coarser than one screen pixel. Coordinates are whole texture pixels at or below 100% zoom, and halves, quarters ... when zoomed in. (UUM-151700)
+- Fix SpriteSkin dereferencing freed Sprite buffers after the Sprite was changed in place, such as reimporting it with an instance in a loaded scene, which could crash the Editor. (UUM-150275)
+- Fix renaming a Category or Label ignoring keyboard input when the Sprite Library Editor window is not focused. (UUM-151677)
+- Fix the Sprite Library Editor discarding the label name typed so far, and the rename field losing keyboard focus, when the labels view is rebuilt during a rename, such as when resizing the window in Grid view or changing the view size. Switching between List and Grid view now commits the typed name instead of discarding it. (UUM-155100)
+- Fix ArgumentOutOfRangeExceptions thrown when selecting vertices with the Skinning Editor's Weight Slider on a Sprite that has never had weights assigned, and disable the Weight Inspector when no bones influence the mesh. (UUM-152583)
+- Fix removing an IK solver in the IK Manager 2D Inspector destroying the whole GameObject the solver is on, which took any other component on it with it, including the IK Manager 2D itself, and logging Console errors when the solver was removed on a Prefab asset. The GameObject is now only destroyed when it holds nothing but the solver, the solver is destroyed once the Inspector has finished drawing, the removed solver no longer comes back as an empty row in the solver list, and removing a solver is disabled while several IK Manager 2D components are selected, since the list rows are unrelated across them. (UUM-153776)
+- Fix SpriteSkin deformation spending time every frame null-checking every tracked bone Transform; destroyed bones are now detected by the bone transform job. (UUM-156560)
+- Fix the Skinning Editor treating a region of the canvas as if the pointer were over its panels - the panels' own area, displaced by the Sprite Editor window's position on screen. The Create Bone and Split Bone previews, bone hover highlights and cursors went missing there, and mesh and weight editing was disabled - vertices there could not be selected with the Weight tools - while bone clicks still landed. The panels themselves stopped being recognised as UI. (UUM-154262, UUM-154542)
+- Fix labels in the Sprite Library Editor's grid view disappearing until scrolled when resizing the window changes the column count while the grid is scrolled. (UUM-153178)
+- Fix SpriteSkin warning that a Sprite had its mesh data changed without being notified after building Addressables with a scene open, when the build only repacked the Sprite Atlas. (UUM-154650)
+- Fix the Skinning Editor's Edit Geometry silently rebuilding a mesh after an edit that left vertices on top of other vertices or edges, or edges crossing or overlapping: the mesh was replaced with a quad, or vertices were merged and every vertex's weights regenerated, sometimes with a weight generation warning. Moving vertices or edges, Create Vertex, Split Edge, Create Edge and Remove Vertices now refuse such an edit and keep the mesh and its weights as they were. Split Edge, and Create Vertex on an edge, now place the new vertex on the edge rather than at the cursor. After a refused move, the dragged vertices catch up with the pointer once it reaches a position they can move to, instead of trailing it for the rest of the drag. Moving an edge now checks the edge where both of its vertices end up for crossings. (UUM-155713)
+- Fix Sprite Skins with Bounds Mode set to Bone Based being culled while still on screen when a bone is both rotated and non-uniformly scaled. (UUM-155700)
+- Fix zero-length bones in the Skinning Editor: they no longer fill the Console with invalid mesh bounds errors, Create Bone can create one again on a spot instead of ignoring the click, bones shorter than a pixel get weights as point handles instead of none, and generated weights no longer land on the wrong bones when a zero-length bone follows a regular bone. (UUM-154908)
+- Fix IK Manager 2D with Always Update disabled never updating a valid solver added to it later, and continuing to update while only a removed solver's Sprite Skins were visible. The manager now refreshes the bones it checks when a solver is added or removed through AddSolver, RemoveSolver, the Inspector or Undo. (UUM-156673)
+- IK Manager 2D no longer leaves an extra hidden Culling Manager behind after every domain reload in the Editor.
+- Fix the Sprite Library throwing "An item with the same key has already been added", and returning the wrong Sprite, when two Category/Label pairs differ only in where an underscore is (for example "A"/"B_C" and "A_B"/"C"). (UUM-157623)
+- Fix FABRIK2D.Solve and FABRIK2D.SolveChain returning NaN positions when the target is at a joint position. The joint is no longer moved in that case, and FABRIK2D.Solve logs a warning when the solved chain does not preserve the bone lengths. (UUM-157619)
+- Fix SpriteSkin reading freed Sprite buffers in Players after the Sprite was changed in place through the Sprite API, a reimport or Sprite Atlas binding, which could crash. SpriteSkin now follows the engine's Sprite change notification, which replaces the Editor-only detection and its warning. (UUM-150275)
+- Fix SpriteSkin deforming with the previous Sprite when a different Sprite was assigned while its SpriteRenderer was disabled.
+- Fixed the GPU deformation documentation, which said that rendering falls back to CPU Skinning when a Sprite Renderer has a Material Property Block. In the Editor, a Sprite Skin using GPU deformation now switches to CPU deformation and logs a warning when its Sprite Renderer stops being SRP Batcher compatible. (UUM-155079)
+- Fix IndexOutOfRangeException in CCD Solver 2D with a chain length of 1 (UUM-158089)
+- The bone weights of a PSB that uses another PSB's skeleton as its Main Skeleton were broken after a bone was removed from that skeleton. (UUM-159244)
+- Fixed UAC2017 "Failed to generate a Burst direct call" warnings. (UUM-160239)
 
 ## [17.0.1] - 2026-09-05
 ### Fixed

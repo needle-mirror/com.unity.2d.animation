@@ -1,4 +1,5 @@
 using System;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
@@ -24,21 +25,25 @@ namespace UnityEditor.U2D.Animation
         /// Fired when bone hierarchy structure may have changed (e.g. SpriteSkin added or removed).
         /// Subscribers should perform a full selection rebuild equivalent to OnSelectionChanged.
         /// </summary>
+        [NoAutoStaticsCleanup] // Subscribers are editor-lifetime (Bone gizmo and overlay)
         internal static event Action HierarchyStructureChanged;
 
         /// <summary>
         /// Fired after <see cref="BoneHierarchyContext.BuildFromSelections"/> finishes updating <see cref="BoneHierarchyContext.Current"/>.
         /// </summary>
+        [NoAutoStaticsCleanup]
         internal static event Action ContextRebuilt;
 
         /// <summary>
         /// Fired when serialized hierarchy color data may have changed. Raised from <see cref="BoneHierarchyObjectChangeListener"/> when ObjectChangeEvents report relevant edits (writes such as <see cref="BoneHierarchyDataBridge"/> rely on those notifications rather than invoking this event directly).
         /// </summary>
+        [NoAutoStaticsCleanup]
         internal static event Action BoneColorsPersisted;
 
         /// <summary>
         /// Fired after <see cref="BoneHierarchyContext.RefreshResolvedBoneColors"/> updates resolved bone colors without a full context rebuild (Bone overlay color field refresh).
         /// </summary>
+        [NoAutoStaticsCleanup]
         internal static event Action BoneColorsRefreshed;
 
         internal static void RaiseHierarchyStructureChanged()

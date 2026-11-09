@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
 {
@@ -16,12 +17,36 @@ namespace UnityEditor.U2D.Animation
     /// run once per activation rather than once per instance: make their work idempotent.
     /// Each activation also replays a hidden-then-shown pair on <see cref="UnityEditor.Overlays.Overlay.displayedChanged"/>
     /// for a panel the user left open, so treat that as a refresh rather than a user toggle.
+    /// State the size bounds here or in the constructor - the canvas applies no defaults to a marked type.
+    /// A size stated here wins; a type stating no default size at all is given one.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     internal sealed class SkinningEditorOverlayAttribute : Attribute
     {
         /// <summary>Name shown in the overlay menu and panel title. Defaults to the type name when null or empty.</summary>
         public string displayName { get; }
+
+        /// <summary>Size the overlay opens at. Both axes must be set to take effect.</summary>
+        public float defaultWidth { get; set; } = float.NegativeInfinity;
+
+        /// <inheritdoc cref="defaultWidth"/>
+        public float defaultHeight { get; set; } = float.NegativeInfinity;
+
+        /// <summary>Smallest size the resize handles allow. Both axes must be set to take effect.</summary>
+        public float minWidth { get; set; } = float.NegativeInfinity;
+
+        /// <inheritdoc cref="minWidth"/>
+        public float minHeight { get; set; } = float.NegativeInfinity;
+
+        /// <summary>Largest size the resize handles allow. Both axes must be set to take effect.</summary>
+        public float maxWidth { get; set; } = float.NegativeInfinity;
+
+        /// <inheritdoc cref="maxWidth"/>
+        public float maxHeight { get; set; } = float.NegativeInfinity;
+
+        internal Vector2 defaultSize => new Vector2(defaultWidth, defaultHeight);
+        internal Vector2 minSize => new Vector2(minWidth, minHeight);
+        internal Vector2 maxSize => new Vector2(maxWidth, maxHeight);
 
         /// <param name="displayName">Name shown in the overlay menu and panel title.</param>
         public SkinningEditorOverlayAttribute(string displayName = null)

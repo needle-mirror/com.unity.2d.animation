@@ -16,8 +16,33 @@ namespace UnityEditor.U2D.Animation
             public Vector2 endPosition;
         }
 
+        readonly struct MeshSnapshot
+        {
+            readonly Vector2[] m_Vertices;
+            readonly EditableBoneWeight[] m_VertexWeights;
+            readonly int2[] m_Edges;
+            readonly int[] m_Indices;
+
+            public MeshSnapshot(BaseSpriteMeshData meshData)
+            {
+                m_Vertices = (Vector2[])meshData.vertices.Clone();
+                m_VertexWeights = (EditableBoneWeight[])meshData.vertexWeights.Clone();
+                m_Edges = (int2[])meshData.edges.Clone();
+                m_Indices = (int[])meshData.indices.Clone();
+            }
+
+            public void Restore(BaseSpriteMeshData meshData)
+            {
+                meshData.SetVertices(m_Vertices, m_VertexWeights);
+                meshData.SetEdges(m_Edges);
+                meshData.SetIndices(m_Indices);
+            }
+        }
+
         SpriteMeshDataController m_SpriteMeshDataController = new();
         EdgeIntersectionResult m_EdgeIntersectionResult;
+        int m_GrabbedVertex = -1;
+        Vector2 m_RefusedMoveDelta;
 
         public ISpriteMeshView spriteMeshView { get; set; }
         public BaseSpriteMeshData spriteMeshData { get; set; }
@@ -266,9 +291,32 @@ namespace UnityEditor.U2D.Animation
             if (selection.Count == 0)
                 return;
 
+            // Clicking an already selected vertex leaves the selection untouched, so the active element need not be the
+            // vertex under the cursor; remember what was grabbed so the snap below anchors on it, like hotBone does.
+            if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveVertex) && spriteMeshView.hoveredVertex >= 0)
+                m_GrabbedVertex = spriteMeshView.hoveredVertex;
+            else if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveEdge) && spriteMeshView.hoveredEdge >= 0 && spriteMeshView.hoveredEdge < spriteMeshData.edges.Length)
+                m_GrabbedVertex = spriteMeshData.edges[spriteMeshView.hoveredEdge].x;
+            else if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveVertex) || spriteMeshView.IsActionTriggered(MeshEditorAction.MoveEdge))
+                m_GrabbedVertex = -1;
+
+            if (spriteMeshView.IsActionTriggered(MeshEditorAction.MoveVertex) || spriteMeshView.IsActionTriggered(MeshEditorAction.MoveEdge))
+                m_RefusedMoveDelta = Vector2.zero;
+
             if (spriteMeshView.DoMoveVertex(out Vector2 finalDeltaPos) || spriteMeshView.DoMoveEdge(out finalDeltaPos))
             {
+                // The view only reports how far the pointer moved since the last event, so carry what a refused move
+                // dropped into the next one, or the vertices would trail the pointer for the rest of the drag.
+                finalDeltaPos += m_RefusedMoveDelta;
+                m_RefusedMoveDelta = finalDeltaPos;
+
                 int[] selectionArray = selection.elements;
+
+                // The delta is a whole number of grid steps (a difference of two snapped mouse positions), which would
+                // leave a vertex that predates the snapping on its old remainder; re-anchor it on the grabbed vertex.
+                int anchorVertex = selection.Contains(m_GrabbedVertex) ? m_GrabbedVertex : selection.activeElement;
+                if (anchorVertex >= 0 && anchorVertex < spriteMeshData.vertexCount)
+                    finalDeltaPos = ModuleUtility.SnapPositionDelta(spriteMeshData.vertices[anchorVertex], finalDeltaPos);
 
                 finalDeltaPos = MathUtility.MoveRectInsideFrame(CalculateRectFromSelection(), frame, finalDeltaPos);
                 Vector2[] movedVertexSelection = GetMovedVertexSelection(in selectionArray, spriteMeshData.vertices, finalDeltaPos);
@@ -278,8 +326,8 @@ namespace UnityEditor.U2D.Animation
                 if (IsMovedVertexIntersectingWithOutline(in selectionArray, in movedVertexSelection, spriteMeshData.outlineEdges, spriteMeshData.vertices))
                     return;
 
-                cacheUndo.BeginUndoOperation(TextContent.moveVertices);
-                MoveSelectedVertices(in movedVertexSelection);
+                if (MoveSelectedVertices(in movedVertexSelection))
+                    m_RefusedMoveDelta = Vector2.zero;
             }
         }
 
@@ -315,16 +363,15 @@ namespace UnityEditor.U2D.Animation
                 }
                 else
                 {
+                    MeshSnapshot snapshot = new MeshSnapshot(spriteMeshData);
                     if (edgeIntersectionResult.intersectEdgeIndex != -1)
-                    {
-                        CreateVertex(edgeIntersectionResult.endPosition, edgeIntersectionResult.intersectEdgeIndex);
-                        CreateEdge(selection.activeElement, spriteMeshData.vertexCount - 1);
-                    }
+                        AddVertexOnEdge(edgeIntersectionResult.endPosition, edgeIntersectionResult.intersectEdgeIndex);
                     else if (m_SpriteMeshDataController.FindTriangle(edgeIntersectionResult.endPosition, out Vector3Int indices, out Vector3 barycentricCoords))
-                    {
-                        CreateVertex(edgeIntersectionResult.endPosition, indices, barycentricCoords);
-                        CreateEdge(selection.activeElement, spriteMeshData.vertexCount - 1);
-                    }
+                        AddVertexInTriangle(edgeIntersectionResult.endPosition, indices, barycentricCoords);
+                    else
+                        return;
+
+                    CreateEdge(selection.activeElement, spriteMeshData.vertexCount - 1, in snapshot);
                 }
             }
         }
@@ -336,6 +383,20 @@ namespace UnityEditor.U2D.Animation
         }
 
         void CreateVertex(Vector2 position, Vector3Int indices, Vector3 barycentricCoords)
+        {
+            MeshSnapshot snapshot = new MeshSnapshot(spriteMeshData);
+            AddVertexInTriangle(position, indices, barycentricCoords);
+            ApplyEdit(TextContent.createVertex, in snapshot);
+        }
+
+        void CreateVertex(Vector2 position, int edgeIndex)
+        {
+            MeshSnapshot snapshot = new MeshSnapshot(spriteMeshData);
+            AddVertexOnEdge(position, edgeIndex);
+            ApplyEdit(TextContent.createVertex, in snapshot);
+        }
+
+        void AddVertexInTriangle(Vector2 position, Vector3Int indices, Vector3 barycentricCoords)
         {
             EditableBoneWeight bw1 = spriteMeshData.vertexWeights[indices.x];
             EditableBoneWeight bw2 = spriteMeshData.vertexWeights[indices.y];
@@ -379,14 +440,12 @@ namespace UnityEditor.U2D.Animation
 
             BoneWeight boneWeight = result.ToBoneWeight(true);
 
-            cacheUndo.BeginUndoOperation(TextContent.createVertex);
-
             m_SpriteMeshDataController.CreateVertex(position, -1);
             spriteMeshData.vertexWeights[spriteMeshData.vertexCount - 1].SetFromBoneWeight(boneWeight);
-            Triangulate();
         }
 
-        void CreateVertex(Vector2 position, int edgeIndex)
+        // The cursor only has to be near the edge, and a vertex left off a straight edge makes a sliver triangle.
+        void AddVertexOnEdge(Vector2 position, int edgeIndex)
         {
             int2 edge = spriteMeshData.edges[edgeIndex];
             Vector2 pos1 = spriteMeshData.vertices[edge.x];
@@ -395,16 +454,14 @@ namespace UnityEditor.U2D.Animation
             Vector2 dir2 = (pos2 - pos1);
             float t = Vector2.Dot(dir1, dir2.normalized) / dir2.magnitude;
             t = Mathf.Clamp01(t);
+            position = Vector2.Lerp(pos1, pos2, t);
             BoneWeight bw1 = spriteMeshData.vertexWeights[edge.x].ToBoneWeight(true);
             BoneWeight bw2 = spriteMeshData.vertexWeights[edge.y].ToBoneWeight(true);
 
             BoneWeight boneWeight = EditableBoneWeightUtility.Lerp(bw1, bw2, t);
 
-            cacheUndo.BeginUndoOperation(TextContent.createVertex);
-
             m_SpriteMeshDataController.CreateVertex(position, edgeIndex);
             spriteMeshData.vertexWeights[spriteMeshData.vertexCount - 1].SetFromBoneWeight(boneWeight);
-            Triangulate();
         }
 
         void SelectVertex(int index, bool additiveToggle)
@@ -469,23 +526,27 @@ namespace UnityEditor.U2D.Animation
             selection.Clear();
         }
 
-        void MoveSelectedVertices(in Vector2[] movedVertices)
+        bool MoveSelectedVertices(in Vector2[] movedVertices)
         {
-            for (int i = 0; i < selection.Count; ++i)
-            {
-                int index = selection.elements[i];
-                spriteMeshData.vertices[index] = movedVertices[i];
-            }
+            MeshSnapshot snapshot = new MeshSnapshot(spriteMeshData);
+            int[] selectionArray = selection.elements;
+            for (int i = 0; i < selectionArray.Length; ++i)
+                spriteMeshData.vertices[selectionArray[i]] = movedVertices[i];
 
-            Triangulate();
+            return ApplyEdit(TextContent.moveVertices, in snapshot);
         }
 
         void CreateEdge(int fromVertexIndex, int toVertexIndex)
         {
-            cacheUndo.BeginUndoOperation(TextContent.createEdge);
+            CreateEdge(fromVertexIndex, toVertexIndex, new MeshSnapshot(spriteMeshData));
+        }
 
+        void CreateEdge(int fromVertexIndex, int toVertexIndex, in MeshSnapshot snapshot)
+        {
             m_SpriteMeshDataController.CreateEdge(fromVertexIndex, toVertexIndex);
-            Triangulate();
+            if (!ApplyEdit(TextContent.createEdge, in snapshot))
+                return;
+
             ClearSelection();
             selection.Select(toVertexIndex, true);
 
@@ -494,11 +555,10 @@ namespace UnityEditor.U2D.Animation
 
         void SplitEdge(Vector2 position, int edgeIndex)
         {
-            cacheUndo.BeginUndoOperation(TextContent.splitEdge);
-
-            CreateVertex(position, edgeIndex);
-
-            cacheUndo.IncrementCurrentGroup();
+            MeshSnapshot snapshot = new MeshSnapshot(spriteMeshData);
+            AddVertexOnEdge(position, edgeIndex);
+            if (ApplyEdit(TextContent.splitEdge, in snapshot))
+                cacheUndo.IncrementCurrentGroup();
         }
 
         bool IsEdgeSelected()
@@ -517,7 +577,7 @@ namespace UnityEditor.U2D.Animation
 
         void RemoveSelectedVertices()
         {
-            cacheUndo.BeginUndoOperation(IsEdgeSelected() ? TextContent.removeEdge : TextContent.removeVertices);
+            string undoName = IsEdgeSelected() ? TextContent.removeEdge : TextContent.removeVertices;
 
             int[] verticesToRemove = selection.elements;
 
@@ -527,21 +587,42 @@ namespace UnityEditor.U2D.Animation
 
             if (shouldClearMesh)
             {
+                cacheUndo.BeginUndoOperation(undoName);
                 m_SpriteMeshDataController.spriteMeshData.Clear();
                 m_SpriteMeshDataController.CreateQuad();
+                m_SpriteMeshDataController.Triangulate(triangulator);
+                m_SpriteMeshDataController.SortTrianglesByDepth();
             }
             else
+            {
+                MeshSnapshot snapshot = new MeshSnapshot(spriteMeshData);
                 m_SpriteMeshDataController.RemoveVertex(verticesToRemove);
-
-            Triangulate();
+                if (!ApplyEdit(undoName, in snapshot))
+                    return;
+            }
 
             selection.Clear();
         }
 
-        void Triangulate()
+        // The triangulator merges, cuts or drops vertices and edges it cannot triangulate as they are, which would
+        // silently rewrite the mesh and regenerate every vertex's weights, so such an edit is undone instead.
+        bool ApplyEdit(string undoName, in MeshSnapshot meshBeforeEdit)
         {
-            m_SpriteMeshDataController.Triangulate(triangulator);
+            if (!m_SpriteMeshDataController.TryTriangulate(triangulator))
+            {
+                meshBeforeEdit.Restore(spriteMeshData);
+                return false;
+            }
+
             m_SpriteMeshDataController.SortTrianglesByDepth();
+
+            // Beginning an undo operation records the cache as it is, so register it on the unedited mesh, and only
+            // once the edit is kept: a refused edit would otherwise leave an undo step that changes nothing.
+            MeshSnapshot meshAfterEdit = new MeshSnapshot(spriteMeshData);
+            meshBeforeEdit.Restore(spriteMeshData);
+            cacheUndo.BeginUndoOperation(undoName);
+            meshAfterEdit.Restore(spriteMeshData);
+            return true;
         }
 
         Vector2 ClampToFrame(Vector2 position)
@@ -734,16 +815,9 @@ namespace UnityEditor.U2D.Animation
             for (int m = 0; m < selection.Length; ++m)
             {
                 if (selection[m] == edge.x)
-                {
                     selectionIndex.x = m;
-                    break;
-                }
-
-                if (selection[m] == edge.y)
-                {
+                else if (selection[m] == edge.y)
                     selectionIndex.y = m;
-                    break;
-                }
             }
 
             return selectionIndex;

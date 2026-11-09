@@ -16,7 +16,7 @@ namespace UnityEngine.U2D.IK
     [Solver2DMenu("Chain (FABRIK)")]
     [AddComponentMenu(U2DAnimationConstants.PackageDisplayName + "/Fabrik Solver 2D")]
     [Icon(IconUtility.IconPath + "Animation.IKFabrik.png")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@16.0/manual/2DIK.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@18.0/manual/2DIK.html")]
     [BurstCompile]
     public sealed class FabrikSolver2D : Solver2D
     {
@@ -147,7 +147,7 @@ namespace UnityEngine.U2D.IK
         }
 
         [BurstCompile]
-        static bool Solve(
+        internal static bool Solve(
             in float2 targetPosition,
             in float4x4 rootLocalToWorldMatrix,
             int iterations,

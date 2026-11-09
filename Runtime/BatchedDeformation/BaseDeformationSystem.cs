@@ -68,8 +68,8 @@ namespace UnityEngine.U2D.Animation
         // Used to determine if cached deformation data is still valid or needs to be updated.
         protected NativeArray<int> m_LastDeformedFrame;
 
-        protected TransformAccessJob m_LocalToWorldTransformAccessJob;
-        protected TransformAccessJob m_WorldToLocalTransformAccessJob;
+        protected LocalToWorldTransformAccessJob m_LocalToWorldTransformAccessJob;
+        protected WorldToLocalTransformAccessJob m_WorldToLocalTransformAccessJob;
 
         protected JobHandle m_DeformJobHandle;
 
@@ -165,11 +165,10 @@ namespace UnityEngine.U2D.Animation
         {
             m_ObjectId = objectId;
 
-            // These two jobs have the same type, but can be configured to return localToWorld or worldToLocal matrices
             if (m_LocalToWorldTransformAccessJob == null)
-                m_LocalToWorldTransformAccessJob = new TransformAccessJob();
+                m_LocalToWorldTransformAccessJob = new LocalToWorldTransformAccessJob();
             if (m_WorldToLocalTransformAccessJob == null)
-                m_WorldToLocalTransformAccessJob = new TransformAccessJob();
+                m_WorldToLocalTransformAccessJob = new WorldToLocalTransformAccessJob();
 
             InitializeArrays();
             BatchRemoveSpriteSkins();
@@ -369,20 +368,20 @@ namespace UnityEngine.U2D.Animation
 
             // The bone job needs this sweep too: destroyed bones cannot be removed by id
             // because GetEntityId() returns 0 in the Player.
-            m_LocalToWorldTransformAccessJob.RemoveTransformsIfNull();
-            m_WorldToLocalTransformAccessJob.RemoveTransformsIfNull();
+            m_LocalToWorldTransformAccessJob.RemoveDestroyedTransformsIfNeeded();
+            m_WorldToLocalTransformAccessJob.RemoveDestroyedTransformsIfNeeded();
 
             using (Profiling.transformAccessJob.Auto())
             {
-                localToWorldJobHandle = m_LocalToWorldTransformAccessJob.StartLocalToWorldAndChangeDetectionJob();
-                worldToLocalJobHandle = m_WorldToLocalTransformAccessJob.StartWorldToLocalJob();
+                localToWorldJobHandle = m_LocalToWorldTransformAccessJob.StartJob();
+                worldToLocalJobHandle = m_WorldToLocalTransformAccessJob.StartJob();
             }
 
             using (Profiling.boneTransformsChangeDetection.Auto())
             {
                 BoneTransformsChangeDetectionJob boneTransformChangeDetectionJob = new BoneTransformsChangeDetectionJob
                 {
-                    transformChanged = m_LocalToWorldTransformAccessJob.transformChanged,
+                    transformState = m_LocalToWorldTransformAccessJob.transformState,
                     boneTransformIndex = m_LocalToWorldTransformAccessJob.transformData,
                     spriteSkinData = m_SpriteSkinData,
                     hasBoneTransformsChanged = m_HasBoneTransformsChanged
@@ -392,9 +391,9 @@ namespace UnityEngine.U2D.Animation
 #if ENABLE_PROFILER && PROFILING_INSTALLED
                 if (UnityEngine.Profiling.Profiler.enabled)
                 {
-                    for (int i = 0; i < m_LocalToWorldTransformAccessJob.transformChanged.Length; ++i)
+                    for (int i = 0; i < m_LocalToWorldTransformAccessJob.transformState.Length; ++i)
                     {
-                        if (m_LocalToWorldTransformAccessJob.transformChanged[i])
+                        if (m_LocalToWorldTransformAccessJob.transformState[i] == LocalToWorldTransformAccessJob.k_TransformChanged)
                             ++Animation2DProfilerMarkers.s_SpriteSkinBoneTransformed.Value;
                     }
                 }
@@ -424,10 +423,7 @@ namespace UnityEngine.U2D.Animation
                 m_IsOutlineDataRequired[index] = spriteSkin.isOutlineDataRequired;
                 if (m_IsSpriteSkinActiveForDeform[index])
                 {
-                    bool needUpdate = spriteSkin.NeedToUpdateDeformationCache();
-                    needUpdate = spriteSkin.NeedToUpdateBoneBounds() || needUpdate;
-
-                    if (needUpdate)
+                    if (spriteSkin.NeedToUpdateBoneBounds())
                         CopyToSpriteSkinData(spriteSkin);
                 }
             }
@@ -460,7 +456,8 @@ namespace UnityEngine.U2D.Animation
                 boneLookupData = m_BoneLookupData,
                 finalBoneTransforms = m_FinalBoneTransforms,
                 rootTransformIndex = m_WorldToLocalTransformAccessJob.transformData,
-                boneTransformIndex = m_LocalToWorldTransformAccessJob.transformData
+                boneTransformIndex = m_LocalToWorldTransformAccessJob.transformData,
+                boneTransformState = m_LocalToWorldTransformAccessJob.transformState
             };
             jobHandle = boneJobBatched.Schedule(skinBatch.bindPosesIndex.y, 8, jobHandle);
             return jobHandle;
@@ -551,8 +548,8 @@ namespace UnityEngine.U2D.Animation
         }
 
 #if UNITY_INCLUDE_TESTS
-        internal TransformAccessJob GetWorldToLocalTransformAccessJob() => m_WorldToLocalTransformAccessJob;
-        internal TransformAccessJob GetLocalToWorldTransformAccessJob() => m_LocalToWorldTransformAccessJob;
+        internal WorldToLocalTransformAccessJob GetWorldToLocalTransformAccessJob() => m_WorldToLocalTransformAccessJob;
+        internal LocalToWorldTransformAccessJob GetLocalToWorldTransformAccessJob() => m_LocalToWorldTransformAccessJob;
         internal SpriteRenderer GetSpriteRendererAt(int index)
         {
             if (index < 0 || index >= m_SpriteRenderers.Length) return null;

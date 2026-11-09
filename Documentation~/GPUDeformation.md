@@ -7,11 +7,11 @@ Starting from 2D Animation 10 (Unity 2023.1), Sprite Skins can be deformed using
 
 The option to choose between CPU and GPU deformation allows projects to pick where the deformation should happen, on the CPU or the GPU. Projects which are heavily using the CPU for their different systems are therefore advised to use GPU deformation, and vice versa.
 
-Do also note that selecting GPU deformation will cause the Sprite to be rendered using the [SRP Batcher](https://docs.unity3d.com/6000.6/Documentation/Manual/SRPBatcher.html). This means that there is a small draw call cost per object. When selecting CPU deformation, the Sprites are dynamically batched, reducing the overall draw calls. We therefore advice choosing CPU deformation when a scene contains many low-polygon objects, and GPU deformation when a scene contains fewer high-polygon objects.
+Do also note that selecting GPU deformation will cause the Sprite to be rendered using the [SRP Batcher](https://docs.unity3d.com/7000.0/Documentation/Manual/SRPBatcher.html). This means that there is a small draw call cost per object. When selecting CPU deformation, the Sprites are dynamically batched, reducing the overall draw calls. We therefore advice choosing CPU deformation when a scene contains many low-polygon objects, and GPU deformation when a scene contains fewer high-polygon objects.
 
 **Note:** The 2D renderer uses its own dynamic batching system, which isn't affected by the **Dynamic Batching** setting in the Player settings window.
 
-As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/6000.6/Documentation/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
+As always, do verify the performance impact with [profiling tools](https://docs.unity3d.com/7000.0/Documentation/Manual/Profiler.html) and make changes according to the data, as every use case is unique.
 
 To compare CPU and GPU deformation in your project, use the [2D Animation Profiler module](Animation2DProfilerModule.md).
 
@@ -29,11 +29,20 @@ GPU deformation isn't supported on the following platform and graphics API combi
 
 - Use a shader that supports GPU Skinning. If you use shaders created with Shader Graph, ensure you include the [Sprite Skinning Node](https://docs.unity3d.com/Packages/com.unity.shadergraph@latest?subfolder=/manual/Sprite-Skinning-Node.html) in your shader graph.
   ![A Sprite Skinning Node in Shader Graph is connecting Vertex Node.](images/2d-anim-spriteskinningnode.png)
-- Avoid [Material Property Blocks](xref:UnityEngine.MaterialPropertyBlock), which are not compatible with the SRP Batcher.
+- Don't use [Material Property Blocks](xref:UnityEngine.MaterialPropertyBlock), which are not compatible with the SRP Batcher. Animating a material property in an Animation Clip or Timeline also sets a Material Property Block.
 - Avoid Sprite masks, which are not compatible with the SRP Batcher.  
 
 > [!NOTE]
-> If you don't meet any of these requirements, the rendering falls back to CPU Skinning which uses dynamic batching. The 2D renderer uses its own dynamic batching system, which isn't affected by the **Dynamic Batching** setting in the Player settings window.
+> If you don't meet any of these requirements when the Sprite Skin is enabled, the rendering falls back to CPU Skinning which uses dynamic batching. The 2D renderer uses its own dynamic batching system, which isn't affected by the **Dynamic Batching** setting in the Player settings window.
+
+### Update a Sprite Skin after its Sprite Renderer changes
+
+A Sprite Renderer can become incompatible with the SRP Batcher after its Sprite Skin is enabled, for example when it gets a Material Property Block. Unity handles this as follows:
+
+- In the Editor, Unity switches the Sprite Skin to CPU Skinning, logs a warning, and switches it back when the Sprite Renderer is compatible again. This check doesn't cover a switch to a shader that doesn't support GPU Skinning.
+- In a Player, the Sprite Skin keeps using GPU Skinning, and the Sprite might not render correctly.
+
+To switch the deformation in these cases, set `SpriteSkin.enabled` to `false` and then to `true` after the Sprite Renderer changes, including after you remove the Material Property Block.
 
 ## Selecting CPU/GPU deformation
 

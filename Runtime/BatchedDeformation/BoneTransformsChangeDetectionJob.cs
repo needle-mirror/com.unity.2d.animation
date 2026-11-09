@@ -9,7 +9,7 @@ namespace UnityEngine.U2D.Animation
     internal struct BoneTransformsChangeDetectionJob : IJobParallelFor
     {
         [ReadOnly]
-        public NativeArray<bool> transformChanged;
+        public NativeArray<byte> transformState;
         [ReadOnly]
         public NativeArray<SpriteSkinData> spriteSkinData;
         [ReadOnly]
@@ -36,7 +36,8 @@ namespace UnityEngine.U2D.Animation
                 if (transformIndex < 0)
                     continue;
 
-                if (transformChanged[transformIndex])
+                // Moved, or destroyed since the last sweep and so deformed with identity like a removed entry.
+                if (transformState[transformIndex] != LocalToWorldTransformAccessJob.k_TransformUnchanged)
                 {
                     hasChanged = true;
                     break;

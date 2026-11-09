@@ -14,11 +14,11 @@ namespace UnityEditor.U2D.Animation
     {
         static class Style
         {
-            public static GUIContent categoryLabel = EditorGUIUtility.TrTextContent("Category");
-            public static GUIContent labelLabel = EditorGUIUtility.TrTextContent("Label");
-            public static GUIContent categoryIsEmptyLabel = EditorGUIUtility.TrTextContent("Category is Empty");
-            public static GUIContent noCategory = EditorGUIUtility.TrTextContent("No Category");
-            public static string[] emptyCategoryDropDownOption = new[] { Style.categoryIsEmptyLabel.text };
+            public static readonly GUIContent categoryLabel = EditorGUIUtility.TrTextContent("Category");
+            public static readonly GUIContent labelLabel = EditorGUIUtility.TrTextContent("Label");
+            public static readonly GUIContent categoryIsEmptyLabel = EditorGUIUtility.TrTextContent("Category is Empty");
+            public static readonly GUIContent noCategory = EditorGUIUtility.TrTextContent("No Category");
+            public static readonly string[] emptyCategoryDropDownOption = new[] { Style.categoryIsEmptyLabel.text };
         }
 
         struct SpriteCategorySelectionList

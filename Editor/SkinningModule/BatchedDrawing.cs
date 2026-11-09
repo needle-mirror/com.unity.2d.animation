@@ -3,6 +3,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor.U2D.Common;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
@@ -45,8 +46,11 @@ namespace UnityEditor.U2D.Animation
 
         static readonly int s_HandleSize = Shader.PropertyToID("_HandleSize");
 
+        [NoAutoStaticsCleanup]
         static readonly List<Batch> s_Batches = new List<Batch>(1) { new Batch() };
+        [NoAutoStaticsCleanup]
         static Mesh s_Mesh;
+        [NoAutoStaticsCleanup]
         static NativeArray<float3> s_VertexTmpCache = default;
 
         public static unsafe void RegisterLine(float3 p1, float3 p2, float3 normal, float widthP1, float widthP2, Color color)
@@ -111,7 +115,7 @@ namespace UnityEditor.U2D.Animation
         }
 
         [BurstCompile]
-        static void CreateSolidArcVertices(
+        internal static void CreateSolidArcVertices(
             ref UnsafeList<float3> vertexPtr,
             int startIndex,
             in NativeArray<float3> vertexCache,
@@ -157,7 +161,7 @@ namespace UnityEditor.U2D.Animation
         }
 
         [BurstCompile]
-        static void CreateSolidArcWithOutlineVertices(
+        internal static void CreateSolidArcWithOutlineVertices(
             ref UnsafeList<float3> vertexPtr,
             int startIndex,
             in NativeArray<float3> vertexCache,
@@ -180,7 +184,7 @@ namespace UnityEditor.U2D.Animation
         }
 
         [BurstCompile]
-        static void SetDiscSectionPoints(ref NativeArray<float3> dest, int count, in float3 normal, in float3 from, float angle)
+        internal static void SetDiscSectionPoints(ref NativeArray<float3> dest, int count, in float3 normal, in float3 from, float angle)
         {
             float angleInRadians = math.degrees(angle / (float)(count - 1));
             quaternion rotation = quaternion.AxisAngle(normal, angleInRadians);

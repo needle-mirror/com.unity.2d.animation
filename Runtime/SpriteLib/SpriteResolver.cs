@@ -19,7 +19,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu(U2DAnimationConstants.PackageDisplayName + "/Sprite Resolver")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteResolver.asset")]
     [DefaultExecutionOrder(UpdateOrder.spriteResolverUpdateOrder)]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@16.0/manual/SL-Resolver.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@18.0/manual/SL-Resolver.html")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
     public partial class SpriteResolver : MonoBehaviour, IPreviewable
     {
@@ -85,21 +85,26 @@ namespace UnityEngine.U2D.Animation
 
         void OnEnable()
         {
-            InitializeSerializedData();
-            ResolveSpriteToSpriteRenderer();
+            bool isLegacySpriteHash = InitializeSerializedData();
+            ResolveSpriteToSpriteRenderer(isLegacySpriteHash);
         }
 
-        void InitializeSerializedData()
+        // Returns true when m_SpriteHash was taken from m_SpriteKey, which only holds legacy keys.
+        bool InitializeSerializedData()
         {
             m_CategoryHashInt = InternalEngineBridge.ConvertFloatToInt(m_CategoryHash);
             m_LabelHashInt = InternalEngineBridge.ConvertFloatToInt(m_labelHash);
             m_PreviousSpriteKeyInt = SpriteLibraryUtility.Convert32BitTo30BitHash(InternalEngineBridge.ConvertFloatToInt(m_SpriteKey));
             m_SpriteKey = InternalEngineBridge.ConvertIntToFloat(m_PreviousSpriteKeyInt);
 
+            bool isLegacySpriteHash = false;
             if (m_SpriteHash == 0)
             {
                 if (m_SpriteKey != 0f)
+                {
                     m_SpriteHash = InternalEngineBridge.ConvertFloatToInt(m_SpriteKey);
+                    isLegacySpriteHash = true;
+                }
                 else
                     m_SpriteHash = ConvertCategoryLabelHashToSpriteKey(spriteLibrary, SpriteLibraryUtility.Convert32BitTo30BitHash(m_CategoryHashInt), SpriteLibraryUtility.Convert32BitTo30BitHash(m_LabelHashInt));
             }
@@ -107,7 +112,9 @@ namespace UnityEngine.U2D.Animation
             m_PreviousSpriteHash = m_SpriteHash;
 
             string newCat, newLab;
-            if (spriteLibrary != null && spriteLibrary.GetCategoryAndEntryNameFromHash(m_SpriteHash, out newCat, out newLab))
+            if (spriteLibrary != null && (isLegacySpriteHash ?
+                    spriteLibrary.GetCategoryAndEntryNameFromLegacyHash(m_SpriteHash, out newCat, out newLab) :
+                    spriteLibrary.GetCategoryAndEntryNameFromHash(m_SpriteHash, out newCat, out newLab)))
             {
                 // Populate back in case user is using animating with old animation clip
                 m_CategoryHashInt = SpriteLibraryUtility.GetStringHash(newCat);
@@ -118,6 +125,7 @@ namespace UnityEngine.U2D.Animation
 
             m_PreviousLabelHash = m_LabelHashInt;
             m_PreviousCategoryHash = m_CategoryHashInt;
+            return isLegacySpriteHash;
         }
 
         SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
@@ -200,7 +208,7 @@ namespace UnityEngine.U2D.Animation
                 {
                     m_SpriteHash = SpriteLibraryUtility.Convert32BitTo30BitHash(spriteKeyInt);
                     m_PreviousSpriteKeyInt = spriteKeyInt;
-                    ResolveSpriteToSpriteRenderer();
+                    ResolveSpriteToSpriteRenderer(true);
                 }
                 else
                 {
@@ -225,6 +233,11 @@ namespace UnityEngine.U2D.Animation
         {
             if (library != null)
             {
+                int spriteHash = SpriteLibrary.GetHashForCategoryAndEntry(categoryHash, labelHash);
+                if (IsSpriteHashOfEntry(library, spriteHash, categoryHash, labelHash))
+                    return spriteHash;
+
+                // Another entry owns the current key, so fall back to the legacy key of the entry with these name hashes.
                 foreach (string category in library.categoryNames)
                 {
                     if (categoryHash == SpriteLibraryUtility.GetStringHash(category))
@@ -236,7 +249,10 @@ namespace UnityEngine.U2D.Animation
                             {
                                 if (labelHash == SpriteLibraryUtility.GetStringHash(entry))
                                 {
-                                    return SpriteLibrary.GetHashForCategoryAndEntry(category, entry);
+                                    int legacyHash = SpriteLibrary.GetLegacyHashForCategoryAndEntry(category, entry);
+                                    if (library.GetCategoryAndEntryNameFromHash(legacyHash, out string legacyCategory, out string legacyEntry) &&
+                                        legacyCategory == category && legacyEntry == entry)
+                                        return legacyHash;
                                 }
                             }
                         }
@@ -247,12 +263,26 @@ namespace UnityEngine.U2D.Animation
             return 0;
         }
 
+        static bool IsSpriteHashOfEntry(SpriteLibrary library, int spriteHash, int categoryHash, int labelHash)
+        {
+            return library.GetCategoryAndEntryNameFromHash(spriteHash, out string category, out string entry) &&
+                SpriteLibraryUtility.GetStringHash(category) == categoryHash &&
+                SpriteLibraryUtility.GetStringHash(entry) == labelHash;
+        }
+
         internal Sprite GetSprite(out bool validEntry)
+        {
+            return GetSprite(false, out validEntry);
+        }
+
+        Sprite GetSprite(bool isLegacySpriteHash, out bool validEntry)
         {
             SpriteLibrary lib = spriteLibrary;
             if (lib != null)
             {
-                return lib.GetSpriteFromCategoryAndEntryHash(m_SpriteHash, out validEntry);
+                return isLegacySpriteHash ?
+                    lib.GetSpriteFromLegacyHash(m_SpriteHash, out validEntry) :
+                    lib.GetSpriteFromCategoryAndEntryHash(m_SpriteHash, out validEntry);
             }
 
             validEntry = false;
@@ -265,8 +295,13 @@ namespace UnityEngine.U2D.Animation
         /// <returns>True if it successfully resolved the Sprite.</returns>
         public bool ResolveSpriteToSpriteRenderer()
         {
+            return ResolveSpriteToSpriteRenderer(false);
+        }
+
+        bool ResolveSpriteToSpriteRenderer(bool isLegacySpriteHash)
+        {
             m_PreviousSpriteHash = m_SpriteHash;
-            Sprite sprite = GetSprite(out bool validEntry);
+            Sprite sprite = GetSprite(isLegacySpriteHash, out bool validEntry);
             SpriteRenderer sr = spriteRenderer;
             if (sr != null && (sprite != null || validEntry))
                 sr.sprite = sprite;

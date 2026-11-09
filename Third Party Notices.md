@@ -29,25 +29,3 @@ SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
 FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
-
----------
-Component Name: Eigen
-
-License Type: Mozilla Public License Version 2.0
-
-Copyright owner unknown
-
-http://eigen.tuxfamily.org/
-
-https://www.mozilla.org/en-US/MPL/2.0/
-
----------
-Component Name: libigl
-
-License Type: Mozilla Public License Version 2.0
-
-Copyright (c) 2019 Alec Jacobson, Daniele Panozzo, Christian Schüller, Olga Diamanti, Qingnan Zhou, Sebastian Koch, Jeremie Dumas, Amir Vaxman, Nico Pietroni, Stefan Brugger, Kenshi Takayama, Wenzel Jakob, Nikolas De Giorgis, Luigi Rocca, Leonardo Sacht, Kevin Walliman, Olga Sorkine-Hornung, Teseo Schneider, and others.
-
-https://libigl.github.io/
-
-https://www.mozilla.org/en-US/MPL/2.0/

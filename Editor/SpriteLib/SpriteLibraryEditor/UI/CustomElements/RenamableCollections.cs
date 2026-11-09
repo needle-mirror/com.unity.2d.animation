@@ -19,6 +19,11 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         /// </summary>
         int renamingIndex { get; }
 
+        /// <summary>
+        /// Text typed into the rename field so far, kept so that the field can be recreated when its item is rebound. Null until the user types.
+        /// </summary>
+        string renamingText { get; set; }
+
         void SetSourceItems(IList sourceList);
         IList GetItemSource();
         void SetSelectionWithoutNotify(IEnumerable<int> indices);
@@ -40,6 +45,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         public CanRenameDelegate CanRenameAtIndex;
 
         public int renamingIndex { get; private set; } = -1;
+
+        public string renamingText { get; set; }
 
         public RenamableListView()
         {
@@ -113,6 +120,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (CanRename(selectedIndex))
             {
                 renamingIndex = selectedIndex;
+                renamingText = null;
                 RefreshItem(renamingIndex);
             }
         }
@@ -124,6 +132,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             int changedId = renamingIndex;
             renamingIndex = -1;
+            renamingText = null;
             if (changedId >= 0)
             {
                 VisualElement ve = GetRootElementForIndex(changedId);
@@ -160,6 +169,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
         public Action onItemsReordered { get; set; }
 
         public int renamingIndex { get; private set; } = -1;
+
+        public string renamingText { get; set; }
 
         float m_Width;
 
@@ -214,6 +225,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (CanRename(selectedIndex))
             {
                 renamingIndex = selectedIndex;
+                renamingText = null;
                 RefreshItem(renamingIndex);
             }
         }
@@ -225,6 +237,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             int changedId = renamingIndex;
             renamingIndex = -1;
+            renamingText = null;
             if (changedId >= 0)
             {
                 VisualElement ve = GetElementAt(changedId);

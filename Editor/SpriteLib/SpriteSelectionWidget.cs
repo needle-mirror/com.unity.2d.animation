@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor.U2D.Common;
 using UnityEngine;
 
@@ -33,6 +34,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
+        [NoAutoStaticsCleanup]
         static Texture2D s_LoadingSpriteTexture;
 
         const int k_TargetPreviewSize = 64;

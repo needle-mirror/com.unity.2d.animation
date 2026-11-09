@@ -145,7 +145,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
         const bool k_DefaultPreventScrollWithModifiers = true;
 
-        static CustomStyleProperty<int> s_ItemHeightProperty = new CustomStyleProperty<int>("--unity-item-height");
+        static readonly CustomStyleProperty<int> s_ItemHeightProperty = new CustomStyleProperty<int>("--unity-item-height");
 
         /// <summary>
         /// The <see cref="UnityEngine.UIElements.ScrollView"/> used by the GridView.
@@ -922,7 +922,6 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             if (float.IsNaN(m_LastHeight))
                 return;
 
-            m_FirstVisibleIndex = Math.Min((int)(m_ScrollOffset / resolvedItemHeight) * columnCount, m_ItemsSource.Count - 1);
             ResizeHeight(m_LastHeight);
 
             if (!allowNoSelection && m_SelectedIds.Count == 0)
@@ -1413,6 +1412,10 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             if (evt.clickCount == 2)
             {
+                // Clicks on the scroll bars bubble up to the scroll view, but they are not clicks on an item.
+                if (!scrollView.contentViewport.worldBound.Contains(evt.position))
+                    return;
+
                 int clickedIndex = GetIndexByWorldPosition(evt.position);
                 if (clickedIndex >= 0 && clickedIndex < m_ItemsSource.Count)
                 {
@@ -1640,6 +1643,8 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
                                 }
                             }
                         }
+
+                        m_RowPool[rowIndex].UpdateDisplay();
                     }
                 }
             }
@@ -1695,6 +1700,13 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
             scrollView.verticalScroller.highValue = scrollableHeight;
             scrollView.verticalScroller.value = Mathf.Min(m_ScrollOffset, scrollView.verticalScroller.highValue);
 
+            // OnScroll skips an empty pool, so the clamped offset must be applied before the rows are rebuilt.
+            if (m_RowPool.Count == 0)
+            {
+                m_ScrollOffset = scrollView.verticalScroller.value;
+                m_FirstVisibleIndex = Math.Min((int)(m_ScrollOffset / pixelAlignedItemHeight) * columnCount, itemsSource.Count - 1);
+            }
+
             int rowCountForHeight = Mathf.FloorToInt(height / pixelAlignedItemHeight) + k_ExtraVisibleRows;
             int rowCount = Math.Min(rowCountForHeight, rowCountForSource);
 
@@ -1746,6 +1758,7 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
                         m_RowPool.Add(recycledRow);
                         recycledRow.style.height = pixelAlignedItemHeight;
+                        recycledRow.UpdateDisplay();
 
                         scrollView.Add(recycledRow);
                     }
@@ -1753,6 +1766,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
                 m_VisibleRowCount = rowCount;
             }
+
+            // OnScroll skips an empty pool, so a scroll reset during Refresh() leaves the padding stale.
+            scrollView.contentContainer.style.paddingTop = Mathf.Max(0, m_FirstVisibleIndex / columnCount) * pixelAlignedItemHeight;
 
             m_LastHeight = height;
         }
@@ -1928,6 +1944,9 @@ namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 
             public int firstIndex => indices.Count > 0 ? indices[0] : kUndefinedIndex;
             public int lastIndex => indices.Count > 0 ? indices[^1] : kUndefinedIndex;
+
+            // A row without items must stay out of the layout, or it overflows the content height and the ScrollView extends its range past the last item.
+            public void UpdateDisplay() => style.display = firstIndex == kUndefinedIndex ? DisplayStyle.None : DisplayStyle.Flex;
 
             public void ClearSelection()
             {

@@ -11,7 +11,7 @@ namespace UnityEditor.U2D.Animation
     {
         private static class Styles
         {
-            public static string moduleName = L10n.Tr("Skinning Editor");
+            public static readonly string moduleName = L10n.Tr("Skinning Editor");
         }
 
         private SkinningCache m_SkinningCache;

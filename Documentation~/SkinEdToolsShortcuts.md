@@ -20,9 +20,11 @@ F. [Rig tools](#rig-tools)
 
 This toolbar lets you toggle between __Character__ and __Sprite Sheet__ modes. It also contains the __Visibility__ toggle.
 
+__Character__ mode is available only for assets that have character data. A .psb file has character data if you import it with the PSD Importer's __Import Mode__ set to __Individual Sprites (Mosaic)__ and __Use as Rig__ enabled. For more information, refer to [PSD Importer properties](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@17.0/manual/PSD-importer-properties.html). For other assets, such as a sprite sheet imported from a .png file, the Skinning Editor uses __Sprite Sheet__ mode only. The toolbar still displays the __Toggle View Mode__ button set to __Sprite Sheet__, but the button is unavailable.
+
 | __Tool__                                                     | __Default Shortcut__ | __Function__                                                 |
 | ------------------------------------------------------------ | -------------------- | ------------------------------------------------------------ |
-| ![Toggle View Mode](images/icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the __Character__ and __Sprite Sheet__ view modes. |
+| ![Toggle View Mode](images/icon_ToggleView.png)<br/>__Toggle View Mode__ | Shift + 2            | Switch between the __Character__ and __Sprite Sheet__ view modes. Available only for assets that have character data. |
 | ![Visibility icon](images/icon_Visibility.png)<br/>__Visibility__ | Shift + P            | Toggles the [Sprite visibility panel](SpriteVis.md), which controls the visibility of the Sprite meshes and bones in the editor window. |
 | __Toggle Tool Text__                                         | Alt + `              | Show or hide text on tool buttons.                           |
 
@@ -158,7 +160,7 @@ The Weights panel appears at the lower right of the Sprite Editor window when __
 
 ### Bone Influences panel
 
-The __Bone Influences panel__ displays a list of bones that are currently influencing the selected Sprite mesh.
+The __Bone Influences panel__ displays a list of bones that are currently influencing the selected Sprite mesh. If the asset contains only one Sprite, the panel displays the bones that influence that Sprite, even if you don't select it.
 
 ![The Bone Influences panel, next to the leg of a model that has three bones.](images/BoneInfluencesExample.png)
 

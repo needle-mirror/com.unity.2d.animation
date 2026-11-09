@@ -1,4 +1,5 @@
 using System;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation
@@ -136,7 +137,9 @@ namespace UnityEditor.U2D.Animation
 
     internal static class SkeletonStyles
     {
+        [NoAutoStaticsCleanup]
         public static readonly ISkeletonStyle Default = new BoneColorSkeletonStyle();
+        [NoAutoStaticsCleanup]
         public static readonly ISkeletonStyle WeightMap = new WeightmapSkeletonStyle();
     }
 }

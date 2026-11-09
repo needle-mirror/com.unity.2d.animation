@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor.SceneManagement;
 using UnityEditor.U2D.Sprites;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         const string k_SpriteLibTypeId = "t:SpriteLibraryAsset";
         const string k_PsbImporterCategoriesId = "m_SpriteCategoryList.m_Categories";
+        [NoAutoStaticsCleanup] // Filled by the static constructor, which a reset would not re-run
         static readonly Dictionary<Type, List<FieldInfo>> k_SpriteLibraryReferenceLookup;
 
         bool m_OnlyFindOldAssets;

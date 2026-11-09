@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Profiling;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.U2D.Animation;
 using UnityEngine.U2D.Common;
@@ -14,7 +14,7 @@ namespace UnityEngine.U2D.IK
     [MovedFrom("UnityEngine.Experimental.U2D.IK")]
     [AddComponentMenu(U2DAnimationConstants.PackageDisplayName + "/IK Manager 2D")]
     [Icon(IconUtility.IconPath + "Animation.IKManager.png")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@16.0/manual/2DIK.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@18.0/manual/2DIK.html")]
     [ExecuteInEditMode]
     public partial class IKManager2D : MonoBehaviour, IPreviewable
     {
@@ -24,7 +24,9 @@ namespace UnityEngine.U2D.IK
         }
 
 #if UNITY_EDITOR
+        [NoAutoStaticsCleanup] // IKEditorManager subscribes once, in OnEnable
         internal static event System.Action<IKManager2D> onEnabledEditor;
+        [NoAutoStaticsCleanup]
         internal static event System.Action<IKManager2D> onDisabledEditor;
 #endif
 
@@ -36,9 +38,9 @@ namespace UnityEngine.U2D.IK
         [SerializeField]
         bool m_AlwaysUpdate = true;
 
-        bool m_CullingEnabled;
-        BaseCullingStrategy m_CullingStrategy;
-        internal BaseCullingStrategy GetCullingStrategy() => m_CullingStrategy;
+        BoneVisibilityGroup m_BoneVisibilityGroup;
+        bool m_BoneVisibilityGroupDirty;
+        internal BoneVisibilityGroup GetBoneVisibilityGroup() => m_BoneVisibilityGroup;
 
         /// <summary>
         /// Get and set the weight for solvers.
@@ -52,9 +54,10 @@ namespace UnityEngine.U2D.IK
         /// <summary>
         /// Get the Solvers that are managed by this manager.
         /// </summary>
+        /// <remarks>
+        /// Use <see cref="AddSolver"/> and <see cref="RemoveSolver"/> to change which Solvers the manager updates. Modifying this list directly is not supported.
+        /// </remarks>
         public List<Solver2D> solvers => m_Solvers;
-
-        EntityId[] m_TransformIdCache;
 
         /// <summary>
         /// Solvers are always updated even if the underlying Sprite Skins are not visible.
@@ -72,6 +75,7 @@ namespace UnityEngine.U2D.IK
         void OnEnable()
         {
             ToggleCulling(!m_AlwaysUpdate);
+            m_BoneVisibilityGroupDirty = true;
 
 #if UNITY_EDITOR
             onEnabledEditor?.Invoke(this);
@@ -89,24 +93,28 @@ namespace UnityEngine.U2D.IK
 
         void ToggleCulling(bool enableCulling)
         {
-            if (m_CullingStrategy != null && m_CullingEnabled == enableCulling)
+            if (enableCulling == (m_BoneVisibilityGroup != null))
                 return;
 
-            m_CullingEnabled = enableCulling;
-            m_CullingStrategy?.RemoveRequestingObject(this);
-
-            if (m_CullingEnabled)
-                m_CullingStrategy = CullingManager.instance.GetCullingStrategy<SpriteSkinVisibilityCullingStrategy>();
+            if (enableCulling)
+            {
+                m_BoneVisibilityGroup = new BoneVisibilityGroup();
+                m_BoneVisibilityGroupDirty = true;
+            }
             else
-                m_CullingStrategy = CullingManager.instance.GetCullingStrategy<AlwaysUpdateCullingStrategy>();
-
-            m_CullingStrategy.AddRequestingObject(this);
+            {
+                m_BoneVisibilityGroup.Dispose();
+                m_BoneVisibilityGroup = null;
+            }
         }
 
         void OnValidate()
         {
             m_Weight = Mathf.Clamp01(m_Weight);
             OnEditorDataValidate();
+
+            // The Inspector and Undo change the solver list without going through AddSolver or RemoveSolver.
+            m_BoneVisibilityGroupDirty = true;
         }
 
         void Reset()
@@ -139,6 +147,7 @@ namespace UnityEngine.U2D.IK
             {
                 m_Solvers.Add(solver);
                 AddSolverEditorData();
+                m_BoneVisibilityGroupDirty = true;
             }
         }
 
@@ -150,6 +159,7 @@ namespace UnityEngine.U2D.IK
         {
             RemoveSolverEditorData(solver);
             m_Solvers.Remove(solver);
+            m_BoneVisibilityGroupDirty = true;
         }
 
         /// <summary>
@@ -164,6 +174,7 @@ namespace UnityEngine.U2D.IK
 
             ToggleCulling(!m_AlwaysUpdate);
 
+            bool cullingEnabled = m_BoneVisibilityGroup != null;
             bool solverInitialized = false;
             for (int i = 0; i < m_Solvers.Count; i++)
             {
@@ -177,17 +188,20 @@ namespace UnityEngine.U2D.IK
                     solverInitialized = true;
                 }
 
-                if (!m_CullingEnabled)
+                // Solve right after initializing: a solver sharing bones with an earlier one
+                // records its default pose after that one has solved.
+                if (!cullingEnabled)
                     solver.UpdateIK(m_Weight);
             }
 
-            if (m_CullingEnabled)
+            if (cullingEnabled)
             {
-                if (solverInitialized || m_TransformIdCache == null)
-                    CacheSolversTransformIds();
+                // Built here rather than when culling turns on: the solvers may not be there yet,
+                // and an already valid solver added later never sets solverInitialized.
+                if (solverInitialized || m_BoneVisibilityGroupDirty)
+                    CacheSolversBones();
 
-                bool canUpdate = m_AlwaysUpdate || m_CullingStrategy.AreBonesVisible(m_TransformIdCache);
-                if (canUpdate)
+                if (m_BoneVisibilityGroup.isVisible)
                 {
                     for (int i = 0; i < m_Solvers.Count; i++)
                     {
@@ -195,7 +209,7 @@ namespace UnityEngine.U2D.IK
                         if (solver == null || !solver.isActiveAndEnabled)
                             continue;
 
-                        solver.UpdateIK(weight);
+                        solver.UpdateIK(m_Weight);
                     }
                 }
             }
@@ -203,25 +217,36 @@ namespace UnityEngine.U2D.IK
             Profiling.UpdateManager.End();
         }
 
-        void CacheSolversTransformIds()
+        void CacheSolversBones()
         {
-            HashSet<EntityId> transformCache = new HashSet<EntityId>();
+            List<Transform> boneCache = new List<Transform>();
+
             for (int s = 0; s < solvers.Count; s++)
             {
                 Solver2D solver = solvers[s];
+                if (solver == null)
+                    continue;
+
                 for (int c = 0; c < solver.chainCount; c++)
                 {
                     IKChain2D chain = solver.GetChain(c);
-                    for (int b = 0; b < chain.transformCount; b++)
+                    Transform[] chainTransforms = chain?.transforms;
+                    if (chainTransforms == null)
+                        continue;
+
+                    // Initialize leaves the previous transforms in place when the chain can no longer be built.
+                    int boneCount = Mathf.Min(chain.transformCount, chainTransforms.Length);
+                    for (int b = 0; b < boneCount; b++)
                     {
-                        Transform boneTransform = chain.transforms[b];
+                        Transform boneTransform = chainTransforms[b];
                         if (boneTransform != null)
-                            transformCache.Add(boneTransform.GetEntityId());
+                            boneCache.Add(boneTransform);
                     }
                 }
             }
 
-            m_TransformIdCache = transformCache.ToArray();
+            m_BoneVisibilityGroup.SetBones(boneCache);
+            m_BoneVisibilityGroupDirty = false;
         }
 
         /// <summary>
@@ -243,6 +268,7 @@ namespace UnityEngine.U2D.IK
         }
 
 #if UNITY_EDITOR
+        [NoAutoStaticsCleanup]
         internal static Events.UnityEvent onDrawGizmos = new Events.UnityEvent();
         void OnDrawGizmos()
         {

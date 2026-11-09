@@ -113,6 +113,10 @@ namespace UnityEngine.U2D.IK
         [BurstCompile]
         public static bool Solve(in float2 targetPosition, int solverLimit, float tolerance, in NativeArray<float> lengths, ref NativeArray<float2> positions)
         {
+            // A single position has no bone to move.
+            if (positions.Length < 2)
+                return false;
+
             Profiling.Solve.Begin();
 
             int last = positions.Length - 1;
@@ -128,6 +132,10 @@ namespace UnityEngine.U2D.IK
                 if (++iterations >= solverLimit)
                     break;
             }
+
+            // A joint that the target lands on has no direction to move in, so it is left in place and its bone length is not preserved.
+            if (iterations != 0 && !BoneLengthsPreserved(tolerance, lengths, positions))
+                Debug.LogWarning("FABRIK2D: The IK chain did not converge. The target is at a joint position, so the bone lengths could not be preserved.");
 
             Profiling.Solve.End();
 
@@ -216,24 +224,20 @@ namespace UnityEngine.U2D.IK
             positions[last] = targetPosition;
             for (int i = last - 1; i >= 0; --i)
             {
-                Vector2 r = positions[i + 1] - positions[i];
-                float l = lengths[i] / r.magnitude;
-                Vector2 position = (1f - l) * positions[i + 1] + l * positions[i];
-                positions[i] = position;
+                Vector2 direction = (positions[i + 1] - positions[i]).normalized;
+                positions[i] = positions[i + 1] - lengths[i] * direction;
             }
         }
 
         [BurstCompile]
-        static void Forward(in float2 targetPosition, in NativeArray<float> lengths, ref NativeArray<float2> positions)
+        internal static void Forward(in float2 targetPosition, in NativeArray<float> lengths, ref NativeArray<float2> positions)
         {
             int last = positions.Length - 1;
             positions[last] = targetPosition;
             for (int i = last - 1; i >= 0; --i)
             {
-                float2 r = positions[i + 1] - positions[i];
-                float l = lengths[i] / math.length(r);
-                float2 position = (1f - l) * positions[i + 1] + l * positions[i];
-                positions[i] = position;
+                float2 direction = ((Vector2)(positions[i + 1] - positions[i])).normalized;
+                positions[i] = positions[i + 1] - lengths[i] * direction;
             }
         }
 
@@ -243,25 +247,32 @@ namespace UnityEngine.U2D.IK
             int last = positions.Length - 1;
             for (int i = 0; i < last; ++i)
             {
-                Vector2 r = positions[i + 1] - positions[i];
-                float l = lengths[i] / r.magnitude;
-                Vector2 position = (1f - l) * positions[i] + l * positions[i + 1];
-                positions[i + 1] = position;
+                Vector2 direction = (positions[i + 1] - positions[i]).normalized;
+                positions[i + 1] = positions[i] + lengths[i] * direction;
             }
         }
 
         [BurstCompile]
-        static void Backward(in float2 originPosition, in NativeArray<float> lengths, ref NativeArray<float2> positions)
+        internal static void Backward(in float2 originPosition, in NativeArray<float> lengths, ref NativeArray<float2> positions)
         {
             positions[0] = originPosition;
             int last = positions.Length - 1;
             for (int i = 0; i < last; ++i)
             {
-                float2 r = positions[i + 1] - positions[i];
-                float l = lengths[i] / math.length(r);
-                float2 position = (1f - l) * positions[i] + l * positions[i + 1];
-                positions[i + 1] = position;
+                float2 direction = ((Vector2)(positions[i + 1] - positions[i])).normalized;
+                positions[i + 1] = positions[i] + lengths[i] * direction;
             }
+        }
+
+        static bool BoneLengthsPreserved(float tolerance, in NativeArray<float> lengths, in NativeArray<float2> positions)
+        {
+            for (int i = 0; i < lengths.Length; ++i)
+            {
+                if (math.abs(math.distance(positions[i + 1], positions[i]) - lengths[i]) > tolerance)
+                    return false;
+            }
+
+            return true;
         }
 
         // For constraints

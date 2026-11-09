@@ -10,6 +10,7 @@ using UnityEngine.Rendering.Universal;
 #endif
 using Unity.Profiling;
 using UnityEngine.U2D.Animation.Profiler;
+using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEngine.U2D.Animation
 {
@@ -34,6 +35,7 @@ namespace UnityEngine.U2D.Animation
 
     internal class DeformationManager : ScriptableObject
     {
+        [NoAutoStaticsCleanup] // HideAndDontSave instance owns the native buffers and outlives Play
         static DeformationManager s_Instance;
 
         public static DeformationManager instance
@@ -86,7 +88,17 @@ namespace UnityEngine.U2D.Animation
         // Undetermined at add time (e.g. before the first render). They are promoted to GPU once it
         // resolves to Compatible. (UUM-143532)
         readonly HashSet<SpriteSkin> m_PendingGpuPromotion = new HashSet<SpriteSkin>();
+        [NoAutoStaticsCleanup]
         static readonly List<SpriteSkin> s_PendingPromotionScratch = new List<SpriteSkin>();
+
+#if UNITY_EDITOR
+        // On CPU only because their Sprite Renderer is not SRP Batcher compatible, e.g. it has a MaterialPropertyBlock
+        readonly HashSet<SpriteSkin> m_SrpIncompatibleOnCpu = new HashSet<SpriteSkin>();
+        [NoAutoStaticsCleanup]
+        static readonly List<SpriteSkin> s_SrpReassignScratch = new List<SpriteSkin>();
+        // Warn once per Sprite Skin, because Timeline scrubbing can move one back and forth every frame
+        readonly HashSet<EntityId> m_SrpFallbackWarned = new HashSet<EntityId>();
+#endif
 
         void OnEnable()
         {
@@ -175,6 +187,9 @@ namespace UnityEngine.U2D.Animation
             }
             UpdateGpuDeformationConfig();
             DrainPendingGpuPromotion();
+#if UNITY_EDITOR
+            ReassignSpriteSkinsOnSrpBatchingChange();
+#endif
 
             for (int i = 0; i < m_DeformationSystems.Length; ++i)
                 m_DeformationSystems[i].Update();
@@ -314,11 +329,17 @@ namespace UnityEngine.U2D.Animation
                         m_PendingGpuPromotion.Remove(spriteSkin);
                         break;
                     default:
-                        // Determined ineligible (SRP-batcher incompatible); stays on CPU silently, stop tracking.
+                        // Determined SRP-batcher incompatible; stays on CPU silently until it becomes compatible.
                         m_PendingGpuPromotion.Remove(spriteSkin);
+#if UNITY_EDITOR
+                        m_SrpIncompatibleOnCpu.Add(spriteSkin);
+#endif
                         break;
                 }
             }
+
+            // Don't keep Sprite Skins referenced from the static list until the next drain.
+            s_PendingPromotionScratch.Clear();
         }
 
         void MoveSpriteSkinToGpu(SpriteSkin spriteSkin)
@@ -338,6 +359,96 @@ namespace UnityEngine.U2D.Animation
                 spriteSkin.UpdateSpriteDeformationData();
             }
         }
+
+#if UNITY_EDITOR
+        void MoveSpriteSkinToCpu(SpriteSkin spriteSkin)
+        {
+            BaseDeformationSystem cpuSystem = m_DeformationSystems[(int)DeformationMethods.Cpu];
+            if (spriteSkin.DeformationSystem == cpuSystem)
+                return;
+
+            // Also clears the bone transform index, so the shader does not skin the CPU-deformed vertices again
+            spriteSkin.spriteRenderer.DeactivateDeformableBuffer();
+            spriteSkin.DeformationSystem?.RemoveSpriteSkin(spriteSkin);
+            if (cpuSystem.AddSpriteSkin(spriteSkin))
+            {
+                spriteSkin.SetDeformationSystem(cpuSystem);
+                spriteSkin.UpdateSpriteDeformationData();
+            }
+        }
+
+        // Nothing notifies us when a MaterialPropertyBlock is set or removed, so poll. Only in the Editor, because the
+        // poll costs a native call per GPU-deformed Sprite Skin every frame; a Player checks only when a Sprite Skin is enabled.
+        void ReassignSpriteSkinsOnSrpBatchingChange()
+        {
+            if (!canUseGpuDeformation || m_DeformationSystems.Length <= 1 || !SpriteSkinUtility.IsUsingGpuDeformation())
+            {
+                // A global toggle change re-adds everyone via MoveSpriteSkinsToActiveSystem.
+                m_SrpIncompatibleOnCpu.Clear();
+                return;
+            }
+
+            BaseDeformationSystem gpuSystem = m_DeformationSystems[(int)DeformationMethods.Gpu];
+
+            s_SrpReassignScratch.Clear();
+            foreach (SpriteSkin spriteSkin in gpuSystem.GetSpriteSkins())
+            {
+                // A disabled skin stays in the set until the system's queued removal runs; its owner is already cleared.
+                if (spriteSkin == null || spriteSkin.DeformationSystem != gpuSystem)
+                    continue;
+
+                if (SpriteSkinUtility.IsSRPBatchingIncompatible(spriteSkin.spriteRenderer))
+                    s_SrpReassignScratch.Add(spriteSkin);
+            }
+            foreach (SpriteSkin spriteSkin in s_SrpReassignScratch)
+            {
+                MoveSpriteSkinToCpu(spriteSkin);
+                m_SrpIncompatibleOnCpu.Add(spriteSkin);
+                WarnSrpFallbackInEditorOnly(spriteSkin);
+            }
+
+            s_SrpReassignScratch.Clear();
+            if (m_SrpIncompatibleOnCpu.Count == 0)
+                return;
+
+            s_SrpReassignScratch.AddRange(m_SrpIncompatibleOnCpu);
+            foreach (SpriteSkin spriteSkin in s_SrpReassignScratch)
+            {
+                // Disabled or destroyed skins detach from their system; AddSpriteSkin re-evaluates them on enable.
+                if (spriteSkin == null || spriteSkin.DeformationSystem == null)
+                {
+                    m_SrpIncompatibleOnCpu.Remove(spriteSkin);
+                    continue;
+                }
+
+                if (SpriteSkinUtility.IsSRPBatchingIncompatible(spriteSkin.spriteRenderer))
+                    continue;
+
+                switch (SpriteSkinUtility.GetGpuDeformEligibility(spriteSkin))
+                {
+                    case SpriteSkinUtility.GpuDeformEligibility.Eligible:
+                        MoveSpriteSkinToGpu(spriteSkin);
+                        m_SrpIncompatibleOnCpu.Remove(spriteSkin);
+                        break;
+                    case SpriteSkinUtility.GpuDeformEligibility.IneligibleUnsupportedShader:
+                        WarnUnsupportedShader(spriteSkin);
+                        m_SrpIncompatibleOnCpu.Remove(spriteSkin);
+                        break;
+                }
+            }
+
+            s_SrpReassignScratch.Clear();
+        }
+
+        void WarnSrpFallbackInEditorOnly(SpriteSkin spriteSkin)
+        {
+            if (!m_SrpFallbackWarned.Add(spriteSkin.GetEntityId()))
+                return;
+
+            Debug.LogWarning($"{spriteSkin.name} switched to CPU deformation because its Sprite Renderer isn't compatible with the SRP Batcher, for example because it has a Material Property Block. " +
+                "A Player doesn't switch it automatically, so disable and then enable the Sprite Skin after the Sprite Renderer changes.", spriteSkin);
+        }
+#endif
 
         internal void AddSpriteSkin(SpriteSkin spriteSkin, bool isUpdateSpriteDeformationData = true)
         {
@@ -360,6 +471,9 @@ namespace UnityEngine.U2D.Animation
                 {
                     // Re-evaluate from scratch; only stays pending below if still Undetermined.
                     m_PendingGpuPromotion.Remove(spriteSkin);
+#if UNITY_EDITOR
+                    m_SrpIncompatibleOnCpu.Remove(spriteSkin);
+#endif
 
                     SpriteSkinUtility.GpuDeformEligibility eligibility = SpriteSkinUtility.GetGpuDeformEligibility(spriteSkin);
                     if (eligibility != SpriteSkinUtility.GpuDeformEligibility.Eligible)
@@ -379,6 +493,12 @@ namespace UnityEngine.U2D.Animation
                             // Other Ineligible reasons (e.g. SRP-batcher incompatibility) fall back to CPU silently.
                             WarnUnsupportedShader(spriteSkin);
                         }
+#if UNITY_EDITOR
+                        else
+                        {
+                            m_SrpIncompatibleOnCpu.Add(spriteSkin);
+                        }
+#endif
                     }
                 }
             }
@@ -426,14 +546,14 @@ namespace UnityEngine.U2D.Animation
             return skinList.ToArray();
         }
 
-        internal TransformAccessJob GetWorldToLocalTransformAccessJob(DeformationMethods deformationMethod)
+        internal WorldToLocalTransformAccessJob GetWorldToLocalTransformAccessJob(DeformationMethods deformationMethod)
         {
             if (!IsValidDeformationMethod(deformationMethod, out int systemIndex))
                 return null;
             return m_DeformationSystems[systemIndex].GetWorldToLocalTransformAccessJob();
         }
 
-        internal TransformAccessJob GetLocalToWorldTransformAccessJob(DeformationMethods deformationMethod)
+        internal LocalToWorldTransformAccessJob GetLocalToWorldTransformAccessJob(DeformationMethods deformationMethod)
         {
             if (!IsValidDeformationMethod(deformationMethod, out int systemIndex))
                 return null;

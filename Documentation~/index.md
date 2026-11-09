@@ -3,6 +3,11 @@ The 2D Animation package includes features and tools that allow you to quickly r
 
 Package version  | Unity Editor version
 --|--
+18.x.x |  7000.0
+17.x.x |  6000.7
+16.x.x |  6000.6
+15.x.x |  6000.5
+14.x.x |  6000.4
 13.x.x |  6000.3
 12.x.x |  6000.2
 11.x.x |  6000.1
@@ -13,9 +18,9 @@ Package version  | Unity Editor version
 5.x.x  |  2020.2 or 2020.3
 
 ## 2D Animation and PSD Importer package integration
-Use the 2D Animation package with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@15.0) package to easily import character artwork created in Photoshop into Unity, and prepare it for animation with the 2D Animation package. The PSD Importer is an [Asset importer](https://docs.unity3d.com/6000.6/Documentation/Manual/ImportingAssets.html) that supports Adobe Photoshop .psb files, and generates a Prefab made of Sprites based on the source file and its [layers](https://helpx.adobe.com/photoshop/using/layer-basics.html). The generated Prefab of a character or prop to be animated with the 2D Animation package is called an 'actor'.
+Use the 2D Animation package with the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@17.0) package to easily import character artwork created in Photoshop into Unity, and prepare it for animation with the 2D Animation package. The PSD Importer is an [Asset importer](https://docs.unity3d.com/7000.0/Documentation/Manual/ImportingAssets.html) that supports Adobe Photoshop .psb files, and generates a Prefab made of Sprites based on the source file and its [layers](https://helpx.adobe.com/photoshop/using/layer-basics.html). The generated Prefab of a character or prop to be animated with the 2D Animation package is called an 'actor'.
 
-The [.psb](https://helpx.adobe.com/photoshop/using/file-formats.html#large_document_format_psb)[ file format](https://helpx.adobe.com/photoshop/using/file-formats.html#large_document_format_psb) has identical functions as the more common Adobe .psd format, with additional support for much larger image sizes. Refer to the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@15.0) package documentation for more information about the importer’s features.
+The [.psb](https://helpx.adobe.com/photoshop/using/file-formats.html#large_document_format_psb)[ file format](https://helpx.adobe.com/photoshop/using/file-formats.html#large_document_format_psb) has identical functions as the more common Adobe .psd format, with additional support for much larger image sizes. Refer to the [PSD Importer](https://docs.unity3d.com/Packages/com.unity.2d.psdimporter@17.0) package documentation for more information about the importer’s features.
 
 ## Upgrading Sprite Library Assets and Animation Clips
 The 2D Animation package and its assets are often updated with major and minor tweaks over time. Some asset improvements can be automatically applied when you upgrade to the latest version of the package. However, some of these changes require a manual step in order to have the assets use the latest code path.

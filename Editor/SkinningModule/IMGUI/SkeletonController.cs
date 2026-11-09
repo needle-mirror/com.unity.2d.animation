@@ -10,7 +10,7 @@ namespace UnityEditor.U2D.Animation
     {
         static readonly string k_DefaultRootName = "root";
         static readonly string k_DefaultBoneName = "bone";
-        static Regex s_Regex = new Regex(@"\w+_\d+$", RegexOptions.IgnoreCase);
+        static readonly Regex s_Regex = new Regex(@"\w+_\d+$", RegexOptions.IgnoreCase);
 
         [SerializeField]
         Vector3 m_CreateBoneStartPosition;
@@ -193,6 +193,9 @@ namespace UnityEditor.U2D.Animation
                     m_Moved = true;
                 }
 
+                if (hotBone != null)
+                    deltaPosition = ModuleUtility.SnapPositionDelta(hotBone.position, deltaPosition);
+
                 m_Skeleton.MoveBones(rootBones, deltaPosition);
                 InvokePoseChanged();
             }
@@ -210,6 +213,9 @@ namespace UnityEditor.U2D.Animation
                     skinningCache.BeginUndoOperation(TextContent.freeMoveBone);
                     m_Moved = true;
                 }
+
+                if (hotBone != null)
+                    deltaPosition = ModuleUtility.SnapPositionDelta(hotBone.position, deltaPosition);
 
                 m_Skeleton.FreeMoveBones(selectedBones, deltaPosition);
                 InvokePoseChanged();
@@ -238,6 +244,8 @@ namespace UnityEditor.U2D.Animation
                 //Snap to parent endPosition
                 if (hoveredTail != null && hoveredTail.chainedChild == null && hotBone.parent == hoveredTail)
                     deltaPosition = hoveredTail.endPosition - hotBone.position;
+                else if (hotBone != null)
+                    deltaPosition = ModuleUtility.SnapPositionDelta(hotBone.position, deltaPosition);
 
                 m_Skeleton.MoveJoints(selectedBones, deltaPosition);
                 InvokePoseChanged();
@@ -315,15 +323,14 @@ namespace UnityEditor.U2D.Animation
 
             if (view.DoCreateBone(out position))
             {
-                bool isChained = m_PrevCreatedBone != null;
-                Vector3 boneStartPosition = isChained ? m_PrevCreatedBone.endPosition : m_CreateBoneStartPosition;
-
-                // Skip zero-length bones to avoid invalid mesh bounds (NaN) downstream.
-                if ((position - boneStartPosition).sqrMagnitude < 0.001f)
+                // Repeated clicks on a pin would stack more pins on the same spot.
+                if (m_PrevCreatedBone != null && m_PrevCreatedBone.length < ModuleUtility.kMinBoneEdgeLength &&
+                    (position - m_PrevCreatedBone.endPosition).magnitude < ModuleUtility.kMinBoneEdgeLength)
                     return;
 
                 using (skinningCache.UndoScope(TextContent.createBone))
                 {
+                    bool isChained = m_PrevCreatedBone != null;
                     BoneCache parentBone = isChained ? m_PrevCreatedBone : rootBone;
 
                     if (isChained)

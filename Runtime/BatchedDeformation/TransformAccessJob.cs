@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Profiling;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine.Jobs;
 using UnityEngine.Pool;
 
@@ -12,8 +15,8 @@ namespace UnityEngine.U2D.Animation
     // This class is used to manage the transforms and their access for jobs.
     // The takes a list of transforms and creates a TransformAccessArray for them.
     // The TransformAccessArray is used to schedule jobs that require access to the transforms.
-    // It can run 2 jobs internally, one to return localToWorld matrices and one to return worldToLocal matrices.
-    internal class TransformAccessJob
+    // Subclasses schedule the job that fills the matrices.
+    internal abstract class TransformAccessJob
     {
         public struct TransformData
         {
@@ -32,11 +35,10 @@ namespace UnityEngine.U2D.Animation
         TransformAccessArray m_TransformAccessArray;
         NativeHashMap<EntityId, TransformData> m_TransformData;
         NativeArray<float4x4> m_TransformMatrix;
-        NativeArray<bool> m_TransformChanged;
         bool m_Dirty;
         JobHandle m_JobHandle;
 
-        public TransformAccessJob()
+        protected TransformAccessJob()
         {
             InitializeDataStructures();
 
@@ -56,12 +58,10 @@ namespace UnityEngine.U2D.Animation
             m_Transform = Array.Empty<Transform>();
         }
 
-        void ClearDataStructures()
+        protected virtual void ClearDataStructures()
         {
             if (m_TransformMatrix.IsCreated)
                 m_TransformMatrix.Dispose();
-            if (m_TransformChanged.IsCreated)
-                m_TransformChanged.Dispose();
             if (m_TransformAccessArray.isCreated)
                 m_TransformAccessArray.Dispose();
             if (m_TransformData.IsCreated)
@@ -79,16 +79,15 @@ namespace UnityEngine.U2D.Animation
         }
 
 #if UNITY_INCLUDE_TESTS
+        [NoAutoStaticsCleanup]
         internal static int ResetCacheCallCount { get; private set; }
         internal static void ResetResetCacheCallCount() => ResetCacheCallCount = 0;
 #endif
 
         public NativeHashMap<EntityId, TransformData> transformData => m_TransformData;
 
-        // This array can hold localToWorld or worldToLocal matrices depending on the job that was scheduled.
+        // This array holds localToWorld or worldToLocal matrices depending on the subclass.
         public NativeArray<float4x4> transformMatrix => m_TransformMatrix;
-
-        public NativeArray<bool> transformChanged => m_TransformChanged;
 #if UNITY_INCLUDE_TESTS
         internal TransformAccessArray transformAccessArray => m_TransformAccessArray;
 #endif
@@ -198,48 +197,35 @@ namespace UnityEngine.U2D.Animation
             UnityEngine.Profiling.Profiler.EndSample();
         }
 
-        public JobHandle StartLocalToWorldAndChangeDetectionJob()
+        public JobHandle StartJob()
         {
-            // No need for initialization as all values are overwritten each frame by LocalToWorldAndChangeDetectionTransformAccessJob
-            NativeArrayHelpers.ResizeIfNeeded(ref m_TransformChanged, m_Transform.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            m_JobHandle.Complete();
+            PrepareJob(m_Transform.Length);
+            if (m_Transform.Length == 0)
+                return default(JobHandle);
 
-            if (m_Transform.Length > 0)
-            {
-                m_JobHandle.Complete();
-                UpdateTransformIndex();
-
-                UnityEngine.Profiling.Profiler.BeginSample("StartLocalToWorldAndChangeDetectionJob");
-                LocalToWorldAndChangeDetectionTransformAccessJob job = new LocalToWorldAndChangeDetectionTransformAccessJob()
-                {
-                    outMatrix = transformMatrix,
-                    hasChanged = transformChanged,
-                };
-                m_JobHandle = job.ScheduleReadOnly(m_TransformAccessArray, 16);
-                UnityEngine.Profiling.Profiler.EndSample();
-                return m_JobHandle;
-            }
-
-            return default(JobHandle);
+            UpdateTransformIndex();
+            m_JobHandle = ScheduleJob(m_TransformMatrix, m_TransformAccessArray);
+            return m_JobHandle;
         }
 
-        public JobHandle StartWorldToLocalJob()
-        {
-            if (m_Transform.Length > 0)
-            {
-                m_JobHandle.Complete();
-                UpdateTransformIndex();
-                UnityEngine.Profiling.Profiler.BeginSample("StartWorldToLocalJob");
-                WorldToLocalTransformAccessJob job = new WorldToLocalTransformAccessJob()
-                {
-                    outMatrix = transformMatrix,
-                };
-                m_JobHandle = job.ScheduleReadOnly(m_TransformAccessArray, 16);
-                UnityEngine.Profiling.Profiler.EndSample();
-                return m_JobHandle;
-            }
+        protected virtual void PrepareJob(int count) { }
 
-            return default(JobHandle);
+        protected abstract JobHandle ScheduleJob(NativeArray<float4x4> outMatrix, TransformAccessArray transformAccessArray);
+
+        // Sweeps before indices are rebuilt, so that a destroyed transform never keeps an index another transform has
+        // moved into, and when the last job skipped a destroyed transform.
+        internal void RemoveDestroyedTransformsIfNeeded()
+        {
+            m_JobHandle.Complete();
+            if (m_Dirty || HasDestroyedTransforms())
+                RemoveTransformsIfNull();
         }
+
+        // Only jobs that record which transforms they skipped can tell.
+        internal virtual bool HasDestroyedTransforms() => false;
+
+        protected int transformCount => m_Transform.Length;
 
         internal string GetDebugLog()
         {
@@ -397,12 +383,107 @@ namespace UnityEngine.U2D.Animation
         }
     }
 
+    // Bone transforms. Besides the matrices, records per transform whether it moved, so that deformation can be skipped
+    // for SpriteSkins whose bones did not, and whether the job skipped it because it was destroyed.
+    internal class LocalToWorldTransformAccessJob : TransformAccessJob
+    {
+        static class Profiling
+        {
+            public static readonly ProfilerMarker scheduleJob = new ProfilerMarker("LocalToWorldTransformAccessJob.ScheduleJob");
+        }
+
+        internal const byte k_TransformDestroyed = 0;
+        internal const byte k_TransformUnchanged = 1;
+        internal const byte k_TransformChanged = 2;
+
+        // Jobs skip destroyed transforms, so an entry left at k_TransformDestroyed marks one destroyed since the last sweep.
+        NativeArray<byte> m_TransformState;
+
+        public NativeArray<byte> transformState => m_TransformState;
+
+        protected override void ClearDataStructures()
+        {
+            if (m_TransformState.IsCreated)
+                m_TransformState.Dispose();
+            base.ClearDataStructures();
+        }
+
+        protected override unsafe void PrepareJob(int count)
+        {
+            // Cleared every frame, not only when resized: the job skips destroyed transforms, so their entries must
+            // start at k_TransformDestroyed instead of keeping last frame's state.
+            NativeArrayHelpers.ResizeIfNeeded(ref m_TransformState, count, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            if (m_TransformState.Length > 0)
+                UnsafeUtility.MemClear(m_TransformState.GetUnsafePtr(), m_TransformState.Length);
+        }
+
+        protected override JobHandle ScheduleJob(NativeArray<float4x4> outMatrix, TransformAccessArray transformAccessArray)
+        {
+            using (Profiling.scheduleJob.Auto())
+            {
+                LocalToWorldAndChangeDetectionJob job = new LocalToWorldAndChangeDetectionJob()
+                {
+                    outMatrix = outMatrix,
+                    state = m_TransformState,
+                };
+                return job.ScheduleReadOnly(transformAccessArray, 16);
+            }
+        }
+
+        internal override bool HasDestroyedTransforms()
+        {
+            if (transformCount == 0)
+                return false;
+            if (!m_TransformState.IsCreated || m_TransformState.Length != transformCount)
+                return true;
+            return TransformAccessJobUtilities.AnyDestroyed(m_TransformState);
+        }
+    }
+
+    // SpriteSkin transforms. These are removed by id when the SpriteSkin is disabled, so the only destroyed ones left
+    // to sweep are those of a SpriteSkin destroyed without reaching this system, and the sweep before a rebuild finds them.
+    internal class WorldToLocalTransformAccessJob : TransformAccessJob
+    {
+        static class Profiling
+        {
+            public static readonly ProfilerMarker scheduleJob = new ProfilerMarker("WorldToLocalTransformAccessJob.ScheduleJob");
+        }
+
+        protected override JobHandle ScheduleJob(NativeArray<float4x4> outMatrix, TransformAccessArray transformAccessArray)
+        {
+            using (Profiling.scheduleJob.Auto())
+            {
+                WorldToLocalJob job = new WorldToLocalJob()
+                {
+                    outMatrix = outMatrix,
+                };
+                return job.ScheduleReadOnly(transformAccessArray, 16);
+            }
+        }
+    }
+
     [BurstCompile]
-    internal struct LocalToWorldAndChangeDetectionTransformAccessJob : IJobParallelForTransform
+    internal static class TransformAccessJobUtilities
+    {
+        [BurstCompile]
+        internal static bool AnyDestroyed(in NativeArray<byte> states)
+        {
+            for (int i = 0; i < states.Length; ++i)
+            {
+                if (states[i] == LocalToWorldTransformAccessJob.k_TransformDestroyed)
+                    return true;
+            }
+
+            return false;
+        }
+    }
+
+    [BurstCompile]
+    internal struct LocalToWorldAndChangeDetectionJob : IJobParallelForTransform
     {
         public NativeArray<float4x4> outMatrix;
         [WriteOnly]
-        public NativeArray<bool> hasChanged;
+        public NativeArray<byte> state;
 
         public void Execute(int index, TransformAccess transform)
         {
@@ -410,14 +491,14 @@ namespace UnityEngine.U2D.Animation
             {
                 float4x4 localToWorldMatrix = transform.localToWorldMatrix;
 
-                hasChanged[index] = !outMatrix[index].Equals(localToWorldMatrix);
+                state[index] = outMatrix[index].Equals(localToWorldMatrix) ? LocalToWorldTransformAccessJob.k_TransformUnchanged : LocalToWorldTransformAccessJob.k_TransformChanged;
                 outMatrix[index] = localToWorldMatrix;
             }
         }
     }
 
     [BurstCompile]
-    internal struct WorldToLocalTransformAccessJob : IJobParallelForTransform
+    internal struct WorldToLocalJob : IJobParallelForTransform
     {
         [WriteOnly]
         public NativeArray<float4x4> outMatrix;

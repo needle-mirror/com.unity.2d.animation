@@ -94,6 +94,7 @@ namespace UnityEditor.U2D.Animation
                 //
                 const int maxDataCount = 65536;
                 Dictionary<SpriteCache, SpriteJobData> dictSpriteJobData = new Dictionary<SpriteCache, SpriteJobData>();
+                Dictionary<SpriteCache, int[]> handleBoneIndicesBySprite = new Dictionary<SpriteCache, int[]>();
                 NativeArray<JobHandle> jobHandles = new NativeArray<JobHandle>(validSpriteCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
                 int jobCount = 0;
 
@@ -211,7 +212,8 @@ namespace UnityEditor.U2D.Animation
                             break;
 
                         SpriteJobData sd = dictSpriteJobData[sprite];
-                        jobHandles[jobCount] = GenerateWeights(sprite, sd);
+                        jobHandles[jobCount] = GenerateWeights(sprite, sd, out int[] handleBoneIndices);
+                        handleBoneIndicesBySprite[sprite] = handleBoneIndices;
                         jobCount++;
                     }
 
@@ -227,10 +229,11 @@ namespace UnityEditor.U2D.Animation
                         MeshCache mesh = sprite.GetMesh();
                         m_SpriteMeshDataController.spriteMeshData = mesh;
                         SpriteJobData sd = dictSpriteJobData[sprite];
+                        int[] handleBoneIndices = handleBoneIndicesBySprite[sprite];
 
                         for (int j = 0; j < mesh.vertexCount; ++j)
                         {
-                            EditableBoneWeight editableBoneWeight = EditableBoneWeightUtility.CreateFromBoneWeight(sd.weights[j]);
+                            EditableBoneWeight editableBoneWeight = EditableBoneWeightUtility.CreateFromBoneWeight(SpriteMeshDataController.HandleWeightToBoneWeight(sd.weights[j], handleBoneIndices));
 
                             if (kWeightTolerance > 0f)
                             {
@@ -317,7 +320,7 @@ namespace UnityEditor.U2D.Animation
             UpdateButton();
         }
 
-        private JobHandle GenerateWeights(SpriteCache sprite, SpriteJobData sd)
+        private JobHandle GenerateWeights(SpriteCache sprite, SpriteJobData sd, out int[] handleBoneIndices)
         {
             Debug.Assert(sprite != null);
 
@@ -328,7 +331,7 @@ namespace UnityEditor.U2D.Animation
             using (new DefaultPoseScope(skinningCache.GetEffectiveSkeleton(sprite)))
             {
                 sprite.AssociatePossibleBones();
-                return GenerateWeights(mesh, sd);
+                return GenerateWeights(mesh, sd, out handleBoneIndices);
             }
         }
 
@@ -344,12 +347,12 @@ namespace UnityEditor.U2D.Animation
                     (characterPart.boneCount == 1 && characterPart.GetBone(0) == skeleton.GetBone(0));
         }
 
-        private JobHandle GenerateWeights(MeshCache mesh, SpriteJobData sd)
+        private JobHandle GenerateWeights(MeshCache mesh, SpriteJobData sd, out int[] handleBoneIndices)
         {
             Debug.Assert(mesh != null);
 
             m_SpriteMeshDataController.spriteMeshData = mesh;
-            JobHandle JobHandle = m_SpriteMeshDataController.CalculateWeightsJob(m_WeightGenerator, null, kWeightTolerance, sd);
+            JobHandle JobHandle = m_SpriteMeshDataController.CalculateWeightsJob(m_WeightGenerator, null, kWeightTolerance, sd, out handleBoneIndices);
 
             return JobHandle;
         }

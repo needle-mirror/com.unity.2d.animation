@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine.Assertions;
 using UnityEngine.U2D.Animation.Profiler;
 using UnityEngine.U2D.Common;
@@ -14,29 +15,40 @@ namespace UnityEngine.U2D.Animation
     {
         const string k_GpuSkinningShaderKeyword = SkinnedSpriteKeyword.keyword;
         const string k_GlobalSpriteBoneBufferId = "_SpriteBoneTransforms";
+        const string k_GlobalUnifiedDeformVtxId = "_UnifiedDeformedVerts";
 
         readonly HashSet<EntityId> m_AcquiredKeywordMaterials = new HashSet<EntityId>();
+        [NoAutoStaticsCleanup]
         static readonly HashSet<EntityId> s_MaterialsInUse = new HashSet<EntityId>();
 
         NativeArray<int> m_BoneTransformIndices;
         ComputeBuffer m_BoneTransformsComputeBuffer;
+        [NoAutoStaticsCleanup] // Created and released by the GPU deformation system
         static ComputeBuffer s_FallbackBuffer;
+        [NoAutoStaticsCleanup] // Created and released by the GPU deformation system
+        static ComputeBuffer s_FallbackUnified;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void CreateFallbackBuffer()
         {
             if (s_FallbackBuffer == null)
                 s_FallbackBuffer = new ComputeBuffer(UnsafeUtility.SizeOf<float4x4>(), UnsafeUtility.SizeOf<float4x4>(), ComputeBufferType.Default);
+            if (s_FallbackUnified == null)
+                s_FallbackUnified = new ComputeBuffer(64, 64, ComputeBufferType.Raw);
 
             Shader.SetGlobalBuffer(k_GlobalSpriteBoneBufferId, s_FallbackBuffer);
+            Shader.SetGlobalBuffer(k_GlobalUnifiedDeformVtxId, s_FallbackUnified);
         }
 
         static void ClearFallbackBuffer()
         {
             if (s_FallbackBuffer != null)
                 s_FallbackBuffer.Release();
+            if (s_FallbackUnified != null)
+                s_FallbackUnified.Release();
 
             s_FallbackBuffer = null;
+            s_FallbackUnified = null;
         }
 
         public override DeformationMethods deformationMethod => DeformationMethods.Gpu;
@@ -100,6 +112,7 @@ namespace UnityEngine.U2D.Animation
 
             SkinnedSpriteKeyword.ReleaseAll(m_AcquiredKeywordMaterials);
             Shader.SetGlobalBuffer(k_GlobalSpriteBoneBufferId, s_FallbackBuffer);
+            Shader.SetGlobalBuffer(k_GlobalUnifiedDeformVtxId, s_FallbackUnified);
         }
 
         // Own the SKINNED_SPRITE keyword of exactly the materials the current Sprite Skins use:

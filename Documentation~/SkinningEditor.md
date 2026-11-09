@@ -1,6 +1,6 @@
 # Rig and weight an actor in the Skinning Editor
 
-The __Skinning Editor__ module is added to the [Sprite Editor](https://docs.unity3d.com/6000.6/Documentation/Manual/SpriteEditor.html) when you install the 2D Animation package. Use the editor's [tools ](SkinEdToolsShortcuts.md) to create the [bones](SkinEdToolsShortcuts.html#bone-tools) of your actor's skeleton, generate and edit its mesh [geometry](SkinEdToolsShortcuts.html#geometry-tools), and adjust the [weights](SkinEdToolsShortcuts.html#weight-tools) that bind the bones to the meshes as you [rig your actor](CharacterRig.md).
+The __Skinning Editor__ module is added to the [Sprite Editor](https://docs.unity3d.com/7000.0/Documentation/Manual/sprite/sprite-editor/sprite-editor-window-reference-landing.html) when you install the 2D Animation package. Use the editor's [tools ](SkinEdToolsShortcuts.md) to create the [bones](SkinEdToolsShortcuts.html#bone-tools) of your actor's skeleton, generate and edit its mesh [geometry](SkinEdToolsShortcuts.html#geometry-tools), and adjust the [weights](SkinEdToolsShortcuts.html#weight-tools) that bind the bones to the meshes as you [rig your actor](CharacterRig.md).
 
 ## Opening the Skinning Editor
 
@@ -24,6 +24,8 @@ Depending on the actor, there may be multiple Sprites in the Skinning Editor at 
 2. If the Sprite you want to select is behind other Sprites, hover the cursor over where the desired Sprite is, and double-click to cycle through all Sprites at the cursor location until you select the desired Sprite.
 
 3. To deselect a selected Sprite, double-click on a blank area in the editor window.
+
+If the asset contains only one Sprite, you don't need to select it. The bone, geometry, and weight tools work on that Sprite even if nothing is selected.
 
 ## How to select bone or Mesh vertices in the editor
 To select a bone or vertices when using the [Bone](SkinEdToolsShortcuts.html#bone-tools) and [Geometry tools](SkinEdToolsShortcuts.html#geometry-tools):

@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
-
 using Object = UnityEngine.Object;
 
 namespace UnityEditor.U2D.Animation.Upgrading
 {
     internal static class AssetUpgrader
     {
-        static Dictionary<UpgradeMode, BaseUpgrader> s_Upgraders = new Dictionary<UpgradeMode, BaseUpgrader>()
+        [NoAutoStaticsCleanup]
+        static readonly Dictionary<UpgradeMode, BaseUpgrader> s_Upgraders = new Dictionary<UpgradeMode, BaseUpgrader>()
         {
             { UpgradeMode.AnimationClip, new AnimClipUpgrader() },
             { UpgradeMode.SpriteLibrary, new SpriteLibUpgrader() }

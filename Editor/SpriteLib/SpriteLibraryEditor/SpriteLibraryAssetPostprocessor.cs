@@ -1,13 +1,17 @@
 using System;
 using System.IO;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace UnityEditor.U2D.Animation.SpriteLibraryEditor
 {
     internal class SpriteLibraryAssetPostprocessor : AssetPostprocessor
     {
+        [NoAutoStaticsCleanup] // Subscribed by the open Sprite Library Editor window
         public static event Action<string> OnImported;
+        [NoAutoStaticsCleanup]
         public static event Action<string> OnDeleted;
+        [NoAutoStaticsCleanup]
         public static event Action<string, string> OnMovedAssetFromTo;
 
         const string k_SpriteLibExtension = ".spriteLib";

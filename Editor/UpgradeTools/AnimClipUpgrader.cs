@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
 using UnityEngine.U2D.Common;
@@ -36,13 +37,13 @@ namespace UnityEditor.U2D.Animation.Upgrading
         {
             public HashType HashType;
             public float Time;
-            public float Value;
+            public int Value;
         }
 
         class ConvertedKeyData
         {
             public float Time;
-            public float Value;
+            public int Value;
             public string Category;
             public string Label;
         }
@@ -73,7 +74,8 @@ namespace UnityEditor.U2D.Animation.Upgrading
             && !string.IsNullOrEmpty(b.propertyName)
             && b.propertyName == k_LabelHashId;
 
-        static SpriteLibUpgrader s_SpriteLibUpgrader = new SpriteLibUpgrader(false, false);
+        [NoAutoStaticsCleanup]
+        static readonly SpriteLibUpgrader s_SpriteLibUpgrader = new SpriteLibUpgrader(false, false);
 
         internal override List<Object> GetUpgradableAssets()
         {
@@ -85,13 +87,10 @@ namespace UnityEditor.U2D.Animation.Upgrading
             AnimationClip[] clips = assets
                 .Select(x => x as AnimationClip)
                 .Where(clip => clip != null)
-                .Where(clip =>
-                {
-                    EditorCurveBinding[] bindings = AnimationUtility.GetCurveBindings(clip)
-                        .Where(m => IsSpriteKeyBinding(m) || IsSpriteCategoryBinding(m) || IsSpriteLabelBinding(m))
-                        .ToArray();
-                    return bindings.Length > 0;
-                }).ToArray();
+                .Where(clip => AnimationUtility.GetCurveBindings(clip)
+                    .Concat(AnimationUtility.GetDiscreteCurveBindings(clip))
+                    .Any(m => IsSpriteKeyBinding(m) || IsSpriteCategoryBinding(m) || IsSpriteLabelBinding(m)))
+                .ToArray();
 
             List<Object> assetList = new List<Object>(clips);
             return assetList;
@@ -102,89 +101,93 @@ namespace UnityEditor.U2D.Animation.Upgrading
             List<UpgradeEntry> entries = new List<UpgradeEntry>();
 
             AssetDatabase.StartAssetEditing();
-
-            string msg;
-            foreach (ObjectIndexPair obj in objects)
+            try
             {
-                m_Logger.Add($"Verifying if the asset {obj.Target} is an AnimationClip.");
-                EditorUtility.DisplayProgressBar(
-                    Contents.ProgressBarTitle,
-                    Contents.VerifyingSelection,
-                    GetUpgradeProgress(entries, objects));
-
-                if (obj.Target == null)
+                string msg;
+                foreach (ObjectIndexPair obj in objects)
                 {
-                    msg = "The upgrade failed. Invalid selection.";
+                    m_Logger.Add($"Verifying if the asset {obj.Target} is an AnimationClip.");
+                    EditorUtility.DisplayProgressBar(
+                        Contents.ProgressBarTitle,
+                        Contents.VerifyingSelection,
+                        GetUpgradeProgress(entries, objects));
+
+                    if (obj.Target == null)
+                    {
+                        msg = "The upgrade failed. Invalid selection.";
+                        m_Logger.Add(msg);
+                        m_Logger.AddLineBreak();
+                        entries.Add(new UpgradeEntry()
+                        {
+                            Result = UpgradeResult.Error,
+                            Target = obj.Target,
+                            Index = obj.Index,
+                            Message = msg
+                        });
+                        continue;
+                    }
+
+                    AnimationClip clip = obj.Target as AnimationClip;
+                    if (clip == null)
+                    {
+                        msg = $"The upgrade failed. The asset {obj.Target.name} is not an AnimationClip.";
+                        m_Logger.Add(msg);
+                        m_Logger.AddLineBreak();
+                        entries.Add(new UpgradeEntry()
+                        {
+                            Result = UpgradeResult.Error,
+                            Target = obj.Target,
+                            Index = obj.Index,
+                            Message = msg
+                        });
+                        continue;
+                    }
+
+                    List<BindingData> extractedData = ExtractDataFromClip(clip);
+                    ConvertData(ref extractedData);
+
+                    bool wasCleanupSuccessful = CleanupData(ref extractedData);
+                    if (!wasCleanupSuccessful)
+                    {
+                        msg = $"The upgrade of the clip {obj.Target.name} failed. Some keyframes could not be converted in the animation clip.";
+                        m_Logger.Add(msg);
+                        m_Logger.AddLineBreak();
+                        entries.Add(new UpgradeEntry()
+                        {
+                            Result = UpgradeResult.Error,
+                            Target = obj.Target,
+                            Index = obj.Index,
+                            Message = msg
+                        });
+                        continue;
+                    }
+
+                    bool isDataValid = ValidateConvertedData(extractedData, obj, entries);
+                    if (!isDataValid)
+                        continue;
+
+                    UpdateClipWithConvertedData(clip, extractedData);
+                    RemoveOldData(clip, extractedData);
+
+                    msg = $"Upgrade successful. The clip {obj.Target.name} now uses the latest SpriteResolver data format.";
                     m_Logger.Add(msg);
                     m_Logger.AddLineBreak();
                     entries.Add(new UpgradeEntry()
                     {
-                        Result = UpgradeResult.Error,
+                        Result = UpgradeResult.Successful,
                         Target = obj.Target,
                         Index = obj.Index,
                         Message = msg
                     });
-                    continue;
                 }
 
-                AnimationClip clip = obj.Target as AnimationClip;
-                if (clip == null)
-                {
-                    msg = $"The upgrade failed. The asset {obj.Target.name} is not an AnimationClip.";
-                    m_Logger.Add(msg);
-                    m_Logger.AddLineBreak();
-                    entries.Add(new UpgradeEntry()
-                    {
-                        Result = UpgradeResult.Error,
-                        Target = obj.Target,
-                        Index = obj.Index,
-                        Message = msg
-                    });
-                    continue;
-                }
-
-                List<BindingData> extractedData = ExtractDataFromClip(clip);
-                ConvertData(ref extractedData);
-
-                bool wasCleanupSuccessful = CleanupData(ref extractedData);
-                if (!wasCleanupSuccessful)
-                {
-                    msg = $"The upgrade of the clip {obj.Target.name} failed. Some keyframes could not be converted in the animation clip.";
-                    m_Logger.Add(msg);
-                    m_Logger.AddLineBreak();
-                    entries.Add(new UpgradeEntry()
-                    {
-                        Result = UpgradeResult.Error,
-                        Target = obj.Target,
-                        Index = obj.Index,
-                        Message = msg
-                    });
-                    continue;
-                }
-
-                bool isDataValid = ValidateConvertedData(extractedData, obj, entries);
-                if (!isDataValid)
-                    continue;
-
-                UpdateClipWithConvertedData(clip, extractedData);
-                RemoveOldData(clip, extractedData);
-
-                msg = $"Upgrade successful. The clip {obj.Target.name} now uses the latest SpriteResolver data format.";
-                m_Logger.Add(msg);
-                m_Logger.AddLineBreak();
-                entries.Add(new UpgradeEntry()
-                {
-                    Result = UpgradeResult.Successful,
-                    Target = obj.Target,
-                    Index = obj.Index,
-                    Message = msg
-                });
+                AssetDatabase.SaveAssets();
             }
-
-            AssetDatabase.SaveAssets();
-            AssetDatabase.StopAssetEditing();
-
-            EditorUtility.ClearProgressBar();
+            finally
+            {
+                AssetDatabase.StopAssetEditing();
+                EditorUtility.ClearProgressBar();
+            }
 
             UpgradeReport report = new UpgradeReport()
             {
@@ -237,12 +240,15 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
         BindingData[] ExtractBindingsFromClip(AnimationClip clip, HashType hashType, System.Func<EditorCurveBinding, bool> isBindingFunc)
         {
-            EditorCurveBinding[] spriteHashBindings = AnimationUtility.GetCurveBindings(clip)
+            List<EditorCurveBinding> spriteHashBindings = AnimationUtility.GetCurveBindings(clip)
                 .Where(isBindingFunc.Invoke)
-                .ToArray();
+                .ToList();
 
-            BindingData[] bindingData = new BindingData[spriteHashBindings.Length];
-            for (int i = 0; i < spriteHashBindings.Length; ++i)
+            spriteHashBindings.AddRange(AnimationUtility.GetDiscreteCurveBindings(clip)
+                .Where(isBindingFunc.Invoke));
+
+            BindingData[] bindingData = new BindingData[spriteHashBindings.Count];
+            for (int i = 0; i < spriteHashBindings.Count; ++i)
                 bindingData[i] = ExtractKeyframesFromClip(clip, spriteHashBindings[i], hashType);
 
             m_Logger.Add($"Extracting {hashType} bindings from clip. Found {bindingData.Length} bindings.");
@@ -255,12 +261,24 @@ namespace UnityEditor.U2D.Animation.Upgrading
             string bindingPath = curveBinding.path;
             System.Type bindingType = curveBinding.type;
 
-            AnimationCurve curves = AnimationUtility.GetEditorCurve(clip, curveBinding);
-            Keyframe[] keys = curves.keys;
-            List<KeyData> keyData = new List<KeyData>(keys.Length);
-            keyData.AddRange(keys
-                .Select(t => new KeyData() { Time = t.time, Value = t.value, HashType = hashType }));
+            List<KeyData> keyData;
+            if (curveBinding.isDiscreteCurve)
+            {
+                DiscreteKeyframe[] keys = AnimationUtility.GetDiscreteCurve(clip, curveBinding);
 
+                keyData = new List<KeyData>(keys.Length);
+                keyData.AddRange(keys
+                    .Select(t => new KeyData() { Time = t.time, Value = t.value, HashType = hashType }));
+            }
+            else
+            {
+                AnimationCurve curve = AnimationUtility.GetEditorCurve(clip, curveBinding);
+
+                Keyframe[] keys = curve.keys;
+                keyData = new List<KeyData>(keys.Length);
+                keyData.AddRange(keys
+                    .Select(t => new KeyData() { Time = t.time, Value = InternalEngineBridge.ConvertFloatToInt(t.value), HashType = hashType }));
+            }
             BindingData data = new BindingData()
             {
                 BindingPath = bindingPath,
@@ -313,21 +331,23 @@ namespace UnityEditor.U2D.Animation.Upgrading
         {
             List<KeyData> keyData = bindingData.RawKeys;
             List<ConvertedKeyData> convertedData = new List<ConvertedKeyData>();
+            SpriteLibraryAsset[] spriteLibraryAssets = s_SpriteLibUpgrader.GetUpgradableAssets()
+                .Cast<SpriteLibraryAsset>().ToArray();
             for (int i = 0; i < keyData.Count; ++i)
             {
                 switch (keyData[i].HashType)
                 {
                     case HashType.SpriteHash:
-                        convertedData.Add(ConvertSpriteHash(keyData[i]));
+                        convertedData.Add(ConvertSpriteHash(keyData[i], spriteLibraryAssets));
                         break;
                     case HashType.SpriteKey:
-                        convertedData.Add(ConvertSpriteKey(keyData[i]));
+                        convertedData.Add(ConvertSpriteKey(keyData[i], spriteLibraryAssets));
                         break;
                     case HashType.Category:
-                        convertedData.Add(ConvertSpriteCategory(keyData[i]));
+                        convertedData.Add(ConvertSpriteCategory(keyData[i], spriteLibraryAssets));
                         break;
                     case HashType.Label:
-                        convertedData.Add(ConvertSpriteLabel(keyData[i]));
+                        convertedData.Add(ConvertSpriteLabel(keyData[i], spriteLibraryAssets));
                         break;
                 }
 
@@ -339,10 +359,11 @@ namespace UnityEditor.U2D.Animation.Upgrading
             return convertedData;
         }
 
-        static ConvertedKeyData ConvertSpriteHash(KeyData keyData)
+        static ConvertedKeyData ConvertSpriteHash(KeyData keyData, SpriteLibraryAsset[] spriteLibraryAssets)
         {
-            int spriteHash = InternalEngineBridge.ConvertFloatToInt(keyData.Value);
-            SpriteHashToCategoryAndLabelName(spriteHash, out string categoryName, out string labelName);
+            int spriteHash = keyData.Value;
+            if (!FindCategoryAndLabelName(spriteLibraryAssets, spriteHash, SpriteLibrary.GetHashForCategoryAndEntry, out string categoryName, out string labelName))
+                FindCategoryAndLabelName(spriteLibraryAssets, spriteHash, SpriteLibrary.GetLegacyHashForCategoryAndEntry, out categoryName, out labelName);
             ConvertedKeyData convertedData = new ConvertedKeyData()
             {
                 Time = keyData.Time,
@@ -353,85 +374,79 @@ namespace UnityEditor.U2D.Animation.Upgrading
             return convertedData;
         }
 
-        static ConvertedKeyData ConvertSpriteKey(KeyData keyData)
+        static ConvertedKeyData ConvertSpriteKey(KeyData keyData, SpriteLibraryAsset[] spriteLibraryAssets)
         {
-            int newHash = InternalEngineBridge.ConvertFloatToInt(keyData.Value);
+            int newHash = keyData.Value;
             int spriteHash = SpriteLibraryUtility.Convert32BitTo30BitHash(newHash);
 
-            SpriteHashToCategoryAndLabelName(spriteHash, out string categoryName, out string labelName);
+            FindCategoryAndLabelName(spriteLibraryAssets, spriteHash, SpriteLibrary.GetLegacyHashForCategoryAndEntry, out string categoryName, out string labelName);
             ConvertedKeyData convertedData = new ConvertedKeyData()
             {
                 Time = keyData.Time,
-                Value = InternalEngineBridge.ConvertIntToFloat(spriteHash),
+                Value = spriteHash,
                 Category = categoryName,
                 Label = labelName
             };
             return convertedData;
         }
 
-        static ConvertedKeyData ConvertSpriteCategory(KeyData keyData)
+        static ConvertedKeyData ConvertSpriteCategory(KeyData keyData, SpriteLibraryAsset[] spriteLibraryAssets)
         {
-            int newHash = InternalEngineBridge.ConvertFloatToInt(keyData.Value);
+            int newHash = keyData.Value;
             int categoryHash = SpriteLibraryUtility.Convert32BitTo30BitHash(newHash);
-            CategoryHashToCategoryName(categoryHash, out string categoryName);
+            CategoryHashToCategoryName(spriteLibraryAssets, categoryHash, out string categoryName);
 
             ConvertedKeyData convertedData = new ConvertedKeyData()
             {
                 Time = keyData.Time,
-                Value = 0f,
+                Value = 0,
                 Category = categoryName,
                 Label = string.Empty
             };
             return convertedData;
         }
 
-        static ConvertedKeyData ConvertSpriteLabel(KeyData keyData)
+        static ConvertedKeyData ConvertSpriteLabel(KeyData keyData, SpriteLibraryAsset[] spriteLibraryAssets)
         {
-            int newHash = InternalEngineBridge.ConvertFloatToInt(keyData.Value);
+            int newHash = keyData.Value;
             int labelHash = SpriteLibraryUtility.Convert32BitTo30BitHash(newHash);
-            LabelHashToLabelName(labelHash, out string labelName);
+            LabelHashToLabelName(spriteLibraryAssets, labelHash, out string labelName);
 
             ConvertedKeyData convertedData = new ConvertedKeyData()
             {
                 Time = keyData.Time,
-                Value = 0f,
+                Value = 0,
                 Category = string.Empty,
                 Label = labelName
             };
             return convertedData;
         }
 
-        static void SpriteHashToCategoryAndLabelName(int spriteHash, out string categoryName, out string labelName)
+        static bool FindCategoryAndLabelName(SpriteLibraryAsset[] spriteLibraryAssets, int spriteHash, System.Func<string, string, int> getSpriteHash, out string categoryName, out string labelName)
         {
-            SpriteLibraryAsset[] spriteLibraryAssets = s_SpriteLibUpgrader.GetUpgradableAssets()
-                .Cast<SpriteLibraryAsset>().ToArray();
-
-            categoryName = string.Empty;
-            labelName = string.Empty;
-
             foreach (SpriteLibraryAsset spriteLib in spriteLibraryAssets)
             {
                 foreach (SpriteLibCategory category in spriteLib.categories)
                 {
                     foreach (SpriteCategoryEntry label in category.categoryList)
                     {
-                        int combinedHash = SpriteLibrary.GetHashForCategoryAndEntry(category.name, label.name);
-                        if (combinedHash == spriteHash)
+                        if (spriteHash == getSpriteHash(category.name, label.name))
                         {
                             categoryName = category.name;
                             labelName = label.name;
-                            return;
+                            return true;
                         }
                     }
                 }
             }
+
+            categoryName = string.Empty;
+            labelName = string.Empty;
+            return false;
         }
 
-        static void CategoryHashToCategoryName(int categoryHash, out string categoryName)
+        static void CategoryHashToCategoryName(SpriteLibraryAsset[] spriteLibraryAssets, int categoryHash, out string categoryName)
         {
-            SpriteLibraryAsset[] spriteLibraryAssets = s_SpriteLibUpgrader.GetUpgradableAssets()
-                .Cast<SpriteLibraryAsset>().ToArray();
-
             categoryName = string.Empty;
 
             foreach (SpriteLibraryAsset spriteLib in spriteLibraryAssets)
@@ -447,11 +462,8 @@ namespace UnityEditor.U2D.Animation.Upgrading
             }
         }
 
-        static void LabelHashToLabelName(int labelHash, out string labelName)
+        static void LabelHashToLabelName(SpriteLibraryAsset[] spriteLibraryAssets, int labelHash, out string labelName)
         {
-            SpriteLibraryAsset[] spriteLibraryAssets = s_SpriteLibUpgrader.GetUpgradableAssets()
-                .Cast<SpriteLibraryAsset>().ToArray();
-
             labelName = string.Empty;
 
             foreach (SpriteLibraryAsset spriteLib in spriteLibraryAssets)
@@ -512,23 +524,23 @@ namespace UnityEditor.U2D.Animation.Upgrading
                 if (keys[i].Label != string.Empty)
                     labelName = keys[i].Label;
 
-                if (keys[i].Value == 0f && categoryName == string.Empty)
+                if (keys[i].Value == 0 && categoryName == string.Empty)
                 {
                     m_Logger.Add($"Cannot find a category for keyframe at time={keys[i].Time} in binding={bindingData.BindingPath}.");
                     continue;
                 }
-                if (keys[i].Value == 0f && labelName == string.Empty)
+                if (keys[i].Value == 0 && labelName == string.Empty)
                 {
                     m_Logger.Add($"Cannot find a label for keyframe at time={keys[i].Time} in binding={bindingData.BindingPath}.");
                     continue;
                 }
 
-                if (keys[i].Value == 0f)
+                if (keys[i].Value == 0)
                 {
                     int spriteHash = SpriteLibrary.GetHashForCategoryAndEntry(categoryName, labelName);
-                    keys[i].Value = InternalEngineBridge.ConvertIntToFloat(spriteHash);
+                    keys[i].Value = spriteHash;
 
-                    if (keys[i].Value != 0f)
+                    if (keys[i].Value != 0)
                         m_Logger.Add($"Combining categoryName={categoryName} labelName={labelName} into spriteHash={spriteHash}.");
                     else
                         m_Logger.Add($"Could not repair keyframe at time={keys[i].Time} for binding={bindingData.BindingPath}. The Sprite Library Asset might be missing.");
@@ -552,7 +564,7 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
                 for (int m = keys.Count - 1; m >= 0; --m)
                 {
-                    if (keys[m].Value == 0f)
+                    if (keys[m].Value == 0)
                         keys.RemoveAt(m);
                 }
 
@@ -580,23 +592,21 @@ namespace UnityEditor.U2D.Animation.Upgrading
             for (int i = 0; i < convertedBindings.Count; ++i)
                 destData[i] = EditorCurveBinding.DiscreteCurve(convertedBindings[i].BindingPath, convertedBindings[i].BindingType, k_SpriteHashId);
 
-            AnimationCurve[] curves = new AnimationCurve[destData.Length];
+            DiscreteKeyframe[][] curves = new DiscreteKeyframe[destData.Length][];
             for (int i = 0; i < curves.Length; ++i)
             {
                 List<ConvertedKeyData> convertedKeys = convertedBindings[i].ConvertedKeys;
-                Keyframe[] keyFrames = new Keyframe[convertedKeys.Count];
+                DiscreteKeyframe[] keyFrames = new DiscreteKeyframe[convertedKeys.Count];
                 for (int m = 0; m < keyFrames.Length; ++m)
                 {
-                    keyFrames[m].inTangent = float.PositiveInfinity;
-                    keyFrames[m].outTangent = float.PositiveInfinity;
                     keyFrames[m].time = convertedKeys[m].Time;
                     keyFrames[m].value = convertedKeys[m].Value;
                 }
 
-                curves[i] = new AnimationCurve(keyFrames);
+                curves[i] = keyFrames;
             }
 
-            AnimationUtility.SetEditorCurves(clip, destData, curves);
+            AnimationUtility.SetDiscreteCurves(clip, destData, curves);
             m_Logger.Add($"Injected updated bindings into AnimationClip={clip.name}.");
         }
 

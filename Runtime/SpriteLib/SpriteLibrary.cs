@@ -12,7 +12,7 @@ namespace UnityEngine.U2D.Animation
     [AddComponentMenu(U2DAnimationConstants.PackageDisplayName + "/Sprite Library")]
     [IconAttribute(IconUtility.IconPath + "Animation.SpriteLibrary.asset")]
     [MovedFrom("UnityEngine.Experimental.U2D.Animation")]
-    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@16.0/manual/SL-component.html")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@18.0/manual/SL-component.html")]
     public class SpriteLibrary : MonoBehaviour, IPreviewable
     {
         struct CategoryEntrySprite
@@ -29,7 +29,9 @@ namespace UnityEngine.U2D.Animation
         SpriteLibraryAsset m_SpriteLibraryAsset;
 
         // Cache for combining data in sprite library asset and main library
-        Dictionary<int, CategoryEntrySprite> m_CategoryEntryHashCache = null;
+        List<CategoryEntrySprite> m_CategoryEntries = null;
+        Dictionary<int, int> m_CategoryEntryHashToIndex = null;
+        Dictionary<int, int> m_LegacyHashToIndex = null;
         Dictionary<string, HashSet<string>> m_CategoryEntryCache = null;
         EntityId m_PreviousSpriteLibraryAsset;
         long m_PreviousModificationHash;
@@ -54,6 +56,14 @@ namespace UnityEngine.U2D.Animation
             CacheOverrides();
         }
 
+#if UNITY_EDITOR
+        // Undo, prefab revert and SerializedObject edits change m_Library without going through CacheOverrides.
+        void OnValidate()
+        {
+            m_CategoryEntryCache = null;
+        }
+#endif
+
         /// <summary>
         /// Empty method. Implemented for the IPreviewable interface.
         /// </summary>
@@ -67,31 +77,95 @@ namespace UnityEngine.U2D.Animation
         /// <returns>Sprite associated to the name and index.</returns>
         public Sprite GetSprite(string category, string label)
         {
-            return GetSprite(GetHashForCategoryAndEntry(category, label));
+            UpdateCacheOverridesIfNeeded();
+            int index = FindEntryIndex(GetHashForCategoryAndEntry(category, label), category, label);
+            return index >= 0 ? m_CategoryEntries[index].sprite : null;
         }
 
-        Sprite GetSprite(int hash)
+        int FindEntryIndex(int hash, string category, string entry)
         {
-            if (m_CategoryEntryHashCache.ContainsKey(hash))
-                return m_CategoryEntryHashCache[hash].sprite;
-            return null;
+            if (!m_CategoryEntryHashToIndex.TryGetValue(hash, out int index))
+                return -1;
+            if (IsEntry(index, category, entry))
+                return index;
+
+            for (int i = 0; i < m_CategoryEntries.Count; ++i)
+            {
+                if (IsEntry(i, category, entry))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        bool IsEntry(int index, string category, string entry)
+        {
+            return m_CategoryEntries[index].category == category && m_CategoryEntries[index].entry == entry;
+        }
+
+        // Current keys are looked up before legacy keys, so that a legacy key never shadows a current one.
+        bool TryGetEntryIndex(int hash, out int index)
+        {
+            if (m_CategoryEntryHashToIndex.TryGetValue(hash, out index))
+                return true;
+            return TryGetLegacyEntryIndex(hash, out index);
+        }
+
+        bool TryGetLegacyEntryIndex(int hash, out int index)
+        {
+            index = -1;
+            if (hash == 0)
+                return false;
+
+            if (m_LegacyHashToIndex == null)
+            {
+                m_LegacyHashToIndex = new Dictionary<int, int>(m_CategoryEntries.Count);
+                for (int i = 0; i < m_CategoryEntries.Count; ++i)
+                    m_LegacyHashToIndex.TryAdd(GetLegacyHashForCategoryAndEntry(m_CategoryEntries[i].category, m_CategoryEntries[i].entry), i);
+            }
+
+            return m_LegacyHashToIndex.TryGetValue(hash, out index);
+        }
+
+        internal Sprite GetSpriteFromLegacyHash(int hash, out bool validEntry)
+        {
+            UpdateCacheOverridesIfNeeded();
+            validEntry = TryGetLegacyEntryIndex(hash, out int index);
+            return validEntry ? m_CategoryEntries[index].sprite : null;
+        }
+
+        internal bool GetCategoryAndEntryNameFromLegacyHash(int hash, out string category, out string entry)
+        {
+            UpdateCacheOverridesIfNeeded();
+            if (TryGetLegacyEntryIndex(hash, out int index))
+            {
+                category = m_CategoryEntries[index].category;
+                entry = m_CategoryEntries[index].entry;
+                return true;
+            }
+
+            category = null;
+            entry = null;
+            return false;
         }
 
         void UpdateCacheOverridesIfNeeded()
         {
+            EntityId spriteLibraryAsset = m_SpriteLibraryAsset ? m_SpriteLibraryAsset.GetEntityId() : EntityId.None;
+            long modificationHash = m_SpriteLibraryAsset ? m_SpriteLibraryAsset.modificationHash : 0;
             if (m_CategoryEntryCache == null ||
-                m_PreviousSpriteLibraryAsset != m_SpriteLibraryAsset?.GetEntityId() ||
-                m_PreviousModificationHash != m_SpriteLibraryAsset?.modificationHash)
+                m_PreviousSpriteLibraryAsset != spriteLibraryAsset ||
+                m_PreviousModificationHash != modificationHash)
                 CacheOverrides();
         }
 
         internal bool GetCategoryAndEntryNameFromHash(int hash, out string category, out string entry)
         {
             UpdateCacheOverridesIfNeeded();
-            if (m_CategoryEntryHashCache.ContainsKey(hash))
+            if (TryGetEntryIndex(hash, out int index))
             {
-                category = m_CategoryEntryHashCache[hash].category;
-                entry = m_CategoryEntryHashCache[hash].entry;
+                category = m_CategoryEntries[index].category;
+                entry = m_CategoryEntries[index].entry;
                 return true;
             }
 
@@ -102,16 +176,26 @@ namespace UnityEngine.U2D.Animation
 
         internal static int GetHashForCategoryAndEntry(string category, string entry)
         {
+            return GetHashForCategoryAndEntry(SpriteLibraryUtility.GetStringHash(category), SpriteLibraryUtility.GetStringHash(entry));
+        }
+
+        internal static int GetHashForCategoryAndEntry(int categoryHash, int entryHash)
+        {
+            return SpriteLibraryUtility.CombineHashes(categoryHash, entryHash);
+        }
+
+        internal static int GetLegacyHashForCategoryAndEntry(string category, string entry)
+        {
             return SpriteLibraryUtility.GetStringHash($"{category}_{entry}");
         }
 
         internal Sprite GetSpriteFromCategoryAndEntryHash(int hash, out bool validEntry)
         {
             UpdateCacheOverridesIfNeeded();
-            if (m_CategoryEntryHashCache.ContainsKey(hash))
+            if (TryGetEntryIndex(hash, out int index))
             {
                 validEntry = true;
-                return m_CategoryEntryHashCache[hash].sprite;
+                return m_CategoryEntries[index].sprite;
             }
 
             validEntry = false;
@@ -288,7 +372,16 @@ namespace UnityEngine.U2D.Animation
         {
             m_PreviousSpriteLibraryAsset = EntityId.None;
             m_PreviousModificationHash = 0;
-            m_CategoryEntryHashCache = new Dictionary<int, CategoryEntrySprite>();
+            int capacity = 0;
+            if (m_SpriteLibraryAsset)
+            {
+                foreach (SpriteLibCategory category in m_SpriteLibraryAsset.categories)
+                    capacity += category.categoryList.Count;
+            }
+
+            m_CategoryEntries = new List<CategoryEntrySprite>(capacity);
+            m_CategoryEntryHashToIndex = new Dictionary<int, int>(capacity);
+            m_LegacyHashToIndex = null;
             m_CategoryEntryCache = new Dictionary<string, HashSet<string>>();
             if (m_SpriteLibraryAsset)
             {
@@ -297,16 +390,12 @@ namespace UnityEngine.U2D.Animation
                 foreach (SpriteLibCategory category in m_SpriteLibraryAsset.categories)
                 {
                     string catName = category.name;
+                    int categoryHash = SpriteLibraryUtility.GetStringHash(catName);
                     m_CategoryEntryCache.Add(catName, new HashSet<string>());
                     HashSet<string> cacheEntryName = m_CategoryEntryCache[catName];
                     foreach (SpriteCategoryEntry entry in category.categoryList)
                     {
-                        m_CategoryEntryHashCache.Add(GetHashForCategoryAndEntry(catName, entry.name), new CategoryEntrySprite()
-                        {
-                            category = catName,
-                            entry = entry.name,
-                            sprite = entry.sprite
-                        });
+                        AddEntry(GetHashForCategoryAndEntry(categoryHash, SpriteLibraryUtility.GetStringHash(entry.name)), catName, entry.name, entry.sprite);
                         cacheEntryName.Add(entry.name);
                     }
                 }
@@ -315,33 +404,37 @@ namespace UnityEngine.U2D.Animation
             foreach (SpriteLibCategory category in m_Library)
             {
                 string catName = category.name;
+                int categoryHash = SpriteLibraryUtility.GetStringHash(catName);
                 if (!m_CategoryEntryCache.ContainsKey(catName))
                     m_CategoryEntryCache.Add(catName, new HashSet<string>());
                 HashSet<string> cacheEntryName = m_CategoryEntryCache[catName];
 
                 foreach (SpriteCategoryEntry ent in category.categoryList)
                 {
-                    if (!cacheEntryName.Contains(ent.name))
-                        cacheEntryName.Add(ent.name);
-
-                    int hash = GetHashForCategoryAndEntry(catName, ent.name);
-                    if (!m_CategoryEntryHashCache.ContainsKey(hash))
+                    cacheEntryName.Add(ent.name);
+                    int hash = GetHashForCategoryAndEntry(categoryHash, SpriteLibraryUtility.GetStringHash(ent.name));
+                    int index = FindEntryIndex(hash, catName, ent.name);
+                    if (index >= 0)
                     {
-                        m_CategoryEntryHashCache.Add(hash, new CategoryEntrySprite()
-                        {
-                            category = catName,
-                            entry = ent.name,
-                            sprite = ent.sprite
-                        });
+                        CategoryEntrySprite e = m_CategoryEntries[index];
+                        e.sprite = ent.sprite;
+                        m_CategoryEntries[index] = e;
                     }
                     else
-                    {
-                        CategoryEntrySprite e = m_CategoryEntryHashCache[hash];
-                        e.sprite = ent.sprite;
-                        m_CategoryEntryHashCache[hash] = e;
-                    }
+                        AddEntry(hash, catName, ent.name, ent.sprite);
                 }
             }
+        }
+
+        void AddEntry(int hash, string category, string entry, Sprite sprite)
+        {
+            m_CategoryEntryHashToIndex.TryAdd(hash, m_CategoryEntries.Count);
+            m_CategoryEntries.Add(new CategoryEntrySprite()
+            {
+                category = category,
+                entry = entry,
+                sprite = sprite
+            });
         }
     }
 }

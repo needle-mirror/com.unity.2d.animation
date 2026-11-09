@@ -60,6 +60,10 @@ namespace UnityEngine.U2D.IK
         [BurstCompile]
         public static bool Solve(in float2 targetPosition, int solverLimit, float tolerance, float velocity, ref NativeArray<float2> positions)
         {
+            // A single position has no bone to rotate, and DoIteration assumes last >= 1.
+            if (positions.Length < 2)
+                return false;
+
             Profiling.Solve.Begin();
 
             int last = positions.Length - 1;
@@ -80,7 +84,7 @@ namespace UnityEngine.U2D.IK
         }
 
         [BurstCompile]
-        static void DoIteration([NoAlias] in float2 targetPosition, [AssumeRange(1, int.MaxValue)] int last, float velocity, [NoAlias] ref NativeArray<float2> positions)
+        internal static void DoIteration([NoAlias] in float2 targetPosition, [AssumeRange(1, int.MaxValue)] int last, float velocity, [NoAlias] ref NativeArray<float2> positions)
         {
             for (int i = last - 1; i >= 0; --i)
             {
@@ -102,7 +106,7 @@ namespace UnityEngine.U2D.IK
 
         [BurstCompile]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void RotatePositionFrom([NoAlias] in float2 position, [NoAlias] in float2 pivot, float s, float c, [NoAlias] out float2 result)
+        internal static void RotatePositionFrom([NoAlias] in float2 position, [NoAlias] in float2 pivot, float s, float c, [NoAlias] out float2 result)
         {
             float2 v = position - pivot;
             float2 rotated;

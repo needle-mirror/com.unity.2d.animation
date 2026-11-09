@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor.Overlays;
 using UnityEditor.U2D.Sprites;
 using UnityEngine;
@@ -11,9 +12,12 @@ namespace UnityEditor.U2D.Animation
     internal static class SkinningEditorOverlayManager
     {
         // One instance per marked type, created on first use and reused, so panel state persists across activations.
+        [NoAutoStaticsCleanup] // Tied to Skinning Editor activation, not to Play
         static readonly List<Overlay> s_Overlays = new();
         // The canvas the overlays are currently added to; null while the Skinning module is inactive.
+        [NoAutoStaticsCleanup]
         static OverlayCanvas s_Canvas;
+        [NoAutoStaticsCleanup]
         static EditorWindow s_Window;
 
         // Test seam: pre-created overlays skip discovery, so the attach path can run without marking a type in the editor.
@@ -97,10 +101,58 @@ namespace UnityEditor.U2D.Animation
                 if (!IsOverlayType(type))
                     continue;
 
-                Overlay overlay = CreateOverlay(type, type.GetCustomAttribute<SkinningEditorOverlayAttribute>()?.displayName);
+                Overlay overlay = CreateOverlay(type, type.GetCustomAttribute<SkinningEditorOverlayAttribute>());
                 if (overlay != null)
                     results.Add(overlay);
             }
+        }
+
+        // A size stated on the attribute wins over one the constructor set, as Overlay.Initialize does for [Overlay].
+        // Both axes have to be stated: one alone says nothing about the other.
+        static void ApplyAttributeSizes(Overlay overlay, SkinningEditorOverlayAttribute attribute)
+        {
+            if (overlay == null || attribute == null)
+                return;
+
+            if (IsSizeStated(attribute.minSize))
+                overlay.minSize = attribute.minSize;
+            if (IsSizeStated(attribute.maxSize))
+                overlay.maxSize = attribute.maxSize;
+            if (IsSizeStated(attribute.defaultSize))
+                overlay.defaultSize = attribute.defaultSize;
+        }
+
+        static bool IsSizeStated(Vector2 size)
+        {
+            return !float.IsNegativeInfinity(size.x) && !float.IsNegativeInfinity(size.y);
+        }
+
+        // With no [Overlay] attribute the canvas applies no defaults, and a zero defaultSize makes
+        // the frame size itself from its content, unbounded by the window.
+        static readonly Vector2 k_FallbackDefaultSize = new Vector2(240f, 160f);
+
+        internal static void EnsureDefaultSize(Overlay overlay)
+        {
+            if (overlay == null)
+                return;
+
+            Vector2 size = overlay.defaultSize;
+            Vector2 min = overlay.minSize;
+            Vector2 max = overlay.maxSize;
+
+            if (size.x <= 0f)
+                size.x = DeriveDefaultSize(min.x, max.x, k_FallbackDefaultSize.x);
+            if (size.y <= 0f)
+                size.y = DeriveDefaultSize(min.y, max.y, k_FallbackDefaultSize.y);
+
+            overlay.defaultSize = size;
+        }
+
+        // Only ever used for an axis the type left unstated, so it has to land inside the bounds it did state.
+        static float DeriveDefaultSize(float min, float max, float fallback)
+        {
+            float size = min > 0f ? min : fallback;
+            return max > 0f ? Mathf.Min(size, max) : size;
         }
 
         // Concrete, closed Overlay subclasses only; anything else carrying the attribute is ignored.
@@ -110,15 +162,18 @@ namespace UnityEditor.U2D.Animation
         }
 
         // Returns null after logging when the constructor throws, so one broken extension does not hide the rest.
-        internal static Overlay CreateOverlay(Type type, string displayName)
+        internal static Overlay CreateOverlay(Type type, SkinningEditorOverlayAttribute attribute)
         {
             try
             {
                 if (!(Activator.CreateInstance(type) is Overlay overlay))
                     return null;
 
-                if (!string.IsNullOrEmpty(displayName))
-                    overlay.displayName = displayName;
+                if (!string.IsNullOrEmpty(attribute?.displayName))
+                    overlay.displayName = attribute.displayName;
+
+                ApplyAttributeSizes(overlay, attribute);
+                EnsureDefaultSize(overlay);
 
                 return overlay;
             }

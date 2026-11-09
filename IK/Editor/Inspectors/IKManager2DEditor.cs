@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor.U2D.Animation;
 using UnityEditorInternal;
 using UnityEngine;
@@ -24,9 +25,9 @@ namespace UnityEditor.U2D.IK
             public static readonly string createSolverString = "Create Solver";
             public static readonly string restoreDefaultPoseString = "Restore Default Pose";
             public static readonly GUIContent gizmoColorTooltip = new GUIContent("", "Customizes the IK Chain's Gizmo color");
-            public static int showGizmoPropertyWidth = 20;
-            public static int solverPropertyWidth = 100;
-            public static int solverColorPropertyWidth = 40;
+            public const int showGizmoPropertyWidth = 20;
+            public const int solverPropertyWidth = 100;
+            public const int solverColorPropertyWidth = 40;
             public static readonly GUIContent gizmoVisibilityToolTip = new GUIContent("", L10n.Tr("Show/Hide Gizmo"));
             public readonly GUIStyle visibilityToggleStyle;
 
@@ -39,6 +40,7 @@ namespace UnityEditor.U2D.IK
             }
         }
 
+        [NoAutoStaticsCleanup]
         static Contents s_Contents;
         ReorderableList m_ReorderableList;
         Solver2D m_SelectedSolver;
@@ -108,29 +110,81 @@ namespace UnityEditor.U2D.IK
 
                 menu.ShowAsContext();
             };
-            m_ReorderableList.onRemoveCallback = (ReorderableList list) =>
+            m_ReorderableList.onRemoveCallback = (ReorderableList list) => RemoveSolver(list, m_SolverEditorDataProperty);
+            m_ReorderableList.onCanRemoveCallback = (ReorderableList list) => !list.serializedProperty.serializedObject.isEditingMultipleObjects;
+        }
+
+        internal static void RemoveSolver(ReorderableList list, SerializedProperty solverEditorDataProperty)
+        {
+            int undoGroup = Undo.GetCurrentGroup();
+            Solver2D solver = DeleteSolver(list, solverEditorDataProperty);
+
+            if (solver == null)
+                return;
+
+            // Destroying the solver rebuilds this Inspector's editors, which disposes the
+            // SerializedObject this GUI pass draws from, so it waits until the pass is over.
+            EditorApplication.delayCall += () => DestroySolverAndCollapseUndo(solver, undoGroup);
+        }
+
+        // Runs once the Inspector's GUI pass is over, so the row removal and the destroy sit in
+        // different undo groups and are collapsed back into the one the removal started in.
+        internal static void DestroySolverAndCollapseUndo(Solver2D solver, int undoGroup)
+        {
+            DestroySolver(solver);
+            Undo.CollapseUndoOperations(undoGroup);
+        }
+
+        // Removes the solver's row and returns the solver still to be destroyed, if any.
+        internal static Solver2D DeleteSolver(ReorderableList list, SerializedProperty solverEditorDataProperty)
+        {
+            SerializedProperty solversProperty = list.serializedProperty;
+
+            // Deleting a row would apply to every selected manager's list, while only the solver of
+            // the first one is destroyed, so removal is left to a single selection.
+            if (solversProperty.serializedObject.isEditingMultipleObjects)
+                return null;
+
+            int index = list.index;
+            Solver2D solver = solversProperty.GetArrayElementAtIndex(index).objectReferenceValue as Solver2D;
+
+            // The gizmo data is index-aligned with the solver list, so both entries go together.
+            solversProperty.DeleteArrayElementAtIndex(index);
+            solverEditorDataProperty.DeleteArrayElementAtIndex(index);
+            solversProperty.serializedObject.ApplyModifiedProperties();
+
+            // Same selection fix-up as ReorderableList's own remove button.
+            list.index = Mathf.Clamp(index - 1, 0, list.count - 1);
+
+            return solver;
+        }
+
+        internal static void DestroySolver(Solver2D solver)
+        {
+            if (solver == null)
+                return;
+
+            if (IsSolverOnlyGameObject(solver))
+                Undo.DestroyObjectImmediate(solver.gameObject);
+            else
+                Undo.DestroyObjectImmediate(solver);
+        }
+
+        // A GameObject carrying nothing but the solver has nothing left to keep once the solver is gone.
+        // Anything else on it, the manager included, or a Target parented under it, belongs to the user.
+        internal static bool IsSolverOnlyGameObject(Solver2D solver)
+        {
+            if (solver.transform.childCount > 0)
+                return false;
+
+            Component[] components = solver.GetComponents<Component>();
+            foreach (Component component in components)
             {
-                Solver2D solver = m_Manager.solvers[list.index];
-                if (solver)
-                {
-                    Undo.RegisterCompleteObjectUndo(m_Manager, Undo.GetCurrentGroupName());
+                if (component != solver && component is not Transform)
+                    return false;
+            }
 
-                    m_Manager.RemoveSolver(solver);
-
-                    GameObject solverGO = solver.gameObject;
-
-                    if (solverGO.transform.childCount == 0)
-                        Undo.DestroyObjectImmediate(solverGO);
-                    else
-                        Undo.DestroyObjectImmediate(solver);
-
-                    EditorUtility.SetDirty(m_Manager);
-                }
-                else
-                {
-                    ReorderableList.defaultBehaviours.DoRemoveButton(list);
-                }
-            };
+            return true;
         }
 
         void OnSelectMenu(object param)
