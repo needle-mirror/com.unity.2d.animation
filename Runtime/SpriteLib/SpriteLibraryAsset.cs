@@ -171,10 +171,10 @@ namespace UnityEngine.U2D.Animation
 
         internal Sprite GetSprite(int categoryHash, int labelHash)
         {
-            SpriteLibCategory category = m_Labels.FirstOrDefault(x => x.hash == categoryHash);
+            SpriteLibCategory category = m_Labels.Find(x => x.hash == categoryHash);
             if (category != null)
             {
-                SpriteCategoryEntry spriteLabel = category.categoryList.FirstOrDefault(x => x.hash == labelHash);
+                SpriteCategoryEntry spriteLabel = category.categoryList.Find(x => x.hash == labelHash);
                 if (spriteLabel != null)
                 {
                     return spriteLabel.sprite;
@@ -238,7 +238,7 @@ namespace UnityEngine.U2D.Animation
         /// <returns>A Enumerable string value representing the name.</returns>
         public IEnumerable<string> GetCategoryNames()
         {
-            return m_Labels.Select(x => x.name);
+            return EnumerateNames(m_Labels);
         }
 
         /// <summary>
@@ -259,8 +259,14 @@ namespace UnityEngine.U2D.Animation
         /// <returns>A Enumerable string representing labels' name.</returns>
         public IEnumerable<string> GetCategoryLabelNames(string category)
         {
-            SpriteLibCategory label = m_Labels.FirstOrDefault(x => x.name == category);
-            return label == null ? new string[0] : label.categoryList.Select(x => x.name);
+            SpriteLibCategory label = m_Labels.Find(x => x.name == category);
+            return label == null ? Array.Empty<string>() : EnumerateNames(label.categoryList);
+        }
+
+        static IEnumerable<string> EnumerateNames<T>(List<T> entries) where T : INameHash
+        {
+            foreach (T entry in entries)
+                yield return entry.name;
         }
 
         /// <summary>
@@ -279,7 +285,7 @@ namespace UnityEngine.U2D.Animation
             int catHash = SpriteLibraryUtility.GetStringHash(category);
             SpriteCategoryEntry categorylabel = null;
             SpriteLibCategory libCategory = null;
-            libCategory = m_Labels.FirstOrDefault(x => x.hash == catHash);
+            libCategory = m_Labels.Find(x => x.hash == catHash);
 
             if (libCategory != null)
             {
@@ -288,7 +294,7 @@ namespace UnityEngine.U2D.Animation
                 Assert.AreEqual(libCategory.name, category, "Category string  hash clashes with another existing Category. Please use another string");
 
                 int labelHash = SpriteLibraryUtility.GetStringHash(label);
-                categorylabel = libCategory.categoryList.FirstOrDefault(y => y.hash == labelHash);
+                categorylabel = libCategory.categoryList.Find(y => y.hash == labelHash);
                 if (categorylabel != null)
                 {
                     Assert.AreEqual(categorylabel.name, label, "Label string hash clashes with another existing label. Please use another string");
@@ -338,7 +344,7 @@ namespace UnityEngine.U2D.Animation
         {
             int catHash = SpriteLibraryUtility.GetStringHash(category);
             SpriteLibCategory libCategory = null;
-            libCategory = m_Labels.FirstOrDefault(x => x.hash == catHash);
+            libCategory = m_Labels.Find(x => x.hash == catHash);
 
             if (libCategory != null)
             {
@@ -383,6 +389,8 @@ namespace UnityEngine.U2D.Animation
         internal static void RenameDuplicate(IEnumerable<INameHash> nameHashList, Action<string, string> onRename)
         {
             const int k_IncrementMax = 1000;
+            // The deferred queries below are re-evaluated after each rename, which the renaming relies on.
+#pragma warning disable UAC2001, UAC2004, UAC2005 // Avoid Linq
             for (int i = 0; i < nameHashList.Count(); ++i)
             {
                 // Verify categories have no hash clash
@@ -410,6 +418,7 @@ namespace UnityEngine.U2D.Animation
                     }
                 }
             }
+#pragma warning restore UAC2001, UAC2004, UAC2005
         }
     }
 }

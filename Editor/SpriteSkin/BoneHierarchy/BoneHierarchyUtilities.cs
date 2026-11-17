@@ -13,9 +13,10 @@ namespace UnityEditor.U2D.Animation
     {
         /// <summary>
         /// For a single selected transform, determines the bone host: the transform whose GameObject should carry <see cref="SpriteBoneHierarchyData"/> and scopes bone hierarchy / gizmo context.
-        /// Assumes bone transforms do not mix incompatible rig layouts (e.g. root bones disagree on whether they are under the <see cref="SpriteSkin"/> or its parent); classification uses the first non-null entry in <see cref="SpriteSkin.boneTransforms"/> only.
+        /// A selected <see cref="SpriteSkin"/> resolves to its own bone host (see <see cref="TryGetSpriteSkinHost"/>); any other selection resolves to the nearest ancestor-or-self that hosts at least one <see cref="SpriteSkin"/>.
+        /// Pass <paramref name="boneHostsByRoot"/> to reuse the bone hosts found under each root across several selections.
         /// </summary>
-        internal static bool ResolveBoneHost(Transform selected, out Transform boneHost)
+        internal static bool ResolveBoneHost(Transform selected, out Transform boneHost, Dictionary<Transform, HashSet<Transform>> boneHostsByRoot = null)
         {
             boneHost = null;
 
@@ -24,154 +25,83 @@ namespace UnityEditor.U2D.Animation
 
             SpriteSkin spriteSkin = selected.GetComponent<SpriteSkin>();
             if (spriteSkin != null)
+                return TryGetSpriteSkinHost(spriteSkin, out boneHost);
+
+            // May be a rig root, a group of sprites or bones, or a bone transform - find the nearest ancestor that hosts a SpriteSkin.
+            if (boneHostsByRoot == null || !boneHostsByRoot.TryGetValue(selected.root, out HashSet<Transform> boneHosts))
             {
-                // Selection is the GameObject that has a SpriteSkin.
-                Transform[] boneTransforms = spriteSkin.boneTransforms;
-                if (boneTransforms == null || boneTransforms.Length == 0)
+                boneHosts = CollectBoneHosts(selected.root);
+                if (boneHostsByRoot != null)
+                    boneHostsByRoot[selected.root] = boneHosts;
+            }
+
+            for (Transform candidate = selected; candidate != null; candidate = candidate.parent)
+            {
+                if (boneHosts.Contains(candidate))
                 {
-                    // No bones yet - use this transform as bone host.
-                    boneHost = selected;
+                    boneHost = candidate;
                     return true;
                 }
-
-                // First non-null bone classifies PNG vs PSB/PSD layout; mixed root-bone parenting is unsupported.
-                foreach (Transform boneTransform in boneTransforms)
-                {
-                    if (boneTransform == null)
-                        continue;
-
-                    if (boneTransform.IsChildOf(spriteSkin.transform))
-                    {
-                        // Bones parented under the SpriteSkin (PNG rig).
-                        boneHost = selected;
-                        return true;
-                    }
-
-                    Transform spriteSkinParent = spriteSkin.transform.parent;
-                    if (spriteSkinParent == null)
-                        return false;
-
-                    if (boneTransform.IsChildOf(spriteSkinParent))
-                    {
-                        // Bones under the same parent as the SpriteSkin (PSB or PSD rig root).
-                        boneHost = spriteSkinParent;
-                        return true;
-                    }
-                    else
-                    {
-                        // Bones are not under the SpriteSkin or its parent.
-                        return false;
-                    }
-                }
-
-                return false;
-            }
-
-            // No SpriteSkin on this object - may be a PSB/PSD rig root or a bone transform.
-            if (!TryGetSpriteSkins(selected.gameObject, out SpriteSkin[] spriteSkins))
-            {
-                // No SpriteSkin on this object or its direct children - traverse parents (may be a bone transform selected).
-                return ResolveBoneHostInParents(selected, out boneHost);
-            }
-
-            for (int i = 0; i < spriteSkins.Length; i++)
-            {
-                if (spriteSkins[i] == null)
-                    continue;
-
-                if (spriteSkins[i].transform.parent == selected)
-                {
-                    // Parent of a child SpriteSkin - PSB/PSD rig root candidate (first non-null bone classifies; mixed layouts are unsupported).
-                    Transform[] boneTransforms = spriteSkins[i].boneTransforms;
-                    if (boneTransforms == null || boneTransforms.Length == 0)
-                        continue;
-
-                    foreach (Transform boneTransform in boneTransforms)
-                    {
-                        if (boneTransform == null)
-                            continue;
-
-                        if (boneTransform.IsChildOf(spriteSkins[i].transform))
-                        {
-                            // Bones hang under the SpriteSkin transform (nested PNG rig) - try next skin or fall back to ancestor search.
-                            break;
-                        }
-                        else
-                        {
-                            // Bones are parented from this root beside/above the skin (PSB/PSD rig) - host is this transform.
-                            boneHost = selected;
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            // No PSB/PSD rig root match on this selection - fall back to ancestor search.
-            return ResolveBoneHostInParents(selected, out boneHost);
-        }
-
-        static bool ResolveBoneHostInParents(Transform selected, out Transform boneHost)
-        {
-            boneHost = null;
-
-            if (selected == null)
-                return false;
-
-            Transform parent = selected.parent;
-            if (parent == null)
-                return false;
-
-            SpriteSkin spriteSkin = parent.GetComponent<SpriteSkin>();
-            if (spriteSkin != null)
-            {
-                // Selection under SpriteSkin on parent (PNG rig) - host is that transform.
-                boneHost = parent;
-                return true;
-            }
-
-            while (parent != null)
-            {
-                if (TryGetSpriteSkins(parent.gameObject, out SpriteSkin[] parentSpriteSkins))
-                {
-                    // Validate PNG (skin on candidate) or PSB/PSD (skin on direct child) layout; first non-null bone classifies.
-                    foreach (SpriteSkin parentSpriteSkin in parentSpriteSkins)
-                    {
-                        if (parentSpriteSkin == null)
-                            continue;
-
-                        bool isSpriteSkinOnSelf = parentSpriteSkin.transform == parent;
-                        bool isSpriteSkinOnDirectChild = !isSpriteSkinOnSelf && parentSpriteSkin.transform.parent == parent;
-                        if (!isSpriteSkinOnSelf && !isSpriteSkinOnDirectChild)
-                            continue;
-
-                        Transform[] parentBoneTransforms = parentSpriteSkin.boneTransforms;
-                        if (parentBoneTransforms == null)
-                            continue;
-
-                        foreach (Transform parentBoneTransform in parentBoneTransforms)
-                        {
-                            if (parentBoneTransform == null)
-                                continue;
-
-                            if (parentBoneTransform.IsChildOf(parent) && !(isSpriteSkinOnDirectChild && parentBoneTransform.IsChildOf(parentSpriteSkin.transform)))
-                            {
-                                // Ancestor owns this bone via PNG or PSB/PSD layout - host is that ancestor.
-                                boneHost = parent;
-                                return true;
-                            }
-                            break;
-                        }
-                    }
-                }
-                parent = parent.parent;
             }
 
             return false;
         }
 
         /// <summary>
-        /// For each bone host transform, reads <see cref="SpriteBoneHierarchyData"/> with <c>GetComponent</c> only (no child transform search); bone hosts are not expected to store that component on nested children.
-        /// Merges resolved colors from each host via <c>LoadBoneColors</c> then <see cref="ResolveBoneColors(SpriteBoneHierarchyData, System.Collections.Generic.Dictionary{UnityEngine.Transform, UnityEngine.Color32})"/>.
+        /// Bone host of a <see cref="SpriteSkin"/>: the nearest common ancestor (inclusive) of the <see cref="SpriteSkin"/> transform and its first non-null bone transform.
+        /// This is the SpriteSkin itself for PNG rigs (bones under the skin), the rig root for PSB/PSD rigs (bones beside the skin), and the common parent when sprites and bones are regrouped under separate GameObjects.
+        /// A SpriteSkin without bones hosts itself. Returns <see langword="false"/> when the SpriteSkin and its bones do not share an ancestor.
+        /// Assumes bone transforms do not mix incompatible rig layouts; classification uses the first non-null entry in <see cref="SpriteSkin.boneTransforms"/> only.
+        /// </summary>
+        internal static bool TryGetSpriteSkinHost(SpriteSkin spriteSkin, out Transform boneHost)
+        {
+            boneHost = null;
+
+            if (spriteSkin == null)
+                return false;
+
+            Transform spriteSkinTransform = spriteSkin.transform;
+            Transform[] boneTransforms = spriteSkin.boneTransforms;
+            if (boneTransforms != null)
+            {
+                foreach (Transform boneTransform in boneTransforms)
+                {
+                    if (boneTransform == null)
+                        continue;
+
+                    for (Transform candidate = spriteSkinTransform; candidate != null; candidate = candidate.parent)
+                    {
+                        if (boneTransform.IsChildOf(candidate))
+                        {
+                            boneHost = candidate;
+                            return true;
+                        }
+                    }
+
+                    // Bones are in a different root hierarchy from the SpriteSkin.
+                    return false;
+                }
+            }
+
+            // No bones yet - the SpriteSkin hosts itself.
+            boneHost = spriteSkinTransform;
+            return true;
+        }
+
+        static HashSet<Transform> CollectBoneHosts(Transform root)
+        {
+            HashSet<Transform> boneHosts = new();
+            foreach (SpriteSkin spriteSkin in root.GetComponentsInChildren<SpriteSkin>(true))
+            {
+                if (TryGetSpriteSkinHost(spriteSkin, out Transform boneHost))
+                    boneHosts.Add(boneHost);
+            }
+
+            return boneHosts;
+        }
+
+        /// <summary>
+        /// Resolves the bone colors of each <see cref="SpriteSkin"/> from <see cref="SpriteBoneHierarchyData"/> on its parent and ancestors up to the bone host; higher levels take precedence.
         /// </summary>
         internal static void ResolveBoneColors(IEnumerable<Transform> boneHosts, out Dictionary<Transform, Color32> resolvedColors)
         {
@@ -182,69 +112,80 @@ namespace UnityEditor.U2D.Animation
 
             foreach (Transform boneHost in boneHosts)
             {
-                if (boneHost == null)
+                if (boneHost == null || !TryGetSpriteSkins(boneHost.gameObject, out SpriteSkin[] spriteSkins))
                     continue;
 
-                SpriteBoneHierarchyData hierarchyData = boneHost.GetComponent<SpriteBoneHierarchyData>();
-                if (hierarchyData == null)
+                if (!TryGetBoneTransformToGuid(spriteSkins, out Dictionary<Transform, string> boneTransformToGuid))
                     continue;
 
-                hierarchyData.LoadBoneColors();
-
-                ResolveBoneColors(hierarchyData, out Dictionary<Transform, Color32> resolvedColorsOnHost);
-                foreach (KeyValuePair<Transform, Color32> kvp in resolvedColorsOnHost)
-                    resolvedColors[kvp.Key] = kvp.Value;
-            }
-        }
-
-        /// <summary>
-        /// When serialized bone colors are non-empty, maps each assigned bone transform on skins under hierarchyData's GameObject to a color from GUID entries; bones without a direct entry use <see cref="BoneGizmo.DefaultBoneColor"/>.
-        /// </summary>
-        internal static void ResolveBoneColors(SpriteBoneHierarchyData hierarchyData, out Dictionary<Transform, Color32> resolvedColors)
-        {
-            resolvedColors = new();
-
-            if (hierarchyData == null)
-                return;
-
-            if (!TryGetSpriteSkins(hierarchyData.gameObject, out SpriteSkin[] spriteSkins))
-                return;
-
-            Dictionary<string, Color32> boneColors = hierarchyData.GetBoneColors();
-
-            if (boneColors == null || boneColors.Count == 0)
-                return;
-
-            if (!TryGetBoneTransformToGuid(spriteSkins, out Dictionary<Transform, string> boneTransformToGuid))
-                return;
-
-            foreach (SpriteSkin spriteSkin in spriteSkins)
-            {
-                if (spriteSkin == null)
-                    continue;
-
-                Transform[] boneTransforms = spriteSkin.boneTransforms;
-                if (boneTransforms == null || boneTransforms.Length == 0)
-                    continue;
-
-                foreach (Transform boneTransform in boneTransforms)
+                Dictionary<Transform, Dictionary<string, Color32>> boneColorsByTransform = new();
+                foreach (SpriteSkin spriteSkin in spriteSkins)
                 {
-                    if (boneTransform == null)
-                        continue;
-
-                    if (!boneTransformToGuid.TryGetValue(boneTransform, out string guid))
-                        continue;
-
-                    if (boneColors.TryGetValue(guid, out Color32 boneColor))
-                        resolvedColors[boneTransform] = boneColor;
-                    else
-                        resolvedColors[boneTransform] = BoneGizmo.DefaultBoneColor;
+                    Transform colorSource = spriteSkin.transform == boneHost ? boneHost : spriteSkin.transform.parent;
+                    Dictionary<string, Color32> boneColors = GetBoneColors(colorSource, boneHost, boneColorsByTransform);
+                    if (boneColors.Count > 0)
+                        ResolveBoneColors(boneColors, spriteSkin, boneTransformToGuid, resolvedColors);
                 }
             }
         }
 
+        // Colors stored on transform and its ancestors up to boneHost; ancestors take precedence.
+        static Dictionary<string, Color32> GetBoneColors(Transform transform, Transform boneHost, Dictionary<Transform, Dictionary<string, Color32>> boneColorsByTransform)
+        {
+            if (boneColorsByTransform.TryGetValue(transform, out Dictionary<string, Color32> boneColors))
+                return boneColors;
+
+            boneColors = new();
+            MergeBoneColors(transform, boneColors);
+            if (transform != boneHost)
+            {
+                foreach (KeyValuePair<string, Color32> kvp in GetBoneColors(transform.parent, boneHost, boneColorsByTransform))
+                    boneColors[kvp.Key] = kvp.Value;
+            }
+
+            boneColorsByTransform[transform] = boneColors;
+            return boneColors;
+        }
+
+        static void MergeBoneColors(Transform transform, Dictionary<string, Color32> boneColors)
+        {
+            SpriteBoneHierarchyData hierarchyData = transform.GetComponent<SpriteBoneHierarchyData>();
+            if (hierarchyData == null)
+                return;
+
+            hierarchyData.LoadBoneColors();
+
+            Dictionary<string, Color32> colors = hierarchyData.GetBoneColors();
+            if (colors == null)
+                return;
+
+            foreach (KeyValuePair<string, Color32> kvp in colors)
+                boneColors[kvp.Key] = kvp.Value;
+        }
+
+        static void ResolveBoneColors(Dictionary<string, Color32> boneColors, SpriteSkin spriteSkin, Dictionary<Transform, string> boneTransformToGuid, Dictionary<Transform, Color32> resolvedColors)
+        {
+            Transform[] boneTransforms = spriteSkin.boneTransforms;
+            if (boneTransforms == null)
+                return;
+
+            foreach (Transform boneTransform in boneTransforms)
+            {
+                if (boneTransform == null)
+                    continue;
+
+                if (!boneTransformToGuid.TryGetValue(boneTransform, out string guid))
+                    continue;
+
+                if (boneColors.TryGetValue(guid, out Color32 boneColor))
+                    resolvedColors[boneTransform] = boneColor;
+                else
+                    resolvedColors.TryAdd(boneTransform, BoneGizmo.DefaultBoneColor); // Keep a color resolved through another SpriteSkin sharing this bone.
+            }
+        }
+
         /// <summary>
-        /// Gathers <see cref="SpriteSkin"/> on <paramref name="go"/> or on immediate children only; deeper descendants are not searched.
+        /// Gathers the <see cref="SpriteSkin"/> components whose bone host (see <see cref="TryGetSpriteSkinHost"/>) is <paramref name="go"/>; they can be anywhere under <paramref name="go"/>, including on <paramref name="go"/> itself.
         /// Fills <paramref name="spriteSkins"/> when any exist; when <paramref name="go"/> is null, <paramref name="spriteSkins"/> is null and the result is <see langword="false"/>.
         /// </summary>
         internal static bool TryGetSpriteSkins(GameObject go, out SpriteSkin[] spriteSkins)
@@ -256,23 +197,10 @@ namespace UnityEditor.U2D.Animation
             }
 
             List<SpriteSkin> collectedSpriteSkins = new();
-            SpriteSkin spriteSkin = go.GetComponent<SpriteSkin>();
-            if (spriteSkin != null)
+            foreach (SpriteSkin spriteSkin in go.GetComponentsInChildren<SpriteSkin>(true))
             {
-                collectedSpriteSkins.Add(spriteSkin);
-            }
-            else
-            {
-                for (int i = 0; i < go.transform.childCount; i++)
-                {
-                    Transform child = go.transform.GetChild(i);
-                    if (child == null)
-                        continue;
-
-                    SpriteSkin childSpriteSkin = child.GetComponent<SpriteSkin>();
-                    if (childSpriteSkin != null)
-                        collectedSpriteSkins.Add(childSpriteSkin);
-                }
+                if (TryGetSpriteSkinHost(spriteSkin, out Transform boneHost) && boneHost == go.transform)
+                    collectedSpriteSkins.Add(spriteSkin);
             }
 
             spriteSkins = collectedSpriteSkins.ToArray();

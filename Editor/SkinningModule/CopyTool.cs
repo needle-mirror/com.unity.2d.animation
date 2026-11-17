@@ -407,7 +407,7 @@ namespace UnityEditor.U2D.Animation
             }
         }
 
-        static BoneCache[] PasteBonesInCharacter(SkinningCache skinningCache, SpriteBone[] spriteBones, bool shouldFlipX, bool shouldFlipY, float scale)
+        internal static BoneCache[] PasteBonesInCharacter(SkinningCache skinningCache, SpriteBone[] spriteBones, bool shouldFlipX, bool shouldFlipY, float scale)
         {
             if (!skinningCache.hasCharacter)
                 return null;
@@ -433,6 +433,11 @@ namespace UnityEditor.U2D.Animation
 
             SkeletonCache skeleton = skinningCache.character.skeleton;
             skeleton.SetBones(boneCache);
+
+            // Unloaded parts are not in the copied data, so they find their bones by GUID like a pasted mesh does.
+            foreach (UnloadedCharacterPart unloaded in skinningCache.character.unloadedParts)
+                unloaded.bones = unloaded.bones.Select(x => x != null ? Array.Find(boneCache, bone => bone.guid == x.guid) : null).ToList();
+
             skinningCache.events.skeletonTopologyChanged.Invoke(skeleton);
 
             return boneCache;
@@ -571,11 +576,13 @@ namespace UnityEditor.U2D.Animation
             }
 
             BoneCache[] skeletonBones = skeleton.bones;
-            BoneCache[] influenceBones = hasGuids ? GetBonesFromGuids(copySpriteData, skeletonBones, boneMapping) : GetBonesFromNames(copySpriteData, skeletonBones, boneMapping);
+            BoneCache[] copiedBones = hasGuids ? GetBonesFromGuids(copySpriteData, skeletonBones, boneMapping) : GetBonesFromNames(copySpriteData, skeletonBones, boneMapping);
+            BoneCache[] influenceBones = copiedBones.Where(bone => bone != null).ToArray();
 
-            // Update associated bones for mesh
-            meshTool.mesh.SetCompatibleBoneSet(influenceBones);
-            meshTool.mesh.bones = influenceBones; // Fixes weights for bones that do not exist
+            // Update associated bones for mesh. The copied weights index copiedBones, which keeps a null
+            // for each bone missing in the target, so setting bones remaps the weights and drops the missing ones.
+            meshTool.mesh.SetCompatibleBoneSet(copiedBones);
+            meshTool.mesh.bones = influenceBones;
 
             // Update associated bones for character
             if (skinningCache.hasCharacter)
@@ -597,15 +604,8 @@ namespace UnityEditor.U2D.Animation
             for (int i = 0; i < copySpriteData.boneWeightGuids.Count; i++)
             {
                 BoneCache bone = FindBoneWithGuid(skeletonBones, copySpriteData.boneWeightGuids[i]);
-                if (bone == null)
-                    continue;
-
-                if (boneMapping != null && boneMapping.ContainsKey(bone.name))
-                {
+                if (bone != null && boneMapping != null && boneMapping.ContainsKey(bone.name))
                     bone = FindBoneWithName(skeletonBones, boneMapping[bone.name]);
-                    if (bone == null)
-                        continue;
-                }
 
                 spriteBones.Add(bone);
             }
@@ -622,11 +622,7 @@ namespace UnityEditor.U2D.Animation
                 if (boneMapping != null && boneMapping.ContainsKey(boneName))
                     boneName = boneMapping[boneName];
 
-                BoneCache bone = FindBoneWithName(skeletonBones, boneName);
-                if (bone == null)
-                    continue;
-
-                spriteBones.Add(bone);
+                spriteBones.Add(FindBoneWithName(skeletonBones, boneName));
             }
 
             return spriteBones.ToArray();

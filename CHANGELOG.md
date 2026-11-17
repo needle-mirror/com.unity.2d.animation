@@ -1,6 +1,14 @@
 # Changelog
 
 
+## [18.0.1] - 2026-11-17
+### Fixed
+- The 2D Animation Asset Upgrader no longer logs "is not a supported discrete curve binding" warnings when upgrading Animation Clips. (UUM-161207)
+- Bones are shown and can be dragged in the Scene view again when a character's Sprite Skins are not direct children of the character root, such as after regrouping the Sprites and bones of an imported PSB. (UUM-161215)
+- Fix Sprite Skins rendering with another Sprite Skin's bones after a Sprite Skin was disabled and enabled in the same frame and moved between CPU and GPU deformation. (UUM-160779)
+- Applying in the Skinning Editor now also updates the bones of Sprites that are not loaded, such as those of hidden or unchecked PSD layers, so they follow the skeleton when they come back. (UUM-161627)
+- Pasting a mesh in the Skinning Editor no longer moves the vertex weights to other bones when some of the copied bones don't exist in the target Sprite. (UUM-161628)
+
 ## [18.0.0] - 2026-11-09
 ### Changed
 - Replace the native Bounded Biharmonic Weights module with a Burst-compiled solver. Generated weights are unchanged within floating-point noise, and weight generation now behaves identically on every Editor platform. A bone shorter than 0.01 pixels that is chained to another bone now weights the mesh around the joint, where the native module left it without any weight. (D2D-8319)
@@ -41,6 +49,7 @@
 - Fix IndexOutOfRangeException in CCD Solver 2D with a chain length of 1 (UUM-158089)
 - The bone weights of a PSB that uses another PSB's skeleton as its Main Skeleton were broken after a bone was removed from that skeleton. (UUM-159244)
 - Fixed UAC2017 "Failed to generate a Burst direct call" warnings. (UUM-160239)
+- Sprite Library Assets with a Main Library no longer keep empty inherited Sprites when the Sprites' source asset is imported after them, such as when importing the Sprite Swap sample into a new project. (UUM-159671)
 
 ## [17.0.1] - 2026-09-05
 ### Fixed

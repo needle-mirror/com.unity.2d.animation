@@ -33,7 +33,7 @@ namespace UnityEngine.U2D.Animation
         internal HashSet<SpriteSkin> SpriteSkins => m_SpriteSkins;
 #endif
 
-        protected SpriteRenderer[] m_SpriteRenderers = new SpriteRenderer[0];
+        protected SpriteRenderer[] m_SpriteRenderers = Array.Empty<SpriteRenderer>();
 
         // This is a queue of sprite skins which will be added into m_SpriteSkins
         // at the correct time in batch processing BatchAddSpriteSkins
@@ -125,6 +125,10 @@ namespace UnityEngine.U2D.Animation
         {
             if (!m_SpriteSkinData.IsCreated)
                 throw new InvalidOperationException("Sprite Skin Data not initialized.");
+
+            // A Sprite Skin still waiting to be added has the dataIndex of its previous system
+            if (!m_SpriteSkins.Contains(spriteSkin))
+                return;
 
             int dataIndex = spriteSkin.dataIndex;
             if (dataIndex < 0 || dataIndex >= m_SpriteSkinData.Length)
@@ -338,7 +342,7 @@ namespace UnityEngine.U2D.Animation
             m_DeformJobHandle.Complete();
 
             m_SpriteSkins.Clear();
-            m_SpriteRenderers = new SpriteRenderer[0];
+            m_SpriteRenderers = Array.Empty<SpriteRenderer>();
             BufferManager.instance.ReturnBuffer(m_ObjectId);
             m_IsSpriteSkinActiveForDeform.DisposeIfCreated();
             m_PerSkinJobData.DisposeIfCreated();

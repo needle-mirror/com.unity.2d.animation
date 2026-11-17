@@ -901,10 +901,17 @@ namespace UnityEditor.U2D.Animation
                 skeleton.position = Vector3.zero;
 
                 BoneCache[] bones = skeleton.bones;
+                List<UnloadedCharacterPart> unloadedParts = new List<UnloadedCharacterPart>();
                 foreach (CharacterPart p in characterData.parts)
                 {
                     List<int> spriteBones = p.bones != null ? p.bones.ToList() : new List<int>();
                     BoneCache[] characterPartBones = spriteBones.ConvertAll(i => bones.ElementAtOrDefault(i)).ToArray();
+                    if (GetSprite(p.spriteId) == null)
+                    {
+                        unloadedParts.Add(new UnloadedCharacterPart { part = p, bones = characterPartBones.ToList() });
+                        continue;
+                    }
+
                     CharacterPartCache characterPart = CreateCache<CharacterPartCache>();
 
                     Vector2Int positionInt = p.spritePosition.position;
@@ -940,6 +947,7 @@ namespace UnityEditor.U2D.Animation
                 }
 
                 m_Character.parts = characterParts.ToArray();
+                m_Character.unloadedParts = unloadedParts.ToArray();
                 m_Character.skeleton = skeleton;
                 m_Character.dimension = characterData.dimension;
                 m_Character.pivot = characterData.pivot;

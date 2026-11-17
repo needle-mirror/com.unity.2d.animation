@@ -515,7 +515,28 @@ namespace UnityEditor.U2D.Animation
                     BoneCache[] bones = sprite.GetSkeleton().bones;
                     boneDataProvider.SetBones(new GUID(sprite.id), bones.ToSpriteBone(sprite.localToWorldMatrix).ToList());
                 }
+
+                // Rebuilt from the character skeleton like the loaded parts, so their bind poses follow its edits.
+                CharacterCache character = skinningCache.character;
+                if (character != null)
+                {
+                    foreach (UnloadedCharacterPart unloaded in character.unloadedParts)
+                    {
+                        if (unloaded.bones.Count == 0 || !HasAllBones(character.skeleton, unloaded))
+                            continue;
+
+                        Vector2Int position = unloaded.part.spritePosition.position;
+                        Matrix4x4 partToCharacter = Matrix4x4.Translate(new Vector3(position.x, position.y, 0f));
+                        boneDataProvider.SetBones(new GUID(unloaded.part.spriteId), unloaded.bones.ToArray().ToSpriteBone(partToCharacter).ToList());
+                    }
+                }
             }
+        }
+
+        // The weights of a Sprite refer to its bones by position, and only its loaded mesh could drop a deleted bone from them.
+        static bool HasAllBones(SkeletonCache skeleton, UnloadedCharacterPart unloaded)
+        {
+            return unloaded.bones.All(x => x != null && skeleton.Contains(x));
         }
 
         static void ApplyMesh(SkinningCache skinningCache, ISpriteEditorDataProvider dataProvider)
@@ -563,6 +584,12 @@ namespace UnityEditor.U2D.Animation
                         spritePosition = new RectInt((int)x.position.x, (int)x.position.y, (int)x.sprite.textureRect.width, (int)x.sprite.textureRect.height),
                         bones = x.bones.Select(bone => Array.IndexOf(characterBones, bone)).Where(bone => bone != -1).ToArray()
                     }
+                ).Concat(character.unloadedParts.Select(x =>
+                    {
+                        CharacterPart part = x.part;
+                        part.bones = HasAllBones(character.skeleton, x) ? x.bones.Select(bone => Array.IndexOf(characterBones, bone)).ToArray() : Array.Empty<int>();
+                        return part;
+                    })
                 ).ToArray();
 
                 characterDataProvider.SetCharacterData(data);

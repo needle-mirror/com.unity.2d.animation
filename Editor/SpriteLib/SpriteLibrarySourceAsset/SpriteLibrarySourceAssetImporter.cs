@@ -11,7 +11,7 @@ namespace UnityEditor.U2D.Animation
     /// SpriteLibraryAsset
     /// </summary>
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.2d.animation@18.0/manual/SL-Asset.html")]
-    [ScriptedImporter(22100000, "spriteLib", AllowCaching = true)]
+    [ScriptedImporter(22100001, "spriteLib", AllowCaching = true)]
     public class SpriteLibrarySourceAssetImporter : ScriptedImporter
     {
         /// <summary>
@@ -34,6 +34,9 @@ namespace UnityEditor.U2D.Animation
                     if (!HasValidMainLibrary(sourceLibraryAsset, assetPath))
                         sourceLibraryAsset.SetPrimaryLibraryGUID(string.Empty);
 
+                    if (!string.IsNullOrEmpty(sourceLibraryAsset.primaryLibraryGUID))
+                        DependOnMainLibrary(ctx, AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryGUID));
+
                     UpdateSpriteLibrarySourceAssetLibraryWithMainAsset(sourceLibraryAsset);
 
                     foreach (SpriteLibCategoryOverride cat in sourceLibraryAsset.library)
@@ -47,13 +50,30 @@ namespace UnityEditor.U2D.Animation
 
                     spriteLib.modificationHash = sourceLibraryAsset.modificationHash;
                     spriteLib.version = sourceLibraryAsset.version;
-
-                    if (!string.IsNullOrEmpty(sourceLibraryAsset.primaryLibraryGUID))
-                        ctx.DependsOnArtifact(AssetDatabase.GUIDToAssetPath(sourceLibraryAsset.primaryLibraryGUID));
                 }
             }
 
             ctx.AddObjectToAsset("SpriteLib", spriteLib);
+        }
+
+        static void DependOnMainLibrary(AssetImportContext ctx, string mainLibraryPath)
+        {
+            ctx.DependsOnArtifact(mainLibraryPath);
+
+            SpriteLibraryAsset mainLibrary = AssetDatabase.LoadAssetAtPath<SpriteLibraryAsset>(mainLibraryPath);
+            if (mainLibrary == null)
+                return;
+
+            // Inherited Sprites resolve to null until their source asset is imported, and the main library's
+            // artifact does not change when it is, so depend on each Sprite's source asset by GUID too.
+            SerializedProperty property = new SerializedObject(mainLibrary).GetIterator();
+            while (property.Next(true))
+            {
+                if (property.propertyType == SerializedPropertyType.ObjectReference &&
+                    property.name == SpriteLibraryPropertyString.sprite &&
+                    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(property.objectReferenceEntityIdValue, out string guid, out long _))
+                    ctx.DependsOnArtifact(new GUID(guid));
+            }
         }
 
         internal static void UpdateSpriteLibrarySourceAssetLibraryWithMainAsset(SpriteLibrarySourceAsset sourceLibraryAsset)

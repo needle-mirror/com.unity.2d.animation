@@ -100,11 +100,15 @@ namespace UnityEditor.U2D.Animation
             BoneCache[] skeletonBones = skinningCache.CreateBoneCacheFromSpriteBones(newBones, 1.0f);
             skeleton.SetBones(skeletonBones);
 
+            bool useGuids = !skeletonBones.All(newBone => previousStateBones.All(oldBone => newBone.guid != oldBone.guid));
+            BoneCache RemapBone(BoneCache partBone) => useGuids ?
+                Array.Find(skeletonBones, skeletonBone => partBone.guid == skeletonBone.guid) :
+                skeletonBones.ElementAtOrDefault(Array.FindIndex(previousStateBones, oldBone => partBone.guid == oldBone.guid));
+
             for (int i = 0; i < skinningCache.character.parts.Length; i++)
             {
                 CharacterPartCache characterPart = skinningCache.character.parts[i];
-                bool useGuids = !skeletonBones.All(newBone => previousStateBones.All(oldBone => newBone.guid != oldBone.guid));
-                characterPart.bones = useGuids ? characterPart.bones.Select(partBone => Array.Find(skeletonBones, skeletonBone => partBone.guid == skeletonBone.guid)).ToArray() : characterPart.bones.Select(partBone => skeletonBones.ElementAtOrDefault(Array.FindIndex(previousStateBones, oldBone => partBone.guid == oldBone.guid))).ToArray();
+                characterPart.bones = characterPart.bones.Select(RemapBone).ToArray();
 
                 MeshCache mesh = skinningCache.GetMesh(characterPart.sprite);
                 if (mesh != null)
@@ -112,6 +116,9 @@ namespace UnityEditor.U2D.Animation
 
                 skinningCache.character.parts[i] = characterPart;
             }
+
+            foreach (UnloadedCharacterPart unloaded in skinningCache.character.unloadedParts)
+                unloaded.bones = unloaded.bones.Select(x => x != null ? RemapBone(x) : null).ToList();
         }
 
         static void CalculateLocaltoWorldMatrix(int i, SpriteRect spriteRect, float definitionScale, float pixelsPerUnit, List<UnityEngine.U2D.SpriteBone> spriteBone, ref UnityEngine.U2D.SpriteBone?[] outpriteBone, ref NativeArray<Matrix4x4> bindPose)

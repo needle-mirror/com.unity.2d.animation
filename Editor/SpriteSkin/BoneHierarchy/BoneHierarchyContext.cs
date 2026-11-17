@@ -76,15 +76,16 @@ namespace UnityEditor.U2D.Animation
             m_TargetBones.Clear();
             m_BoneTransformToGuid.Clear();
 
-            // Resolve each bone host's skins and GUID map only once; CollectTargetBones still runs per selection.
+            // Resolve each root's bone hosts, and each bone host's skins and GUID map, only once; CollectTargetBones still runs per selection.
             Dictionary<Transform, (SpriteSkin[] spriteSkins, Dictionary<Transform, string> boneTransformToGuid)> perBoneHostData = new();
+            Dictionary<Transform, HashSet<Transform>> boneHostsByRoot = new();
 
             foreach (GameObject selection in selections)
             {
                 if (selection == null)
                     continue;
 
-                if (!BoneHierarchyUtilities.ResolveBoneHost(selection.transform, out Transform boneHost))
+                if (!BoneHierarchyUtilities.ResolveBoneHost(selection.transform, out Transform boneHost, boneHostsByRoot))
                     continue;
 
                 if (!perBoneHostData.TryGetValue(boneHost, out (SpriteSkin[] spriteSkins, Dictionary<Transform, string> boneTransformToGuid) data))
@@ -137,6 +138,31 @@ namespace UnityEditor.U2D.Animation
                 {
                     // Selection is a bone transform
                     AddTargetBones(boneHost, new[] { selectionTransform });
+                }
+                else
+                {
+                    // Selection groups SpriteSkins and/or bones under the bone host - target the bones of those SpriteSkins and the bones beneath it.
+                    HashSet<Transform> groupedBones = new();
+                    foreach (SpriteSkin groupedSpriteSkin in spriteSkins)
+                    {
+                        if (groupedSpriteSkin == null || groupedSpriteSkin.boneTransforms == null || !groupedSpriteSkin.transform.IsChildOf(selectionTransform))
+                            continue;
+
+                        foreach (Transform boneTransform in groupedSpriteSkin.boneTransforms)
+                        {
+                            if (boneTransform != null)
+                                groupedBones.Add(boneTransform);
+                        }
+                    }
+
+                    foreach (Transform boneTransform in boneTransformToGuid.Keys)
+                    {
+                        if (boneTransform != null && boneTransform.IsChildOf(selectionTransform))
+                            groupedBones.Add(boneTransform);
+                    }
+
+                    if (groupedBones.Count > 0)
+                        AddTargetBones(boneHost, groupedBones);
                 }
             }
         }

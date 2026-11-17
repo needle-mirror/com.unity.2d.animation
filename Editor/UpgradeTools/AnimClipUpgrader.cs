@@ -618,9 +618,9 @@ namespace UnityEditor.U2D.Animation.Upgrading
 
             for (int i = 0; i < bindingData.Count; ++i)
             {
-                spriteKeyCurves[i] = EditorCurveBinding.DiscreteCurve(bindingData[i].BindingPath, bindingData[i].BindingType, k_SpriteKeyId);
-                spriteCategoryCurves[i] = EditorCurveBinding.DiscreteCurve(bindingData[i].BindingPath, bindingData[i].BindingType, k_CategoryHashId);
-                spriteLabelCurves[i] = EditorCurveBinding.DiscreteCurve(bindingData[i].BindingPath, bindingData[i].BindingType, k_LabelHashId);
+                spriteKeyCurves[i] = EditorCurveBinding.FloatCurve(bindingData[i].BindingPath, bindingData[i].BindingType, k_SpriteKeyId);
+                spriteCategoryCurves[i] = EditorCurveBinding.FloatCurve(bindingData[i].BindingPath, bindingData[i].BindingType, k_CategoryHashId);
+                spriteLabelCurves[i] = EditorCurveBinding.FloatCurve(bindingData[i].BindingPath, bindingData[i].BindingType, k_LabelHashId);
             }
 
             AnimationUtility.SetEditorCurves(clip, spriteKeyCurves, new AnimationCurve[spriteKeyCurves.Length]);

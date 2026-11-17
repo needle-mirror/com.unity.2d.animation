@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.U2D.Common;
 
@@ -260,7 +259,7 @@ namespace UnityEngine.U2D.Animation
         public void AddOverride(SpriteLibraryAsset spriteLib, string category)
         {
             int categoryHash = SpriteLibraryUtility.GetStringHash(category);
-            SpriteLibCategory cat = spriteLib.categories.FirstOrDefault(x => x.hash == categoryHash);
+            SpriteLibCategory cat = spriteLib.categories.Find(x => x.hash == categoryHash);
             if (cat != null)
             {
                 List<SpriteCategoryEntry> entries = GetEntries(category, true);
